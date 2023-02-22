@@ -1,2 +1,2 @@
-# Student_Management_System
-A student management system with mutiple functions.
+# Student_Management_System（By Jhc， Nty， Zzy）
+A student management system with mutiple functions. 
