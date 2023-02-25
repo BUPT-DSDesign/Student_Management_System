@@ -13,3 +13,5 @@
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+# npm install后生成的包文件
+/web/node_modules
