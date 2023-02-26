@@ -13,7 +13,8 @@ type registerResponse struct {
 }
 
 func RegisterHandler(c *gin.Context) {
-
+	// 用户名
+	// 密码
 	// 1.拿到middleware传来的参数
 	// 2.交给service层处理
 	

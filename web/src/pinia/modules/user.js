@@ -1,7 +1,7 @@
 import {login} from '@/api/user'
 
 
-const LoginIn = async (loginInfo) => {
+export const LoginIn = async (loginInfo) => {
     const res = await login(loginInfo)
-    res.
+    console.log(res)
 }

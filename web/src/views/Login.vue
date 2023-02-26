@@ -16,12 +16,16 @@
 </template>
 
 <script>
+import { LoginIn } from '@/pinia/modules/user'
+
+
+
 export default {
     data() {
         return {
             ruleForm: {
-                name: '',
-                password: '',
+                name: 'admin',
+                password: '123456',
             },
             rules: {
                 name: [
@@ -35,17 +39,15 @@ export default {
         };
     },
     methods: {
-        login: async () => {
-            return await userStore.LoginIn(this.ruleForm) 
+        LoginIn: async function() {
+            console.dir(this)
+            return await LoginIn(this.ruleForm) 
         },
         submitForm(formName) {
-            this.$refs[formName].validate(async (valid) => {
+            this.$refs[formName].validate(async(valid) => {
                 if (valid) {
-                    const flag = await LoginIn()
+                    const flag = await this.LoginIn()
                     alert('submit!');
-
-
-
 
                 } else {
                     console.log('error submit!!');
