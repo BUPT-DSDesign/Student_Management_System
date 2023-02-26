@@ -18,3 +18,5 @@
 
 # Compiler configuration file
 /.vscode/*
+/server/.vscode/*
+/web/.vscode/*
