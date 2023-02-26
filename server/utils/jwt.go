@@ -15,7 +15,7 @@ var jwtSecretKey = []byte("DSDesign-group.key")
 // 将claims与userId绑定
 type Claims struct {
 	UserId int64
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // 颁发token
@@ -23,9 +23,10 @@ func ReleaseToken(userId int64) (string, error) {
 	expirationTime := time.Now().Add(durationTime) // token过期时间
 	claim := &Claims{
 		UserId: userId,
-		StandardClaims: jwt.StandardClaims{
-			IssuedAt:  time.Now().Unix(),
-			ExpiresAt: expirationTime.Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+			NotBefore: jwt.NewNumericDate(time.Now()),
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			Issuer:    "DSDesign-group",
 		},
 	}
