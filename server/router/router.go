@@ -1,13 +1,14 @@
 package router
 
 import (
-	"server/handler/user_handler"
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"server/handler/user_handler"
 )
 
 func InitRouters() *gin.Engine {
 	r := gin.Default()
+	r.Use(cors.Default())
 	rootPath := r.Group("/Student_Management_System")
 
 	// 用户路由
