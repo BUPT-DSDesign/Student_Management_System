@@ -15,3 +15,8 @@
 # vendor/
 # npm install后生成的包文件
 /web/node_modules
+
+# Compiler configuration file
+/.vscode/*
+/server/.vscode/*
+/web/.vscode/*
