@@ -1,5 +1,5 @@
 <template>
-     <div class='class-table'>
+    <div class='class-table'>
         <h3>课程表</h3>
         <div class='table-wrapper'>
             <div class='tabel-container'>
@@ -26,23 +26,62 @@
                 </table>
             </div>
         </div>
-        <div class="search-button">
+        <!-- <div class="search-button">
             <el-button type="primary" icon="el-icon-search">查询课程信息</el-button>
-        </div>
+        </div> -->
+
+        <el-button class="search-button" type="primary" icon="el-icon-search"
+            @click="dialogFormVisible = true">查询课程信息</el-button>
+
+        <el-dialog title="课程查询" :visible.sync="dialogFormVisible">
+            <el-form :model="form">
+                关键字
+                <el-radio-group v-model="radio"  >
+                    <el-radio :label="3">课程名称</el-radio>
+                    <el-radio :label="6">课程时间</el-radio>
+                    <el-radio :label="9">课程地点</el-radio>
+                </el-radio-group>
+            </el-form>
+            <el-form :inline="true" :model="formInline" class="demo-form-inline">
+                <el-form-item label="输入关键字">
+                    <el-input v-model="formInline.user" placeholder="请输入关键字"></el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="onSubmit">查询</el-button>
+                </el-form-item>
+            </el-form>
+
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
+            </div>
+        </el-dialog>
+
+
         <div class="page-button">
-             <el-button-group>
-              <el-button type="primary" icon="el-icon-arrow-left">上一周</el-button>
-              <el-button type="primary">下一周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+            <el-button-group>
+                <el-button type="primary" icon="el-icon-arrow-left">上一周</el-button>
+                <el-button type="primary">下一周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
             </el-button-group>
         </div>
     </div>
-       
 </template>
 <script>
 
 export default {
     data() {
         return {
+            formInline: {
+                user: '',
+                region: ''
+            },
+            tableShow: false,
+            dialogFormVisible: false,
+            form: {
+                name: '',
+                region: '',
+            },
+            formLabelWidth: '120px',
             weeks: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
             classTableData: [{
                 'classesTime': '08:00-09:00',
@@ -108,25 +147,7 @@ export default {
                 'saturday': '英语',
                 'sunday': ''
             }],
-            tableShow: false
         };
-    },
-    created() {
-    	// /* mock随机数据*/
-        //  Mock.mock({
-        //     'data|7': [
-        //         {
-        //             'classesTime|+1': ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00'],
-        //             'monday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-        //             'tuesday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-        //             'wednesday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-        //             'thursday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-        //             'friday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-        //             'saturday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文'],
-        //             'sunday|1': ['生物', '物理', '化学', '政治', '历史', '英语', '', '语文']
-        //         }
-        //     ]
-        // });
     },
     methods: {
         /**
@@ -138,26 +159,32 @@ export default {
         digital2Chinese(num, identifier) {
             const character = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
             return identifier === 'week' && (num === 0 || num === 7) ? '日' : character[num];
+        },
+         onSubmit() {
+            console.log('submit!');
         }
     }
 };
 </script>
 
 <style lang='scss' scoped>
-.page-button{
+.page-button {
     float: right;
     margin-right: 150px;
 }
-.search-button{
+
+.search-button {
     float: left;
     margin-left: 150px;
 }
+
 h3 {
-    margin:5px;
+    margin: 5px;
     font-size: 20px;
     text-align: center;
     color: black;
 }
+
 .class-table {
     .table-wrapper {
         margin: auto;

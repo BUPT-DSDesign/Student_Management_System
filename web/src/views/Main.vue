@@ -1,4 +1,3 @@
-//主路由
 <template>
     <div>
         <el-container>
@@ -10,7 +9,7 @@
                     <Header></Header>
                 </el-header>
                 <el-main>
-                    <!-- 子路由（user，home的路由出口 -->
+                    <!-- 子路由的路由出口 -->
                     <router-view></router-view>
                 </el-main>
             </el-container>
