@@ -9,7 +9,7 @@ import (
 
 type loginResponse struct {
 	common.StatusResponse
-	*common.AcessResponse
+	*common.AccessResponse
 }
 
 func LoginHandler(c *gin.Context) {
@@ -20,7 +20,7 @@ func LoginHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, loginResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
-			StatusMsg: "登录成功",
+			StatusMsg:  "登录成功",
 		},
 	})
 }
