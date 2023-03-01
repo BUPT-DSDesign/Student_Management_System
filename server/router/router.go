@@ -19,7 +19,7 @@ func InitRouters() *gin.Engine {
 		//用户注册
 		userGroup.POST("/register", middleware.ShaMiddleware(), user_handler.RegisterHandler)
 		//用户登录
-		userGroup.POST("/login", middleware.ShaMiddleware(), user_handler.LoginHandler)
+		userGroup.POST("/login", user_handler.LoginHandler)
 	}
 
 	return r

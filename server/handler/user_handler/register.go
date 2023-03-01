@@ -18,7 +18,7 @@ func RegisterHandler(c *gin.Context) {
 
 	// 表单数据
 	var registerForm common.RegisterRequest
-	c.ShouldBind(&registerForm)
+	_ = c.ShouldBind(&registerForm)
 
 	rawPassword, ok1 := c.Get("password")
 	rawSalt, ok2 := c.Get("salt")
@@ -44,6 +44,7 @@ func RegisterHandler(c *gin.Context) {
 				StatusMsg:  err.Error(),
 			},
 		})
+		return
 	}
 
 	// 注册成功
