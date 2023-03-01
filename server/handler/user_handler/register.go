@@ -46,8 +46,7 @@ func RegisterHandler(c *gin.Context) {
 		})
 	}
 
-	
-
+	// 注册成功
 	c.JSON(http.StatusOK, registerResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,

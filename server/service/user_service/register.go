@@ -1,6 +1,9 @@
 package user_service
 
-import "server/model/entity/common"
+import (
+	"server/model/entity/common"
+	"server/utils"
+)
 
 type registerFlow struct {
 	// 包含handler层传来的参数
@@ -33,10 +36,43 @@ func (f *registerFlow) do() (*common.AccessResponse, error) {
 // 检验参数
 func (f *registerFlow) checkNum() error {
 	// 检验f.registerForm, 如用户名是否已经存在等
+	/*
+		调用dao层的CRUD操作
+	*/
 	return nil
 }
 
-func (f *registerFlow) run(**common.AccessResponse) error {
-	// 得到token，存入数据库等
+func (f *registerFlow) run(access **common.AccessResponse) error {
+	// 得到userId、token，存入数据库等
+	userId, err := utils.GenerateId()
+	if err != nil {
+		return err
+	}
+
+	// 根据得到的userId得到用户鉴权token
+	tokenString, err := utils.ReleaseToken(userId)
+	if err != nil {
+		return err
+	}
+
+	*access = &common.AccessResponse{
+		UserId: userId,
+		Token:  tokenString,
+	}
+
+	// 新建一个用户实例
+	//userInfo := &system.UserInfo{
+	//	Username: f.registerForm.Username,
+	//	Password:  f.password,
+	//	Salt:      f.salt,
+	//	UserId:    userId,
+	//	StudentId: f.registerForm.StudentId,
+	//}
+
+	/*
+		存入数据库
+		调用dao层的CRUD操作
+	*/
+
 	return nil
 }
