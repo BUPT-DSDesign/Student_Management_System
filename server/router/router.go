@@ -2,6 +2,7 @@ package router
 
 import (
 	"server/handler/course_handler"
+	"server/handler/navigate_handler"
 	"server/handler/user_handler"
 	"server/middleware"
 
@@ -29,6 +30,11 @@ func InitRouters() *gin.Engine {
 		// 课程表
 		courseGroup.GET("/table/", middleware.JwtAuthMiddleware(), course_handler.TableHandler)
 	}
-
+	// 导航路由
+	navigateGroup := rootPath.Group("/navigate")
+	{
+		//获取导航路径
+		navigateGroup.GET("/run", middleware.JwtAuthMiddleware(), navigate_handler.RunNavigateHandler)
+	}
 	return r
 }
