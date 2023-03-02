@@ -13,3 +13,10 @@ type NavigateResponse struct {
 	common.StatusResponse
 	NodeList []Coordinate `json:"node_list"`
 }
+
+// Path 无向边
+type Path struct {
+	FromId   int
+	DescId   int
+	Distance float64
+}

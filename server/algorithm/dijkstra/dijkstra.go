@@ -4,6 +4,7 @@ import (
 	"errors"
 	"math"
 	"server/algorithm/heap"
+	"server/model/entity/system"
 )
 
 // Edge 前向星存图的边信息
@@ -11,13 +12,6 @@ type Edge struct {
 	next   int
 	to     int
 	length float64
-}
-
-// Path 无向边
-type Path struct {
-	fromId   int
-	descId   int
-	distance float64
 }
 
 // NodeDis Dijkstra的dis数组
@@ -52,25 +46,25 @@ func (pq *PriorityQueue) Pop() interface{} {
 }
 
 // 前向星存图加边
-func addEdge(path []Path, head []int) ([]int, []Edge) {
+func addEdge(path []system.Path, head []int) ([]int, []Edge) {
 	edges := make([]Edge, len(path)*2+5)
 	edgeCnt := 0
 	for _, i := range path {
 		//无向图加边
-		edges[edgeCnt].to = i.descId
-		edges[edgeCnt].length = i.distance
-		edges[edgeCnt].next = head[i.fromId]
-		head[i.fromId] = edgeCnt
+		edges[edgeCnt].to = i.DescId
+		edges[edgeCnt].length = i.Distance
+		edges[edgeCnt].next = head[i.FromId]
+		head[i.FromId] = edgeCnt
 		edgeCnt++
-		edges[edgeCnt].to = i.fromId
-		edges[edgeCnt].length = i.distance
-		edges[edgeCnt].next = head[i.descId]
-		head[i.descId] = edgeCnt
+		edges[edgeCnt].to = i.FromId
+		edges[edgeCnt].length = i.Distance
+		edges[edgeCnt].next = head[i.DescId]
+		head[i.DescId] = edgeCnt
 		edgeCnt++
 	}
 	return head, edges
 }
-func Dijkstra(start int, desc int, path []Path, node_cnt int) (nodeList []int, err error) {
+func Dijkstra(start int, desc int, path []system.Path, node_cnt int) (nodeList []int, err error) {
 	//使用前向星存图
 	head := make([]int, node_cnt+5)
 	//from数组记录每个节点是从哪个节点过来的
