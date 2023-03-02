@@ -20,3 +20,5 @@
 /.vscode/*
 /server/.vscode/*
 /web/.vscode/*
+/server/.idea
+/.idea
