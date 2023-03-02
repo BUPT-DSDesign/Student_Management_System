@@ -10,5 +10,5 @@ func main() {
 	// fmt.Printf("userId: %v\n", userId)
 	// fmt.Printf("tokenString: %v\n", tokenString)
 	r := router.InitRouters()
-	r.Run(":8080")
+	_ = r.Run(":8080")
 }

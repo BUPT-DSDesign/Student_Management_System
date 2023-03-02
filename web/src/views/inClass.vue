@@ -1,200 +1,146 @@
 <template>
     <div class='class-table'>
-        <h3>课程表</h3>
         <div class='table-wrapper'>
             <div class='tabel-container'>
                 <table>
                     <thead>
                         <tr>
                             <th>时间</th>
-                            <th v-for='(week, index) in weeks' :key='index'> {{ '周' + digital2Chinese(index + 1, 'week') }}
-                            </th>
+                            <th v-for='(week, index) in weeks'> {{ week }}</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for='(item, index) in classTableData' :key='index'>
+                        <tr v-for='(classtime, classIndex) in time' :key='classIndex'>
                             <td>
-                                <p>{{ '第' + digital2Chinese(index + 1) + '节' }}</p>
-                                <p class='period'>{{ item.classesTime }}</p>
+                                <p>{{ '第' + (classIndex + 1) + '节' }}</p>
+                                <p class='period'>{{ classtime }}</p>
                             </td>
-
-                            <td v-for='(week, index) in weeks' :key='index'>
-                                {{ item[week] || '-' }}
+                            <!-- 填写课程信息  -->
+                            <td v-for='weekIndex in 7' :key='weekIndex' @click="clickClass($event)">
+                                {{ filltable(classIndex * 7 + weekIndex) }}
                             </td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-        <!-- <div class="search-button">
-            <el-button type="primary" icon="el-icon-search">查询课程信息</el-button>
-        </div> -->
+        <el-button-group>
+            <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()">上一周</el-button>
+            <el-button type="primary" @click="toNextweek()">下一周<i
+                    class="el-icon-arrow-right el-icon--right"></i></el-button>
+        </el-button-group>
+        <el-tag>第{{ curWeek }}周</el-tag>
+        <!-- 弹窗 -->
 
-        <el-button class="search-button" type="primary" icon="el-icon-search"
-            @click="dialogFormVisible = true">查询课程信息</el-button>
-
-        <el-dialog title="课程查询" :visible.sync="dialogFormVisible">
-            <el-form :model="form">
-                关键字
-                <el-radio-group v-model="radio"  >
-                    <el-radio :label="3">课程名称</el-radio>
-                    <el-radio :label="6">课程时间</el-radio>
-                    <el-radio :label="9">课程地点</el-radio>
-                </el-radio-group>
-            </el-form>
-            <el-form :inline="true" :model="formInline" class="demo-form-inline">
-                <el-form-item label="输入关键字">
-                    <el-input v-model="formInline.user" placeholder="请输入关键字"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="onSubmit">查询</el-button>
-                </el-form-item>
-            </el-form>
-
-            <div slot="footer" class="dialog-footer">
-                <el-button @click="dialogFormVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
-            </div>
+        <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+            <el-card class="box-card">
+                <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
+                <div class="course_name">课程时间：{{ curClassData.session }}</div>
+                <div class="course_name">课程地点：{{ curClassData.classroom }}</div>
+            </el-card>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            </span>
         </el-dialog>
 
-
-        <div class="page-button">
-            <el-button-group>
-                <el-button type="primary" icon="el-icon-arrow-left">上一周</el-button>
-                <el-button type="primary">下一周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
-            </el-button-group>
-        </div>
     </div>
 </template>
 <script>
-
 export default {
     data() {
         return {
-            formInline: {
-                user: '',
-                region: ''
-            },
-            tableShow: false,
-            dialogFormVisible: false,
-            form: {
-                name: '',
-                region: '',
-            },
-            formLabelWidth: '120px',
-            weeks: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-            classTableData: [{
-                'classesTime': '08:00-09:00',
-                'monday': '物理',
-                'tuesday': '英语',
-                'wednesday': '政治',
-                'thursday': '历史',
-                'friday': '化学',
-                'saturday': '历史',
-                'sunday': '化学'
+            curClass: '', //记录当前点击单元格课程的名称
+            curClassData: {},  //记录当前点击单元格课程的信息（对象类型
+            curWeek: 1,
+            weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+            time: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'],
+            classData: [{
+                course_name: '计网',
+                course_id: 1,
+                week_schedule: [1, 2, 3, 4, 5],
+                session: [1, 8, 15],
+                classroom: "教三211",
             }, {
-                'classesTime': '09:00-10:00',
-                'monday': '生物',
-                'tuesday': '物理',
-                'wednesday': '化学',
-                'thursday': '英语',
-                'friday': '化学',
-                'saturday': '生物',
-                'sunday': '化学'
-            }, {
-                'classesTime': '10:00-11:00',
-                'monday': '生物',
-                'tuesday': '物理',
-                'wednesday': '生物',
-                'thursday': '历史',
-                'friday': '生物',
-                'saturday': '英语',
-                'sunday': '政治'
-            }, {
-                'classesTime': '11:00-12:00',
-                'monday': '',
-                'tuesday': '政治',
-                'wednesday': '物理',
-                'thursday': '政治',
-                'friday': '历史',
-                'saturday': '历史',
-                'sunday': '生物'
-            }, {
-                'classesTime': '13:00-14:00',
-                'monday': '生物',
-                'tuesday': '历史',
-                'wednesday': '历史',
-                'thursday': '历史',
-                'friday': '',
-                'saturday': '英语',
-                'sunday': '化学'
-            }, {
-                'classesTime': '14:00-15:00',
-                'monday': '化学',
-                'tuesday': '英语',
-                'wednesday': '物理',
-                'thursday': '化学',
-                'friday': '语文',
-                'saturday': '物理',
-                'sunday': '英语'
-            }, {
-                'classesTime': '15:00-16:00',
-                'monday': '历史',
-                'tuesday': '历史',
-                'wednesday': '语文',
-                'thursday': '历史',
-                'friday': '生物',
-                'saturday': '英语',
-                'sunday': ''
+                course_name: '计算机组成原理',
+                course_id: 1,
+                week_schedule: [1, 2, 3, 4],
+                session: [3, 10], //注意这里周的排列是一行一行来的
+                classroom: "教三217",
             }],
+
+            dialogVisible: false,
         };
     },
     methods: {
-        /**
-        * 数字转中文
-        * @param {Number} num 需要转换的数字
-        * @param {String} identifier 标识符
-        * @returns {String} 转换后的中文
-        */
-        digital2Chinese(num, identifier) {
-            const character = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二'];
-            return identifier === 'week' && (num === 0 || num === 7) ? '日' : character[num];
+        toNextweek() {
+            if (this.curWeek >= 19) {
+                return;
+            }
+            this.curWeek++;
+            this.curCell = 0;//重置单元格计数器
+            this.$forceUpdate(); //重新刷新页面
         },
-         onSubmit() {
-            console.log('submit!');
-        }
+        toLastweek() {
+            if (this.curWeek <= 1) {
+                return;
+            }
+            this.curWeek--;
+            this.curCell = 0;//重置单元格计数器
+            this.$forceUpdate(); //重新刷新页面
+        },
+        clickClass(event) {
+            //更改当前点击课程的名称
+            this.curClass = event.target.innerHTML;
+            // 循环遍历找到数据库中该课程的所有信息
+            for (let i = 0; i < 2; i++) {
+                if (this.classData[i].course_name == this.curClass) {
+                    //这里明明是相等的却比对不出来？？？？
+                    console.log('相等')
+                    //如果有该课程，更新curClassData
+                    this.curClassData = classData[i];
+                }
+            }
+            //点击弹窗
+            this.dialogVisible = true;
+        },
+        // 关闭弹窗
+        handleClose(done) {
+            done();
+        },
+    },
+    computed: {
+        filltable() {
+            return function (cell) {
+                // 因为现在数据中只有两种课程，所以这里i < 2
+                for (let i = 0; i < 2; i++) {
+                    //如果是周数组中有当前周
+                    if (this.classData[i].week_schedule.indexOf(this.curWeek) != -1) {
+                        //如果是节数组中有当前节
+                        if (this.classData[i].session.indexOf(cell) != -1) {
+                            return this.classData[i].course_name;
+                        }
+                    }
+                }
+                return '';
+            }
+
+        },
     }
 };
+
 </script>
 
 <style lang='scss' scoped>
-.page-button {
-    float: right;
-    margin-right: 150px;
-}
-
-.search-button {
-    float: left;
-    margin-left: 150px;
-}
-
-h3 {
-    margin: 5px;
-    font-size: 20px;
-    text-align: center;
-    color: black;
-}
-
 .class-table {
     .table-wrapper {
-        margin: auto;
-        width: 800px;
+        width: 100%;
         height: 100%;
         overflow: auto;
     }
 
     .tabel-container {
-        margin: 5px;
+        margin: 7px;
 
         table {
             table-layout: fixed;
