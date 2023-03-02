@@ -17,7 +17,7 @@
                             </td>
                             <!-- 填写课程信息  -->
                             <td v-for='weekIndex in 7' :key='weekIndex' @click="clickClass($event)">
-                                {{ filltable(classIndex * 7 + weekIndex) }}
+                                {{ filltable(classIndex, weekIndex - 1) }}
                             </td>
                         </tr>
                     </tbody>
@@ -35,7 +35,7 @@
         <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
             <el-card class="box-card">
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
-                <div class="course_name">课程时间：{{ curClassData.session }}</div>
+                <div class="course_name">课程时间：{{ curClassData.section_list }}</div>
                 <div class="course_name">课程地点：{{ curClassData.classroom }}</div>
             </el-card>
             <span slot="footer" class="dialog-footer">
@@ -59,13 +59,13 @@ export default {
                 course_name: '计网',
                 course_id: 1,
                 week_schedule: [1, 2, 3, 4, 5],
-                session: [1, 8, 15],
+                section_list: [1, 8, 15],
                 classroom: "教三211",
             }, {
                 course_name: '计算机组成原理',
                 course_id: 1,
                 week_schedule: [1, 2, 3, 4],
-                session: [3, 10], //注意这里周的排列是一行一行来的
+                section_list: [3, 10], //注意这里周的排列是一行一行来的
                 classroom: "教三217",
             }],
 
@@ -91,14 +91,14 @@ export default {
         },
         clickClass(event) {
             //更改当前点击课程的名称
-            this.curClass = event.target.innerHTML;
+            this.curClass = event.target.innerText;
             // 循环遍历找到数据库中该课程的所有信息
             for (let i = 0; i < 2; i++) {
                 if (this.classData[i].course_name == this.curClass) {
-                    //这里明明是相等的却比对不出来？？？？
+                    
                     console.log('相等')
                     //如果有该课程，更新curClassData
-                    this.curClassData = classData[i];
+                    this.curClassData = this.classData[i];
                 }
             }
             //点击弹窗
@@ -111,13 +111,13 @@ export default {
     },
     computed: {
         filltable() {
-            return function (cell) {
+            return function (classIndex, weekIndex) {
                 // 因为现在数据中只有两种课程，所以这里i < 2
                 for (let i = 0; i < 2; i++) {
                     //如果是周数组中有当前周
                     if (this.classData[i].week_schedule.indexOf(this.curWeek) != -1) {
                         //如果是节数组中有当前节
-                        if (this.classData[i].session.indexOf(cell) != -1) {
+                        if (this.classData[i].section_list.indexOf(weekIndex * 9 + classIndex + 1) != -1) {
                             return this.classData[i].course_name;
                         }
                     }
