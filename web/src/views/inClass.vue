@@ -16,7 +16,7 @@
                                 <p class='period'>{{ classtime }}</p>
                             </td>
                             <!-- 填写课程信息  -->
-                            <td v-for='weekIndex in 7' :key='weekIndex' @click="clickClass($event)" ref="clear">
+                            <td v-for='weekIndex in 7' :key='weekIndex' @click="clickClass($event)">
                                 {{ filltable(classIndex * 7 + weekIndex) }}
                             </td>
                         </tr>
@@ -31,17 +31,13 @@
         </el-button-group>
         <el-tag>第{{ curWeek }}周</el-tag>
         <!-- 弹窗 -->
-        
-        <el-dialog title="提示" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-            <el-descriptions title="垂直带边框列表" direction="vertical" :column="4" border>
-                <el-descriptions-item label="用户名">kooriookami</el-descriptions-item>
-                <el-descriptions-item label="手机号">18100000000</el-descriptions-item>
-                <el-descriptions-item label="居住地" :span="2">苏州市</el-descriptions-item>
-                <el-descriptions-item label="备注">
-                    <el-tag size="small">学校</el-tag>
-                </el-descriptions-item>
-                <el-descriptions-item label="联系地址">江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item>
-            </el-descriptions>
+
+        <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+            <el-card class="box-card">
+                <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
+                <div class="course_name">课程时间：{{ curClassData.session }}</div>
+                <div class="course_name">课程地点：{{ curClassData.classroom }}</div>
+            </el-card>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -54,6 +50,8 @@
 export default {
     data() {
         return {
+            curClass: '', //记录当前点击单元格课程的名称
+            curClassData: {},  //记录当前点击单元格课程的信息（对象类型
             curWeek: 1,
             weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
             time: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'],
@@ -62,11 +60,13 @@ export default {
                 course_id: 1,
                 week_schedule: [1, 2, 3, 4, 5],
                 session: [1, 8, 15],
+                classroom: "教三211",
             }, {
                 course_name: '计算机组成原理',
                 course_id: 1,
                 week_schedule: [1, 2, 3, 4],
                 session: [3, 10], //注意这里周的排列是一行一行来的
+                classroom: "教三217",
             }],
 
             dialogVisible: false,
@@ -90,11 +90,19 @@ export default {
             this.$forceUpdate(); //重新刷新页面
         },
         clickClass(event) {
-            //通过获得当前元素的文本，向后台发出get请求，获得该课程的信息，然后弹窗
-            console.log(event.target.innerHTML);
+            //更改当前点击课程的名称
+            this.curClass = event.target.innerHTML;
+            // 循环遍历找到数据库中该课程的所有信息
+            for (let i = 0; i < 2; i++) {
+                if (this.classData[i].course_name == this.curClass) {
+                    //这里明明是相等的却比对不出来？？？？
+                    console.log('相等')
+                    //如果有该课程，更新curClassData
+                    this.curClassData = classData[i];
+                }
+            }
             //点击弹窗
-            this.dialogVisible = true; 
-            console.log(this.curCell)
+            this.dialogVisible = true;
         },
         // 关闭弹窗
         handleClose(done) {
@@ -106,7 +114,6 @@ export default {
             return function (cell) {
                 // 因为现在数据中只有两种课程，所以这里i < 2
                 for (let i = 0; i < 2; i++) {
-
                     //如果是周数组中有当前周
                     if (this.classData[i].week_schedule.indexOf(this.curWeek) != -1) {
                         //如果是节数组中有当前节
@@ -117,7 +124,7 @@ export default {
                 }
                 return '';
             }
-            
+
         },
     }
 };
