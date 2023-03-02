@@ -9,7 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// jwt鉴权
+// JwtAuthMiddleware jwt鉴权
 func JwtAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := c.Query("token") // token串

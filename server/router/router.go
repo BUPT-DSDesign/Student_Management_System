@@ -1,6 +1,7 @@
 package router
 
 import (
+	"server/handler/course_handler"
 	"server/handler/user_handler"
 	"server/middleware"
 
@@ -20,6 +21,13 @@ func InitRouters() *gin.Engine {
 		userGroup.POST("/register", middleware.ShaMiddleware(), user_handler.RegisterHandler)
 		//用户登录
 		userGroup.POST("/login", user_handler.LoginHandler)
+	}
+
+	// 课程路由
+	courseGroup := rootPath.Group("/course")
+	{
+		// 课程表
+		courseGroup.GET("/table/", middleware.JwtAuthMiddleware(), course_handler.TableHandler)
 	}
 
 	return r

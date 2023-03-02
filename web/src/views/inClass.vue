@@ -68,7 +68,7 @@ export default {
                 week_schedule: [1, 2, 3, 4],
                 session: [3, 10], //注意这里周的排列是一行一行来的
             }],
-            // curCell: 0,
+
             dialogVisible: false,
         };
     },

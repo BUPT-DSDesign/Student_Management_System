@@ -54,10 +54,5 @@ func (f *loginFlow) run(access **common.AccessResponse) error {
 		Token:  tokenString,
 	}
 
-	/*
-		存入数据库
-		调用dao层的CRUD操作
-	*/
-
 	return nil
 }

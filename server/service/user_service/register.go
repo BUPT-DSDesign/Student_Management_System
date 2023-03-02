@@ -60,7 +60,7 @@ func (f *registerFlow) run(access **common.AccessResponse) error {
 		Token:  tokenString,
 	}
 
-	// 新建一个用户实例
+	//新建一个用户实例
 	//userInfo := &system.UserInfo{
 	//	Username: f.registerForm.Username,
 	//	Password:  f.password,
