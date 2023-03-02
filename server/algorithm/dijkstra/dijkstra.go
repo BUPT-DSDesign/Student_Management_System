@@ -1,22 +1,54 @@
 package dijkstra
 
-import "math"
+import (
+	"errors"
+	"math"
+	"server/algorithm/heap"
+)
 
+// Edge 前向星存图的边信息
 type Edge struct {
 	next   int
 	to     int
 	length float64
 }
+
+// Path 无向边
 type Path struct {
 	fromId   int
 	descId   int
 	distance float64
 }
 
-// Dijkstra的dis数组
+// NodeDis Dijkstra的dis数组
 type NodeDis struct {
 	nodeId int
 	dis    float64
+}
+
+// PriorityQueue Dijkstra的dis数组优先队列
+type PriorityQueue []NodeDis
+
+//以下开始绑定heap.go中的方法
+
+func (pq PriorityQueue) Len() int {
+	return len(pq)
+}
+func (pq PriorityQueue) Cmp(i int, j int) bool {
+	return pq[i].dis < pq[j].dis
+}
+func (pq PriorityQueue) Swap(i int, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+}
+func (pq *PriorityQueue) Push(x interface{}) {
+	*pq = append(*pq, x.(NodeDis))
+}
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	*pq = old[0 : n-1]
+	return item
 }
 
 // 前向星存图加边
@@ -38,12 +70,15 @@ func addEdge(path []Path, head []int) ([]int, []Edge) {
 	}
 	return head, edges
 }
-func Dijkstra(start int, desc int, path []Path, node_cnt int) (pathList []int, err error) {
+func Dijkstra(start int, desc int, path []Path, node_cnt int) (nodeList []int, err error) {
 	//使用前向星存图
 	head := make([]int, node_cnt+5)
+	//from数组记录每个节点是从哪个节点过来的
+	from := make([]int, node_cnt+5)
 	dis := make([]float64, node_cnt+5)
 	//初始化为-1
 	for i, _ := range head {
+		from[i] = -1
 		head[i] = -1
 		dis[i] = math.Inf(1)
 	}
@@ -51,6 +86,35 @@ func Dijkstra(start int, desc int, path []Path, node_cnt int) (pathList []int, e
 	dis[start] = 0
 	//获取前向星存图
 	head, edges := addEdge(path, head)
-
-	return
+	pq := make(PriorityQueue, len(dis))
+	//将第一个元素推入
+	pq.Push(NodeDis{nodeId: start, dis: 0})
+	//新建堆
+	heap.Init(&pq)
+	for pq.Len() != 0 {
+		node := heap.Pop(&pq).(NodeDis)
+		id := node.nodeId
+		for i := head[id]; i != -1; i = edges[i].next {
+			e := edges[i]
+			//Dijkstra算法核心:路径松弛
+			if dis[e.to] > dis[id]+node.dis {
+				dis[e.to] = dis[id] + node.dis
+				heap.Push(&pq, &NodeDis{nodeId: e.to, dis: e.length})
+				from[e.to] = id
+			}
+		}
+	}
+	//最后，从终点回头输出路径
+	if dis[desc] == -1 {
+		return nil, errors.New("没有这样的路径")
+	}
+	nodeList = append(nodeList, desc)
+	for i := from[desc]; i != -1; i = from[i] {
+		nodeList = append(nodeList, i)
+	}
+	//将nodeList倒置
+	for i, j := 0, len(nodeList)-1; i < j; i, j = i+1, j-1 {
+		nodeList[i], nodeList[j] = nodeList[j], nodeList[i]
+	}
+	return nodeList, nil
 }
