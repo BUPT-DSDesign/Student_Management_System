@@ -1,6 +1,7 @@
 package user_service
 
 import (
+	"errors"
 	"server/model/entity/common"
 	"server/utils"
 )
@@ -35,6 +36,9 @@ func (f *loginFlow) do() (*common.AccessResponse, error) {
 // 检验参数
 func (f *loginFlow) checkNum() error {
 	// 检验f.loginForm, 如用户是否存在以及密码是否正确等
+	if f.loginForm.Password != "123456" {
+		return errors.New("密码错误")
+	}
 	/*
 		调用dao层的CRUD操作
 	*/
