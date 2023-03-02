@@ -60,7 +60,7 @@ export default {
                 map: this.map,
                 path: lineArr,
                 showDir: true,
-                strokeColor: '#77DDFF', // 线颜色--浅蓝色
+                strokeColor: '#28F', // 线颜色--浅蓝色
                 // strokeOpacity: 1,     //线透明度
                 strokeWeight: 6, // 线宽
                 // strokeStyle: "solid"  //线样式
@@ -69,11 +69,14 @@ export default {
             // 绘制路过了的轨迹
             var passedPolyline = new AMap.Polyline({
                 map: this.map,
-                strokeColor: '#00BBFF', // 线颜色-深蓝色
+                strokeColor: '#AF5', 
                 // strokeOpacity: 1,     //线透明度
                 strokeWeight: 6 // 线宽
                 // strokeStyle: "solid"  //线样式
             })
+            this.marker.on('moving', function (e) {
+                passedPolyline.setPath(e.passedPath);
+            });
             this.map.setFitView() // 合适的视口
         },
         startAnimation() {
