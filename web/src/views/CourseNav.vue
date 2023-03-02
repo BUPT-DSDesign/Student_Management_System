@@ -1,38 +1,17 @@
 <template>
     <div>
-        <div id="container" style="width:100%;height:90vh" />
-        <!-- 
-        <div class="bgd"></div>
-        <div class="search">
-            <el-form ref="form" :model="form" label-width="80px">
-                <el-form-item label="活动名称">
-                    <el-input v-model="form.name"></el-input>
-                </el-form-item>
-                <el-form-item label="活动区域">
-                    <el-select v-model="form.region" placeholder="请选择活动区域">
-                        <el-option label="区域一" value="shanghai"></el-option>
-                        <el-option label="区域二" value="beijing"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="活动时间">
-                    <el-col :span="11">
-                        <el-date-picker type="date" placeholder="选择日期" v-model="form.date1"
-                            style="width: 100%;"></el-date-picker>
-                    </el-col>
-                    <el-col class="line" :span="2">-</el-col>
-                    <el-col :span="11">
-                        <el-time-picker placeholder="选择时间" v-model="form.date2" style="width: 100%;"></el-time-picker>
-                    </el-col>
-                </el-form-item>
-                <el-form-item label="即时配送">
-                    <el-switch v-model="form.delivery"></el-switch>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="onSubmit">立即创建</el-button>
-                    <el-button>取消</el-button>
-                </el-form-item>
-            </el-form>
-        </div> -->
+        <div id="container" style="width:500px;height:80vh" />
+        <div class="input-card">
+            <h4>轨迹回放控制</h4>
+            <div class="input-item">
+                <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation()" />
+                <input type="button" class="btn" value="暂停动画" id="pause" @click="pauseAnimation()" />
+            </div>
+            <div class="input-item">
+                <input type="button" class="btn" value="继续动画" id="resume" @click="resumeAnimation()" />
+                <input type="button" class="btn" value="停止动画" id="stop" @click="stopAnimation()" />
+            </div>
+        </div>
     </div>
 </template>
 <script>
@@ -43,17 +22,6 @@ export default {
     data() {
         return {
             firstArr: [116.35530714718364, 39.96393072423919],// 中心点/初始坐标
-
-            // form: {
-            //     name: '',
-            //     region: '',
-            //     date1: '',
-            //     date2: '',
-            //     delivery: false,
-            //     type: [],
-            //     resource: '',
-            //     desc: ''
-            // }
         }
     },
     created() { },
@@ -67,12 +35,12 @@ export default {
         onSubmit() {
             console.log('submit!');
         },
-         // 初始化地图
+        // 初始化地图
         initMap() {
             var that = this
             this.map = new AMap.Map('container', {
                 resizeEnable: true, // 窗口大小调整
-                center: this.firstArr, 
+                center: this.firstArr,
             })
             // 添加maker
             this.marker = new AMap.Marker({
@@ -83,7 +51,7 @@ export default {
                 autoRotation: true, // 自动旋转
                 angle: -90 // 图片旋转角度
             })
-            that.initroad()
+            that.initroad() //初始化路径
         },
         // 初始化轨迹
         initroad() {
@@ -102,13 +70,26 @@ export default {
             var passedPolyline = new AMap.Polyline({
                 map: this.map,
                 strokeColor: '#00BBFF', // 线颜色-深蓝色
-                path: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]],
                 // strokeOpacity: 1,     //线透明度
                 strokeWeight: 6 // 线宽
                 // strokeStyle: "solid"  //线样式
             })
             this.map.setFitView() // 合适的视口
-        }
+        },
+        startAnimation() {
+            this.marker.moveAlong(lineArr, 200);
+        },
+
+        pauseAnimation() {
+            this.marker.pauseMove();
+        },
+
+        resumeAnimation() {
+            this.marker.resumeMove();
+        },
+        stopAnimation() {
+            this.marker.stopMove();
+        },
     }
 }
 </script>
