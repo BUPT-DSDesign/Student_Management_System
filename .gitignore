@@ -22,3 +22,4 @@
 /web/.vscode/*
 /server/.idea
 /.idea
+/server/node_modules
