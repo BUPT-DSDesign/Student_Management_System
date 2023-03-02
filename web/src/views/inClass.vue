@@ -94,7 +94,7 @@ export default {
             this.curClass = event.target.innerHTML;
             // 循环遍历找到数据库中该课程的所有信息
             for (let i = 0; i < 2; i++) {
-                if (this.classData[i].course_name.includes == this.curClass) {
+                if (this.classData[i].course_name == this.curClass) {
                     //这里明明是相等的却比对不出来？？？？
                     console.log('相等')
                     //如果有该课程，更新curClassData
