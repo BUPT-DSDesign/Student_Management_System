@@ -1,4 +1,5 @@
 <template>
+    <!-- 左侧：课表，切换功能，点击弹窗功能 -->
     <div class='class-table'>
         <div class='table-wrapper'>
             <div class='tabel-container'>
@@ -24,14 +25,13 @@
                 </table>
             </div>
         </div>
+        <el-tag effect="dark">第{{ curWeek }}周</el-tag>
         <el-button-group>
             <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()">上一周</el-button>
             <el-button type="primary" @click="toNextweek()">下一周<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
-        <el-tag>第{{ curWeek }}周</el-tag>
         <!-- 弹窗 -->
-
         <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
             <el-card class="box-card">
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
@@ -43,6 +43,33 @@
                 <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
             </span>
         </el-dialog>
+        <!-- 右侧：课程搜索功能，通过选择课程名称，时间，地点，对关键字进行模糊匹配，查询后直接在下方显示 -->
+        <el-row :gutter="12">
+            <el-col :span="100">
+                <el-card shadow="always">
+                    <h2>关键字选择</h2>
+                    <el-radio-group v-model="radio">
+                        <el-radio :label="1">课程名称</el-radio>
+                        <el-radio :label="2">课程地点</el-radio>
+                    </el-radio-group>
+                    <h2>查询课程</h2>
+
+                    <el-form label-width="5px">
+                        <el-form>
+                            <el-input v-model="keyWord" placeholder="请输入查询关键词"></el-input>
+                        </el-form>
+                                <ul class="list-group">
+                                    <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)">
+                                        {{ radio==1?p.course_name:p.classroom }}
+                                    </li>
+                                </ul>
+                        <el-form-item>
+                                <el-button type="primary" class="searchBtn" @click="onSubmit">查询</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-card>
+            </el-col>
+        </el-row>
 
     </div>
 </template>
@@ -59,18 +86,42 @@ export default {
                 course_name: '计网',
                 course_id: 1,
                 week_schedule: [1, 2, 3, 4, 5],
-                section_list: [1, 8, 15],
+                section_list: [1, 2, 3],
                 classroom: "教三211",
             }, {
                 course_name: '计算机组成原理',
                 course_id: 1,
                 week_schedule: [1, 2, 3, 4],
-                section_list: [3, 10], //注意这里周的排列是一行一行来的
+                section_list: [5, 6], //注意这里周的排列是一列一列来的
                 classroom: "教三217",
             }],
+            dialogVisible: false, //弹窗的可见性
+            radio: 1,//多选框默认选中的单元
+            keyWord: '', //用户查询的课程关键字
+            filclasslist: [], //模糊匹配后的课程列表
 
-            dialogVisible: false,
         };
+    },
+    watch: {
+        keyWord(newvalue) {
+            //如果当前关键词为空
+            if (newvalue === "") {
+                this.filclasslist = [];
+            }
+            else {
+                if (this.radio == 1) {
+                    //有点问题，第二次过滤得到课程名时过滤不了
+                    this.filclasslist = this.classData.filter((item) => {
+                        return item.course_name.indexOf(newvalue) != -1;
+                    });
+                }
+                else if (this.radio == 2) {
+                    this.filclasslist = this.classData.filter((item) => {
+                        return item.classroom.indexOf(newvalue) != -1;
+                    });
+                }
+            }
+        },
     },
     methods: {
         toNextweek() {
@@ -95,7 +146,11 @@ export default {
             // 循环遍历找到数据库中该课程的所有信息
             for (let i = 0; i < 2; i++) {
                 if (this.classData[i].course_name == this.curClass) {
+<<<<<<< HEAD
+
+=======
                      
+>>>>>>> d69c02aaa8b3fe14d4f26bd9f2433deecade5e00
                     console.log('相等')
                     //如果有该课程，更新curClassData
                     this.curClassData = this.classData[i];
@@ -107,6 +162,14 @@ export default {
         // 关闭弹窗
         handleClose(done) {
             done();
+        },
+        //查询点击事件
+        onSubmit() {
+            //提交后台进行查询
+        },
+        //点击ul自动填充input
+        chooseclass(e) {
+            this.keyWord = e.target.innerText;
         },
     },
     computed: {
@@ -132,15 +195,44 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+ul{
+    margin-top:20px;
+}
+.searchBtn {
+    margin-top: 20px;
+}
+
+h2 {
+    margin: 18px;
+    margin-left: 10px;
+    font-size: 20px;
+}
+
+.el-card {
+    float: right;
+    margin-top: -500px;
+    margin-left: 650px;
+}
+
+.el-tag {
+    font-size: 18px;
+    height: 35px;
+    margin-left: 30px
+}
+
+.el-button-group {
+    margin-top: 0;
+    margin-left: 116px;
+}
+
 .class-table {
     .table-wrapper {
-        width: 100%;
-        height: 100%;
+        width: 600px;
+        height: 500px;
         overflow: auto;
     }
 
     .tabel-container {
-        margin: 7px;
 
         table {
             table-layout: fixed;
@@ -169,7 +261,7 @@ export default {
             td {
                 width: 60px;
                 padding: 12px 2px;
-                font-size: 12px;
+                font-size: 10px;
                 text-align: center;
             }
 
