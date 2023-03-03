@@ -34,7 +34,9 @@ func InitRouters() *gin.Engine {
 	navigateGroup := rootPath.Group("/navigate")
 	{
 		//获取导航路径
-		navigateGroup.GET("/run", middleware.JwtAuthMiddleware(), navigate_handler.RunNavigateHandler)
+		navigateGroup.GET("/path", middleware.JwtAuthMiddleware(), navigate_handler.RunNavigateHandler)
+		//获取建筑物信息
+		navigateGroup.GET("/facility", middleware.JwtAuthMiddleware(), navigate_handler.GetFacilityInfoHandler)
 	}
 	return r
 }

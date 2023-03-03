@@ -5,12 +5,19 @@ import (
 	"net/http"
 	"server/model/entity/common"
 	"server/model/entity/system"
+	"server/service/navigate_service"
 )
+
+// 导航响应
+type NavigateResponse struct {
+	common.StatusResponse
+	NodeList []system.Coordinate `json:"node_list"`
+}
 
 func RunNavigateHandler(c *gin.Context) {
 	var navi system.NavigateRequest
 	if err := c.ShouldBind(&navi); err != nil {
-		c.JSON(http.StatusOK, system.NavigateResponse{
+		c.JSON(http.StatusOK, NavigateResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 1,
 				StatusMsg:  "id解析错误",
@@ -19,9 +26,18 @@ func RunNavigateHandler(c *gin.Context) {
 		})
 		return
 	}
-	var nodelist []system.Coordinate
-	//nodeList := dijkstra.Dijkstra(navi.FromId,navi.DesId,)
-	c.JSON(http.StatusOK, system.NavigateResponse{
+	//var nodelist []system.Coordinate
+	nodelist, err := navigate_service.NavigateServer.DoNavigation(&navigate_service.Server, navi)
+	if err != nil {
+		c.JSON(http.StatusOK, NavigateResponse{
+			StatusResponse: common.StatusResponse{
+				StatusCode: 2,
+				StatusMsg:  err.Error(),
+			},
+			NodeList: nil,
+		})
+	}
+	c.JSON(http.StatusOK, NavigateResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
 			StatusMsg:  "成功导航!",

@@ -4,6 +4,7 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"server/algorithm/dijkstra"
 	"server/model/entity/system"
 	"strconv"
 	"strings"
@@ -16,9 +17,6 @@ type Node struct {
 	Latitude  float64 `json:"latitude"`
 }
 
-var tempNodeList []Node
-var tempPathList []system.Path
-
 // 获取节点列表
 func getNodeList() []Node {
 	//打开文件(只读模式)，创建io.read接口实例
@@ -27,7 +25,12 @@ func getNodeList() []Node {
 		log.Println("csv文件打开失败！")
 		return nil
 	}
-	defer opencast.Close()
+	defer func(opencast *os.File) {
+		err := opencast.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(opencast)
 
 	//创建csv读取接口实例
 	ReadCsv := csv.NewReader(opencast)
@@ -59,7 +62,12 @@ func getPathList() []system.Path {
 		log.Println("csv文件打开失败！")
 		return nil
 	}
-	defer opencast.Close()
+	defer func(opencast *os.File) {
+		err := opencast.Close()
+		if err != nil {
+			log.Println(err.Error())
+		}
+	}(opencast)
 
 	//创建csv读取接口实例
 	ReadCsv := csv.NewReader(opencast)
@@ -80,13 +88,18 @@ func getPathList() []system.Path {
 }
 
 // GetCoordinateSet 将id转换为坐标列表
-func GetCoordinateSet(nodeId []int) []system.Coordinate {
+func (s *server) GetCoordinateSet(nodeId []int) []system.Coordinate {
 	var result []system.Coordinate
 	for _, v := range nodeId {
 		result = append(result, system.Coordinate{
-			Longitude: tempNodeList[v].Longitude,
-			Latitude:  tempNodeList[v].Latitude,
+			Longitude: s.tempNodeList[v].Longitude,
+			Latitude:  s.tempNodeList[v].Latitude,
 		})
 	}
 	return result
+}
+
+func (s *server) DoNavigation(navigateRequest system.NavigateRequest) ([]system.Coordinate, error) {
+	result, err := dijkstra.Dijkstra(navigateRequest.FromId, navigateRequest.DesId, s.tempPathList, len(s.tempNodeList))
+	return s.GetCoordinateSet(result), err
 }
