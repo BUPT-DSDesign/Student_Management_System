@@ -45,7 +45,7 @@ export default {
             let that = this;
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    that.$router.push('/Main/Homepage');
+                    // that.$router.push('/Main/Homepage');
                     //post的第一个参数：传入后端的地址，第二个参数：登录数据
                     axios.post("http://localhost:8080/Student_Management_System/user/login", {
                         usename: this.ruleForm.usename,
