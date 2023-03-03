@@ -95,7 +95,7 @@ export default {
             // 循环遍历找到数据库中该课程的所有信息
             for (let i = 0; i < 2; i++) {
                 if (this.classData[i].course_name == this.curClass) {
-                    
+                     
                     console.log('相等')
                     //如果有该课程，更新curClassData
                     this.curClassData = this.classData[i];
