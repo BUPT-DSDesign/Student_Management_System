@@ -32,7 +32,7 @@ func getNodeList() []Node {
 	//创建csv读取接口实例
 	ReadCsv := csv.NewReader(opencast)
 
-	//获取一行内容，一般为第一行内容
+	//丢弃首行内容
 	_, _ = ReadCsv.Read() //返回切片类型：[chen  hai wei]
 	var nodelist []Node
 	//读取所有内容
@@ -64,7 +64,7 @@ func getPathList() []system.Path {
 	//创建csv读取接口实例
 	ReadCsv := csv.NewReader(opencast)
 
-	//获取一行内容，一般为第一行内容
+	//丢弃首行内容
 	_, _ = ReadCsv.Read() //返回切片类型：[chen  hai wei]
 	var pathlist []system.Path
 	//读取所有内容
