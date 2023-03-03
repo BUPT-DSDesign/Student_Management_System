@@ -16,7 +16,7 @@ type NavigateResponse struct {
 }
 
 func RunNavigateHandler(c *gin.Context) {
-	var navi system.NavigateRequest
+	var navi common.NavigateRequest
 	if err := c.ShouldBind(&navi); err != nil {
 		c.JSON(http.StatusOK, NavigateResponse{
 			StatusResponse: common.StatusResponse{
