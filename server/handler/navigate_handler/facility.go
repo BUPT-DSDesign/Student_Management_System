@@ -26,7 +26,7 @@ func GetFacilityInfoHandler(c *gin.Context) {
 		})
 		return
 	}
-
+	//fmt.Println(facReq)
 	//
 	result, err := navigate_service.Server.DoGetFacilityList(facReq)
 	if err != nil {

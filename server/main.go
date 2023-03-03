@@ -20,7 +20,7 @@ import (
 // @BasePath  /Student_Management_System
 
 // @securityDefinitions.apikey  ApiKeyAuth
-// @in query
+// @in header
 // @name token
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/

@@ -12,7 +12,7 @@ import (
 // JwtAuthMiddleware jwt鉴权
 func JwtAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.Query("token") // token串
+		tokenString := c.Request.Header.Get("token") // token串
 		// 用户不存在
 		if tokenString == "" {
 			c.JSON(http.StatusOK, common.StatusResponse{

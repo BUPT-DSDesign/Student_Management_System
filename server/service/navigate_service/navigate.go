@@ -89,18 +89,16 @@ func getPathList() []system.Path {
 }
 
 // GetCoordinateSet 将id转换为坐标列表
-func (s *server) GetCoordinateSet(nodeId []int) []system.Coordinate {
-	var result []system.Coordinate
+func (s *server) GetCoordinateSet(nodeId []int) [][2]float64 {
+	type Coor = [2]float64
+	var result []Coor
 	for _, v := range nodeId {
-		result = append(result, system.Coordinate{
-			Longitude: s.tempNodeList[v].Longitude,
-			Latitude:  s.tempNodeList[v].Latitude,
-		})
+		result = append(result, Coor{s.tempNodeList[v].Longitude, s.tempNodeList[v].Latitude})
 	}
 	return result
 }
 
-func (s *server) DoNavigation(navigateRequest common.NavigateRequest) ([]system.Coordinate, error) {
+func (s *server) DoNavigation(navigateRequest common.NavigateRequest) ([][2]float64, error) {
 	result, err := dijkstra.Dijkstra(navigateRequest.FromId, navigateRequest.DesId, s.tempPathList, len(s.tempNodeList))
 	return s.GetCoordinateSet(result), err
 }

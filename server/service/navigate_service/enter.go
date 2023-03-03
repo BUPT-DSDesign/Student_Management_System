@@ -7,7 +7,7 @@ import (
 
 type NavigateServer interface {
 	// DoNavigation 开始导航,返回导航路径
-	DoNavigation(navigateRequest common.NavigateRequest) ([]system.Coordinate, error)
+	DoNavigation(navigateRequest common.NavigateRequest) ([][2]float64, error)
 	// DoGetFacilityList 返回待查询建筑物列表
 	DoGetFacilityList(request common.FacilityRequest) (*[]*system.FacilityInfo, error)
 }

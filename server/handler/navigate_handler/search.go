@@ -1,9 +1,10 @@
 package navigate_handler
 
 import (
+	"fmt"
 	"net/http"
 	"server/model/entity/common"
-	"server/model/entity/system"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"server/service/navigate_service"
@@ -12,7 +13,7 @@ import (
 // 导航响应
 type NavigateResponse struct {
 	common.StatusResponse
-	NodeList []system.Coordinate `json:"node_list"`
+	NodeList [][2]float64 `json:"node_list"`
 }
 
 // RunNavigateHandler 导航
@@ -28,7 +29,11 @@ type NavigateResponse struct {
 // @Router       /navigate/path [get]
 func RunNavigateHandler(c *gin.Context) {
 	var navi common.NavigateRequest
-	if err := c.ShouldBind(&navi); err != nil {
+	res, ok := c.GetQuery("from_id")
+	navi.FromId, _ = strconv.Atoi(res)
+	res, ok = c.GetQuery("des_id")
+	navi.DesId, _ = strconv.Atoi(res)
+	if !ok {
 		c.JSON(http.StatusOK, NavigateResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 1,
@@ -38,6 +43,7 @@ func RunNavigateHandler(c *gin.Context) {
 		})
 		return
 	}
+	fmt.Println(navi)
 	nodelist, err := navigate_service.NavigateServer.DoNavigation(navigate_service.Server, navi)
 	if err != nil {
 		c.JSON(http.StatusOK, NavigateResponse{

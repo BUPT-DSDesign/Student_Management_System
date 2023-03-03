@@ -15,19 +15,14 @@ definitions:
     properties:
       node_list:
         items:
-          $ref: '#/definitions/system.Coordinate'
+          items:
+            type: number
+          type: array
         type: array
       status_code:
         type: integer
       status_msg:
         type: string
-    type: object
-  system.Coordinate:
-    properties:
-      latitude:
-        type: number
-      longitude:
-        type: number
     type: object
   system.CourseInfo:
     properties:
@@ -215,7 +210,7 @@ paths:
       - 用户鉴权
 securityDefinitions:
   ApiKeyAuth:
-    in: query
+    in: header
     name: token
     type: apiKey
 swagger: "2.0"

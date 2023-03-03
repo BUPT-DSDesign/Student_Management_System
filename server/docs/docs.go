@@ -215,7 +215,10 @@ const docTemplate = `{
                 "node_list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/system.Coordinate"
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
                     }
                 },
                 "status_code": {
@@ -223,17 +226,6 @@ const docTemplate = `{
                 },
                 "status_msg": {
                     "type": "string"
-                }
-            }
-        },
-        "system.Coordinate": {
-            "type": "object",
-            "properties": {
-                "latitude": {
-                    "type": "number"
-                },
-                "longitude": {
-                    "type": "number"
                 }
             }
         },
@@ -335,7 +327,7 @@ const docTemplate = `{
         "ApiKeyAuth": {
             "type": "apiKey",
             "name": "token",
-            "in": "query"
+            "in": "header"
         }
     }
 }`
