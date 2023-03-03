@@ -12,7 +12,11 @@ import (
 // 设施查询响应
 type facilityResponse struct {
 	common.StatusResponse
+<<<<<<< HEAD
 	result *[]*system.FacilityInfo `json:"result"`
+=======
+	Result []system.FacilitiyInfo `json:"result"`
+>>>>>>> cc128dcc33e6533ef96a77e26ec019ffe3127576
 }
 
 func GetFacilityInfoHandler(c *gin.Context) {
