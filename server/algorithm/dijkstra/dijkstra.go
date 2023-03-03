@@ -64,12 +64,16 @@ func addEdge(path []system.Path, head []int) ([]int, []Edge) {
 	}
 	return head, edges
 }
-func Dijkstra(start int, desc int, path []system.Path, node_cnt int) (nodeList []int, err error) {
+func Dijkstra(start int, desc int, path []system.Path, nodeCnt int) (nodeList []int, err error) {
+	// 判断请求是否合法
+	if start < 0 || desc < 0 || start >= nodeCnt || desc >= nodeCnt {
+		return nil, errors.New("请求节点id错误")
+	}
 	//使用前向星存图
-	head := make([]int, node_cnt+5)
+	head := make([]int, nodeCnt+5)
 	//from数组记录每个节点是从哪个节点过来的
-	from := make([]int, node_cnt+5)
-	dis := make([]float64, node_cnt+5)
+	from := make([]int, nodeCnt+5)
+	dis := make([]float64, nodeCnt+5)
 	//初始化为-1
 	for i := range head {
 		from[i] = -1
