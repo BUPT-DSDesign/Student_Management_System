@@ -13,6 +13,16 @@ type loginResponse struct {
 	*common.AccessResponse
 }
 
+// LoginHandler  登录Handler
+// @Summary      登录
+// @Description  用户登录
+// @Tags         用户鉴权
+// @Accept 		 application/json
+// @Produce      application/json
+// @Param		 username query string true "用户名"
+// @Param        password query string true "密码"
+// @Success      200  {object}  loginResponse
+// @Router       /user/login [post]
 func LoginHandler(c *gin.Context) {
 
 	// 1.拿到middleware传来的参数

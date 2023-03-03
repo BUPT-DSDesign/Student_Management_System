@@ -15,6 +15,17 @@ type NavigateResponse struct {
 	NodeList []system.Coordinate `json:"node_list"`
 }
 
+// RunNavigateHandler 导航
+// @Summary      导航
+// @Description  获取导航路线
+// @Tags         导航功能
+// @Accept 		 application/json
+// @Produce      application/json
+// @Security 	 ApiKeyAuth
+// @Param        from_id query int true "起始节点ID"
+// @Param        des_id query int true "结束节点ID"
+// @Success      200  {object}  NavigateResponse
+// @Router       /navigate/path [get]
 func RunNavigateHandler(c *gin.Context) {
 	var navi system.NavigateRequest
 	if err := c.ShouldBind(&navi); err != nil {

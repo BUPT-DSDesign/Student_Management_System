@@ -1,13 +1,15 @@
 package router
 
 import (
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	"github.com/swaggo/gin-swagger"
+	_ "server/docs"
 	"server/handler/course_handler"
 	"server/handler/navigate_handler"
 	"server/handler/user_handler"
 	"server/middleware"
-
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
 )
 
 func InitRouters() *gin.Engine {
@@ -20,6 +22,8 @@ func InitRouters() *gin.Engine {
 		ExposeHeaders:    []string{"Access-Control-Allow-Headers, token"},
 		AllowCredentials: true,
 	}))
+	// Swagger路由
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	rootPath := r.Group("/Student_Management_System")
 
@@ -36,7 +40,7 @@ func InitRouters() *gin.Engine {
 	courseGroup := rootPath.Group("/course")
 	{
 		// 课程表
-		courseGroup.GET("/table/", middleware.JwtAuthMiddleware(), course_handler.TableHandler)
+		courseGroup.GET("/table", middleware.JwtAuthMiddleware(), course_handler.TableHandler)
 	}
 	// 导航路由
 	navigateGroup := rootPath.Group("/navigate")

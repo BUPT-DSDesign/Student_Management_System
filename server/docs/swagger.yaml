@@ -1,4 +1,221 @@
+basePath: /Student_Management_System
+definitions:
+  course_handler.tableResponse:
+    properties:
+      course_list:
+        items:
+          $ref: '#/definitions/system.CourseInfo'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  navigate_handler.NavigateResponse:
+    properties:
+      node_list:
+        items:
+          $ref: '#/definitions/system.Coordinate'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  system.Coordinate:
+    properties:
+      latitude:
+        type: number
+      longitude:
+        type: number
+    type: object
+  system.CourseInfo:
+    properties:
+      classroom:
+        description: 线下课程记录教室, 线上课程记录会议链接
+        type: string
+      contact:
+        type: string
+      course_id:
+        type: integer
+      course_location_node:
+        description: 对应导航地图的节点, 设置成数组是因为一个地点可能对应多个node
+        items:
+          type: integer
+        type: array
+      course_name:
+        type: string
+      exam_location:
+        type: string
+      exam_location_node:
+        items:
+          type: integer
+        type: array
+      exam_option:
+        type: integer
+      exam_time:
+        description: 考试时间, 格式为'第几周-星期几-几点~几点（HH:mm~HH:mm）', 如'第十六周-星期三-19:00~20:00'
+        type: string
+      is_course_online:
+        type: boolean
+      section_list:
+        items:
+          type: integer
+        type: array
+      teacher:
+        type: string
+      week_schedule:
+        items:
+          type: integer
+        type: array
+    type: object
+  user_handler.loginResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  user_handler.registerResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+      token:
+        type: string
+      user_id:
+        type: integer
+    type: object
+host: localhost:8080
 info:
-  contact: {}
-paths: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A application for Data Structure Lesson
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Student Management System API
+  version: alpha 1.0
+paths:
+  /course/table:
+    get:
+      consumes:
+      - application/json
+      description: 获取学生所有的课程表信息
+      parameters:
+      - description: 学生ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.tableResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 课程表
+      tags:
+      - 课程表相关接口
+  /navigate/path:
+    get:
+      consumes:
+      - application/json
+      description: 获取导航路线
+      parameters:
+      - description: 起始节点ID
+        in: query
+        name: from_id
+        required: true
+        type: integer
+      - description: 结束节点ID
+        in: query
+        name: des_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navigate_handler.NavigateResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 导航
+      tags:
+      - 导航功能
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: 用户登录
+      parameters:
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_handler.loginResponse'
+      summary: 登录
+      tags:
+      - 用户鉴权
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: 用户注册
+      parameters:
+      - description: 学号
+        in: query
+        name: student_id
+        required: true
+        type: string
+      - description: 用户名
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_handler.registerResponse'
+      summary: 注册
+      tags:
+      - 用户鉴权
+securityDefinitions:
+  ApiKeyAuth:
+    in: query
+    name: token
+    type: apiKey
 swagger: "2.0"

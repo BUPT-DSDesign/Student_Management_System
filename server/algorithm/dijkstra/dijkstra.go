@@ -97,22 +97,25 @@ func Dijkstra(start int, desc int, path []system.Path, nodeCnt int) (nodeList []
 			//Dijkstra算法核心:路径松弛
 			if dis[e.to] > dis[id]+node.dis {
 				dis[e.to] = dis[id] + node.dis
-				heap.Push(&pq, &NodeDis{nodeId: e.to, dis: e.length})
+				heap.Push(&pq, NodeDis{nodeId: e.to, dis: e.length})
 				from[e.to] = id
 			}
 		}
 	}
 	//最后，从终点回头输出路径
-	if dis[desc] == -1 {
+	if dis[desc] == math.Inf(1) {
 		return nil, errors.New("没有这样的路径")
 	}
 	nodeList = append(nodeList, desc)
+
 	for i := from[desc]; i != -1; i = from[i] {
 		nodeList = append(nodeList, i)
 	}
+
 	//将nodeList倒置
 	for i, j := 0, len(nodeList)-1; i < j; i, j = i+1, j-1 {
 		nodeList[i], nodeList[j] = nodeList[j], nodeList[i]
 	}
+
 	return nodeList, nil
 }
