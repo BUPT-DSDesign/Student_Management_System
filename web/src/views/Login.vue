@@ -64,6 +64,7 @@ export default {
                     //     }, function (err) {
                     //         console.log(err);
                     //     })
+                   
                 } else {
                     console.log('error submit!!');
                     return false;

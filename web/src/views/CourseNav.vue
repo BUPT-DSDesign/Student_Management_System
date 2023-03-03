@@ -158,20 +158,22 @@ export default {
         }, 1000)
     },
     methods: {
+        //给后端发送起始点的id和终止点的id
         onSubmit() {
             var startId = -1, endId = -1;
             for (let key in this.placelist) {
+                //判断地址表的address是否有匹配上的
                 if (this.placelist[key].address == this.keyWord1) {
                     startId = key;
                 }
-                for (let key in this.placelist) {
-                    if (this.placelist[key].address == this.keyWord2) {
-                        endId = key;
-                    }
-                }
-                console.log(startId,this.placelist[startId].address, endId, this.placelist[endId].address);
-
             }
+            for (let key in this.placelist) {
+                if (this.placelist[key].address == this.keyWord2) {
+                    endId = key;
+                }
+            }
+            //最后改成给后端发送startid和endid
+            alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
         },
         //点击ul自动填充input
         chooseaddress1(e) {
