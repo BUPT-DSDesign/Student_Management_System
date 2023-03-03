@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"server/algorithm/dijkstra"
+	"server/model/entity/common"
 	"server/model/entity/system"
 	"strconv"
 	"strings"
@@ -99,7 +100,7 @@ func (s *server) GetCoordinateSet(nodeId []int) []system.Coordinate {
 	return result
 }
 
-func (s *server) DoNavigation(navigateRequest system.NavigateRequest) ([]system.Coordinate, error) {
+func (s *server) DoNavigation(navigateRequest common.NavigateRequest) ([]system.Coordinate, error) {
 	result, err := dijkstra.Dijkstra(navigateRequest.FromId, navigateRequest.DesId, s.tempPathList, len(s.tempNodeList))
 	return s.GetCoordinateSet(result), err
 }

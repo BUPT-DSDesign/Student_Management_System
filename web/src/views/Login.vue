@@ -15,8 +15,8 @@
 </template>
 
 <script>
-import {useUserStore} from '@/pinia/modules/user'
-// import axios from 'axios';
+import { useUserStore } from '@/pinia/modules/user'
+
 export default {
     data() {
         return {
@@ -47,13 +47,11 @@ export default {
             // let that = this;
             this.$refs[formName].validate((valid) => {
                 if (valid) {
-                    const flag = this.LoginIn()
-                    if (flag) {
-                        // 后端返回的数据
-                        // const data = this.useUserStore.rdata.value
-                        // console.log(data)
+                    const fg = this.LoginIn()
+                    console.log(fg)
+                    if (fg) {
                         console.log(this.useUserStore)
-                        // 登录成功进入主界面
+                                              
                         this.$router.push('/Main/Homepage')
                     }
                     // // 下面是之前写的
