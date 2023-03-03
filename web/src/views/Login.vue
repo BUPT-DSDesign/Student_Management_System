@@ -48,21 +48,22 @@ export default {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     const flag = this.LoginIn()
-                    that.$router.push('/Main/Homepage');
-                    //post的第一个参数：传入后端的地址，第二个参数：登录数据
-                    axios.post("http://localhost:8080/Student_Management_System/user/login", {
-                        usename: this.ruleForm.usename,
-                        password: this.ruleForm.password
-                    }).then
-                        (function (response) {
-                            let data = response.data;
-                            console.log(data)
-                            if (data.status_code == 0 && data.status_msg == '登录成功') {
-                                that.$router.push('/Main/Homepage');
-                            }
-                        }, function (err) {
-                            console.log(err);
-                        })
+                    // // 下面是之前写的
+                    // that.$router.push('/Main/Homepage');
+                    // //post的第一个参数：传入后端的地址，第二个参数：登录数据
+                    // axios.post("http://localhost:8080/Student_Management_System/user/login", {
+                    //     usename: this.ruleForm.usename,
+                    //     password: this.ruleForm.password
+                    // }).then
+                    //     (function (response) {
+                    //         let data = response.data;
+                    //         console.log(data)
+                    //         if (data.status_code == 0 && data.status_msg == '登录成功') {
+                    //             that.$router.push('/Main/Homepage');
+                    //         }
+                    //     }, function (err) {
+                    //         console.log(err);
+                    //     })
                 } else {
                     console.log('error submit!!');
                     return false;
