@@ -27,7 +27,7 @@ func RunNavigateHandler(c *gin.Context) {
 		return
 	}
 	//var nodelist []system.Coordinate
-	nodelist, err := navigate_service.NavigateServer.DoNavigation(&navigate_service.Server, navi)
+	nodelist, err := navigate_service.NavigateServer.DoNavigation(navigate_service.Server, navi)
 	if err != nil {
 		c.JSON(http.StatusOK, NavigateResponse{
 			StatusResponse: common.StatusResponse{
