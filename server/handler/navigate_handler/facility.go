@@ -11,13 +11,7 @@ import (
 // 设施查询响应
 type FacilityResponse struct {
 	common.StatusResponse
-	Result []FacilitiyInfo `json:"result"`
-}
-
-// 学校设施信息
-type FacilitiyInfo struct {
-	FacID   int64  `json:"fac_id"`   // 设施ID，设施ID
-	FacName string `json:"fac_name"` // 设施名，设施名称
+	Result []system.FacilitiyInfo `json:"result"`
 }
 
 func GetFacilityInfoHandler(c *gin.Context) {
