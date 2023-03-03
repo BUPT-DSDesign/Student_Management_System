@@ -35,7 +35,7 @@ export default {
                 ],
 
             },
-            useUserStore: new useUserStore()
+            useUserStore: new useUserStore() // pinia中的user模块
         };
     },
     methods: {
@@ -48,6 +48,14 @@ export default {
             this.$refs[formName].validate((valid) => {
                 if (valid) {
                     const flag = this.LoginIn()
+                    if (flag) {
+                        // 后端返回的数据
+                        // const data = this.useUserStore.rdata.value
+                        // console.log(data)
+                        console.log(this.useUserStore)
+                        // 登录成功进入主界面
+                        this.$router.push('/Main/Homepage')
+                    }
                     // // 下面是之前写的
                     // that.$router.push('/Main/Homepage');
                     // //post的第一个参数：传入后端的地址，第二个参数：登录数据

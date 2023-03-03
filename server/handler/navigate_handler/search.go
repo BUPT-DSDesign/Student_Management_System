@@ -1,10 +1,11 @@
 package navigate_handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/model/entity/common"
 	"server/model/entity/system"
+
+	"github.com/gin-gonic/gin"
 	"server/service/navigate_service"
 )
 

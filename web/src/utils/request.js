@@ -9,20 +9,16 @@ export const service = axios.create({
 // http request 拦截器
 service.interceptors.request.use(
     config => {
-        const userStore = useUserStore()
         config.headers = {
+            // 'Access - Control - Allow - Headers': 'token,content-type',
             'Content-Type': 'application/json',
-            'token': window.localStorage.getItem('token')
+            'token': window.localStorage.getItem('token'),
             ...config.headers
         }
         return config
     },
     error => {
-        ElMessage({
-            showClose: true,
-            message: error,
-            type: 'error'
-        })
+       
         return error
     }
 )
