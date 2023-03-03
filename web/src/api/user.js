@@ -1,9 +1,9 @@
 import { service } from '@/utils/request'
 
-
-export const login = (data) => {
+// 登录
+export const Login = (data) => {
     return service({
-        url: "http://localhost:8080/Student_Management_System/user/login",
+        url: "/user/login",
         method: 'post',
         data: data
     })

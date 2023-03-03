@@ -13,6 +13,7 @@
     "element-ui": "^2.15.13",
     "express": "^4.18.2",
     "less-loader": "^11.1.0",
+    "pinia": "^2.0.32",
     "vue": "^2.6.14",
     "vue-amap": "^0.5.10",
     "vue-router": "3.0"

@@ -5,11 +5,16 @@ import App from './App.vue'
 import router from './router';
 import axios from 'axios'
 import AMap from 'vue-amap'
+import { createPinia } from 'pinia'
+
 
 
 Vue.prototype.$http = axios //将axios挂载到原型上，以供全局使用
 
 Vue.use(ElementUI);
+
+const store = new createPinia()
+Vue.use(store)
 
 Vue.use(AMap)
 AMap.initAMapApiLoader({

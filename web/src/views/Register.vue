@@ -2,6 +2,9 @@
     <div class="container">
         <div class="register">
             <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+                 <el-form-item label="学号" prop="studentId">
+                    <el-input v-model="ruleForm.studentId"></el-input>
+                </el-form-item>
                 <el-form-item label="用户名" prop="usename">
                     <el-input v-model="ruleForm.usename"></el-input>
                 </el-form-item>
@@ -12,7 +15,7 @@
                     <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button type="primary" style="margin-right: 60px;" @click="submitForm('ruleForm')">提交</el-button>
+                    <el-button type="primary" style="margin-right: 60px;" @click="submitForm('ruleForm')">注册</el-button>
                 </el-form-item>
             </el-form>
         </div>
@@ -23,6 +26,13 @@
 import axios from 'axios';
 export default {
     data() {
+        var checkStudentId = (rule, value, callback) => {
+            if (value.length != 10) {
+                return callback(new Error('请输入10位学号'))
+            } else {
+                callback()
+            }
+        }
         var checkName = (rule, value, callback) => {
             if (!value) {
                 return callback(new Error('用户名不能为空'));
@@ -52,11 +62,16 @@ export default {
         };
         return {
             ruleForm: {
+                studentId: '',
                 password: '',
                 checkPass: '',
                 usename: ''
             },
             rules: {
+                studentId: [
+                    {validator: checkStudentId, trigger: 'blur'}
+                ],
+
                 usename: [
                     { validator: checkName, trigger: 'blur' }
                 ],
@@ -102,14 +117,13 @@ export default {
 .container{
     background-color:#ccc;
     height: 100vh;
-     display: flex;
+    display: flex;
 }
 .register {
     background-color:#fff;
     width:400px;
     height: 250px;
-    margin-top: 100px;
-    margin-left:400px;
+    margin: 100px auto;
     padding:50px;
     border-radius: 10px;
 }
