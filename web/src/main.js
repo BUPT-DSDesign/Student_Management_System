@@ -7,15 +7,17 @@ import axios from 'axios'
 import AMap from 'vue-amap'
 import { createPinia } from 'pinia'
 
+// 将axios挂载到原型上，以供全局使用
+Vue.prototype.$http = axios 
 
-
-Vue.prototype.$http = axios //将axios挂载到原型上，以供全局使用
-
+// 使用ElementUI设计
 Vue.use(ElementUI);
 
+// 使用pinia模块管理
 const store = new createPinia()
 Vue.use(store)
 
+// 使用高德地图实现导航
 Vue.use(AMap)
 AMap.initAMapApiLoader({
   key: '645785d3ed8cd58933f1e27cd08672cb',

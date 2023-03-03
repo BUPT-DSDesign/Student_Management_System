@@ -71,7 +71,7 @@ func Dijkstra(start int, desc int, path []system.Path, node_cnt int) (nodeList [
 	from := make([]int, node_cnt+5)
 	dis := make([]float64, node_cnt+5)
 	//初始化为-1
-	for i, _ := range head {
+	for i := range head {
 		from[i] = -1
 		head[i] = -1
 		dis[i] = math.Inf(1)

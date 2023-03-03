@@ -14,7 +14,7 @@
                 <el-form-item label="确认密码" prop="checkPass">
                     <el-input type="password" v-model="ruleForm.checkPass" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item>
+                <el-form-item style="text-align: center;">
                     <el-button type="primary" style="margin-right: 60px;" @click="submitForm('ruleForm')">注册</el-button>
                 </el-form-item>
             </el-form>
@@ -123,7 +123,7 @@ export default {
     background-color:#fff;
     width:400px;
     height: 250px;
-    margin: 100px auto;
+    margin: auto auto;
     padding:50px;
     border-radius: 10px;
 }

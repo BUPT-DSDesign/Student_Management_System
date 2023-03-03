@@ -12,7 +12,15 @@ import (
 
 func InitRouters() *gin.Engine {
 	r := gin.Default()
-	r.Use(cors.Default())
+	r.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"POST, GET, PUT, DELETE, OPTIONS"},
+		// 主要就是下面这两个，带上token就可以了
+		AllowHeaders:     []string{"Content-Type, Content-Length, token"},
+		ExposeHeaders:    []string{"Access-Control-Allow-Headers, token"},
+		AllowCredentials: true,
+	}))
+
 	rootPath := r.Group("/Student_Management_System")
 
 	// 用户路由
