@@ -50,5 +50,6 @@ func InitRouters() *gin.Engine {
 		//获取建筑物信息
 		navigateGroup.GET("/facility", middleware.JwtAuthMiddleware(), navigate_handler.GetFacilityInfoHandler)
 	}
+
 	return r
 }

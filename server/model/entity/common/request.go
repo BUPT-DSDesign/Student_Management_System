@@ -12,10 +12,10 @@ type RegisterRequest struct {
 	LoginRequest
 }
 
-// 导航请求
+// NavigateRequest 导航请求
 type NavigateRequest struct {
-	FromId int `json:"from_id"`
-	DesId  int `json:"des_id"`
+	FromId int `json:"from_id"` //开始节点
+	DesId  int `json:"des_id"`  //结束节点
 }
 
 // FacilityRequest 建筑物信息查询请求

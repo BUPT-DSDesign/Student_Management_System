@@ -29,7 +29,10 @@ func main() {
 	// tokenString, _ := utils.ReleaseToken(userId)
 	// fmt.Printf("userId: %v\n", userId)
 	// fmt.Printf("tokenString: %v\n", tokenString)
-
 	r := router.InitRouters()
+	//配置Https服务
+	//r.Use(middleware.TlsHandler(8080))
+	//_ = r.RunTLS(":8080", "./secret/test.pem", "./secret/test.key")
 	_ = r.Run(":8080")
+
 }
