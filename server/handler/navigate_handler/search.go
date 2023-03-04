@@ -1,7 +1,6 @@
 package navigate_handler
 
 import (
-	"fmt"
 	"net/http"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -46,7 +45,6 @@ func RunNavigateHandler(c *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(navi)
 	nodeList, err := navigate_service.NavigateServer.DoNavigation(navigate_service.Server, navi)
 	if err != nil {
 		c.JSON(http.StatusOK, NavigateResponse{
