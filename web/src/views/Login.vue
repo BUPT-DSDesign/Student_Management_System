@@ -45,14 +45,17 @@ export default {
         },
         submitForm(formName) {
             // let that = this;
-            this.$refs[formName].validate((valid) => {
+            this.$refs[formName].validate(async (valid) => {
                 if (valid) {
-                    const fg = this.LoginIn()
-                    console.log(fg)
+                    const fg = await this.LoginIn() // 这里等待请求过程完成
                     if (fg) {
-                        console.log(this.useUserStore)
+                        // 取pinia的数据到view
+                        console.log(this.useUserStore.rdata)
+                        // setInterval(() => {
+                        //     console.log(this.useUserStore.rdata)
+                        // }, 1000);
                                               
-                        this.$router.push('/Main/Homepage')
+                        // this.$router.push('/Main/Homepage')
                     }
                     // // 下面是之前写的
                     // that.$router.push('/Main/Homepage');
