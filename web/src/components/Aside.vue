@@ -52,7 +52,7 @@ h3 {
 
 <script>
 import { useCourseStore } from '@/pinia/modules/course'
-import {bus} from '@/transfer/bus'
+
 export default {
     data() {
         return {
@@ -88,7 +88,7 @@ export default {
                     // console.log(this.useCourseStore.rdata)
                     this.courseList = this.useCourseStore.rdata.course_list
                     console.log(this.courseList)
-                    bus.$emit("courseList", this.courseList)
+                    this.$emit('courseList', this.courseList)
                     
                     this.$router.push('/Main/inClass');
                 } else {

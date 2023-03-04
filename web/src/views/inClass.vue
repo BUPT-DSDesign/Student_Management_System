@@ -74,7 +74,7 @@
     </div>
 </template>
 <script>
-import { bus } from '@/transfer/bus'
+import bus from '@/transfer/bus'
 export default {
     data() {
         return {
@@ -104,7 +104,7 @@ export default {
         };
     },
     created() {
-        bus.$on("courseList", (data) => {   //这里最好用箭头函数，不然this指向有问题
+        bus.$on('courseList', (data) => {   //这里最好用箭头函数，不然this指向有问题
             this.classData = data
         })
     },

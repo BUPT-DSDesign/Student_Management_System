@@ -2,7 +2,7 @@
     <div>
         <el-container>
             <el-aside width="200px">
-               <Aside></Aside>
+               <Aside @courseList="receiveData"></Aside>
             </el-aside>
             <el-container>
                 <el-header>   
@@ -19,10 +19,22 @@
 <script>
 import Aside from '../components/Aside.vue'
 import Header from '../components/Header.vue'
+import bus from '@/transfer/bus'
 export default {
     data() {
-        return {}
+        return {
+            courseList: []
+        }
     },
+
+    methods: {
+        receiveData(data) {
+            this.courseList = data
+            console.log(this.courseList)
+            bus.$emit('courseList', this.courseList)
+        }
+    },
+
     components: {
         Aside,
         Header
