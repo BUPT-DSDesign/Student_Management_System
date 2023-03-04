@@ -19,8 +19,7 @@ type loginResponse struct {
 // @Tags         用户鉴权
 // @Accept 		 application/json
 // @Produce      application/json
-// @Param		 username query string true "用户名"
-// @Param        password query string true "密码"
+// @Param		 user_input body common.LoginRequest true "用户信息"
 // @Success      200  {object}  loginResponse
 // @Router       /user/login [post]
 func LoginHandler(c *gin.Context) {

@@ -120,18 +120,13 @@ const docTemplate = `{
                 "summary": "登录",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "密码",
-                        "name": "password",
-                        "in": "query",
-                        "required": true
+                        "description": "用户信息",
+                        "name": "user_input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/common.LoginRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -192,6 +187,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "common.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "course_handler.tableResponse": {
             "type": "object",
             "properties": {
