@@ -55,7 +55,7 @@ export default {
                         //     console.log(this.useUserStore.rdata)
                         // }, 1000);
                                               
-                        // this.$router.push('/Main/Homepage')
+                        this.$router.push('/Main/Homepage')
                     }
                     // // 下面是之前写的
                     // that.$router.push('/Main/Homepage');

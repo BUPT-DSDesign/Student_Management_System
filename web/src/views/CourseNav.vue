@@ -37,6 +37,7 @@
     </div>
 </template>
 <script>
+import { useNavigateStore } from '@/pinia/modules/navigate'
 // 绘制线路需要的坐标
 var lineArr = [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]];
 // var lineArr = [[116.478935, 39.997761], [108.983569, 34.285675], [103.85094, 35.987496], [106.205794, 38.458831], [111.761777, 40.875595]]
@@ -118,8 +119,8 @@ export default {
                 { id: 65, address: "体育馆" },
                 { id: 66, address: "游泳馆" },
                 { id: 67, address: "科学会堂" },
-            ]
-
+            ],
+            useNavigateStore: new useNavigateStore()
         }
     },
     //监视用户输入关键词keyWord1的变化，
@@ -159,7 +160,11 @@ export default {
     },
     methods: {
         //给后端发送起始点的id和终止点的id
-        onSubmit() {
+        getNavigatePath: async function(startId, endId) {
+            return await this.useNavigateStore.GetNavigatePath(startId, endId)
+        },
+
+        onSubmit() { 
             var startId = -1, endId = -1;
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
@@ -174,6 +179,17 @@ export default {
             }
             //最后改成给后端发送startid和endid
             alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
+            console.log(this.useNavigateStore)
+            // 起始点id， 终止点id
+            const getPath = async () => {
+                const flag = await this.getNavigatePath(startId, endId)
+                if (flag) {
+                    
+                } else {
+                    console.log('error')
+                }
+            }
+            getPath()
         },
         //点击ul自动填充input
         chooseaddress1(e) {

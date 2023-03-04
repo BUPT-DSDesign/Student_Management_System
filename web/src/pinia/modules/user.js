@@ -3,46 +3,6 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { Loading } from 'element-ui'
 
-// export const useUserStore = defineStore('user', () => {
-//     state: () => {
-//         return {
-//             data: null
-//         }
-//     },
-//     actions: {
-//         async LoginIn(loginInfo) {
-//             const loadingInstance = ref(null) // 登录时的加载框
-//             loadingInstance.value = Loading.service({
-//                 lock: true,
-//                 text: '登录中，请稍候.....',
-//                 background: 'rgba(0, 0, 0, 0.7)'
-//             })
-//             try {
-//                 const res = await Login(loginInfo)
-//                 // this.setData(res.data)
-//                 this.data = res.data
-
-//                 if (res.data.status_code == 0) {
-//                     window.localStorage.removeItem('token')
-//                     localStorage.clear()
-//                     // 登录成功后把token存起来
-//                     window.localStorage.setItem('token', res.data.token)
-
-//                     loadingInstance.value.close()
-//                     // ....其他操作
-//                     return true
-//                 }
-//             } catch (err) {
-//                 loadingInstance.value.close()
-//                 return false
-//             }
-//             loadingInstance.value.close()
-//         }
-//     }
-// })
-
-    
-
 export const useUserStore = defineStore('user', () => {
     const rdata = ref(null)
 
