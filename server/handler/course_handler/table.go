@@ -17,9 +17,7 @@ type tableResponse struct {
 // @Summary      课程表
 // @Description  获取学生所有的课程表信息
 // @Tags         课程表相关接口
-// @Accept 		 application/json
 // @Produce      application/json
-// @Param        user_id query string true "学生ID"
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  tableResponse
 // @Router       /course/table [get]

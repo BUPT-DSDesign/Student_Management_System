@@ -7,6 +7,15 @@ definitions:
       username:
         type: string
     type: object
+  common.RegisterRequest:
+    properties:
+      password:
+        type: string
+      student_id:
+        type: string
+      username:
+        type: string
+    type: object
   course_handler.tableResponse:
     properties:
       course_list:
@@ -109,15 +118,7 @@ info:
 paths:
   /course/table:
     get:
-      consumes:
-      - application/json
       description: 获取学生所有的课程表信息
-      parameters:
-      - description: 学生ID
-        in: query
-        name: user_id
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -186,21 +187,12 @@ paths:
       - application/json
       description: 用户注册
       parameters:
-      - description: 学号
-        in: query
-        name: student_id
+      - description: 用户信息
+        in: body
+        name: user_input
         required: true
-        type: string
-      - description: 用户名
-        in: query
-        name: username
-        required: true
-        type: string
-      - description: 密码
-        in: query
-        name: password
-        required: true
-        type: string
+        schema:
+          $ref: '#/definitions/common.RegisterRequest'
       produces:
       - application/json
       responses:

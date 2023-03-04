@@ -19,9 +19,7 @@ type registerResponse struct {
 // @Tags         用户鉴权
 // @Accept 		 application/json
 // @Produce      application/json
-// @Param		 student_id query string true "学号"
-// @Param		 username query string true "用户名"
-// @Param        password query string true "密码"
+// @Param		 user_input body common.RegisterRequest true "用户信息"
 // @Success      200  {object}  registerResponse
 // @Router       /user/register [post]
 func RegisterHandler(c *gin.Context) {

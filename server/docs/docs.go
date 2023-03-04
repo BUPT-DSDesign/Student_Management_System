@@ -32,9 +32,6 @@ const docTemplate = `{
                     }
                 ],
                 "description": "获取学生所有的课程表信息",
-                "consumes": [
-                    "application/json"
-                ],
                 "produces": [
                     "application/json"
                 ],
@@ -42,15 +39,6 @@ const docTemplate = `{
                     "课程表相关接口"
                 ],
                 "summary": "课程表",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "学生ID",
-                        "name": "user_id",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -154,25 +142,13 @@ const docTemplate = `{
                 "summary": "注册",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "学号",
-                        "name": "student_id",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "用户名",
-                        "name": "username",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "密码",
-                        "name": "password",
-                        "in": "query",
-                        "required": true
+                        "description": "用户信息",
+                        "name": "user_input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/common.RegisterRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -191,6 +167,20 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "common.RegisterRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "student_id": {
                     "type": "string"
                 },
                 "username": {
