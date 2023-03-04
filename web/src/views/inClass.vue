@@ -33,7 +33,7 @@
         </el-button-group>
         <!-- 弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-            <el-card class="box-card">
+            <el-card class="box-card" >
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
                 <div class="course_name">课程时间：{{ curClassData.section_list }}</div>
                 <div class="course_name">课程地点：{{ curClassData.classroom }}</div>
@@ -46,7 +46,7 @@
         <!-- 右侧：课程搜索功能，通过选择课程名称，时间，地点，对关键字进行模糊匹配，查询后直接在下方显示 -->
         <el-row :gutter="12">
             <el-col :span="100">
-                <el-card shadow="always">
+                <el-card shadow="always" class="searchbox">
                     <h2>关键字选择</h2>
                     <el-radio-group v-model="radio">
                         <el-radio :label="1">课程名称</el-radio>
@@ -146,7 +146,6 @@ export default {
             // 循环遍历找到数据库中该课程的所有信息
             for (let i = 0; i < 2; i++) {
                 if (this.classData[i].course_name == this.curClass) {
-                     
                     console.log('相等')
                     //如果有该课程，更新curClassData
                     this.curClassData = this.classData[i];
@@ -204,7 +203,7 @@ h2 {
     font-size: 20px;
 }
 
-.el-card {
+.searchbox{
     float: right;
     margin-top: -500px;
     margin-left: 650px;
