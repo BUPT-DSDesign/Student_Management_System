@@ -217,6 +217,12 @@ const docTemplate = `{
                         }
                     }
                 },
+                "path_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.PathGuider"
+                    }
+                },
                 "status_code": {
                     "type": "integer"
                 },
@@ -281,6 +287,19 @@ const docTemplate = `{
                     "items": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "system.PathGuider": {
+            "type": "object",
+            "properties": {
+                "distance": {
+                    "description": "向量长度,单位为米",
+                    "type": "number"
+                },
+                "heading": {
+                    "description": "向量方向,用航向角来计算(正北为0,360等分)",
+                    "type": "integer"
                 }
             }
         },

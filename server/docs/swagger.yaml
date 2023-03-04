@@ -35,6 +35,10 @@ definitions:
             type: number
           type: array
         type: array
+      path_list:
+        items:
+          $ref: '#/definitions/system.PathGuider'
+        type: array
       status_code:
         type: integer
       status_msg:
@@ -79,6 +83,15 @@ definitions:
         items:
           type: integer
         type: array
+    type: object
+  system.PathGuider:
+    properties:
+      distance:
+        description: 向量长度,单位为米
+        type: number
+      heading:
+        description: 向量方向,用航向角来计算(正北为0,360等分)
+        type: integer
     type: object
   user_handler.loginResponse:
     properties:

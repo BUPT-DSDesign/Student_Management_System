@@ -10,6 +10,8 @@ type NavigateServer interface {
 	DoNavigation(navigateRequest common.NavigateRequest) ([][2]float64, error)
 	// DoGetFacilityList 返回待查询建筑物列表
 	DoGetFacilityList(request common.FacilityRequest) (*[]*system.FacilityInfo, error)
+	// DoGetNavigationInfo 获取导航的路径信息
+	DoGetNavigationInfo(nodeList [][2]float64) ([]system.PathGuider, error)
 }
 type server struct {
 	tempNodeList []Node

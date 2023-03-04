@@ -4,16 +4,18 @@ import (
 	"fmt"
 	"net/http"
 	"server/model/entity/common"
+	"server/model/entity/system"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"server/service/navigate_service"
 )
 
-// 导航响应
+// NavigateResponse 导航响应
 type NavigateResponse struct {
 	common.StatusResponse
-	NodeList [][2]float64 `json:"node_list"`
+	NodeList [][2]float64        `json:"node_list"`
+	PathList []system.PathGuider `json:"path_list"`
 }
 
 // RunNavigateHandler 导航
@@ -40,18 +42,32 @@ func RunNavigateHandler(c *gin.Context) {
 				StatusMsg:  "id解析错误",
 			},
 			NodeList: nil,
+			PathList: nil,
 		})
 		return
 	}
 	fmt.Println(navi)
-	nodelist, err := navigate_service.NavigateServer.DoNavigation(navigate_service.Server, navi)
+	nodeList, err := navigate_service.NavigateServer.DoNavigation(navigate_service.Server, navi)
 	if err != nil {
 		c.JSON(http.StatusOK, NavigateResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,
-				StatusMsg:  err.Error(),
+				StatusMsg:  "节点列表生成错误" + err.Error(),
 			},
 			NodeList: nil,
+			PathList: nil,
+		})
+		return
+	}
+	pathList, err := navigate_service.NavigateServer.DoGetNavigationInfo(navigate_service.Server, nodeList)
+	if err != nil {
+		c.JSON(http.StatusOK, NavigateResponse{
+			StatusResponse: common.StatusResponse{
+				StatusCode: 3,
+				StatusMsg:  "路径信息生成错误" + err.Error(),
+			},
+			NodeList: nodeList,
+			PathList: nil,
 		})
 		return
 	}
@@ -60,7 +76,8 @@ func RunNavigateHandler(c *gin.Context) {
 			StatusCode: 0,
 			StatusMsg:  "成功导航!",
 		},
-		NodeList: nodelist,
+		NodeList: nodeList,
+		PathList: pathList,
 	})
 
 }
