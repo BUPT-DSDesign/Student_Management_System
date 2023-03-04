@@ -8,10 +8,9 @@ export const useNavigateStore = defineStore('navigate', () => {
     const GetNavigatePath = async (startId, endId) => {
         try {
             const res = await Navigate(startId, endId)
-            console.log(res.data)
-
-            if (res.data.ststus_code == 0) {
-                // rdata.value = res.data
+            
+            if (res.data.status_code == 0) {
+                rdata.value = res.data
                 return true
             }
             return false
