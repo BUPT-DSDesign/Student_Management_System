@@ -74,6 +74,7 @@
     </div>
 </template>
 <script>
+import { bus } from '@/transfer/bus'
 export default {
     data() {
         return {
@@ -101,6 +102,11 @@ export default {
             filclasslist: [], //模糊匹配后的课程列表
 
         };
+    },
+    created() {
+        bus.$on("courseList", (data) => {   //这里最好用箭头函数，不然this指向有问题
+            this.classData = data
+        })
     },
     watch: {
         keyWord(newvalue) {
