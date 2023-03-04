@@ -35,8 +35,8 @@
         <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
             <el-card class="box-card" >
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
-                <div class="course_name">课程时间：{{ curClassData.section_list }}</div>
-                <div class="course_name">课程地点：{{ curClassData.classroom }}</div>
+                <div class="course_time">课程时间：{{ curClassData.section_list }}</div>
+                <div class="course_address">课程地点：{{ curClassData.classroom }}</div>
             </el-card>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
@@ -74,6 +74,7 @@
     </div>
 </template>
 <script>
+import { bus } from '@/transfer/bus'
 export default {
     data() {
         return {
@@ -101,6 +102,11 @@ export default {
             filclasslist: [], //模糊匹配后的课程列表
 
         };
+    },
+    created() {
+        bus.$on("courseList", (data) => {   //这里最好用箭头函数，不然this指向有问题
+            this.classData = data
+        })
     },
     watch: {
         keyWord(newvalue) {

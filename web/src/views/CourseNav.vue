@@ -37,13 +37,15 @@
     </div>
 </template>
 <script>
+import { useNavigateStore } from '@/pinia/modules/navigate'
 // 绘制线路需要的坐标
-var lineArr = [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]];
+// var lineArr = [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]];
 // var lineArr = [[116.478935, 39.997761], [108.983569, 34.285675], [103.85094, 35.987496], [106.205794, 38.458831], [111.761777, 40.875595]]
 export default {
     data() {
         return {
             firstArr: [116.35530714718364, 39.96393072423919],// 中心点/初始坐标
+            lineArr: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]], // 路径上的点
             keyWord1: '', //用户输入的关键字(起点)
             keyWord2: '', //用户输入的关键字(终点)
             filplacelist1: [], //模糊匹配后的列表（起点
@@ -118,8 +120,8 @@ export default {
                 { id: 65, address: "体育馆" },
                 { id: 66, address: "游泳馆" },
                 { id: 67, address: "科学会堂" },
-            ]
-
+            ],
+            useNavigateStore: new useNavigateStore()
         }
     },
     //监视用户输入关键词keyWord1的变化，
@@ -159,7 +161,11 @@ export default {
     },
     methods: {
         //给后端发送起始点的id和终止点的id
-        onSubmit() {
+        getNavigatePath: async function(startId, endId) {
+            return await this.useNavigateStore.GetNavigatePath(startId, endId)
+        },
+
+        onSubmit() { 
             var startId = -1, endId = -1;
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
@@ -174,6 +180,22 @@ export default {
             }
             //最后改成给后端发送startid和endid
             alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
+            
+            // 起始点id， 终止点id
+            const getPath = async () => {
+                const flag = await this.getNavigatePath(startId, endId)
+                if (flag) {
+                    // 从pinia传来的数据
+                    console.log(this.useNavigateStore.rdata)
+                    this.lineArr = this.useNavigateStore.rdata.node_list
+                    this.firstArr = this.lineArr[0]
+                } else {
+                    console.log('error')
+                }
+            }
+            getPath()
+
+            // console.log(lineArr)
         },
         //点击ul自动填充input
         chooseaddress1(e) {
@@ -207,7 +229,7 @@ export default {
             // 绘制还未经过的路线
             this.polyline = new AMap.Polyline({
                 map: this.map,
-                path: lineArr,
+                path: this.lineArr,
                 showDir: true,
                 strokeColor: '#28F', // 线颜色--浅蓝色
                 // strokeOpacity: 1,     //线透明度
@@ -229,7 +251,7 @@ export default {
             this.map.setFitView() // 合适的视口
         },
         startAnimation() {
-            this.marker.moveAlong(lineArr, 200);
+            this.marker.moveAlong(this.lineArr, 200);
         },
 
         pauseAnimation() {

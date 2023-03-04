@@ -71,6 +71,7 @@ func RunNavigateHandler(c *gin.Context) {
 		})
 		return
 	}
+
 	c.JSON(http.StatusOK, NavigateResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,

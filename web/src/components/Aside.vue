@@ -51,10 +51,15 @@ h3 {
 </style>
 
 <script>
+import { useCourseStore } from '@/pinia/modules/course'
+import {bus} from '@/transfer/bus'
 export default {
     data() {
         return {
             isCollapse: false,
+            useCourseStore: new useCourseStore(),
+            CourseTable: [],
+            courseList: []
         };
     },
     methods: {
@@ -71,8 +76,27 @@ export default {
         clickCourseNav() {
             this.$router.push('/Main/CourseNav');
         },
+
+        getCourseTable: async function () {
+            return await this.useCourseStore.GetCourseTable()
+        },
         clickinClass() {
-            this.$router.push('/Main/inClass');
+            // 当点击侧边栏的课内信息时, 会向后端发送请求, 后端返回课程表
+            const getTable = async () => {
+                const fg = await this.getCourseTable()
+                if (fg) {
+                    // console.log(this.useCourseStore.rdata)
+                    this.courseList = this.useCourseStore.rdata.course_list
+                    console.log(this.courseList)
+                    bus.$emit("courseList", this.courseList)
+                    
+                    this.$router.push('/Main/inClass');
+                } else {
+                    console.log('error')
+                }
+            }
+
+            getTable()
         },
         clickoutClass() {
             this.$router.push('/Main/outClass');
