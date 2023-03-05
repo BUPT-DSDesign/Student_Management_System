@@ -58,7 +58,6 @@ export default {
         return {
             isCollapse: false,
             useCourseStore: new useCourseStore(),
-            CourseTable: [],
             courseList: []
         };
     },

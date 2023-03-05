@@ -3,7 +3,7 @@
         <div class="schedule-container">
             <h2>日程安排表</h2>
             <div>
-                <el-table
+                <el-table 
                     :data="eventlist.filter(data => !search || data.event.includes(search) || data.week.includes(search) || data.time.includes(search))"
                     style="width: 100%" max-height="350">
                     <el-table-column label="日期" prop="week" fixed sortable

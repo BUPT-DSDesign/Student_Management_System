@@ -45,7 +45,8 @@ export default {
     data() {
         return {
             firstArr: [116.35530714718364, 39.96393072423919],// 中心点/初始坐标
-            lineArr: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]], // 路径上的点
+            // lineArr: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]], // 路径上的点
+            lineArr: [], // 路径上的点
             keyWord1: '', //用户输入的关键字(起点)
             keyWord2: '', //用户输入的关键字(终点)
             filplacelist1: [], //模糊匹配后的列表（起点
@@ -179,7 +180,7 @@ export default {
                 }
             }
             //最后改成给后端发送startid和endid
-            alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
+            // alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
             
             // 起始点id， 终止点id
             const getPath = async () => {
@@ -188,14 +189,14 @@ export default {
                     // 从pinia传来的数据
                     console.log(this.useNavigateStore.rdata)
                     this.lineArr = this.useNavigateStore.rdata.node_list
-                    this.firstArr = this.lineArr[0]
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
                 } else {
                     console.log('error')
                 }
             }
             getPath()
 
-            // console.log(lineArr)
         },
         //点击ul自动填充input
         chooseaddress1(e) {

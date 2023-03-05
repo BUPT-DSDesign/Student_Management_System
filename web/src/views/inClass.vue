@@ -83,28 +83,16 @@ export default {
             curWeek: 1,
             weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
             time: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'],
-            classData: [{
-                course_name: '计网',
-                course_id: 1,
-                week_schedule: [1, 2, 3, 4, 5],
-                section_list: [1, 2, 3],
-                classroom: "教三211",
-            }, {
-                course_name: '计算机组成原理',
-                course_id: 1,
-                week_schedule: [1, 2, 3, 4],
-                section_list: [5, 6], //注意这里周的排列是一列一列来的
-                classroom: "教三217",
-            }],
+            classData: [],
             dialogVisible: false, //弹窗的可见性
             radio: 1,//多选框默认选中的单元
             keyWord: '', //用户查询的课程关键字
             filclasslist: [], //模糊匹配后的课程列表
-
         };
     },
     created() {
         bus.$on('courseList', (data) => {   //这里最好用箭头函数，不然this指向有问题
+       console.log("刚刚创建了",this.classData)
             this.classData = data
         })
     },
@@ -150,7 +138,7 @@ export default {
             //更改当前点击课程的名称
             this.curClass = event.target.innerText;
             // 循环遍历找到数据库中该课程的所有信息
-            for (let i = 0; i < 2; i++) {
+            for (let i = 0; i < this.classData.length; i++) {
                 if (this.classData[i].course_name == this.curClass) {
                     console.log('相等')
                     //如果有该课程，更新curClassData
@@ -176,8 +164,9 @@ export default {
     computed: {
         filltable() {
             return function (classIndex, weekIndex) {
+                console.log("computed",this.classData)
                 // 因为现在数据中只有两种课程，所以这里i < 2
-                for (let i = 0; i < 2; i++) {
+                for (let i = 0; i < this.classData.length; i++) {
                     //如果是周数组中有当前周
                     if (this.classData[i].week_schedule.indexOf(this.curWeek) != -1) {
                         //如果是节数组中有当前节

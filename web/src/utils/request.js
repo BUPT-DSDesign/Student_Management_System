@@ -4,7 +4,7 @@ import { useNavigateStore } from '@/pinia/modules/navigate'
 
 export const service = axios.create({
     baseURL: "http://localhost:8080/Student_Management_System",
-    timeout: 30000
+    timeout: 3000
 })
 
 // http request 拦截器
