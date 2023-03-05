@@ -74,7 +74,6 @@
     </div>
 </template>
 <script>
-import bus from '@/transfer/bus'
 export default {
     data() {
         return {
@@ -90,11 +89,8 @@ export default {
             filclasslist: [], //模糊匹配后的课程列表
         };
     },
-    created() {
-        bus.$on('courseList', (data) => {   //这里最好用箭头函数，不然this指向有问题
-       console.log("刚刚创建了",this.classData)
-            this.classData = data
-        })
+    mounted() {
+       this.classData = JSON.parse(sessionStorage.getItem('classData'))
     },
     watch: {
         keyWord(newvalue) {
@@ -164,7 +160,7 @@ export default {
     computed: {
         filltable() {
             return function (classIndex, weekIndex) {
-                console.log("computed",this.classData)
+                
                 // 因为现在数据中只有两种课程，所以这里i < 2
                 for (let i = 0; i < this.classData.length; i++) {
                     //如果是周数组中有当前周
