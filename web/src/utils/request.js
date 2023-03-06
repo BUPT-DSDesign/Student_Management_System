@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { useUserStore } from '@/pinia/modules/user'
 import { useNavigateStore } from '@/pinia/modules/navigate'
+import { useEventStore } from '@/pinia/modules/event'
 
 export const service = axios.create({
     baseURL: "http://localhost:8080/Student_Management_System",

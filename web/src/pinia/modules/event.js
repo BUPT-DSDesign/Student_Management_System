@@ -1,25 +1,25 @@
-// import { defineStore } from 'pinia'
-// import { CourseTable } from '@/api/course'
-// import { ref } from 'vue'
+import { defineStore } from 'pinia'
+import { EventTable } from '@/api/event'
+import { ref } from 'vue'
 
-// export const useCourseStore = defineStore('course', () => {
-//     const rdata = ref(null)
-//     const GetCourseTable = async () => {
-//         try {
-//             const res = await CourseTable()
+export const useEventStore = defineStore('event', () => {
+    const rdata = ref(null)
+    const GetEventTable = async () => {
+        try {
+            const res = await EventTable()
 
-//             if (res.data.status_code == 0) {
-//                 rdata.value = res.data
-//                 return true
-//             }
-//             return false
-//         } catch (err) {
-//             return false
-//         }
-//     }
+            if (res.data.status_code == 0) {
+                rdata.value = res.data
+                return true
+            }
+            return false
+        } catch (err) {
+            return false
+        }
+    }
 
-//     return {
-//         rdata,
-//         GetCourseTable
-//     }
-// })
+    return {
+        rdata,
+        GetEventTable
+    }
+})

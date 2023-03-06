@@ -77,6 +77,8 @@
 
 <script>
 import eventDialog from '../components/eventDialog.vue'  //引入弹窗组件
+import { useEventStore } from '@/pinia/modules/event'
+
 export default {
     data() {
         return {
@@ -152,6 +154,9 @@ export default {
             },]
         }
     },
+    // mounted() {
+    //     this.eventList = JSON.parse(sessionStorage.getItem('eventData'))
+    // },
     methods: {
         //删除活动按钮,row即为活动对象
         handleDelete(index, row) {
