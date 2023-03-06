@@ -31,16 +31,28 @@
             <el-button type="primary" @click="toNextweek()">下一周<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
-        <!-- 弹窗 -->
-        <el-dialog title="课程详情" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
-            <el-card class="box-card" >
+        <!-- 点击弹窗 -->
+        <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
+            <el-card class="box-card">
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
                 <div class="course_time">课程时间：{{ curClassData.section_list }}</div>
                 <div class="course_address">课程地点：{{ curClassData.classroom }}</div>
             </el-card>
             <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+                <el-button @click="dialogVisible1 = false">取 消</el-button>
+                <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
+            </span>
+        </el-dialog>
+        <!-- 搜索弹窗 -->
+        <el-dialog title="课程详情" :visible.sync="dialogVisible2" width="30%" :before-close="handleClose">
+            <el-card class="box-card" v-for="(item, index) in searchlist" :key="index">
+                <div class="course_name">课程名称：{{ item.course_name }}</div>
+                <div class="course_time">课程时间：{{ item.section_list }}</div>
+                <div class="course_address">课程地点：{{ item.classroom }}</div>
+            </el-card>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible2 = false">取 消</el-button>
+                <el-button type="primary" @click="dialogVisible2 = false">确 定</el-button>
             </span>
         </el-dialog>
         <!-- 右侧：课程搜索功能，通过选择课程名称，时间，地点，对关键字进行模糊匹配，查询后直接在下方显示 -->
@@ -58,13 +70,13 @@
                         <el-form>
                             <el-input v-model="keyWord" placeholder="请输入查询关键词"></el-input>
                         </el-form>
-                                <ul class="list-group">
-                                    <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)">
-                                        {{ radio==1?p.course_name:p.classroom }}
-                                    </li>
-                                </ul>
+                        <ul class="list-group">
+                            <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)">
+                                {{ radio == 1 ? p.course_name : p.classroom }}
+                            </li>
+                        </ul>
                         <el-form-item>
-                                <el-button type="primary" class="searchBtn" @click="onSubmit">查询</el-button>
+                            <el-button type="primary" class="searchBtn" @click="onSubmit">查询</el-button>
                         </el-form-item>
                     </el-form>
                 </el-card>
@@ -83,14 +95,16 @@ export default {
             weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
             time: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'],
             classData: [],
-            dialogVisible: false, //弹窗的可见性
+            dialogVisible1: false, //弹窗的可见性
+            dialogVisible2: false, //弹窗的可见性
             radio: 1,//多选框默认选中的单元
             keyWord: '', //用户查询的课程关键字
             filclasslist: [], //模糊匹配后的课程列表
+            searchlist: [],//搜索后返回的数组对象
         };
     },
     mounted() {
-       this.classData = JSON.parse(sessionStorage.getItem('classData'))
+        this.classData = JSON.parse(sessionStorage.getItem('classData'))
     },
     watch: {
         keyWord(newvalue) {
@@ -100,20 +114,31 @@ export default {
             }
             else {
                 if (this.radio == 1) {
-                    //有点问题，第二次过滤得到课程名时过滤不了
+                    //过滤
                     this.filclasslist = this.classData.filter((item) => {
                         return item.course_name.indexOf(newvalue) != -1;
                     });
                 }
+
                 else if (this.radio == 2) {
                     this.filclasslist = this.classData.filter((item) => {
                         return item.classroom.indexOf(newvalue) != -1;
                     });
+                    //去重??
+                    this.Unrepeated(this.filclasslist);
                 }
             }
         },
     },
     methods: {
+        //数组去重函数
+        Unrepeated(arr) {
+            let newArr = [];
+            arr.forEach(item => {
+                return newArr.includes(item) ? '' : newArr.push(item);
+            });
+            return newArr;
+        },
         toNextweek() {
             if (this.curWeek >= 19) {
                 return;
@@ -142,7 +167,7 @@ export default {
                 }
             }
             //点击弹窗
-            this.dialogVisible = true;
+            this.dialogVisible1 = true;
         },
         // 关闭弹窗
         handleClose(done) {
@@ -150,7 +175,18 @@ export default {
         },
         //查询点击事件
         onSubmit() {
-            //提交后台进行查询
+            if (this.radio == 1) {
+                this.searchlist = this.classData.filter((item) => {
+                    return item.course_name.indexOf(this.keyWord) != -1;
+                });
+            }
+            else if (this.radio == 2) {
+                this.searchlist = this.classData.filter((item) => {
+                    return item.classroom.indexOf(this.keyWord) != -1;
+                });
+            }
+            //点击弹窗
+            this.dialogVisible2 = true;
         },
         //点击ul自动填充input
         chooseclass(e) {
@@ -160,7 +196,6 @@ export default {
     computed: {
         filltable() {
             return function (classIndex, weekIndex) {
-                
                 // 因为现在数据中只有两种课程，所以这里i < 2
                 for (let i = 0; i < this.classData.length; i++) {
                     //如果是周数组中有当前周
@@ -181,9 +216,10 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-ul{
-    margin-top:20px;
+ul {
+    margin-top: 20px;
 }
+
 .searchBtn {
     margin-top: 20px;
 }
@@ -194,7 +230,7 @@ h2 {
     font-size: 20px;
 }
 
-.searchbox{
+.searchbox {
     float: right;
     margin-top: -500px;
     margin-left: 650px;
