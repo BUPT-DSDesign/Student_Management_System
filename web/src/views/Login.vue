@@ -2,11 +2,12 @@
 <template>
     <div class="login-container">
         <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+             <h1 class="title">用户登陆</h1>
             <el-form-item label="用户名" prop="usename">
-                <el-input v-model="ruleForm.usename"></el-input>
+                <el-input v-model="ruleForm.usename" suffix-icon="el-icon-user" @keyup.enter.native="submitForm('ruleForm')"></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="password">
-                <el-input type="password" v-model="ruleForm.password"></el-input>
+                <el-input type="password" v-model="ruleForm.password" show-password @keyup.enter.native="submitForm('ruleForm')"></el-input>
             </el-form-item>
             <el-link type="primary" @click="jumpReg">注册账号</el-link>
             <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
@@ -120,6 +121,12 @@ export default {
 .el-button {
     width: 100%;
     margin-top: 20px;
+}
+
+.title {
+    margin: 0px auto 40px auto;
+    text-align: center;
+    color: #66B1FF
 }
 </style>
 
