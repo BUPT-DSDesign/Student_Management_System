@@ -1,7 +1,8 @@
 <template>
     <div>
         <div class="map" style="float:left;">
-            <div id="container" style="width:500px;height:70vh;" />
+  
+                <div id="container" style="width:500px;height:70vh;box-shadow: 0px 5px 5px #c8c8c8; " />
             <div class="input-card">
                 <div class="input-item">
                     <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation()" />
@@ -17,7 +18,7 @@
                     <el-input v-model="keyWord1" style="width:250px;"></el-input>
                 </el-form-item>
                 <ul class="list-group">
-                    <li v-for="(p, index) of filplacelist1" :key="index" @click="chooseaddress1($event)">
+                    <li v-for="(p, index) of filplacelist1" :key="index" @click="chooseaddress1($event)" style="font-size:13px;">
                         {{ p.address }}
                     </li>
                 </ul>
@@ -25,7 +26,7 @@
                         <el-input v-model="keyWord2" style="width:250px;"></el-input>
                     </el-form-item>
                     <ul class="list-group">
-                        <li v-for="(p, index) of filplacelist2" :key="index" @click="chooseaddress2($event)">
+                        <li v-for="(p, index) of filplacelist2" :key="index" @click="chooseaddress2($event)" style="font-size:13px;">
                             {{ p.address }}
                         </li>
                     </ul>
@@ -214,14 +215,21 @@ export default {
                 resizeEnable: true, // 窗口大小调整
                 center: this.firstArr,
             })
+            // 创建 AMap.Icon 实例：
+            this.icon = new AMap.Icon({
+                size: new AMap.Size(120, 70),    // 图标尺寸
+                image: 'https://media0.giphy.com/media/6GdnEOYPA8JDsxAKg9/source.gif',  // Icon的图像
+                imageOffset: new AMap.Pixel(0, 0),  // 图像相对展示区域的偏移量，适于雪碧图等
+                imageSize: new AMap.Size(120, 70)   // 根据所设置的大小拉伸或压缩图片
+            });
             // 添加maker
             this.marker = new AMap.Marker({
                 map: this.map,
                 position: this.firstArr,
-                icon: 'https://webapi.amap.com/images/car.png',
-                offset: new AMap.Pixel(-26, -13), // 调整图片偏移
-                autoRotation: true, // 自动旋转
-                angle: -90 // 图片旋转角度
+                icon: this.icon, // 添加 Icon 实例
+                offset: new AMap.Pixel(-60, -60), // 调整图片偏移
+                // autoRotation: true, // 自动旋转
+                // angle: -90 // 图片旋转角度
             })
             that.initroad() //初始化路径
         },
@@ -269,6 +277,10 @@ export default {
 }
 </script>
 <style>
+.list-group{
+    color: #adb5bd;
+    margin-top:10px;
+}
 .btn {
     background-color: #409EFF;
     /* Green */
@@ -283,7 +295,12 @@ export default {
     cursor: pointer;
     transition-duration: 0.4s;
 }
-
+.el-form{
+    background-color: #e7f5ff;
+    padding:15px;
+    height:375px;
+    box-shadow: 0px 5px 5px #c8c8c8;
+}
 .btn:hover {
     box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
@@ -316,4 +333,5 @@ export default {
 
 .list-group li:hover {
     color: #1971c2;
-}</style>
+}
+</style>

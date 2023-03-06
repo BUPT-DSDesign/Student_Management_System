@@ -71,7 +71,7 @@
                             <el-input v-model="keyWord" placeholder="请输入查询关键词"></el-input>
                         </el-form>
                         <ul class="list-group">
-                            <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)">
+                            <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)" style="font-size:10px;">
                                 {{ radio == 1 ? p.course_name : p.classroom }}
                             </li>
                         </ul>
@@ -86,6 +86,7 @@
     </div>
 </template>
 <script>
+import { Message } from 'element-ui'
 export default {
     data() {
         return {
@@ -99,8 +100,8 @@ export default {
             dialogVisible2: false, //弹窗的可见性
             radio: 1,//多选框默认选中的单元
             keyWord: '', //用户查询的课程关键字
-            filclasslist: [], //模糊匹配后的课程列表
-            searchlist: [],//搜索后返回的数组对象
+            filclasslist: [], //模糊匹配后的课程列表（li中的填充对象
+            searchlist: [],//搜索后返回的数组对象(查询弹窗中的填充对象)
         };
     },
     mounted() {
@@ -124,21 +125,21 @@ export default {
                     this.filclasslist = this.classData.filter((item) => {
                         return item.classroom.indexOf(newvalue) != -1;
                     });
-                    //去重??
-                    this.Unrepeated(this.filclasslist);
+                    //去重
+                    this.filclasslist = this.dedup(this.filclasslist);
                 }
             }
         },
     },
+
+
     methods: {
-        //数组去重函数
-        Unrepeated(arr) {
-            let newArr = [];
-            arr.forEach(item => {
-                return newArr.includes(item) ? '' : newArr.push(item);
-            });
-            return newArr;
+        //将相同教室的数组元素去重
+        dedup(arr) {
+            const res = new Map()
+            return arr.filter((item) => !res.has(item.classroom) && res.set(item.classroom, 1))
         },
+        //点击下一周
         toNextweek() {
             if (this.curWeek >= 19) {
                 return;
@@ -147,6 +148,7 @@ export default {
             this.curCell = 0;//重置单元格计数器
             this.$forceUpdate(); //重新刷新页面
         },
+        //点击上一周
         toLastweek() {
             if (this.curWeek <= 1) {
                 return;
@@ -155,7 +157,17 @@ export default {
             this.curCell = 0;//重置单元格计数器
             this.$forceUpdate(); //重新刷新页面
         },
+        //点击课程单元格
         clickClass(event) {
+            if (event.target.innerText == '') {
+                 Message.info({
+                    showClose: true,
+                    center: true,
+                     message: '当前课节无课',
+                    duration:1000,
+                })
+                return;
+            }
             //更改当前点击课程的名称
             this.curClass = event.target.innerText;
             // 循环遍历找到数据库中该课程的所有信息
@@ -173,7 +185,7 @@ export default {
         handleClose(done) {
             done();
         },
-        //查询点击事件
+        //查询的点击事件
         onSubmit() {
             if (this.radio == 1) {
                 this.searchlist = this.classData.filter((item) => {
@@ -194,6 +206,7 @@ export default {
         },
     },
     computed: {
+        //填充单元格
         filltable() {
             return function (classIndex, weekIndex) {
                 // 因为现在数据中只有两种课程，所以这里i < 2
@@ -216,6 +229,11 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.list-group{
+    color: #adb5bd;
+    margin-left:10px;
+    margin-top:10px;
+}
 ul {
     margin-top: 20px;
 }
