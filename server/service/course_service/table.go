@@ -73,6 +73,21 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamLocationNode:   nil,
 			ExamOption:         0,
 		},
+		{
+			CourseName:         "形式语言与自动机",
+			CourseId:           2312314,
+			Teacher:            "张斌",
+			Contact:            "18611555835",
+			SectionList:        []int{11,12},
+			WeekSchedule:       []int{1, 2, 4, 5, 7},
+			Classroom:          "教三-305",
+			CourseLocationNode: nil,
+			IsCourseOnline:     false,
+			ExamTime:           "",
+			ExamLocation:       "",
+			ExamLocationNode:   nil,
+			ExamOption:         0,
+		},
 	}
 
 	return nil

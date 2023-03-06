@@ -52,6 +52,7 @@ h3 {
 
 <script>
 import { useCourseStore } from '@/pinia/modules/course'
+import { useEventStore } from '@/pinia/modules/event'
 
 
 export default {
@@ -59,7 +60,9 @@ export default {
         return {
             isCollapse: false,
             useCourseStore: new useCourseStore(),
-            courseList: []
+            useEventStore:new useEventStore(),
+            courseList: [],
+            eventList: [],
         };
     },
     methods: {
@@ -95,10 +98,28 @@ export default {
                     console.log('error')
                 }
             }
-
             getTable()
         },
+        //  getEventTable: async function () {
+        //     return await this.useEventStore.GetEventTable()
+        // },
         clickoutClass() {
+            //  // 当点击侧边栏的课外信息时, 会向后端发送请求, 后端返回课外活动表
+            // const getEventTable = async () => {
+            //     const fg = await this.getEventTable()
+            //     if (fg) {
+            //         // console.log(this.useEventStore.rdata)
+            //         this.eventList = this.useEventStore.rdata.event_list
+            //         console.log(this.eventList)
+            //         // bus.$emit('courseList', this.courseList)
+            //         sessionStorage.setItem('eventData', JSON.stringify(this.eventList))
+            //         this.$router.push('/Main/outClass');
+            //     } else {
+            //         console.log('error')
+            //     }
+            // }
+            // getEventTable()
+
             this.$router.push('/Main/outClass');
         },
 
