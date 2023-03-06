@@ -11,6 +11,7 @@ import outClass from '../views/outClass.vue'
 import Main from '../views/Main.vue'
 import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
+import { Message } from 'element-ui'
 
 Vue.use(VueRouter)
 
@@ -47,7 +48,11 @@ router.beforeEach((to, from, next) => {
         next()
     } else {
         if (window.localStorage.getItem('token') == null) {
-            alert('您需要先登录!')
+            Message.warning({
+                showClose: true,
+                center: true,
+                message: '您需要先登录！！！',
+            })
             next('/')
         } else {
             next()

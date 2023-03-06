@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import ElementUI from 'element-ui';
+import { Message } from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import App from './App.vue'
 import router from './router';
@@ -12,6 +13,9 @@ Vue.prototype.$http = axios
 
 // 使用ElementUI设计
 Vue.use(ElementUI);
+
+// 全局使用message
+Vue.prototype.$message = Message
 
 // 使用pinia模块管理
 const store = new createPinia()

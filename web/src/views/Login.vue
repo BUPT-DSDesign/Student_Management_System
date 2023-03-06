@@ -56,6 +56,12 @@ export default {
                         // }, 1000);
                                               
                         this.$router.push('/Main/Homepage')
+                        this.$message({
+                            showClose: true,
+                            center: true,
+                            message: '登录成功',
+                            type: 'success'
+                        });
                     }
                     // // 下面是之前写的
                     // that.$router.push('/Main/Homepage');
@@ -75,7 +81,12 @@ export default {
                     //     })
                    
                 } else {
-                    console.log('error submit!!');
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '登录失败',
+                        type: 'error'
+                    });
                     return false;
                 }
             });
