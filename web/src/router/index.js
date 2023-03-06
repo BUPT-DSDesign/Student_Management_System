@@ -39,5 +39,21 @@ const router = new VueRouter({
     routes,
     mode:'history'
 })
-//4.将router实例对外暴露
+
+// 4.设置用户进入页面的权限, 当用户处于登录状态时, 可以直接进入其他页面, 否则会跳转到登录页面
+router.beforeEach((to, from, next) => {
+    if (to.path == '/' || to.path == '/Register') {
+        // 登录和注册页面可以直接进入
+        next()
+    } else {
+        if (window.localStorage.getItem('token') == null) {
+            alert('您需要先登录!')
+            next('/')
+        } else {
+            next()
+        }
+    }
+})
+
+//5.将router实例对外暴露
 export default router
