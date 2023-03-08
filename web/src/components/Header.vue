@@ -32,8 +32,8 @@ export default {
       this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
     },
     layout() {
-      console.log('输出')
       window.localStorage.removeItem('token') //移除token
+      window.localStorage.removeItem('userId') //移除id
       this.$router.replace('/')
     }
   },

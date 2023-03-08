@@ -10,8 +10,9 @@ export const useUserStore = defineStore('user', () => {
     // const token = ref(window.localStorage.getItem('token') || '')
 
     // 初始化token, 用户每次登录的时候需要把原先的token清空
-    const initToken = () => {
+    const initTokenAndId = () => {
         window.localStorage.removeItem('token') //移除token
+        window.localStorage.removeItem('userId') //移除id
     }
 
     const LoginIn = async (loginInfo) => {
@@ -27,7 +28,7 @@ export const useUserStore = defineStore('user', () => {
             // console.log()
 
             if (res.data.status_code == 0) {
-                initToken()
+                initTokenAndId()
                 // 登录成功后把token存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
