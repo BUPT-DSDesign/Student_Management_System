@@ -1,16 +1,17 @@
+#include "SQLstatement.h"
 //提供了数据库增删改查操作所需的API
 
 //退出数据库(与数据库断开链接)
 void Quit();
 
 //创建数据库(返回值待定)
-void CreateDatabase();
+void CreateDatabase(SQLCreateDatabase* statement);
 
 //创建表(应该传入一个能描述表结构的结构体)
-void CreateTable();
+void CreateTable(SQLCreateTable* statement);
 
 //为表创建一个索引,应该传入表和相关的信息
-void CreateIndex();
+void CreateIndex(SQLCreateIndex* statement);
 
 //显示数据库条目
 void ShowDatabases();
@@ -19,16 +20,16 @@ void ShowDatabases();
 void ShowTables();
 
 //删除数据库
-void DropDatabase();
+void DropDatabase(SQLDropDatabase* statement);
 
 //删除表
-void DropTable();
+void DropTable(SQLDropTable* statement);
 
 //删除某张表的索引，应该传入表和相关的信息
-void DropIndex();
+void DropIndex(SQLDropIndex* statement);
 
 //连接上某个数据库，应该返回一个可以操作数据库的指针
-void Use();
+void Use(SQLUse* statement);
 
 //增删改查部分
 
@@ -46,7 +47,7 @@ insert into 表名(列名1,列名2) values(值1,值2);
 故传入参数主要应该为表名，设计到的列，所需要传入数值
 同时这种方式只能一条一条添加
 */
-void Insert();
+void Insert(SQLInsert* statement);
 
 /*
 删除
@@ -55,7 +56,7 @@ void Insert();
 在实际数据库操作中,多会使用WHERE来限制所删除条目的范围
 我们主要实现对多个比较运算符的解析
 */
-void Delete();
+void Delete(SQLDelete* statement);
 
 /*
 更改
@@ -63,7 +64,7 @@ void Delete();
 限定条件: Where
 在实际数据库操作中,更改和删除所要解析的条件子句相似,故两者可以互相参考
 */
-void Update();
+void Update(SQLUpdate* statement);
 /*
 查询
 操作对象:条目
@@ -71,4 +72,4 @@ void Update();
 操作:排序ORDER BY,分组GROUP BY
 查询设计到的限制条件同上，但会对返回数据有要求，这将是一大难点
 */
-void Select();
+void Select(SQLSelect* statement);
