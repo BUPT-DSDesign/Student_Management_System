@@ -16,7 +16,7 @@ void CreateIndex();
 void ShowDatabases();
 
 //展示数据库中表的详细信息
-void ShowTables()
+void ShowTables();
 
 //删除数据库
 void DropDatabase();
