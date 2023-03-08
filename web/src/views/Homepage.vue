@@ -1,10 +1,14 @@
 <template>
-    <h1>我是个人主页</h1>
+    <uploadAvatar></uploadAvatar>
 </template>
 <script>
+import uploadAvatar from '@/components/uploadAvatar.vue';
 export default {
     data() {
         return {}
+    },
+    components: {
+        uploadAvatar
     }
 }
 </script>

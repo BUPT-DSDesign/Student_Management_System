@@ -6,7 +6,7 @@
     <div class="right">
       <el-dropdown>
         <span class="el-dropdown-link">
-          <img class="icon" src="../assets/image/boy.png" alt="">
+          <img class="icon" :src="avatarUrl" alt="">
         </span>
         <el-dropdown-menu>
           <el-dropdown-item>个人中心</el-dropdown-item>
@@ -19,7 +19,14 @@
 <script>
 export default {
   data() {
-    return {}
+    return {
+      avatarUrl: 'http://127.0.0.1:8080/static/avatar.jpg' // 默认头像
+    }
+  },
+  mounted() {
+     if (window.localStorage.getItem('avatar_url') != null) {
+      this.avatarUrl = window.localStorage.getItem('avatar_url')
+    }
   },
   methods: {
     layout() {
@@ -49,5 +56,6 @@ export default {
   width: 35px;
   height: 35px;
   margin-right: 20px;
+  border-radius: 50%;
 }
 </style>

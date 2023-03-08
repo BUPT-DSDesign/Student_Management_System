@@ -1,15 +1,16 @@
 package router
 
 import (
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/swaggo/files"
-	"github.com/swaggo/gin-swagger"
 	_ "server/docs"
 	"server/handler/course_handler"
 	"server/handler/navigate_handler"
 	"server/handler/user_handler"
 	"server/middleware"
+
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func InitRouters() *gin.Engine {
@@ -22,6 +23,8 @@ func InitRouters() *gin.Engine {
 		ExposeHeaders:    []string{"Access-Control-Allow-Headers, token"},
 		AllowCredentials: true,
 	}))
+	r.Static("/static", "./static")
+
 	// Swagger路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
@@ -34,6 +37,8 @@ func InitRouters() *gin.Engine {
 		userGroup.POST("/register", middleware.ShaMiddleware(), user_handler.RegisterHandler)
 		//用户登录
 		userGroup.POST("/login", user_handler.LoginHandler)
+		// 用户上传头像
+		userGroup.POST("/upload_avatar", middleware.JwtAuthMiddleware(), user_handler.UploadAvatarHandler)
 	}
 
 	// 课程路由

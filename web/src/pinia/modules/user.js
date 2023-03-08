@@ -12,7 +12,6 @@ export const useUserStore = defineStore('user', () => {
     // 初始化token, 用户每次登录的时候需要把原先的token清空
     const initToken = () => {
         window.localStorage.removeItem('token') //移除token
-        localStorage.clear()
     }
 
     const LoginIn = async (loginInfo) => {
