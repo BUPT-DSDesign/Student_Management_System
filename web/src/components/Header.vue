@@ -6,7 +6,7 @@
     <div class="right">
       <el-dropdown>
         <span class="el-dropdown-link">
-          <img class="icon" :src="avatarUrl" alt="">
+          <img class="icon" :src="avatarUrl" @error="changeToDefault">
         </span>
         <el-dropdown-menu>
           <el-dropdown-item>个人中心</el-dropdown-item>
@@ -20,15 +20,17 @@
 export default {
   data() {
     return {
-      avatarUrl: 'http://127.0.0.1:8080/static/avatar.jpg' // 默认头像
+      avatarUrl: '' // 默认头像
     }
   },
   mounted() {
-     if (window.localStorage.getItem('avatar_url') != null) {
-      this.avatarUrl = window.localStorage.getItem('avatar_url')
-    }
+      const userId = window.localStorage.getItem('userId')
+      this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
   },
   methods: {
+    changeToDefault() {
+      this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
+    },
     layout() {
       console.log('输出')
       window.localStorage.removeItem('token') //移除token

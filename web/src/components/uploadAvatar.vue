@@ -6,7 +6,7 @@
         :show-file-list="false"
         :on-success="handleAvatarSuccess"
         :before-upload="beforeAvatarUpload">
-        <img v-if="avatarUrl" :src="avatarUrl" class="avatar">
+        <img v-if="avatarUrl" :src="avatarUrl" class="avatar" @error="changeToDefault">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
     </el-upload>
 </template>
@@ -19,15 +19,17 @@ export default {
             headers: {
                 'token': window.localStorage.getItem('token')
             },
-            avatarUrl: 'http://127.0.0.1:8080/static/avatar.jpg'
+            avatarUrl: ''
         };
     },
     mounted() {
-        if (window.localStorage.getItem('avatar_url') != null) {
-            this.avatarUrl = window.localStorage.getItem('avatar_url')
-        }
+        const userId = window.localStorage.getItem('userId')
+        this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
     },
     methods: {
+        changeToDefault() {
+            this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
+        },
         handleAvatarSuccess(res, file) {
             loadingInstance = Loading.service({
                 lock: true,
@@ -45,7 +47,8 @@ export default {
                 return false
             }
             this.avatarUrl = res.avatar_url
-            window.localStorage.setItem('avatar_url', this.avatarUrl)
+
+            
             setTimeout(() => {
                 loadingInstance.close()
                 location.reload()

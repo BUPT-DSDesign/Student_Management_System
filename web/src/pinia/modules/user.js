@@ -30,6 +30,7 @@ export const useUserStore = defineStore('user', () => {
                 initToken()
                 // 登录成功后把token存起来
                 window.localStorage.setItem('token', res.data.token)
+                window.localStorage.setItem('userId', res.data.user_id)
 
                 loadingInstance.value.close()
                 // ....其他操作
