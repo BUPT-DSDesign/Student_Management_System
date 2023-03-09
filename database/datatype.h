@@ -13,8 +13,6 @@ typedef float float32;
 typedef double float64;
 typedef uint8 byte;
 typedef int32 rune;
-//为C引入bool变量
-#define bool unsigned char
 
 //接下来引入数据库中常见的数据类型
 //MySQL中数据类型编号
@@ -36,7 +34,7 @@ typedef int32 rune;
 #define T_VARCHAR 0x21
 
 //接下来给出这些数据的大小
-const int SIZE_OF[]=
+const int SIZE_OF_T[]=
 {
     /*      0     1 2 3 4 5 6 7 8 9 a b c d e f*/
     /*0x*/  1,    2,4,8,4,8,0,0,0,0,0,0,0,0,0,0,

@@ -5,13 +5,13 @@
 void Quit();
 
 //创建数据库(返回值待定)
-void CreateDatabase(SQLCreateDatabase* statement);
+void CreateDatabase(SQLCreateDatabase &statement);
 
 //创建表(应该传入一个能描述表结构的结构体)
-void CreateTable(SQLCreateTable* statement);
+void CreateTable(SQLCreateTable &statement);
 
 //为表创建一个索引,应该传入表和相关的信息
-void CreateIndex(SQLCreateIndex* statement);
+void CreateIndex(SQLCreateIndex &statement);
 
 //显示数据库条目
 void ShowDatabases();
@@ -20,10 +20,10 @@ void ShowDatabases();
 void ShowTables();
 
 //删除数据库
-void DropDatabase(SQLDropDatabase* statement);
+void DropDatabase(SQLDropDatabase &statement);
 
 //删除表
-void DropTable(SQLDropTable* statement);
+void DropTable(SQLDropTable &statement);
 
 //删除某张表的索引，应该传入表和相关的信息
 void DropIndex(SQLDropIndex* statement);

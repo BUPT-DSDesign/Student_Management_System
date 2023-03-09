@@ -1,93 +1,113 @@
 #include "datatype.h"
+#include <string>
+#include <vector>
+using namespace std;
 //创建数据库需要传入的参数
-typedef struct
+//创建数据库
+class SQLCreateDatabase
 {
-    char *db_name;//数据库的名字
-
-}SQLCreateDatabase;
+public:
+    SQLCreateDatabase(string name);
+    string get_db_name();
+    ~SQLCreateDatabase();
+private:
+    string db_name_;//数据库的名字
+};
 //每一列的属性
-typedef struct
+class ColAttribute
 {
-    uint8 data_type;//数据类型
-    bool is_primary;//是否为主键
-    uint16 length;//该数据类型长度
-    char* col_name;//列名     
-}ColAttribute;
+public:
+    ColAttribute();
+    ~ColAttribute();
+private:
+    uint8 data_type_;//数据类型
+    bool is_primary_;//是否为主键
+    uint16 length_;//该数据类型长度
+    string col_name_;//列名     
+};
 
 //创建表需要的参数
-typedef struct
+class SQLCreateTable
 {
-    //char *db_name;//数据库的名字
-    char *tb_name;//表的名字
-    uint8 col_cnt;//列数
-    ColAttribute *attr;//表的属性(即每一列的属性)
-}SQLCreateTable;
+
+private:
+    string tb_name_;//表的名字
+    vector<ColAttribute> attrs_;//表的属性(即每一列的属性)
+};
 
 //创建主键需要的参数
-typedef struct
+class SQLCreateIndex
 {
-    //char *db_name;//数据库的名字
-    char *tb_name;//表的名字
-    char *col_name;//列的名字
-    char *index_name;//索引名
-}SQLCreateIndex;
+    
+private:
+    string tb_name_;//表的名字
+    string col_name_;//列的名字
+    string index_name_;//索引名
+};
 
 //删除数据库需要的参数
-typedef struct
+class SQLDropDatabase
 {
-    char *db_name;//数据库名字
-}SQLDropDatabase;
+private:
+    string db_name_;//数据库名字
+};
 
 //删除某张表索引所需要的参数
-typedef struct
+class SQLDropIndex
 {
-    /* data */
-    char *index_name;//索引名
-}SQLDropIndex;
+private:
+    string index_name_;//索引名
+};
 
 
 //链接数据库
-typedef struct
+class SQLUse
 {
-    char *db_name;//数据库名称
-}SQLUse;
+private:
+    string db_name_;//数据库名称
+};
 
 //SQL插入的对象
-typedef struct 
+class SQLInsertValue
 {
-    uint8 data_type;//数据类型
-    char *val;//值
-}SQLInsertValue;
+private:
+    uint8 data_type_;//数据类型
+    string val_;//值
+};
 
 //增加
-typedef struct
+class SQLInsert
 {
-    char *tb_name;//表名
-    uint8 length;//准备新增的数据数量
-    SQLInsertValue *values;//待新增的数据
-}SQLInsert;
+private:
+    string tb_name;//表名
+    vector<SQLInsertValue> values_;//待新增的数据
+};
 
 //Where约束
-typedef struct
+class SQLWhere
 {
-	uint8 op_type;//Where约束的运算符类型
-	char* key;//对应键值
-	char* value;//约束值
-}SQLWhere;
+private:
+	uint8 op_type_;//Where约束的运算符类型
+	string key_;//对应键值
+	string value_;//约束值
+};
 
-typedef struct
+//删除操作
+class SQLDelete
+{
+private:
+    string tb_name_;//表名
+    vector<SQLWhere> values_;//待删除的数据限定信息
+};
+class SQLUpdate
 {
     
-}SQLDelete;
-typedef struct
-{
-    
-}SQLUpdate;
+};
 
-typedef struct
+class SQLSelect
 {
     /* data */
-}SQLSelect;
+};
 
 
 
