@@ -26,10 +26,10 @@ void DropDatabase(SQLDropDatabase &statement);
 void DropTable(SQLDropTable &statement);
 
 //删除某张表的索引，应该传入表和相关的信息
-void DropIndex(SQLDropIndex* statement);
+void DropIndex(SQLDropIndex &statement);
 
 //连接上某个数据库，应该返回一个可以操作数据库的指针
-void Use(SQLUse* statement);
+void Use(SQLUse &statement);
 
 //增删改查部分
 
@@ -47,7 +47,7 @@ insert into 表名(列名1,列名2) values(值1,值2);
 故传入参数主要应该为表名，设计到的列，所需要传入数值
 同时这种方式只能一条一条添加
 */
-void Insert(SQLInsert* statement);
+void Insert(SQLInsert &statement);
 
 /*
 删除
@@ -56,7 +56,7 @@ void Insert(SQLInsert* statement);
 在实际数据库操作中,多会使用WHERE来限制所删除条目的范围
 我们主要实现对多个比较运算符的解析
 */
-void Delete(SQLDelete* statement);
+void Delete(SQLDelete &statement);
 
 /*
 更改
@@ -64,7 +64,7 @@ void Delete(SQLDelete* statement);
 限定条件: Where
 在实际数据库操作中,更改和删除所要解析的条件子句相似,故两者可以互相参考
 */
-void Update(SQLUpdate* statement);
+void Update(SQLUpdate &statement);
 /*
 查询
 操作对象:条目
@@ -72,4 +72,4 @@ void Update(SQLUpdate* statement);
 操作:排序ORDER BY,分组GROUP BY
 查询设计到的限制条件同上，但会对返回数据有要求，这将是一大难点
 */
-void Select(SQLSelect* statement);
+void Select(SQLSelect &statement);
