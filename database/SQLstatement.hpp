@@ -1,4 +1,4 @@
-#include "datatype.h"
+#include "datatype.hpp"
 #include <string>
 #include <vector>
 using namespace std;
@@ -59,6 +59,11 @@ private:
     string index_name_;//索引名
 };
 
+//删除表
+class SQLDropTable{
+private:
+    string tb_name_;//表名
+};
 
 //链接数据库
 class SQLUse
