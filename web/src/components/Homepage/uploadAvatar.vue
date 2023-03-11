@@ -93,15 +93,15 @@ export default {
 .avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
+    width: 250px;
+    height: 250px;
+    line-height: 250px;
     text-align: center;
 }
 
 .avatar {
-    width: 178px;
-    height: 178px;
+    width: 250px;
+    height: 250px;
     display: block;
 }
 </style>

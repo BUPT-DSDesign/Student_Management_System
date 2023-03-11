@@ -1,14 +1,19 @@
 <template>
-    <uploadAvatar></uploadAvatar>
+    <div>
+        <uploadAvatar></uploadAvatar>
+        <signature></signature>
+    </div>
 </template>
 <script>
-import uploadAvatar from '@/components/uploadAvatar.vue';
+import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
+import signature from '@/components/Homepage/signature.vue'
 export default {
-    data() {
-        return {}
-    },
     components: {
-        uploadAvatar
+        uploadAvatar,
+        signature
     }
 }
 </script>
+
+
+
