@@ -5,22 +5,23 @@
 using namespace std;
 //创建数据库需要传入的参数
 //创建数据库
-class SQLCreateDatabase
+class SQLBase{
+public:
+    virtual void PraseSQLVector(vector<string> &sql_vector) = 0;
+};
+class SQLCreateDatabase: public SQLBase
 {
 public:
-    SQLCreateDatabase(string name);
+    SQLCreateDatabase(vector<string> &sql_vector);
     string get_db_name();
     ~SQLCreateDatabase();
+    void PraseSQLVector(vector<string> &sql_vector);
 private:
     string db_name_;//数据库的名字
 };
 //每一列的属性
-class ColAttribute
+struct ColAttribute
 {
-public:
-    ColAttribute();
-    ~ColAttribute();
-private:
     uint8 data_type_;//数据类型
     bool is_primary_;//是否为主键
     uint16 length_;//该数据类型长度
@@ -28,18 +29,24 @@ private:
 };
 
 //创建表需要的参数
-class SQLCreateTable
+class SQLCreateTable: public SQLBase
 {
-
+public:
+    SQLCreateTable(vector<string> &sql_vector);
+    ~SQLCreateTable();
+    void PraseSQLVector(vector<string> &sql_vector);
 private:
     string tb_name_;//表的名字
     vector<ColAttribute> attrs_;//表的属性(即每一列的属性)
 };
 
 //创建主键需要的参数
-class SQLCreateIndex
+class SQLCreateIndex: public SQLBase
 {
-    
+public:
+    SQLCreateIndex(vector<string> &sql_vector);
+    ~SQLCreateIndex();
+    void PraseSQLVector(vector<string> &sql_vector);
 private:
     string tb_name_;//表的名字
     string col_name_;//列的名字
@@ -47,34 +54,42 @@ private:
 };
 
 //删除数据库需要的参数
-class SQLDropDatabase
+class SQLDropDatabase: public SQLBase
 {
+public:
+    SQLDropDatabase(vector<string> &sql_vector);
+    void PraseSQLVector(vector<string> &sql_vector);
 private:
     string db_name_;//数据库名字
 };
 
 //删除某张表索引所需要的参数
-class SQLDropIndex
+class SQLDropIndex: public SQLBase
 {
+public:
+
 private:
     string index_name_;//索引名
 };
 
 //删除表
-class SQLDropTable{
+class SQLDropTable: public SQLBase
+{
+public:
+
 private:
     string tb_name_;//表名
 };
 
 //链接数据库
-class SQLUse
+class SQLUse: public SQLBase
 {
 private:
     string db_name_;//数据库名称
 };
 
 //SQL插入的对象
-class SQLInsertValue
+class SQLInsertValue: public SQLBase
 {
 private:
     uint8 data_type_;//数据类型
@@ -82,7 +97,7 @@ private:
 };
 
 //增加
-class SQLInsert
+class SQLInsert: public SQLBase
 {
 private:
     string tb_name;//表名
@@ -90,7 +105,7 @@ private:
 };
 
 //Where约束
-class SQLWhere
+class SQLWhere: public SQLBase
 {
 private:
 	uint8 op_type_;//Where约束的运算符类型
@@ -99,18 +114,18 @@ private:
 };
 
 //删除操作
-class SQLDelete
+class SQLDelete: public SQLBase
 {
 private:
     string tb_name_;//表名
     vector<SQLWhere> values_;//待删除的数据限定信息
 };
-class SQLUpdate
+class SQLUpdate: public SQLBase
 {
     
 };
 
-class SQLSelect
+class SQLSelect: public SQLBase
 {
     /* data */
 };

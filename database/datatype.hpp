@@ -41,3 +41,31 @@ const int SIZE_OF_T[]=
     /*1x*/  3,    3,1,8,4,0,0,0,0,0,0,0,0,0,0,0,
     /*2x*/255,65535,0,0,0,0,0,0,0,0,0,0,0,0,0,0
 };
+
+//以下为SQL语句关键字的声明
+//数据定义语言DDL
+#define SQL_CREATE 0x00
+#define SQL_CREATE_DATABASE 0x01
+#define SQL_CREATE_TABLE 0x02
+#define SQL_CREATE_INDEX 0x03
+#define SQL_DROP 0x10
+#define SQL_DROP_DATABASE 0x11
+#define SQL_DROP_TABLE 0x12
+#define SQL_DROP_INDEX 0x13
+#define SQL_ALTER 0x20
+//数据查询语言DQL
+#define SQL_SELECT 0x30
+
+//数据操纵语言DML
+#define SQL_INSERT 0x40
+#define SQL_UPDATE 0x50
+#define SQL_DELETE 0x60
+
+//其它操作
+#define SQL_SHOW_DATABASES 0x71
+#define SQL_SHOW_TABLES 0x72
+#define SQL_QUIT 0x80
+#define SQL_USE  0x90
+
+//错误处理
+#define SQL_ERROR 0xFF
