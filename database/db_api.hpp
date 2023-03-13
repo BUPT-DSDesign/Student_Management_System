@@ -1,7 +1,15 @@
+#pragma once
 #include "SQLstatement.hpp"
 //提供了数据库增删改查操作所需的API
-
-//退出数据库(与数据库断开链接)
+class db_api
+{
+private:
+    //我们使用如下两个变量确定数据库位置
+    string path_;//数据库地址
+public:
+    db_api(string path);
+    ~db_api();
+    //退出数据库(与数据库断开链接)
 void Quit();
 
 //创建数据库(返回值待定)
@@ -10,7 +18,7 @@ void CreateDatabase(SQLCreateDatabase &statement);
 //创建表(应该传入一个能描述表结构的结构体)
 void CreateTable(SQLCreateTable &statement);
 
-//为表创建一个索引,应该传入表和相关的信息
+//为表创建一个索引,应该传入表和相fA关的信息
 void CreateIndex(SQLCreateIndex &statement);
 
 //显示数据库条目
@@ -73,3 +81,5 @@ void Update(SQLUpdate &statement);
 查询设计到的限制条件同上，但会对返回数据有要求，这将是一大难点
 */
 void Select(SQLSelect &statement);
+};
+
