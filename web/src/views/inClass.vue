@@ -65,8 +65,6 @@
                         <el-radio :label="2">课程地点</el-radio>
                     </el-radio-group>
                     <h2>查询课程</h2>
-
-                    <el-form label-width="5px">
                         <el-form>
                             <el-input v-model="keyWord" placeholder="请输入查询关键词"></el-input>
                         </el-form>
@@ -75,10 +73,7 @@
                                 {{ radio == 1 ? p.course_name : p.classroom }}
                             </li>
                         </ul>
-                        <el-form-item>
                             <el-button type="primary" class="searchBtn" @click="onSubmit">查询</el-button>
-                        </el-form-item>
-                    </el-form>
                 </el-card>
             </el-col>
         </el-row>
@@ -253,7 +248,9 @@ h2 {
     margin-top: -500px;
     margin-left: 650px;
 }
-
+.el-form{
+    height:35px;
+}
 .el-tag {
     font-size: 18px;
     height: 35px;
