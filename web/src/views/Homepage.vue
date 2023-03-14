@@ -9,11 +9,11 @@
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
-                <img src="../assets/image/class.png" style="height: 120px;width: 120px; margin-left:50px">
+                <img src="../assets/image/class.png" style="height: 120px;width: 120px; margin-left:11px">
                 <span class="right-class">今天还有<h6 style="font-size:25px"> {{ classNumber_remaining }}</h6>节课</span>
             </div>
             <div class="eventblock" style="height: 120px;float: left;">
-                <img src="../assets/image/event.png" style="height: 120px;width: 120px; margin-left:50px">
+                <img src="../assets/image/event.png" style="height: 120px;width: 120px; margin-left:11px">
                 <span class="right-event">今天还有<h6 style="font-size:25px">{{ eventNumber_remaining }}</h6>个活动</span>
             </div>
         </div>
@@ -107,7 +107,7 @@ h6 {
 }
 
 .ProgressBar {
-    margin-top: 35px;
+    margin-top: 20px;
 }
 
 .right-event,
@@ -123,7 +123,7 @@ h6 {
 .classblock,
 .eventblock {
     background-color: #e9ecef;
-    margin: 10px 23px;
+    margin: 10px 47px;
 }
 </style>
 
