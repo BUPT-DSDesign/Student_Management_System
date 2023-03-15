@@ -1,11 +1,11 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+            <uploadAvatar ></uploadAvatar>
             <div class="user">
                 <h1>{{ userInfo.username }}</h1>
             </div>
-            <signature></signature>
+            <signature :userInfo="userInfo"></signature>
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
@@ -53,7 +53,7 @@ export default {
             if (fg) {
                 console.log('获取成功')
                 this.userInfo = this.useUserStore.userInfo
-                // console.log(this.userInfo)
+                console.log(this.userInfo)
             } else {
                 console.log('获取失败')
             }

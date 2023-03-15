@@ -3,7 +3,7 @@
         <el-input
         type="text"
         placeholder="编辑个签"
-        v-model="signature"
+        v-model="userInfo.signature"
         suffix-icon="el-icon-edit"
         :border="false"
         ref="signature"
@@ -23,18 +23,21 @@
 </template>
 
 <script>
+import { useUserStore } from '@/pinia/modules/user'
 export default {
     name: 'signature',
+    props: ['userInfo'],
     data() {
         return {
-            signature: '',
             editSignature: '',
             dialogVisible: false,
+            useUserStore: new useUserStore()
         }
     },
     methods: {
         edit() {
             console.log('编辑')
+            console.log(this.userInfo)
             this.$refs.signature.blur()
             this.dialogVisible = true
         },
@@ -43,7 +46,27 @@ export default {
             this.dialogVisible = false
         },
         confirmInput() {
-            this.signature = this.editSignature
+            // 当修改个性签名时, 会发送请求
+            const editUserSignature = async () => {
+                const fg = await this.useUserStore.EditUserSignature(this.editSignature)
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '编辑个性签名成功',
+                        type: 'success'
+                    });
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '编辑个性签名失败',
+                        type: 'error'
+                    });
+                }
+                location.reload()
+            }
+            editUserSignature()
             this.dialogVisible = false
         }
     },

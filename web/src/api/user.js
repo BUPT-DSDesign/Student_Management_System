@@ -16,3 +16,13 @@ export const GetInfo = () => {
         method: 'get'
     })
 }
+
+// 编辑个性签名
+export const EditSignature = (signature) => {
+    const url = '/user/edit_signature?' + 'signature=' + signature
+    return service({
+        url: url,
+        method: 'put'
+    })
+}
+
