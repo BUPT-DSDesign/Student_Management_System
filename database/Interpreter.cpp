@@ -10,6 +10,10 @@
 #include "datatype.hpp"
 using namespace std;
 
+Interpreter::Interpreter():sql_type_(-1)
+{
+    //测试SQL引擎用的构造方式
+}
 Interpreter::Interpreter(const string dirPath):sql_type_(-1)//未指定,初始值为-1
 {
     filesystem::path database(dirPath);//访问目录
@@ -18,7 +22,7 @@ Interpreter::Interpreter(const string dirPath):sql_type_(-1)//未指定,初始�
         filesystem::create_directory(database);
     }
     //实例化智能指针api
-    api = make_unique<DB_API>(new DB_API(dirPath));
+    //api = make_unique<DB_API>(new DB_API(dirPath));
 }
 
 void Interpreter::GenSQL(){
@@ -48,6 +52,11 @@ void Interpreter::GenSQL(){
 	sql_vector_ = SplitSQL(sql_statement_, " ");
 }
 
+vector<string> Interpreter::get_gen_SQL(string &statement){
+    sql_statement_ = statement;
+    GenSQL();
+    return sql_vector_;
+}
 void Interpreter::ExecuteSQL(const string& statement)
 {
     //将statement传递给成员变量
