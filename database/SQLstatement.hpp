@@ -1,5 +1,6 @@
 #pragma once
 #include "datatype.hpp"
+#include "table.hpp"
 #include <string>
 #include <vector>
 using namespace std;
@@ -19,15 +20,6 @@ public:
 private:
     string db_name_;//数据库的名字
 };
-//每一列的属性
-struct ColAttribute
-{
-    uint8 data_type_;//数据类型
-    bool is_primary_;//是否为主键
-    uint16 length_;//该数据类型长度
-    string col_name_;//列名     
-};
-
 //创建表需要的参数
 class SQLCreateTable: public SQLBase
 {
@@ -37,7 +29,7 @@ public:
     void PraseSQLVector(vector<string> &sql_vector);
 private:
     string tb_name_;//表的名字
-    vector<ColAttribute> attrs_;//表的属性(即每一列的属性)
+    vector<TableColAttribute> attrs_;//表的属性(即每一列的属性)
 };
 
 //创建主键需要的参数

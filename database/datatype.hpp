@@ -11,8 +11,8 @@ typedef int int32;
 typedef long int64;
 typedef float float32;
 typedef double float64;
-typedef uint8 byte;
-typedef int32 rune;
+//typedef unsigned char byte;
+typedef int rune;
 
 //接下来引入数据库中常见的数据类型
 //MySQL中数据类型编号
