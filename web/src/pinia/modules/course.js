@@ -22,4 +22,6 @@ export const useCourseStore = defineStore('course', () => {
         rdata,
         GetCourseTable
     }
+}, {
+    persist: true
 })
