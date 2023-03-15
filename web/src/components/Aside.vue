@@ -54,7 +54,6 @@ h3 {
 import { CourseStore } from '@/store/course'
 import { useEventStore } from '@/pinia/modules/event'
 
-
 export default {
     data() {
         return {
