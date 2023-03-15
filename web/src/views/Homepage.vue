@@ -47,7 +47,6 @@ export default {
     mounted() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         console.log('发送请求')
-
         const getUserInfo = async () => {
             const fg = await this.useUserStore.GetUserInfo()
             if (fg) {
@@ -75,7 +74,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 20px;
-    grid-auto-rows: minmax(100px, auto);
+    grid-auto-rows: minmax(150px, auto);
 }
 
 .one {
@@ -126,7 +125,7 @@ h6 {
 }
 
 .ProgressBar {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .right-event,
@@ -137,6 +136,9 @@ h6 {
     margin-top: 40px;
     margin-right: 40px;
     margin-left: 20px;
+}
+.el-progress{
+    margin-top:15px;
 }
 
 .classblock,
