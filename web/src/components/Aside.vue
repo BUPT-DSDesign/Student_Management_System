@@ -51,7 +51,7 @@ h3 {
 </style>
 
 <script>
-import { useCourseStore } from '@/pinia/modules/course'
+import { CourseStore } from '@/store/course'
 import { useEventStore } from '@/pinia/modules/event'
 
 
@@ -59,7 +59,7 @@ export default {
     data() {
         return {
             isCollapse: false,
-            useCourseStore: new useCourseStore(),
+            // CourseStore: new CourseStore(),
             useEventStore:new useEventStore(),
             courseList: [],
             eventList: [],
@@ -81,18 +81,16 @@ export default {
         },
 
         getCourseTable: async function () {
-            return await this.useCourseStore.GetCourseTable()
+            return await CourseStore.GetCourseTable()
         },
         clickinClass() {
             // 当点击侧边栏的课内信息时, 会向后端发送请求, 后端返回课程表
             const getTable = async () => {
                 const fg = await this.getCourseTable()
                 if (fg) {
-                    // console.log(this.useCourseStore.rdata)
-                    this.courseList = this.useCourseStore.rdata.course_list
-                    console.log(this.courseList)
-                    // bus.$emit('courseList', this.courseList)
-                    sessionStorage.setItem('classData', JSON.stringify(this.courseList))
+                    this.courseList = CourseStore.rdata.course_list
+                    // console.log(this.courseList)
+                    // sessionStorage.setItem('classData', JSON.stringify(this.courseList))
                     this.$router.push('/Main/inClass');
                 } else {
                     console.log('error')

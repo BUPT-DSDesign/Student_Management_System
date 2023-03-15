@@ -6,10 +6,10 @@ import App from './App.vue'
 import router from './router';
 import axios from 'axios'
 import AMap from 'vue-amap'
-import { createPinia } from 'pinia'
+import { store } from '@/pinia/enter'
 
 // 将axios挂载到原型上，以供全局使用
-Vue.prototype.$http = axios 
+Vue.prototype.$http = axios
 
 // 使用ElementUI设计
 Vue.use(ElementUI);
@@ -17,8 +17,7 @@ Vue.use(ElementUI);
 // 全局使用message
 Vue.prototype.$message = Message
 
-// 使用pinia模块管理
-const store = new createPinia()
+// 使用pinia
 Vue.use(store)
 
 // 使用高德地图实现导航
