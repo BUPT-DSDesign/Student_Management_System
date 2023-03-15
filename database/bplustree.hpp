@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <memory>
 #include "datatype.hpp"
 #include "table.hpp"
@@ -26,6 +27,11 @@ private:
     unique_ptr<Table> table_;//表对象
 public:
     BPlusTree(Table &table);
+    //以下为增删改查
+    void Add(int key,unique_ptr<byte> data);//新增元素
+    string_view Delete(int key);//利用键值删除元素,返回被删除元素的json字符串
+    void Update(int key,unique_ptr<byte> data);//更改元素
+    string_view Search(int key);//利用键值搜索元素,返回被删除元素的json字符串
     ~BPlusTree();
 };
 

@@ -18,7 +18,7 @@ class Table
 {
 private:
     /* data */
-    unique_ptr<ifstream> fp_;//操作表的文件指针
+    unique_ptr<ifstream> table_start_;//操作表的文件指针,打开文件后将表头储存在这
     vector<TableColAttribute> col_info_;//表的信息
     vector<uint16> col_shift_;//列位置偏移量
 public:
@@ -26,6 +26,6 @@ public:
     Table(const string& filename,vector<TableColAttribute> &col_info);//新建一张表
     int get_record_length();//获取每一条记录长度
     void set_record_length();//设置
-     
+    
     ~Table();
 };

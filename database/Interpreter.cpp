@@ -22,7 +22,7 @@ Interpreter::Interpreter(const string dirPath):sql_type_(-1)//未指定,初始�
         filesystem::create_directory(database);
     }
     //实例化智能指针api
-    //api = make_unique<DB_API>(new DB_API(dirPath));
+    api = make_unique<DB_API>(DB_API(dirPath));
 }
 
 void Interpreter::GenSQL(){
