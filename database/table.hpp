@@ -24,6 +24,8 @@ private:
 public:
     Table(const string& filename);//打开一张已有的表
     Table(const string& filename,vector<TableColAttribute> &col_info);//新建一张表
+    int get_record_length();//获取每一条记录长度
+    void set_record_length();//设置
      
     ~Table();
 };

@@ -4,7 +4,8 @@
 *.dll
 *.so
 *.dylib
-
+*.o
+*.gch
 # Test binary, built with `go test -c`
 *.test
 
@@ -24,3 +25,5 @@
 /server/.idea
 /.idea
 /server/node_modules
+/database/.vscode
+/database/test.cpp

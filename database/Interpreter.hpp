@@ -1,6 +1,9 @@
 #pragma once
 #include "datatype.hpp"
 #include "db_api.hpp"
+#include <vector>
+#include <string>
+#include <memory>
 using namespace std;
 class Interpreter
 {
@@ -15,6 +18,8 @@ private:
     void PraseSQL();//对接API接口并调用
     unique_ptr<DB_API> api;//智能指针
 public:
+    Interpreter();//测试用
+    vector<string> get_gen_SQL(string &statement);//测试GenSQL用
     Interpreter(const string dirPath);
     ~Interpreter();
     void ExecuteSQL(const string& statement);//实现SQL解析

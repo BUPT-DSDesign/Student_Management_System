@@ -1,5 +1,6 @@
 #pragma once
 #include "SQLstatement.hpp"
+#include <memory>
 // 提供了数据库增删改查操作所需的API
 class DB_API
 {

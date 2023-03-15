@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include "datatype.hpp"
+#include "table.hpp"
 //B树有关的定义
 using namespace std;
 //B树节点
@@ -22,9 +23,9 @@ private:
     size_t file_size_;//表大小
     unique_ptr<BPlusTreeNode> cur_;//B树指针,指向当前被加载的页
     unique_ptr<byte> cache_;//缓存,用于读取字节流,byte为Cpp17新增类型
-    unique_ptr<ifstream> table_;//表对象,用于打开文件
+    unique_ptr<Table> table_;//表对象
 public:
-    BPlusTree();
+    BPlusTree(Table &table);
     ~BPlusTree();
 };
 
