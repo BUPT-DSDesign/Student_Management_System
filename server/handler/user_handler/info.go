@@ -11,7 +11,7 @@ import (
 
 type infoResponse struct {
 	common.StatusResponse
-	UserInfo *system.UserInfo
+	UserInfo *system.UserInfo `json:"user_info"`
 }
 
 // InfoHandler 用户信息

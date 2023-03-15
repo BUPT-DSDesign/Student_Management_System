@@ -1,37 +1,65 @@
 {
-  "C_Cpp_Runner.cCompilerPath": "gcc",
-  "C_Cpp_Runner.cppCompilerPath": "g++",
-  "C_Cpp_Runner.debuggerPath": "gdb",
-  "C_Cpp_Runner.cStandard": "",
-  "C_Cpp_Runner.cppStandard": "",
-  "C_Cpp_Runner.msvcBatchPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Auxiliary/Build/vcvarsall.bat",
-  "C_Cpp_Runner.useMsvc": false,
-  "C_Cpp_Runner.warnings": [
-    "-Wall",
-    "-Wextra",
-    "-Wpedantic",
-    "-Wshadow",
-    "-Wformat=2",
-    "-Wconversion",
-    "-Wnull-dereference",
-    "-Wsign-conversion"
-  ],
-  "C_Cpp_Runner.enableWarnings": true,
-  "C_Cpp_Runner.warningsAsError": false,
-  "C_Cpp_Runner.compilerArgs": [],
-  "C_Cpp_Runner.linkerArgs": [],
-  "C_Cpp_Runner.includePaths": [],
-  "C_Cpp_Runner.includeSearch": [
-    "*",
-    "**/*"
-  ],
-  "C_Cpp_Runner.excludeSearch": [
-    "**/build",
-    "**/build/**",
-    "**/.*",
-    "**/.*/**",
-    "**/.vscode",
-    "**/.vscode/**"
-  ],
-  "C_Cpp_Runner.useAddressSanitizer": false
+    "editor.fontFamily": "Fira Code",
+    "editor.fontLigatures": true,
+    "git.ignoreLimitWarning": true,
+    "window.dialogStyle": "custom",
+    "files.autoGuessEncoding": true,//让VScode自动猜源代码文件的编码格式
+    //"editor.cursorBlinking": "smooth",
+    "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
+    "files.associations": {
+        "*.tcc": "cpp",
+        "cctype": "cpp",
+        "clocale": "cpp",
+        "cmath": "cpp",
+        "cstdint": "cpp",
+        "cstdio": "cpp",
+        "cstdlib": "cpp",
+        "cwchar": "cpp",
+        "cwctype": "cpp",
+        "exception": "cpp",
+        "initializer_list": "cpp",
+        "iosfwd": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "new": "cpp",
+        "ostream": "cpp",
+        "stdexcept": "cpp",
+        "streambuf": "cpp",
+        "string_view": "cpp",
+        "system_error": "cpp",
+        "type_traits": "cpp",
+        "typeinfo": "cpp",
+        "iomanip": "cpp"
+    },
+    
+    "files.defaultLanguage": "c++", // ctrl+N新建文件后默认的语言
+    "editor.formatOnType": true,  // 输入分号(C/C++的语句结束标识)后自动格式化当前这一行的代码
+    "editor.suggest.snippetsPreventQuickSuggestions": false, // clangd的snippets有很多的跳转点，不用这个就必须手动触发Intellisense了
+    "editor.acceptSuggestionOnEnter": "off", // 我个人的习惯，按回车时一定是真正的换行，只有tab才会接受Intellisense
+    // "editor.snippetSuggestions": "top", // （可选）snippets显示在补全列表顶端，默认是inline
+
+    "code-runner.runInTerminal": true, // 设置成false会在“输出”中输出，无法输入
+    "code-runner.executorMap": {
+        // "c": "cd $dir && gcc '$fileName' -o '$fileNameWithoutExt.exe' -Wall -O2 -m64 -lm -static-libgcc -std=c11 -fexec-charset=GBK && &($dir + '$fileNameWithoutExt.exe')",
+        // "cpp": "cd $dir && g++ '$fileName' -o '$fileNameWithoutExt.exe' -Wall -O2 -m64 -static-libgcc -std=c++17 -fexec-charset=GBK && &($dir + '$fileNameWithoutExt.exe')"
+        "c": "cd $dir && gcc *.c -o $fileNameWithoutExt.exe -Wall -O2 -m64 -lm -static-libgcc -std=c11 -fexec-charset=GBK && $dir$fileNameWithoutExt",
+        "cpp": "cd $dir && g++ *.cpp -o $fileNameWithoutExt.exe -Wall -O2 -m64 -static-libgcc -std=c++17 -fexec-charset=GBK && $dir$fileNameWithoutExt"
+    }, // 右键run code时运行的命令；未注释的仅适用于PowerShell（Win10默认）和pwsh，文件名中有空格也可以编译运行；注释掉的适用于cmd（win7默认）、PS和bash，但文件名中有空格时无法运行
+    "code-runner.saveFileBeforeRun": true, // run code前保存
+    "code-runner.preserveFocus": false,     // 若为false，run code后光标会聚焦到终端上。如果需要频繁输入数据可设为false
+    "code-runner.clearPreviousOutput": true, // 每次run code前清空属于code runner的终端消息，默认false
+    "code-runner.ignoreSelection": true,   // 默认为false，效果是鼠标选中一块代码后可以单独执行，但C是编译型语言，不适合这样用
+
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "terminal.integrated.tabs.enabled": true,
+    "C_Cpp.clang_format_sortIncludes": true, // 格式化时调整include的顺序（按字母排序）
+    "files.exclude": {
+        "**/*.exe": true,
+        "**/*.ilk": true,
+        "**/*.obj": true,
+        "**/*.pdb": true
+    },
 }
+
+

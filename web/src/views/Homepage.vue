@@ -1,9 +1,9 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar></uploadAvatar>
+            <uploadAvatar :userInfo="userInfo"></uploadAvatar>
             <div class="user">
-                <h1>用户</h1>
+                <h1>{{ userInfo.username }}</h1>
             </div>
             <signature></signature>
         </div>
@@ -44,16 +44,15 @@ export default {
         signature,
         todolist,
     },
-    mounted() {
+    beforeMount() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
-        console.log('发送请求')
-
+        // console.log('这是父亲')
         const getUserInfo = async () => {
             const fg = await this.useUserStore.GetUserInfo()
             if (fg) {
                 console.log('获取成功')
-                const userInfo = useUserStore.userInfo
-                console.log(userInfo)
+                this.userInfo = this.useUserStore.userInfo
+                // console.log(this.userInfo)
             } else {
                 console.log('获取失败')
             }
@@ -64,7 +63,8 @@ export default {
         return {
             classNumber_remaining: 3,
             eventNumber_remaining: 2,
-            useUserStore: new useUserStore()
+            useUserStore: new useUserStore(),
+            userInfo: {}
         }
     },
 }

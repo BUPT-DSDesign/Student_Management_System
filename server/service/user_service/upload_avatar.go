@@ -2,8 +2,9 @@ package user_service
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"mime/multipart"
+
+	"github.com/gin-gonic/gin"
 )
 
 type uploadAvatarFlow struct {
@@ -42,6 +43,7 @@ func (f *uploadAvatarFlow) checkNum() error {
 }
 
 func (f *uploadAvatarFlow) run(avatarUrl **string) error {
+	// 根据f.userId更新数据库
 
 	// 将图片保存到指定路径
 	if err := f.c.SaveUploadedFile(f.file, "./static/"+fmt.Sprintf("%d.jpg", f.userId)); err != nil {
