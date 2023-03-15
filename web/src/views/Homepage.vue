@@ -1,7 +1,7 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+            <uploadAvatar ></uploadAvatar>
             <div class="user">
                 <h1 style="color:black">{{ userInfo.username }}</h1>
             </div>
@@ -72,6 +72,7 @@ export default {
             const fg = await this.useUserStore.GetUserInfo()
             if (fg) {
                 this.userInfo = this.useUserStore.userInfo
+                console.log(this.userInfo)
             } else {
                 console.log('获取用户信息失败')
             }

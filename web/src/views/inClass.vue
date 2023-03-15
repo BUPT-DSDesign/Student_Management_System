@@ -82,6 +82,7 @@
 </template>
 <script>
 import { Message } from 'element-ui'
+import { CourseStore } from '@/store/course';
 export default {
     data() {
         return {
@@ -100,7 +101,10 @@ export default {
         };
     },
     mounted() {
-        this.classData = JSON.parse(sessionStorage.getItem('classData'))
+        console.log('刷新')
+        console.log(CourseStore)
+        this.classData = CourseStore.rdata.course_list
+        
     },
     watch: {
         keyWord(newvalue) {

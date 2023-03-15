@@ -49,14 +49,7 @@ export default {
             this.$refs[formName].validate(async (valid) => {
                 if (valid) {
                     const fg = await this.LoginIn() // 这里等待请求过程完成
-                    if (fg) {
-                        // 取pinia的数据到view
-
-                        // setInterval(() => {
-                        //     console.log(this.useUserStore.rdata)
-                        // }, 1000);
-                        console.log('dasds')
-                                              
+                    if (fg) {                              
                         this.$router.push('/Main/Homepage')
                         this.$message({
                             showClose: true,

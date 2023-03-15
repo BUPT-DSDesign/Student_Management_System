@@ -41,6 +41,8 @@ func InitRouters() *gin.Engine {
 		userGroup.GET("/info", middleware.JwtAuthMiddleware(), user_handler.InfoHandler)
 		// 用户上传头像
 		userGroup.POST("/upload_avatar", middleware.JwtAuthMiddleware(), user_handler.UploadAvatarHandler)
+		// 编辑个性签名
+		userGroup.PUT("/edit_signature", middleware.JwtAuthMiddleware(), user_handler.EditSignatureHandler)
 	}
 
 	// 课程路由

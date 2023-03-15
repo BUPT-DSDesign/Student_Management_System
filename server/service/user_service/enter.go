@@ -13,6 +13,7 @@ type UserServer interface {
 	DoLogin(loginForm common.LoginRequest) (*common.AccessResponse, error)
 	DoInfo(userId int64) (*system.UserInfo, error)
 	DoUploadAvatar(userId int64, file *multipart.FileHeader, c *gin.Context) (*string, error)
+	DoEditSignature(userId int64, signature string) error
 }
 
 type server struct {

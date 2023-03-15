@@ -1,17 +1,16 @@
-import { Login, GetInfo } from '@/api/user'
+import { Login, GetInfo, EditSignature } from '@/api/user'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { Loading } from 'element-ui'
 
 export const useUserStore = defineStore('user', () => {
+    // 登录
     const loadingInstance = ref(null) // 登录时的加载框
     // 初始化token, 用户每次登录的时候需要把原先的token清空
     const initTokenAndId = () => {
         window.localStorage.removeItem('token') //移除token
         window.localStorage.removeItem('userId') //移除id
     }
-
-    // 登录
     const LoginIn = async (loginInfo) => {
         loadingInstance.value = Loading.service({
             lock: true,
@@ -54,10 +53,25 @@ export const useUserStore = defineStore('user', () => {
         }
     }
 
+    // 编辑个性签名
+    const EditUserSignature = async (signature) => {
+        try {
+            const res = await EditSignature(signature)
+
+            if (res.data.status_code == 0) {
+                console.log(res.data)
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+
     return {
         loadingInstance,
         LoginIn,
         userInfo,
-        GetUserInfo
+        GetUserInfo,
+        EditUserSignature
     }
 })
