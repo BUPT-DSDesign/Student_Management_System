@@ -37,6 +37,8 @@ func InitRouters() *gin.Engine {
 		userGroup.POST("/register", middleware.ShaMiddleware(), user_handler.RegisterHandler)
 		//用户登录
 		userGroup.POST("/login", user_handler.LoginHandler)
+		// 用户信息
+		userGroup.GET("/info", middleware.JwtAuthMiddleware(), user_handler.InfoHandler)
 		// 用户上传头像
 		userGroup.POST("/upload_avatar", middleware.JwtAuthMiddleware(), user_handler.UploadAvatarHandler)
 	}

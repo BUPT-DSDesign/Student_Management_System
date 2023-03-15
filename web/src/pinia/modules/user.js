@@ -1,20 +1,17 @@
-import { Login } from '@/api/user'
+import { Login, GetInfo } from '@/api/user'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { Loading } from 'element-ui'
 
 export const useUserStore = defineStore('user', () => {
-    const rdata = ref(null)
-
     const loadingInstance = ref(null) // 登录时的加载框
-    // const token = ref(window.localStorage.getItem('token') || '')
-
     // 初始化token, 用户每次登录的时候需要把原先的token清空
     const initTokenAndId = () => {
         window.localStorage.removeItem('token') //移除token
         window.localStorage.removeItem('userId') //移除id
     }
 
+    // 登录
     const LoginIn = async (loginInfo) => {
         loadingInstance.value = Loading.service({
             lock: true,
@@ -23,8 +20,6 @@ export const useUserStore = defineStore('user', () => {
         })
         try {
             const res = await Login(loginInfo)
-            rdata.value = res.data
-            console.log(rdata.value)
             // console.log()
 
             if (res.data.status_code == 0) {
@@ -44,9 +39,25 @@ export const useUserStore = defineStore('user', () => {
         loadingInstance.value.close()
     }
 
+    // 获取用户信息
+    const userInfo = ref(null)
+    const GetUserInfo = async () => {
+        try {
+            const res = await GetInfo()
+
+            if (res.data.status_code == 0) {
+                userInfo.value = res.data.user_info
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+
     return {
-        rdata,
         loadingInstance,
-        LoginIn
+        LoginIn,
+        userInfo,
+        GetUserInfo
     }
 })

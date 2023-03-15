@@ -30,22 +30,41 @@
         <div class="four item">
             <todolist></todolist>
         </div>
-</div>
+    </div>
 </template>
 <script>
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
 import todolist from '@/components/Homepage/todolist.vue'
+import { useUserStore } from '@/pinia/modules/user';
+
 export default {
     components: {
         uploadAvatar,
         signature,
         todolist,
     },
+    mounted() {
+        // 在个人主页渲染的时候, 应该向后端请求个人信息
+        console.log('发送请求')
+
+        const getUserInfo = async () => {
+            const fg = await this.useUserStore.GetUserInfo()
+            if (fg) {
+                console.log('获取成功')
+                const userInfo = useUserStore.userInfo
+                console.log(userInfo)
+            } else {
+                console.log('获取失败')
+            }
+        }
+        getUserInfo()
+    },
     data() {
         return {
             classNumber_remaining: 3,
             eventNumber_remaining: 2,
+            useUserStore: new useUserStore()
         }
     },
 }

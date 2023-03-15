@@ -51,10 +51,11 @@ export default {
                     const fg = await this.LoginIn() // 这里等待请求过程完成
                     if (fg) {
                         // 取pinia的数据到view
-                        console.log(this.useUserStore.rdata)
+
                         // setInterval(() => {
                         //     console.log(this.useUserStore.rdata)
                         // }, 1000);
+                        console.log('dasds')
                                               
                         this.$router.push('/Main/Homepage')
                         this.$message({
