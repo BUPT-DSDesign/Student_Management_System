@@ -7,7 +7,7 @@
             </div>
             <!-- <signature></signature> -->
             <el-card class="box-card">
-                 <p id="hitokoto" class="signature">:D 获取中...</p>
+                 <p id="hitokoto" class="signature"> 获取中...</p>
 
     </el-card>
            
@@ -205,6 +205,7 @@ html {
 
 
 h6 {
+    color: black;
     font-size: 15px;
 }
 
