@@ -1,6 +1,7 @@
 package router
 
 import (
+	"net/http"
 	_ "server/docs"
 	"server/handler/course_handler"
 	"server/handler/navigate_handler"
@@ -23,7 +24,7 @@ func InitRouters() *gin.Engine {
 		ExposeHeaders:    []string{"Access-Control-Allow-Headers, token"},
 		AllowCredentials: true,
 	}))
-	r.Static("/static", "./static")
+	r.StaticFS("/static", http.Dir("./static"))
 
 	// Swagger路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))

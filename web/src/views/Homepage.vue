@@ -1,11 +1,15 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar ></uploadAvatar>
+            <div>
+                <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+                <signature :user-info="userInfo"></signature>
+            </div>
+           
             <div class="user">
                 <h1 style="color:black">{{ userInfo.username }}</h1>
             </div>
-            <!-- <signature></signature> -->
+            
             <el-card class="box-card">
                  <p id="hitokoto" class="signature"> 获取中...</p>
 
@@ -46,11 +50,13 @@
     </div>
 </template>
 <script>
+import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
-import { useUserStore } from '@/pinia/modules/user';
-import { useCourseStore } from '@/pinia/modules/course';
-import { calcurWeek } from "@/utils/time"
+
+import { CourseStore } from '@/store/course';
+import { UserStore } from '@/store/user'
+
 
 fetch('https://v1.hitokoto.cn', { c: 'd', min_length: 5, max_length: 15})
     .then(function (res) {
@@ -69,19 +75,20 @@ export default {
     beforeMount() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
-            const fg = await this.useUserStore.GetUserInfo()
+            const fg = await UserStore.GetUserInfo()
             if (fg) {
-                this.userInfo = this.useUserStore.userInfo
-                console.log(this.userInfo)
+                console.log(UserStore)
+                this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')
             }
         }
-        getUserInfo();
+        getUserInfo()
+        // 得到课程表
         const getTable = async () => {
-            const fg = await this.useCourseStore.GetCourseTable();
+            const fg = await CourseStore.GetCourseTable();
             if (fg) {
-                this.courseList = this.useCourseStore.rdata.course_list;
+                this.courseList = CourseStore.courseList;
                 //根据当前周，查找在本周的课程
                 this.courseList = this.courseList.filter((item) => {
                     return item.week_schedule.indexOf(calcurWeek().week) != -1;
@@ -114,14 +121,12 @@ export default {
                 console.log('获取用户课程失败')
             }
         }
-        getTable();
+        getTable()
     },
     data() {
         return {
             classNumber_remaining: 3,
             eventNumber_remaining: 2,
-            useUserStore: new useUserStore(),
-            useCourseStore: new useCourseStore(),
             userInfo: {},
             courseList: [],
             curcourseList: [],

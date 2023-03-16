@@ -101,10 +101,7 @@ export default {
         };
     },
     mounted() {
-        console.log('刷新')
-        console.log(CourseStore)
-        this.classData = CourseStore.rdata.course_list
-        
+        this.classData = CourseStore.courseList
     },
     watch: {
         keyWord(newvalue) {

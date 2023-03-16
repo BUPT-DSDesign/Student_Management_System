@@ -3,6 +3,7 @@ package user_service
 import (
 	"fmt"
 	"mime/multipart"
+	"server/model/dao"
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,8 +44,6 @@ func (f *uploadAvatarFlow) checkNum() error {
 }
 
 func (f *uploadAvatarFlow) run(avatarUrl **string) error {
-	// 根据f.userId更新数据库
-
 	// 将图片保存到指定路径
 	if err := f.c.SaveUploadedFile(f.file, "./static/"+fmt.Sprintf("%d.jpg", f.userId)); err != nil {
 		return err
@@ -53,6 +52,9 @@ func (f *uploadAvatarFlow) run(avatarUrl **string) error {
 	// 更新数据库
 	savePath := "http://127.0.0.1:8080/static/" + fmt.Sprintf("%d.jpg", f.userId)
 	*avatarUrl = &savePath
+
+	// 根据f.userId更新数据库
+	dao.UserInfo.AvatarUrl = savePath
 
 	return nil
 }
