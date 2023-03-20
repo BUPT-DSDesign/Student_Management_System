@@ -1,16 +1,19 @@
 <template>
-    <el-tooltip class="item" effect="dark" content="更换头像" placement="bottom" :open-delay=200 offset="">
-        <el-upload
-            class="avatar-uploader"
-            action="http://127.0.0.1:8080/Student_Management_System/user/upload_avatar"
-            :headers="headers"
-            :show-file-list="false"
-            :on-success="handleAvatarSuccess"
-            :before-upload="beforeAvatarUpload">
-            <img v-if="userInfo.avatar_url" :src="userInfo.avatar_url" class="avatar">
-            <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-    </el-tooltip>
+    <div>
+        <el-tooltip class="item" effect="dark" content="更换头像" placement="bottom" :open-delay=200 offset="">
+            <el-upload
+                class="avatar-uploader"
+                action="http://127.0.0.1:8080/Student_Management_System/user/upload_avatar"
+                :headers="headers"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload">
+                <img v-if="userInfo.avatar_url" :src="userInfo.avatar_url" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+        </el-tooltip>
+    </div>
+   
 </template>
 <script>
 import { Loading } from 'element-ui'
@@ -108,7 +111,6 @@ export default {
 }
 .item {
     margin: 2px;
-    /* height: 160px; */
-    /* display: flex; */
+    display: block;
 }
 </style>

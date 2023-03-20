@@ -21,7 +21,6 @@
         </div>
     </div>
 </template>
-
 <script>
 import { UserStore } from '@/store/user'
 export default {

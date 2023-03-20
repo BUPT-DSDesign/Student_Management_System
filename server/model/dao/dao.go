@@ -8,7 +8,7 @@ var UserInfo *system.UserInfo
 func init() {
 	UserInfo = &system.UserInfo{
 		Username:  "admin",
-		UserId:    123123213213,
+		UserId:    123456789,
 		StudentId: "2021211201",
 		IsAdmin:   true,
 		Signature: "",

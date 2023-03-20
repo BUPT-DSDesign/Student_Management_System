@@ -145,7 +145,6 @@ func (s *server) DoGetNavigationInfo(nodeList [][2]float64) ([]system.PathGuider
 			Heading:  heading,
 			Distance: distance,
 		})
-
 	}
 	return result, nil
 }

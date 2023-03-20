@@ -13,8 +13,7 @@
             <el-card class="box-card">
                  <p id="hitokoto" class="signature"> 获取中...</p>
 
-    </el-card>
-           
+            </el-card>
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
@@ -144,7 +143,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .signature{
     font-size:12px;
 }
@@ -206,8 +205,6 @@ export default {
 html {
     background-color: #e9ecef;
 }
-
-
 
 h6 {
     color: black;

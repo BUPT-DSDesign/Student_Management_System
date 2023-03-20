@@ -78,6 +78,6 @@ export default {
 }
 
 .signature .el-input__inner {
-    border: none
+    border: none;
 }
 </style>
