@@ -1,28 +1,26 @@
 package user_handler
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/model/entity/common"
-	"server/model/entity/system"
 	"server/service/user_service"
-
-	"github.com/gin-gonic/gin"
 )
 
-type infoResponse struct {
+type editSignatureResponse struct {
 	common.StatusResponse
-	UserInfo *system.UserInfo `json:"user_info"`
 }
 
-// InfoHandler 用户信息
-// @Summary      用户信息
-// @Description  获取用户信息
+// EditSignatureHandler 编辑个性签名
+// @Summary      个性签名
+// @Description  编辑个性签名
 // @Tags         用户鉴权
 // @Accept 		 application/json
 // @Produce      application/json
-// @Success      200  {object}  infoResponse
-// @Router       /user/info[get]
-func InfoHandler(c *gin.Context) {
+// @Success      200  {object}  editSignatureResponse
+// @Router       /user/edit_signature[put]
+
+func EditSignatureHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
 	if !ok1 || !ok2 {
@@ -35,10 +33,11 @@ func InfoHandler(c *gin.Context) {
 		return
 	}
 
+	signature := c.Query("signature")
+
 	// 调用服务
-	userInfo, err := user_service.Server.DoInfo(userId)
-	if err != nil {
-		c.JSON(http.StatusOK, infoResponse{
+	if err := user_service.Server.DoEditSignature(userId, signature); err != nil {
+		c.JSON(http.StatusOK, editSignatureResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,
 				StatusMsg:  err.Error(),
@@ -47,11 +46,11 @@ func InfoHandler(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, infoResponse{
+	// 编辑成功
+	c.JSON(http.StatusOK, editSignatureResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
-			StatusMsg:  "获取信息成功",
+			StatusMsg:  "编辑成功",
 		},
-		UserInfo: userInfo,
 	})
 }

@@ -1,0 +1,14 @@
+ {
+    "configurations": [
+        {
+            "name": "Win32",
+            "intelliSenseMode": "windows-gcc-x64",
+            "compilerPath": "D:\\Tools\\mingw\\Mingw64\\bin\\g++.exe",
+            "includePath": [
+                "${workspaceFolder}"
+            ],
+            "cppStandard": "c++20"
+        }
+    ],
+    "version": 4
+}

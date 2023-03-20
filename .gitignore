@@ -21,6 +21,7 @@
 /.vscode/*
 /server/.vscode/*
 /web/.vscode/*
+/database/.vscode/*
 /server/.idea
 /.idea
 /server/node_modules

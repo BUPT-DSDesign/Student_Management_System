@@ -1,6 +1,7 @@
 package user_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 )
 
@@ -38,11 +39,7 @@ func (f *infoFlow) checkNum() error {
 
 func (f *infoFlow) run(userInfo **system.UserInfo) error {
 	// 根据f.userId得到用户信息
-	*userInfo = &system.UserInfo{
-		Username:  "admin",
-		UserId:    213123,
-		StudentId: "2021211201",
-	}
+	*userInfo = dao.UserInfo
 
 	return nil
 }

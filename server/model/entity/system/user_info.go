@@ -10,4 +10,5 @@ type UserInfo struct {
 	IsAdmin bool `json:"is_admin"`
 	AvatarUrl string `json:"avatar_url"` // 保存用户头像的路径
 	// ......后续应该还要加上一些字段
+	Signature string `json:"signature"`
 }

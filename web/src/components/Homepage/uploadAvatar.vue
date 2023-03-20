@@ -1,14 +1,19 @@
 <template>
-    <el-upload
-        class="avatar-uploader"
-        action="http://127.0.0.1:8080/Student_Management_System/user/upload_avatar"
-        :headers="headers"
-        :show-file-list="false"
-        :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
-        <img v-if="avatarUrl" :src="avatarUrl" class="avatar" @error="changeToDefault">
-        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-    </el-upload>
+    <div>
+        <el-tooltip class="item" effect="dark" content="更换头像" placement="bottom" :open-delay=200 offset="">
+            <el-upload
+                class="avatar-uploader"
+                action="http://127.0.0.1:8080/Student_Management_System/user/upload_avatar"
+                :headers="headers"
+                :show-file-list="false"
+                :on-success="handleAvatarSuccess"
+                :before-upload="beforeAvatarUpload">
+                <img v-if="userInfo.avatar_url" :src="userInfo.avatar_url" class="avatar">
+                <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+            </el-upload>
+        </el-tooltip>
+    </div>
+   
 </template>
 <script>
 import { Loading } from 'element-ui'
@@ -19,17 +24,10 @@ export default {
             headers: {
                 'token': window.localStorage.getItem('token')
             },
-            avatarUrl: ''
         };
     },
-    mounted() {
-        const userId = window.localStorage.getItem('userId')
-        this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
-    },
+    props: ['userInfo'],
     methods: {
-        changeToDefault() {
-            this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
-        },
         handleAvatarSuccess(res, file) {
             loadingInstance = Loading.service({
                 lock: true,
@@ -46,8 +44,6 @@ export default {
                 })
                 return false
             }
-            this.avatarUrl = res.avatar_url
-
             
             setTimeout(() => {
                 loadingInstance.close()
@@ -104,8 +100,17 @@ export default {
     float:left;
 }
 .avatar {
-    width: 150px;
-    height: 150px;
+    /* margin-top: 20px; */
+    width: 180px;
+    height: 180px;
+    display: block;
+}
+.bottom {
+    clear: both;
+    text-align: center;
+}
+.item {
+    margin: 2px;
     display: block;
 }
 </style>

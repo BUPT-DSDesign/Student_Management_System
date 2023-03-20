@@ -1,7 +1,9 @@
 package router
 
 import (
+	"net/http"
 	_ "server/docs"
+	"server/handler/activity_handler"
 	"server/handler/course_handler"
 	"server/handler/navigate_handler"
 	"server/handler/user_handler"
@@ -23,7 +25,7 @@ func InitRouters() *gin.Engine {
 		ExposeHeaders:    []string{"Access-Control-Allow-Headers, token"},
 		AllowCredentials: true,
 	}))
-	r.Static("/static", "./static")
+	r.StaticFS("/static", http.Dir("./static"))
 
 	// Swagger路由
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -41,6 +43,8 @@ func InitRouters() *gin.Engine {
 		userGroup.GET("/info", middleware.JwtAuthMiddleware(), user_handler.InfoHandler)
 		// 用户上传头像
 		userGroup.POST("/upload_avatar", middleware.JwtAuthMiddleware(), user_handler.UploadAvatarHandler)
+		// 编辑个性签名
+		userGroup.PUT("/edit_signature", middleware.JwtAuthMiddleware(), user_handler.EditSignatureHandler)
 	}
 
 	// 课程路由
@@ -49,13 +53,22 @@ func InitRouters() *gin.Engine {
 		// 课程表
 		courseGroup.GET("/table", middleware.JwtAuthMiddleware(), course_handler.TableHandler)
 	}
+
 	// 导航路由
 	navigateGroup := rootPath.Group("/navigate")
 	{
-		//获取导航路径
+		// 获取导航路径
 		navigateGroup.GET("/path", middleware.JwtAuthMiddleware(), navigate_handler.RunNavigateHandler)
-		//获取建筑物信息
+		// 获取建筑物信息
 		navigateGroup.GET("/facility", middleware.JwtAuthMiddleware(), navigate_handler.GetFacilityInfoHandler)
+		// 旅行商问题
+		navigateGroup.GET("/tsp", middleware.JwtAuthMiddleware(), navigate_handler.TSPHandler)
+	}
+
+	// 课外活动以及临时事务路由
+	activityGroup := rootPath.Group("/activity")
+	{
+		activityGroup.GET("/", middleware.JwtAuthMiddleware(), activity_handler.GetInfoHandler)
 	}
 
 	return r

@@ -3,18 +3,27 @@
         <div class="one item">
             <uploadAvatar></uploadAvatar>
             <div class="user">
-                <h1>用户</h1>
+                <h1 style="color:black">{{ userInfo.username }}</h1>
             </div>
-            <signature></signature>
+            
+            <el-card class="box-card">
+                <p id="hitokoto" class="signature"> 获取中...</p>
+
+            </el-card>
+
+<<<<<<< HEAD
+            </el-card>
+=======
+>>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
                 <img src="../assets/image/class.png" style="height: 120px;width: 120px; margin-left:11px">
-                <span class="right-class">今天还有<h6 style="font-size:25px"> {{ classNumber_remaining }}</h6>节课</span>
+                <span class="right-class">今天共有<h6 style="font-size:25px"> {{ curcourseList.length }}</h6>节课</span>
             </div>
             <div class="eventblock" style="height: 120px;float: left;">
                 <img src="../assets/image/event.png" style="height: 120px;width: 120px; margin-left:11px">
-                <span class="right-event">今天还有<h6 style="font-size:25px">{{ eventNumber_remaining }}</h6>个活动</span>
+                <span class="right-event">今天共有<h6 style="font-size:25px">{{ eventNumber_remaining }}</h6>个活动</span>
             </div>
         </div>
         <div class="three item">
@@ -28,54 +37,142 @@
             </div>
         </div>
         <div class="four item">
-            <todolist></todolist>
+            <h2 style="color:black;margin-top:20px;margin-left: 62px">今日课程</h2>
+            <div class="block">
+                <el-timeline>
+                    <el-timeline-item v-for="(activity, index) in curcourseList" :key="index" :type="activity.type"
+                        :color="activity.color" :size="activity.size" :timestamp="activity.timestamp">
+                        {{ activity.content }}
+                    </el-timeline-item>
+                </el-timeline>
+            </div>
         </div>
     </div>
 </template>
+<!-- 本例不能添加链接内容，放在此处只是因为此接口比较方便，也许能够解决大部分的需求-->
 <script>
+import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
-import todolist from '@/components/Homepage/todolist.vue'
-import { useUserStore } from '@/pinia/modules/user';
+
+import { CourseStore } from '@/store/course';
+import { UserStore } from '@/store/user'
+
+
+
 
 export default {
-    components: {
-        uploadAvatar,
-        signature,
-        todolist,
-    },
-    mounted() {
-        // 在个人主页渲染的时候, 应该向后端请求个人信息
-        console.log('发送请求')
-
-        const getUserInfo = async () => {
-            const fg = await this.useUserStore.GetUserInfo()
-            if (fg) {
-                console.log('获取成功')
-                const userInfo = useUserStore.userInfo
-                console.log(userInfo)
-            } else {
-                console.log('获取失败')
-            }
-        }
-        getUserInfo()
-    },
     data() {
         return {
-            classNumber_remaining: 3,
             eventNumber_remaining: 2,
-            useUserStore: new useUserStore()
+            useUserStore: new useUserStore(),
+            useCourseStore: new useCourseStore(),
+            userInfo: {},
+            courseList: [],
+            curcourseList: [],
         }
     },
+    beforeMount() {
+        // 在个人主页渲染的时候, 应该向后端请求个人信息
+        const getUserInfo = async () => {
+            const fg = await UserStore.GetUserInfo()
+            if (fg) {
+                console.log(UserStore)
+                this.userInfo = UserStore.userInfo
+            } else {
+                console.log('获取用户信息失败')
+            }
+        }
+        getUserInfo();
+
+        const getTable = async () => {
+            const fg = await CourseStore.GetCourseTable();
+            if (fg) {
+                this.courseList = CourseStore.courseList;
+                //根据当前周，查找在本周的课程
+                this.courseList = this.courseList.filter((item) => {
+                    return item.week_schedule.indexOf(calcurWeek().week) != -1;
+                });
+                //查找本天的课程，然后将他们按照顺序排列。
+                for (let i = 0; i < this.courseList.length; i++) {
+                    for (let j = 0; j < this.courseList[i].section_list.length; j++) {
+                        if (this.courseList[i].section_list[j] / 9 < 1) {
+                            this.curcourseList.push({
+                                content: this.courseList[i].course_name,
+                                timestamp: '第' + this.courseList[i].section_list[j] % 9 + '节',
+                                size: 'large',
+                                type: 'primary',
+                                color: '#8ce99a',
+
+                            })
+                        }
+                        if (this.courseList[i].section_list[j] / 9 == 1) {
+                            this.curcourseList.push({
+                                content: this.courseList[i].course_name,
+                                timestamp: '第9节',
+                                size: 'large',
+                                type: 'primary',
+                                color: '#8ce99a',
+                            })
+                        }
+                    }
+                }
+            } else {
+                console.log('获取用户课程失败')
+            }
+        }
+        getTable();
+
+        fetch('https://v1.hitokoto.cn')
+            .then(function (res) {
+                return res.json();
+            })
+            .then(function (data) {
+                var hitokoto = document.getElementById('hitokoto');
+                hitokoto.innerText = data.hitokoto;
+            })
+            .catch(function (err) {
+                console.error(err);
+            })
+    },
+    components: {
+        uploadAvatar,
+    },
+    methods: {
+
+    }
 }
 </script>
 
+<<<<<<< HEAD
+<style lang="scss">
+.signature{
+    font-size:12px;
+=======
 <style>
+.signature {
+    font-size: 12px;
+>>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
+}
+
+.el-card__body {
+    padding: 17px;
+}
+
+.box-card {
+    margin: 15px;
+    width: 300px;
+}
+
+.block {
+    margin: 30px 70px;
+}
+
 .wrapper {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 20px;
-    grid-auto-rows: minmax(100px, auto);
+    grid-auto-rows: minmax(150px, auto);
 }
 
 .one {
@@ -119,14 +216,13 @@ html {
     background-color: #e9ecef;
 }
 
-
-
 h6 {
+    color: black;
     font-size: 15px;
 }
 
 .ProgressBar {
-    margin-top: 20px;
+    margin-top: 30px;
 }
 
 .right-event,
@@ -137,6 +233,10 @@ h6 {
     margin-top: 40px;
     margin-right: 40px;
     margin-left: 20px;
+}
+
+.el-progress {
+    margin-top: 15px;
 }
 
 .classblock,

@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="left">
-
+      <h1 class="weektitle">第{{ curweek().week }}周 星期{{ curweek().day }}</h1>
     </div>
     <div class="right">
       <el-dropdown>
@@ -17,25 +17,35 @@
   </div>
 </template>
 <script>
+import { calcurWeek } from "@/utils/time"
 export default {
   data() {
     return {
-      avatarUrl: '' // 默认头像
+      avatarUrl: '',// 默认头像
     }
   },
   mounted() {
-      const userId = window.localStorage.getItem('userId')
-      this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
+    const userId = window.localStorage.getItem('userId')
+    // console.log(userId)
+    this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
+    // this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
+  },
+  computed: {
+    curweek() {
+      return function () {
+        return calcurWeek();
+      }
+    }
   },
   methods: {
     changeToDefault() {
       this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
     },
     layout() {
-      window.localStorage.removeItem('token') //移除token
-      window.localStorage.removeItem('userId') //移除id
+      window.localStorage.clear()
       this.$router.replace('/')
-    }
+      location.reload()
+    },
   },
 }
 </script>
@@ -53,7 +63,12 @@ export default {
   float: right;
   margin: 10px;
 }
-
+.weektitle{
+  margin-left:20px;
+  margin-top:10px;
+  color: #eee;
+  float: left;
+}
 .icon {
   width: 35px;
   height: 35px;

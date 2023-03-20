@@ -3,7 +3,7 @@
         <el-input
         type="text"
         placeholder="编辑个签"
-        v-model="signature"
+        v-model="userInfo.signature"
         suffix-icon="el-icon-edit"
         :border="false"
         ref="signature"
@@ -23,11 +23,12 @@
 </template>
 
 <script>
+import { UserStore } from '@/store/user'
 export default {
     name: 'signature',
+    props: ['userInfo'],
     data() {
         return {
-            signature: '',
             editSignature: '',
             dialogVisible: false,
         }
@@ -35,6 +36,7 @@ export default {
     methods: {
         edit() {
             console.log('编辑')
+            console.log(this.userInfo)
             this.$refs.signature.blur()
             this.dialogVisible = true
         },
@@ -43,7 +45,27 @@ export default {
             this.dialogVisible = false
         },
         confirmInput() {
-            this.signature = this.editSignature
+            // 当修改个性签名时, 会发送请求
+            const editUserSignature = async () => {
+                const fg = await UserStore.EditUserSignature(this.editSignature)
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '编辑个性签名成功',
+                        type: 'success'
+                    });
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '编辑个性签名失败',
+                        type: 'error'
+                    });
+                }
+                location.reload()
+            }
+            editUserSignature()
             this.dialogVisible = false
         }
     },
@@ -52,10 +74,10 @@ export default {
 
 <style>
 .signature {
-    width: 260px;
+    width: 200px;
 }
 
 .signature .el-input__inner {
-    border: none
+    border: none;
 }
 </style>
