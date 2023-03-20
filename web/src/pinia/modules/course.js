@@ -3,13 +3,13 @@ import { CourseTable } from '@/api/course'
 import { ref } from 'vue'
 
 export const useCourseStore = defineStore('course', () => {
-    const rdata = ref(null)
+    const courseList = ref({})
     const GetCourseTable = async () => {
         try {
             const res = await CourseTable()
 
             if (res.data.status_code == 0) {
-                rdata.value = res.data
+                courseList.value = res.data.course_list
                 return true
             }
             return false
@@ -19,7 +19,9 @@ export const useCourseStore = defineStore('course', () => {
     }
 
     return {
-        rdata,
+        courseList,
         GetCourseTable
     }
+}, {
+    persist: true
 })

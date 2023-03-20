@@ -26,7 +26,9 @@ export default {
   },
   mounted() {
     const userId = window.localStorage.getItem('userId')
+    // console.log(userId)
     this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
+    // this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
   },
   computed: {
     curweek() {
@@ -40,9 +42,9 @@ export default {
       this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
     },
     layout() {
-      window.localStorage.removeItem('token') //移除token
-      window.localStorage.removeItem('userId') //移除id
+      window.localStorage.clear()
       this.$router.replace('/')
+      location.reload()
     },
   },
 }

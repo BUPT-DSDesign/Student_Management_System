@@ -1,5 +1,14 @@
 import { service } from '@/utils/request'
 
+// 注册
+export const Register = (data) => {
+    return service({
+        url: "/user/register",
+        method: 'post',
+        data: data
+    })
+}
+
 // 登录
 export const Login = (data) => {
     return service({

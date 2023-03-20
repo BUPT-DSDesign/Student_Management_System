@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import { useUserStore } from '@/pinia/modules/user'
+import { UserStore } from '@/store/user'
 export default {
     name: 'signature',
     props: ['userInfo'],
@@ -31,7 +31,6 @@ export default {
         return {
             editSignature: '',
             dialogVisible: false,
-            useUserStore: new useUserStore()
         }
     },
     methods: {
@@ -48,7 +47,7 @@ export default {
         confirmInput() {
             // 当修改个性签名时, 会发送请求
             const editUserSignature = async () => {
-                const fg = await this.useUserStore.EditUserSignature(this.editSignature)
+                const fg = await UserStore.EditUserSignature(this.editSignature)
                 if (fg) {
                     this.$message({
                         showClose: true,
@@ -75,7 +74,7 @@ export default {
 
 <style>
 .signature {
-    width: 260px;
+    width: 200px;
 }
 
 .signature .el-input__inner {

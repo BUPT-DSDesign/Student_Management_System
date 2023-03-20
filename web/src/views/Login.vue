@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { useUserStore } from '@/pinia/modules/user'
+import { UserStore } from '@/store/user';
 
 export default {
     data() {
@@ -36,13 +36,12 @@ export default {
                 ],
 
             },
-            useUserStore: new useUserStore() // pinia中的user模块
         };
     },
     methods: {
         LoginIn: async function () {
             // const useUserStore = new useUserStore()
-            return await this.useUserStore.LoginIn(this.ruleForm) 
+            return await UserStore.LoginIn(this.ruleForm) 
         },
         submitForm(formName) {
             // let that = this;

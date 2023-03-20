@@ -5,7 +5,7 @@
             <div class="user">
                 <h1 style="color:black">{{ userInfo.username }}</h1>
             </div>
-            <!-- <signature></signature> -->
+            
             <el-card class="box-card">
                 <p id="hitokoto" class="signature"> 获取中...</p>
 
@@ -47,11 +47,13 @@
 </template>
 <!-- 本例不能添加链接内容，放在此处只是因为此接口比较方便，也许能够解决大部分的需求-->
 <script>
+import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
-import { useUserStore } from '@/pinia/modules/user';
-import { useCourseStore } from '@/pinia/modules/course';
-import { calcurWeek } from "@/utils/time"
+
+import { CourseStore } from '@/store/course';
+import { UserStore } from '@/store/user'
+
 
 
 
@@ -69,10 +71,10 @@ export default {
     beforeMount() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
-            const fg = await this.useUserStore.GetUserInfo()
+            const fg = await UserStore.GetUserInfo()
             if (fg) {
-                this.userInfo = this.useUserStore.userInfo
-                console.log(this.userInfo)
+                console.log(UserStore)
+                this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')
             }
@@ -80,9 +82,9 @@ export default {
         getUserInfo();
 
         const getTable = async () => {
-            const fg = await this.useCourseStore.GetCourseTable();
+            const fg = await CourseStore.GetCourseTable();
             if (fg) {
-                this.courseList = this.useCourseStore.rdata.course_list;
+                this.courseList = CourseStore.courseList;
                 //根据当前周，查找在本周的课程
                 this.courseList = this.courseList.filter((item) => {
                     return item.week_schedule.indexOf(calcurWeek().week) != -1;

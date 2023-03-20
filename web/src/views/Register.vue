@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { UserStore } from '@/store/user'
 export default {
     data() {
         var checkStudentId = (rule, value, callback) => {
@@ -85,29 +85,33 @@ export default {
         };
     },
     methods: {
+        RegisterIn: async function () {
+            // const useUserStore = new useUserStore()
+            return await UserStore.RegisterIn(this.ruleForm)
+        },
         submitForm(formName) {
-            let that = this;
-            this.$refs[formName].validate((valid) => {
+            this.$refs[formName].validate(async (valid) => {
                 if (valid) {
-                    //post的第一个参数：传入后端的地址，第二个参数：登录数据
-                    axios.post("http://localhost:8080/Student_Management_System/user/register", {
-                        usename: this.ruleForm.usename,
-                        password: this.ruleForm.password
-                    }).then
-                        (function (response) {
-                            let data = response.data;
-                            console.log(response);
-                            if (data.status_code == 0 && data.status_msg == '注册成功') {
-                                that.$router.push('/Main/Homepage');
-                            }
-                        }, function (err) {
-                            console.log(err);
-                        })
+                    const fg = await this.RegisterIn() // 这里等待请求过程完成
+                    if (fg) {                              
+                        this.$router.push('/Main/Homepage')
+                        this.$message({
+                            showClose: true,
+                            center: true,
+                            message: '注册成功, 直接跳转至主页面',
+                            type: 'success'
+                        });
+                    }
                 } else {
-                    console.log('error submit!!');
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '注册失败',
+                        type: 'error'
+                    });
                     return false;
                 }
-            });
+            })
         }
     }
 }

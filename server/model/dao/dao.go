@@ -12,5 +12,6 @@ func init() {
 		StudentId: "2021211201",
 		IsAdmin:   true,
 		Signature: "",
+		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
 	}
 }
