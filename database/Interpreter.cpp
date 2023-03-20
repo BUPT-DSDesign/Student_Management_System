@@ -10,11 +10,11 @@
 #include "datatype.hpp"
 using namespace std;
 
-Interpreter::Interpreter():sql_type_(-1)
+Interpreter::Interpreter():sql_type_(SQL_ERROR)
 {
     //测试SQL引擎用的构造方式
 }
-Interpreter::Interpreter(const string dirPath):sql_type_(-1)//未指定,初始值为-1
+Interpreter::Interpreter(const string dirPath):sql_type_(SQL_ERROR)//未指定,初始值为-1
 {
     filesystem::path database(dirPath);//访问目录
     if(!filesystem::exists(database)){//如果没有此目录
@@ -154,17 +154,67 @@ void Interpreter::GetSQLType(){
 
 void Interpreter::PraseSQL(){
     switch(sql_type_){
-        case SQL_CREATE_DATABASE:
+        case SQL_CREATE_DATABASE://创建数据库
         {
-            unique_ptr<SQLCreateDatabase> st(new SQLCreateDatabase(sql_vector_));
+            unique_ptr<SQLCreateDatabase> st = make_unique<SQLCreateDatabase>(SQLCreateDatabase(sql_vector_));
             api->CreateDatabase(*st);
             break;
         }
-        case SQL_CREATE_INDEX:
+        case SQL_CREATE_INDEX://新建索引
         {
-            unique_ptr<SQLCreateIndex> st(new SQLCreateIndex(sql_vector_));
+            unique_ptr<SQLCreateIndex> st = make_unique<SQLCreateIndex>(SQLCreateIndex(sql_vector_));
+            api->CreateIndex(*st);
+            break;
         }
-        case SQL_ALTER:case SQL_ERROR:
+        case SQL_CREATE_TABLE://新建表
+        {
+            unique_ptr<SQLCreateTable> st = make_unique<SQLCreateTable>(SQLCreateTable(sql_vector_));
+            api->CreateTable(*st);
+            break;
+        }
+        case SQL_DROP_DATABASE://删除表
+        {
+            unique_ptr<SQLDropDatabase> st = make_unique<SQLDropDatabase>(SQLDropDatabase(sql_vector_));
+            api->DropDatabase(*st);
+            break;
+        }
+        case SQL_DROP_INDEX://删除索引
+        {
+            unique_ptr<SQLDropIndex> st = make_unique<SQLDropIndex>(SQLDropIndex(sql_vector_));
+            api->DropIndex(*st);
+            break;
+        }
+        case SQL_USE://使用数据库
+        {
+            unique_ptr<SQLUse> st=make_unique<SQLUse>(SQLUse(sql_vector_));
+            api->Use(*st);
+            break;
+        }
+        case SQL_INSERT://插入
+        {
+            unique_ptr<SQLInsert> st=make_unique<SQLInsert>(SQLInsert(sql_vector_));
+            api->Insert(*st);
+            break;
+        }
+        case SQL_DELETE:
+        {
+            unique_ptr<SQLDelete> st=make_unique<SQLDelete>(SQLDelete(sql_vector_));
+            api->Delete(*st);
+            break;
+        }
+        case SQL_UPDATE:
+        {
+            unique_ptr<SQLUpdate> st=make_unique<SQLUpdate>(SQLUpdate(sql_vector_));
+            api->Update(*st);
+            break;
+        }
+        case SQL_SELECT:
+        {
+            unique_ptr<SQLSelect> st=make_unique<SQLSelect>(SQLSelect(sql_vector_));
+            api->Select(*st);
+            break;
+        }
+        case SQL_ALTER:case SQL_ERROR:default:
             break;
     }
 }

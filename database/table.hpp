@@ -10,6 +10,7 @@ struct TableColAttribute
 {
     uint8 data_type_;//数据类型
     bool is_primary_;//是否为主键
+    bool is_not_null;//是否必须存在
     uint16 length_;//该数据类型长度(比特)
     string col_name_;//列名     
 };
