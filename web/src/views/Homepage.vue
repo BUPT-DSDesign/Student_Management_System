@@ -1,24 +1,25 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <div>
-                <uploadAvatar :userInfo="userInfo"></uploadAvatar>
-                <signature :user-info="userInfo"></signature>
-            </div>
-           
+            <uploadAvatar></uploadAvatar>
             <div class="user">
                 <h1 style="color:black">{{ userInfo.username }}</h1>
             </div>
             
             <el-card class="box-card">
-                 <p id="hitokoto" class="signature"> 获取中...</p>
+                <p id="hitokoto" class="signature"> 获取中...</p>
 
             </el-card>
+
+<<<<<<< HEAD
+            </el-card>
+=======
+>>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
                 <img src="../assets/image/class.png" style="height: 120px;width: 120px; margin-left:11px">
-                <span class="right-class">今天共有<h6 style="font-size:25px"> {{ classNumber_remaining }}</h6>节课</span>
+                <span class="right-class">今天共有<h6 style="font-size:25px"> {{ curcourseList.length }}</h6>节课</span>
             </div>
             <div class="eventblock" style="height: 120px;float: left;">
                 <img src="../assets/image/event.png" style="height: 120px;width: 120px; margin-left:11px">
@@ -48,6 +49,7 @@
         </div>
     </div>
 </template>
+<!-- 本例不能添加链接内容，放在此处只是因为此接口比较方便，也许能够解决大部分的需求-->
 <script>
 import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
@@ -57,20 +59,19 @@ import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
 
 
-fetch('https://v1.hitokoto.cn', { c: 'd', min_length: 5, max_length: 15})
-    .then(function (res) {
-        return res.json();
-    })
-    .then(function (data) {
-        var hitokoto = document.getElementById('hitokoto');
-        hitokoto.innerText = data.hitokoto;
-    })
-    .catch(function (err) {
-        console.error(err);
-    })
+
 
 export default {
-
+    data() {
+        return {
+            eventNumber_remaining: 2,
+            useUserStore: new useUserStore(),
+            useCourseStore: new useCourseStore(),
+            userInfo: {},
+            courseList: [],
+            curcourseList: [],
+        }
+    },
     beforeMount() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
@@ -82,8 +83,8 @@ export default {
                 console.log('获取用户信息失败')
             }
         }
-        getUserInfo()
-        // 得到课程表
+        getUserInfo();
+
         const getTable = async () => {
             const fg = await CourseStore.GetCourseTable();
             if (fg) {
@@ -120,40 +121,49 @@ export default {
                 console.log('获取用户课程失败')
             }
         }
-        getTable()
-    },
-    data() {
-        return {
-            classNumber_remaining: 3,
-            eventNumber_remaining: 2,
-            userInfo: {},
-            courseList: [],
-            curcourseList: [],
-        }
+        getTable();
+
+        fetch('https://v1.hitokoto.cn')
+            .then(function (res) {
+                return res.json();
+            })
+            .then(function (data) {
+                var hitokoto = document.getElementById('hitokoto');
+                hitokoto.innerText = data.hitokoto;
+            })
+            .catch(function (err) {
+                console.error(err);
+            })
     },
     components: {
         uploadAvatar,
-        signature,
     },
     methods: {
-        preventclick() {
-            
-        }
+
     }
 }
 </script>
 
+<<<<<<< HEAD
 <style lang="scss">
 .signature{
     font-size:12px;
+=======
+<style>
+.signature {
+    font-size: 12px;
+>>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
 }
+
 .el-card__body {
     padding: 17px;
 }
+
 .box-card {
-    margin:15px;
+    margin: 15px;
     width: 300px;
-  }
+}
+
 .block {
     margin: 30px 70px;
 }
