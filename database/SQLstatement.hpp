@@ -37,7 +37,7 @@ private:
     map<string_view,uint8> type2uint;//从数据类型到uint标记的映射
 };
 
-//创建主键需要的参数
+//创建索引需要的参数
 class SQLCreateIndex: public SQLBase
 {
 public:
