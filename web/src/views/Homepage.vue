@@ -2,14 +2,12 @@
     <div class="wrapper">
         <div class="one item">
             <uploadAvatar :userInfo="userInfo"></uploadAvatar>
-            <signature :userInfo="userInfo"></signature>
+            <!-- <signature :userInfo="userInfo"></signature> -->
             <div class="user">
-                <h1 style="color:black">{{ userInfo.username }}</h1>
+                <h1 style="color:black ">{{ userInfo.username }}</h1>
             </div>
-            
             <el-card class="box-card">
-                <p id="hitokoto" class="signature"> 获取中...</p>
-
+                <p id="hitokoto" class="signature" > 获取中...</p>
             </el-card>
 
         </div>
@@ -46,7 +44,6 @@
         </div>
     </div>
 </template>
-<!-- 本例不能添加链接内容，放在此处只是因为此接口比较方便，也许能够解决大部分的需求-->
 <script>
 import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
@@ -55,9 +52,6 @@ import signature from '@/components/Homepage/signature.vue';
 import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
 // import signature from '@/components/Homepage/signature.vue';
-
-
-
 
 export default {
     data() {
@@ -101,7 +95,6 @@ export default {
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
-
                             })
                         }
                         if (this.courseList[i].section_list[j] / 9 == 1) {
@@ -146,6 +139,7 @@ export default {
 <style>
 .signature {
     font-size: 12px;
+    width:260px;
 }
 
 .el-card__body {
@@ -212,6 +206,12 @@ html {
 h6 {
     color: black;
     font-size: 15px;
+}
+h1{
+    font-size:30px;
+    margin-left:5px;
+    margin-right:-25px;
+    margin-top:20px;
 }
 
 .ProgressBar {
