@@ -1,7 +1,8 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar></uploadAvatar>
+            <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+            <signature :userInfo="userInfo"></signature>
             <div class="user">
                 <h1 style="color:black">{{ userInfo.username }}</h1>
             </div>
@@ -11,10 +12,6 @@
 
             </el-card>
 
-<<<<<<< HEAD
-            </el-card>
-=======
->>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
@@ -57,6 +54,7 @@ import signature from '@/components/Homepage/signature.vue';
 
 import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
+// import signature from '@/components/Homepage/signature.vue';
 
 
 
@@ -65,8 +63,6 @@ export default {
     data() {
         return {
             eventNumber_remaining: 2,
-            useUserStore: new useUserStore(),
-            useCourseStore: new useCourseStore(),
             userInfo: {},
             courseList: [],
             curcourseList: [],
@@ -77,8 +73,10 @@ export default {
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
             if (fg) {
-                console.log(UserStore)
+                // console.log(UserStore)
                 this.userInfo = UserStore.userInfo
+                console.log('我是')
+                console.log(this.userInfo)
             } else {
                 console.log('获取用户信息失败')
             }
@@ -137,6 +135,7 @@ export default {
     },
     components: {
         uploadAvatar,
+        signature
     },
     methods: {
 
@@ -144,15 +143,9 @@ export default {
 }
 </script>
 
-<<<<<<< HEAD
-<style lang="scss">
-.signature{
-    font-size:12px;
-=======
 <style>
 .signature {
     font-size: 12px;
->>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
 }
 
 .el-card__body {

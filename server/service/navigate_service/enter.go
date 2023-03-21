@@ -27,4 +27,5 @@ func init() {
 		tempNodeList: getNodeList(),
 		tempPathList: getPathList(),
 	}
+	
 }
