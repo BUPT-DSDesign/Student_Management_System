@@ -129,7 +129,7 @@ func (s *server) GetCoordinateSet(nodeId []int) [][2]float64 {
 }
 
 func (s *server) DoNavigation(navigateRequest common.NavigateRequest) ([][2]float64, error) {
-	result, err := dijkstra.Dijkstra(navigateRequest.FromId, navigateRequest.DesId, s.tempPathList, len(s.tempNodeList))
+	result, _, err := dijkstra.Dijkstra(navigateRequest.FromId, navigateRequest.DesId, s.tempPathList, len(s.tempNodeList))
 	return s.GetCoordinateSet(result), err
 }
 func (s *server) DoGetNavigationInfo(nodeList [][2]float64) ([]system.PathGuider, error) {

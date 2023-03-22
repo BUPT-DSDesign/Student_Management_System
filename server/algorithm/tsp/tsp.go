@@ -31,7 +31,7 @@ func addEdge(path []system.Path, head []int) ([]int, []Edge) {
 	return head, edges
 }
 
-func TSP(startId int, passIds []int, paths []system.Path, nodeCnt int) (nodeList []int, err error) {
+func TSP(startId int, passIds []int, paths []system.Path, nodeCnt int) ([]int, error) {
 	// 使用前向星存图
 	head := make([]int, nodeCnt+5)
 
@@ -44,5 +44,20 @@ func TSP(startId int, passIds []int, paths []system.Path, nodeCnt int) (nodeList
 	head, edges := addEdge(paths, head)
 	println(edges)
 
-	return append(passIds, startId), nil
+	indexMap := make([]int, len(passIds)+1)
+	indexMap[0] = startId
+	for i := 1; i <= len(passIds); i++ {
+		indexMap[i] = passIds[i-1]
+	}
+
+	rawNodeList := ga(len(indexMap), indexMap)
+	nodeList := make([]int, 0)
+	for i := 0; i < len(rawNodeList); i++ {
+		for j := 0; j < len(routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].passList)-1; j++ {
+			nodeList = append(nodeList, routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].passList[j])
+		}
+	}
+	nodeList = append(nodeList, startId)
+
+	return nodeList, nil
 }

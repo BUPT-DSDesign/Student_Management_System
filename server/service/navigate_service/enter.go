@@ -1,6 +1,7 @@
 package navigate_service
 
 import (
+	"server/algorithm/tsp"
 	"server/model/entity/common"
 	"server/model/entity/system"
 )
@@ -27,5 +28,7 @@ func init() {
 		tempNodeList: getNodeList(),
 		tempPathList: getPathList(),
 	}
-	
+
+	// 两点之间的路线矩阵
+	tsp.InitRouteMatrix(Server.(*server).tempPathList, len(Server.(*server).tempNodeList))
 }
