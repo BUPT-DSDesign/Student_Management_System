@@ -87,7 +87,7 @@ export default {
             const getTable = async () => {
                 const fg = await this.getCourseTable()
                 if (fg) {
-                    this.courseList = CourseStore.rdata.course_list
+                    this.courseList = CourseStore.courseList;
                     // console.log(this.courseList)
                     // sessionStorage.setItem('classData', JSON.stringify(this.courseList))
                     this.$router.push('/Main/inClass');
