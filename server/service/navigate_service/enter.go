@@ -24,6 +24,7 @@ type server struct {
 var Server NavigateServer
 
 func init() {
+	//println("导航")
 	Server = &server{
 		tempNodeList: getNodeList(),
 		tempPathList: getPathList(),

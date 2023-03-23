@@ -1,6 +1,7 @@
 package tsp
 
 import (
+	"fmt"
 	"server/model/entity/system"
 )
 
@@ -46,18 +47,21 @@ func TSP(startId int, passIds []int, paths []system.Path, nodeCnt int) ([]int, e
 
 	indexMap := make([]int, len(passIds)+1)
 	indexMap[0] = startId
-	for i := 1; i <= len(passIds); i++ {
-		indexMap[i] = passIds[i-1]
-	}
 
 	rawNodeList := ga(len(indexMap), indexMap)
+
 	nodeList := make([]int, 0)
+	total := 0.0
 	for i := 0; i < len(rawNodeList); i++ {
 		for j := 0; j < len(routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].passList)-1; j++ {
 			nodeList = append(nodeList, routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].passList[j])
+			total += routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].totalDistance
 		}
 	}
 	nodeList = append(nodeList, startId)
+
+	println(nodeList[0])
+	fmt.Printf("总距离: %d\n", int64(total))
 
 	return nodeList, nil
 }

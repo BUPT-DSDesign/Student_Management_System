@@ -76,7 +76,6 @@ func populationCalc(indexMap []int) {
 
 // 选择
 func populationSelect() {
-	// rand.Float64()
 	// 计算累计概率
 	accumulateRate := make([]float64, populationNum)
 	accumulateRate[0] = population[0].survivalRate
@@ -89,7 +88,7 @@ func populationSelect() {
 	for i := 0; i < populationNum; i++ {
 		rand.Seed(time.Now().UnixNano())
 		randomRate := rand.Float64()
-		for j := 0; j < len(accumulateRate); j++ {
+		for j := 1; j < len(accumulateRate); j++ {
 			if randomRate <= accumulateRate[j] {
 				selectPopulation[i] = population[j]
 				break
@@ -98,7 +97,7 @@ func populationSelect() {
 	}
 
 	// 种群更新
-	for i := 0; i < populationNum; i++ {
+	for i := 1; i < populationNum; i++ {
 		population[i] = selectPopulation[i]
 	}
 }
@@ -118,7 +117,7 @@ func populationCrossover(individualNum int) {
 		if randomRate < crossoverRate {
 			// 生成随机交配点
 			rand.Seed(time.Now().UnixNano())
-			randomPoint := rand.Intn(individualNum - changeChromosomeNum)
+			randomPoint := rand.Intn(individualNum-changeChromosomeNum) + 1
 
 			// 将二者的交叉片段互换, 并解决基因冲突
 			clashMap := make(map[int]int, 0)
@@ -142,7 +141,7 @@ func populationCrossover(individualNum int) {
 			}
 
 			// 解决基因冲突问题（断点前）
-			for j := 0; j < randomPoint; j++ {
+			for j := 1; j < randomPoint; j++ {
 				if v, ok := clashMap[population[i].passList[j]]; ok {
 					population[i].passList[j] = v
 				}
@@ -176,8 +175,8 @@ func populationVariation(individualNum int) {
 			rand.Seed(time.Now().UnixNano())
 			exchangeTimes := rand.Intn(individualNum) + 1
 			for ; exchangeTimes > 0; exchangeTimes-- {
-				a := rand.Intn(individualNum)
-				b := rand.Intn(individualNum)
+				a := rand.Intn(individualNum-1) + 1
+				b := rand.Intn(individualNum-1) + 1
 
 				// 交换
 				tmp := population[i].passList[a]
@@ -207,6 +206,7 @@ func ga(individualNum int, indexMap []int) []int {
 		populationCrossover(individualNum)
 		// 种群中的个体产生变异
 		populationVariation(individualNum)
+
 	}
 
 	sort.Slice(population, func(i, j int) bool {

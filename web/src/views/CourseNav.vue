@@ -35,6 +35,8 @@
                 </el-form-item>
             </el-form>
         </div>
+
+        <el-button @click="testTsp">测试tsp问题</el-button>
     </div>
 </template>
 <script>
@@ -190,6 +192,25 @@ export default {
                     // 从pinia传来的数据
                     console.log(this.useNavigateStore.rdata)
                     this.lineArr = this.useNavigateStore.rdata.node_list
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
+                } else {
+                    console.log('error')
+                }
+            }
+            getPath()
+
+        },
+        testTsp() {
+            let startId = 78
+            let passIds = '{ "0": 1, "1": 4, "2": 13, "3": 30, "4": 41, "5": 42, "6": 43, "7": 44}'
+
+            const getPath = async () => {
+                const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)
+                if (flag) {
+                    // 从pinia传来的数据
+                    console.log(this.useNavigateStore.tspPath)
+                    this.lineArr = this.useNavigateStore.tspPath.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
                 } else {

@@ -7,7 +7,7 @@
                     <thead>
                         <tr>
                             <th>时间</th>
-                            <th v-for='(week, index) in weeks'> {{ week }}</th>
+                            <th v-for='(week, index) in weeks' :key="index"> {{ week }}</th>
                         </tr>
                     </thead>
                     <tbody>
