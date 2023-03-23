@@ -202,8 +202,8 @@ export default {
 
         },
         testTsp() {
-            let startId = 78
-            let passIds = '{ "0": 1, "1": 4, "2": 13, "3": 30, "4": 41, "5": 42, "6": 43, "7": 44}'
+            let startId = 10
+            let passIds = '{ "0": 1, "1": 4, "2": 13, "3": 30, "4": 41, "5": 42, "6": 43, "7": 44, "8": 3, "9": 17, "10": 18, "11": 19, "12": 50, "13": 59 }'
 
             const getPath = async () => {
                 const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)

@@ -48,6 +48,7 @@ func TSP(startId int, passIds []int, paths []system.Path, nodeCnt int) ([]int, e
 	indexMap := make([]int, len(passIds)+1)
 	indexMap[0] = startId
 
+	//println(len(indexMap))
 	rawNodeList := ga(len(indexMap), indexMap)
 
 	nodeList := make([]int, 0)
