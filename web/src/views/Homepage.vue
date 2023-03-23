@@ -69,8 +69,6 @@ export default {
             if (fg) {
                 // console.log(UserStore)
                 this.userInfo = UserStore.userInfo
-                console.log('我是')
-                console.log(this.userInfo)
             } else {
                 console.log('获取用户信息失败')
             }
