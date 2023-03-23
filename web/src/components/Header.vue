@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="left">
-      <h1 class="weektitle">第{{ curweek().week }}周 星期{{ curweek().day }}</h1>
+      <h2 class="weektitle ">第{{ curweek().week }}周 星期{{ curweek().day }}</h2>
     </div>
     <div class="right">
       <el-dropdown>
@@ -18,6 +18,10 @@
 </template>
 <script>
 import { calcurWeek } from "@/utils/time"
+import { useClockStore } from "@/store/clock"
+const clockStore = useClockStore();
+console.log(clockStore.getcurWeek)
+
 export default {
   data() {
     return {
@@ -50,6 +54,11 @@ export default {
 }
 </script>
 <style>
+@font-face {
+	font-family: mFont;
+	src: url(../assets/font/LcdD.ttf);
+}
+
 .header {
   background-color: #343a40;
   height: 54px;
@@ -68,6 +77,7 @@ export default {
   margin-top:10px;
   color: #eee;
   float: left;
+  font-family: mFont;
 }
 .icon {
   width: 35px;

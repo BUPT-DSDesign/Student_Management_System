@@ -52,14 +52,13 @@ h3 {
 
 <script>
 import { CourseStore } from '@/store/course'
-import { useEventStore } from '@/pinia/modules/event'
-
+import { EventStore } from '@/store/event'
 export default {
     data() {
         return {
             isCollapse: false,
             // CourseStore: new CourseStore(),
-            useEventStore:new useEventStore(),
+            // useEventStore:new useEventStore(),
             courseList: [],
             eventList: [],
         };
@@ -84,7 +83,7 @@ export default {
         },
         clickinClass() {
             // 当点击侧边栏的课内信息时, 会向后端发送请求, 后端返回课程表
-            const getTable = async () => {
+            const getTable1 = async () => {
                 const fg = await this.getCourseTable()
                 if (fg) {
                     this.courseList = CourseStore.courseList;
@@ -95,27 +94,27 @@ export default {
                     console.log('error')
                 }
             }
-            getTable()
+            getTable1()
         },
-        //  getEventTable: async function () {
-        //     return await this.useEventStore.GetEventTable()
-        // },
+         getEventTable: async function () {
+            return await EventStore.GetEventTable()
+        },
         clickoutClass() {
-            //  // 当点击侧边栏的课外信息时, 会向后端发送请求, 后端返回课外活动表
-            // const getEventTable = async () => {
-            //     const fg = await this.getEventTable()
-            //     if (fg) {
-            //         // console.log(this.useEventStore.rdata)
-            //         this.eventList = this.useEventStore.rdata.event_list
-            //         console.log(this.eventList)
-            //         // bus.$emit('courseList', this.courseList)
-            //         sessionStorage.setItem('eventData', JSON.stringify(this.eventList))
-            //         this.$router.push('/Main/outClass');
-            //     } else {
-            //         console.log('error')
-            //     }
-            // }
-            // getEventTable()
+             // 当点击侧边栏的课外信息时, 会向后端发送请求, 后端返回课外活动表
+            const getTable2 = async () => {
+                const fg = await this.getEventTable()
+                if (fg) {
+                    console.log(this.EventStore.rdata)
+                    this.eventList = this.EventStore.rdata.event_list
+                    console.log(this.eventList)
+                    // bus.$emit('courseList', this.courseList)
+                    sessionStorage.setItem('eventData', JSON.stringify(this.eventList))
+                    this.$router.push('/Main/outClass');
+                } else {
+                    console.log('error')
+                }
+            }
+            getTable2()
 
             this.$router.push('/Main/outClass');
         },

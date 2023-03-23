@@ -77,7 +77,7 @@
 
 <script>
 import eventDialog from '../components/eventDialog.vue'  //引入弹窗组件
-import { useEventStore } from '@/pinia/modules/event'
+import { EventStore } from '@/store/event';
 
 export default {
     data() {
@@ -99,64 +99,13 @@ export default {
             search: '', //用于搜索过滤的对象
             formLabelWidth: '120px',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
-            eventlist: [{
-                week: '周3',
-                time: '15:00',
-                event: '小组作业',
-                tag: "集体活动",
-                address: "教室",
-            }, {
-                week: '周4',
-                time: '14:00',
-                event: '取快递',
-                address: "教室",
-                tag: "个人活动",
-            }, {
-                week: '周5',
-                time: '14:00',
-                event: '计算机网络考试',
-                address: "教室",
-                tag: "集体活动",
-            }, {
-                week: '周5',
-                time: '17:00',
-                event: '出门游玩',
-                address: "教室",
-                tag: "集体活动",
-
-            }, {
-                week: '周1',
-                time: '14:00',
-                event: '锻炼',
-                address: "教室",
-                tag: "个人活动",
-
-            }, {
-                week: '周2',
-                time: '12:00',
-                event: '去超市',
-                address: "教室",
-                tag: "个人活动",
-
-            }, {
-                week: '周4',
-                time: '07:00',
-                event: '创新创业',
-                address: "教室",
-                tag: "个人活动",
-            }, {
-                week: '周3',
-                time: '11:00',
-                event: '开班会',
-                address: "教室",
-                tag: "集体活动",
-
-            },]
+            eventlist: [],
         }
     },
-    // mounted() {
-    //     this.eventList = JSON.parse(sessionStorage.getItem('eventData'))
-    // },
+    mounted() {
+        this.eventlist = EventStore.eventlist;
+        console.log(this.eventlist);
+    },
     methods: {
         //删除活动按钮,row即为活动对象
         handleDelete(index, row) {

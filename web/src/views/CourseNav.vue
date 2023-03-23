@@ -1,8 +1,11 @@
 <template>
-    <div>
+    <div  v-loading="loading"
+        element-loading-text="正在为您检索您可能想去的地方"
+        element-loading-spinner="el-icon-loading"
+        element-loading-background="rgba(0, 0, 0, 0.8)">
         <div class="map" style="float:left;">
-  
-                <div id="container" style="width:500px;height:70vh;box-shadow: 0px 5px 5px #c8c8c8; " />
+
+            <div id="container" style="width:500px;height:70vh;box-shadow: 0px 5px 5px #c8c8c8; " />
             <div class="input-card">
                 <div class="input-item">
                     <input type="button" class="btn" value="开始动画" id="start" @click="startAnimation()" />
@@ -12,30 +15,57 @@
                 </div>
             </div>
         </div>
-        <div class="search" style="float:right;">
+
+        <el-table ref="multipleTable" :data="eventlist" tooltip-effect="dark" style="width: 100% float:right"
+            @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55">
+            </el-table-column>
+                <el-table-column label="日期" prop="week" fixed>
+                </el-table-column>
+                <el-table-column label="时间" prop="time" fixed>
+                </el-table-column>
+                <el-table-column label="事件" prop="event" fixed>
+                </el-table-column>
+        </el-table>
+        <div style="margin-top: 20px">
+            <el-button @click="toggleSelection()">取消选择</el-button>
+        </div>
+
+        <!-- <div class="search" style="float:right;">
             <el-form label-width="40px">
                 <el-form-item label="起点">
                     <el-input v-model="keyWord1" style="width:250px;"></el-input>
                 </el-form-item>
                 <ul class="list-group">
-                    <li v-for="(p, index) of filplacelist1" :key="index" @click="chooseaddress1($event)" style="font-size:13px;">
+                    <li v-for="(p, index) of filplacelist1" :key="index" @click="chooseaddress1($event)"
+                        style="font-size:13px;">
                         {{ p.address }}
                     </li>
                 </ul>
                 <el-form-item label="终点">
-                        <el-input v-model="keyWord2" style="width:250px;"></el-input>
-                    </el-form-item>
-                    <ul class="list-group">
-                        <li v-for="(p, index) of filplacelist2" :key="index" @click="chooseaddress2($event)" style="font-size:13px;">
-                            {{ p.address }}
-                        </li>
-                    </ul>
+                    <el-input v-model="keyWord2" style="width:250px;"></el-input>
+                </el-form-item>
+                <ul class="list-group">
+                    <li v-for="(p, index) of filplacelist2" :key="index" @click="chooseaddress2($event)"
+                        style="font-size:13px;">
+                        {{ p.address }}
+                    </li>
+                </ul>
                 <el-form-item>
                     <el-button type="primary" @click="onSubmit">查询路线</el-button>
                 </el-form-item>
             </el-form>
-        </div>
-
+        </div> -->
+        <el-dialog title="请选择您需要的导航类型" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+            <template>
+                <el-radio v-model="radio" label="1">课程导航</el-radio>
+                <el-radio v-model="radio" label="2">活动导航</el-radio>
+            </template>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible = false">取 消</el-button>
+                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            </span>
+        </el-dialog>
         <el-button @click="testTsp">测试tsp问题</el-button>
     </div>
 </template>
@@ -47,6 +77,7 @@ import { useNavigateStore } from '@/pinia/modules/navigate'
 export default {
     data() {
         return {
+            loading: false,
             firstArr: [116.35530714718364, 39.96393072423919],// 中心点/初始坐标
             // lineArr: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]], // 路径上的点
             lineArr: [], // 路径上的点
@@ -54,6 +85,9 @@ export default {
             keyWord2: '', //用户输入的关键字(终点)
             filplacelist1: [], //模糊匹配后的列表（起点
             filplacelist2: [], //模糊匹配后的列表（终点
+            dialogVisible: true,
+            radio: '1',//单选框的选择
+            multipleSelection: [],//复选表格的所有选择
             //列表（全
             placelist: [
                 { id: 0, address: "青年公寓" },
@@ -125,6 +159,25 @@ export default {
                 { id: 66, address: "游泳馆" },
                 { id: 67, address: "科学会堂" },
             ],
+            eventlist: [{
+                week: '周3',
+                time: '15:00',
+                event: '小组作业',
+                tag: "集体活动",
+                address: "教室",
+            }, {
+                week: '周4',
+                time: '14:00',
+                event: '取快递',
+                address: "教室",
+                tag: "个人活动",
+            }, {
+                week: '周5',
+                time: '14:00',
+                event: '计算机网络考试',
+                address: "教室",
+                tag: "集体活动",
+            },],
             useNavigateStore: new useNavigateStore()
         }
     },
@@ -142,7 +195,7 @@ export default {
                 })
             }
         },
-         keyWord2(newvalue) {
+        keyWord2(newvalue) {
             //如果当前关键词为空
             if (newvalue === "") {
                 this.filplacelist2 = [];
@@ -154,7 +207,8 @@ export default {
                 })
             }
 
-        }
+        },
+       
     },
     created() { },
     mounted() {
@@ -164,12 +218,31 @@ export default {
         }, 1000)
     },
     methods: {
+         handleClose(done) {
+            this.$confirm('确认关闭？')
+                .then(_ => {
+                    done();
+                })
+                .catch(_ => { });
+        },
+        toggleSelection(rows) {
+            if (rows) {
+                rows.forEach(row => {
+                    this.$refs.multipleTable.toggleRowSelection(row);
+                });
+            } else {
+                this.$refs.multipleTable.clearSelection();
+            }
+        },
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
+        },
         //给后端发送起始点的id和终止点的id
-        getNavigatePath: async function(startId, endId) {
+        getNavigatePath: async function (startId, endId) {
             return await this.useNavigateStore.GetNavigatePath(startId, endId)
         },
 
-        onSubmit() { 
+        onSubmit() {
             var startId = -1, endId = -1;
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
@@ -184,7 +257,7 @@ export default {
             }
             //最后改成给后端发送startid和endid
             // alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
-            
+
             // 起始点id， 终止点id
             const getPath = async () => {
                 const flag = await this.getNavigatePath(startId, endId)
@@ -298,10 +371,11 @@ export default {
 }
 </script>
 <style>
-.list-group{
+.list-group {
     color: #adb5bd;
-    margin-top:10px;
+    margin-top: 10px;
 }
+
 .btn {
     background-color: #409EFF;
     /* Green */
@@ -316,12 +390,14 @@ export default {
     cursor: pointer;
     transition-duration: 0.4s;
 }
-.el-form{
+
+.el-form {
     background-color: #e7f5ff;
-    padding:15px;
-    height:375px;
+    padding: 15px;
+    height: 375px;
     box-shadow: 0px 5px 5px #c8c8c8;
 }
+
 .btn:hover {
     box-shadow: 0 12px 16px 0 rgba(0, 0, 0, 0.24), 0 17px 50px 0 rgba(0, 0, 0, 0.19);
 }
@@ -329,9 +405,11 @@ export default {
 .map {
     margin-top: 20px;
 }
-.input-card{
-    margin-top:50px;
+
+.input-card {
+    margin-top: 50px;
 }
+
 .search {
     margin-right: 233px;
     margin-top: 20px;
@@ -340,12 +418,14 @@ export default {
 .list-group {
     margin-top: -18px;
     margin-left: 41px;
-    height:100px;
-    overflow-y:scroll;
+    height: 100px;
+    overflow-y: scroll;
 }
-.list-group::-webkit-scrollbar{
-    width:0;
+
+.list-group::-webkit-scrollbar {
+    width: 0;
 }
+
 .list-group li {
     list-style: none;
     padding: 1px;
