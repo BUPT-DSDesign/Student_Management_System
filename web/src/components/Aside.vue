@@ -96,7 +96,7 @@ export default {
             }
             getTable1()
         },
-         getEventTable: async function () {
+        getEventTable: async function () {
             return await EventStore.GetEventTable()
         },
         clickoutClass() {

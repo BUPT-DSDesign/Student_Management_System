@@ -68,7 +68,7 @@ func InitRouters() *gin.Engine {
 	// 课外活动以及临时事务路由
 	activityGroup := rootPath.Group("/activity")
 	{
-		activityGroup.GET("/", middleware.JwtAuthMiddleware(), activity_handler.GetInfoHandler)
+		activityGroup.GET("/info", middleware.JwtAuthMiddleware(), activity_handler.GetInfoHandler)
 	}
 
 	return r
