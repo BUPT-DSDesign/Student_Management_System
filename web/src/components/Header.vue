@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="left">
-      <h2 class="weektitle ">第{{ curweek().week }}周 星期{{ curweek().day }}</h2>
+     <mytime></mytime>
     </div>
     <div class="right">
       <el-dropdown>
@@ -17,11 +17,7 @@
   </div>
 </template>
 <script>
-import { calcurWeek } from "@/utils/time"
-import { useClockStore } from "@/store/clock"
-const clockStore = useClockStore();
-console.log(clockStore.getcurWeek)
-
+import mytime from '@/components/mytime.vue'
 export default {
   data() {
     return {
@@ -35,11 +31,7 @@ export default {
     // this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
   },
   computed: {
-    curweek() {
-      return function () {
-        return calcurWeek();
-      }
-    }
+  
   },
   methods: {
     changeToDefault() {
@@ -51,6 +43,9 @@ export default {
       location.reload()
     },
   },
+  components: {
+    mytime,
+  }
 }
 </script>
 <style>
@@ -67,7 +62,6 @@ export default {
 .el-icon-arrow-down {
   font-size: 12px;
 }
-
 .right {
   float: right;
   margin: 10px;

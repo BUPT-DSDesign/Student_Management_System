@@ -6,13 +6,13 @@
                 <el-table 
                     :data="eventlist.filter(data => !search || data.event.includes(search) || data.week.includes(search) || data.time.includes(search))"
                     style="width: 100%" max-height="350">
-                    <el-table-column label="日期" prop="week" fixed sortable
+                    <el-table-column label="日期" prop="start_time" fixed sortable
                         :sort-method="(a, b) => a.week.localeCompare(b.week)">
                     </el-table-column>
-                    <el-table-column label="时间" prop="time" fixed sortable
+                    <el-table-column label="时间" prop="start_time" fixed sortable
                         :sort-method="(a, b) => a.time.localeCompare(b.time)">
                     </el-table-column>
-                    <el-table-column label="事件" prop="event" fixed>
+                    <el-table-column label="事件" prop="activity_name" fixed>
                     </el-table-column>
                     <el-table-column prop="tag" label="标签" width="100"
                         :filters="[{ text: '集体活动', value: '集体活动' }, { text: '个人活动', value: '个人活动' }]"

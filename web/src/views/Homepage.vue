@@ -45,14 +45,13 @@
     </div>
 </template>
 <script>
-import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
 
 import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
 // import signature from '@/components/Homepage/signature.vue';
-
+import { useTimeStore } from '@/store/time';
 export default {
     data() {
         return {
@@ -60,6 +59,7 @@ export default {
             userInfo: {},
             courseList: [],
             curcourseList: [],
+            mytime: useTimeStore(),
         }
     },
     beforeMount() {
@@ -81,12 +81,12 @@ export default {
                 this.courseList = CourseStore.courseList;
                 //根据当前周，查找在本周的课程
                 this.courseList = this.courseList.filter((item) => {
-                    return item.week_schedule.indexOf(calcurWeek().week) != -1;
+                    return item.week_schedule.indexOf(this.mytime.week) != -1;
                 });
                 //查找本天的课程，然后将他们按照顺序排列。
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                        if (this.courseList[i].section_list[j] / 9 < 1) {
+                        if (this.courseList[i].section_list[j] / 9 < this.mytime.day) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
                                 timestamp: '第' + this.courseList[i].section_list[j] % 9 + '节',
