@@ -24,11 +24,11 @@
         <div class="three item">
             <div class="ProgressBar">
                 <h6>本日进度</h6>
-                <el-progress :percentage="60" :stroke-width="10"></el-progress>
+                <el-progress :percentage="calDaypercent()" :stroke-width="10"></el-progress>
                 <h6>本周进度</h6>
-                <el-progress :percentage="80" :stroke-width="10"></el-progress>
+                <el-progress :percentage="calWeekpercent()" :stroke-width="10"></el-progress>
                 <h6>本学期进度</h6>
-                <el-progress :percentage="20" :stroke-width="10"></el-progress>
+                <el-progress :percentage="calTermpercent()" :stroke-width="10"></el-progress>
             </div>
         </div>
         <div class="four item">
@@ -128,8 +128,22 @@ export default {
         uploadAvatar,
         signature
     },
-    methods: {
-
+    computed: {
+        calDaypercent(){
+            return function () {
+                return Math.ceil((parseInt(this.mytime.second) * 1 + parseInt(this.mytime.minute) * 60 + parseInt(this.mytime.hour) * 3600)/864);
+            }
+        },
+        calWeekpercent() {
+            return function () {
+                return Math.ceil((parseInt(this.mytime.day)*100) / 7);
+            }
+        },
+        calTermpercent() {
+            return function () {
+                return Math.ceil((parseInt(this.mytime.week) * 100) / 16);
+            }
+        },
     }
 }
 </script>

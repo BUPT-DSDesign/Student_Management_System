@@ -4,6 +4,8 @@ type ActivityInfo struct {
 	ActivityName string `json:"activity_name"`
 	ActivityId   int64  `json:"activity_id"`
 	UserId       int64  `json:"user_id"`
+	StartWeek    int    `json:"start_week"`
+	StartDay     int    `json:"start_day"`
 	StartTime    string `json:"start_time"`
 	DurationTime int    `json:"duration_time"`
 	Type         int    `json:"type"`

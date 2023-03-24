@@ -2,8 +2,7 @@
   <div>
     <h2 class="weektitle">第 {{ mytime.week }} 周 — 星期 {{ mytime.day }} — {{ hourmap() }}:{{ minutemap() }}:{{ secondmap()
     }}</h2>
-    <!-- <el-input v-model="input" placeholder="请输入内容"  style="width:70px"></el-input> -->
-      <el-slider v-model="mytime.Tm" show-input input-size="mini" max=1000>
+      <el-slider v-model="mytime.Tm" show-input input-size="mini" :max=100>
       </el-slider>
   </div>
 </template>
@@ -25,7 +24,6 @@ const map = {
   9: '09',
 }
 var timer1 = setInterval(function () {
-  console.log(timestore.Tm)
   timestore.second += timestore.Tm;
   if (timestore.second >= 60) {
     timestore.second %= 60;
