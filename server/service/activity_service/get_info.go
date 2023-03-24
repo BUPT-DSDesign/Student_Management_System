@@ -52,6 +52,7 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 			StartTime:   "8:00",
 			DurationTime: 1,
 			Type:         0,
+			Tag:          1,
 			Location:     "操场",
 			IsOnline:     false,
 			LocationNode: 23123, // 与上面Location对应
@@ -66,6 +67,7 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 			StartTime:   "10:00",
 			DurationTime: 2,
 			Type:         0,
+			Tag:          0,
 			Location:     "运动场",
 			IsOnline:     false,
 			LocationNode: 23124, // 与上面Location对应
@@ -80,6 +82,7 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 			StartTime:   "20:00",
 			DurationTime: 3,
 			Type:         1,
+			Tag:          1,
 			Location:     "教学楼树林",
 			IsOnline:     false,
 			LocationNode: 23124, // 与上面Location对应

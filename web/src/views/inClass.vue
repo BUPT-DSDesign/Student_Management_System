@@ -251,6 +251,7 @@ h2 {
 }
 .el-form{
     height:35px;
+    background-color: #fff;
 }
 .el-tag {
     font-size: 18px;

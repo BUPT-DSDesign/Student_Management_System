@@ -2,9 +2,9 @@
     <el-dialog title="课程详情" :visible.sync="dialogDetailVisible" width="30%" :before-close="handleClose">
         <el-card class="box-card">
             <div>活动名称：{{ selected.activity_name }}</div>
-            <div>活动周次：{{ selected.week }}</div>
+            <div>活动周次：第{{ selected.start_week }}周</div>
             <div>活动地点：{{ selected.location }}</div>
-            <div>活动类型：{{ selected.type }}</div>
+            <div>活动类型：{{ selected.tag==0?'集体活动':'个人活动'}}</div>
             <div>活动开始时间：{{ selected.start_time }}</div>
         </el-card>
         <span slot="footer" class="dialog-footer">
