@@ -53,7 +53,7 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 			DurationTime: 1,
 			Type:         0,
 			Tag:          1,
-			Location:     "操场",
+			Location:     "学生活动中心(南门)",
 			IsOnline:     false,
 			LocationNode: 23123, // 与上面Location对应
 			IsMention:    false,
@@ -68,7 +68,7 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 			DurationTime: 2,
 			Type:         0,
 			Tag:          0,
-			Location:     "运动场",
+			Location:     "操场",
 			IsOnline:     false,
 			LocationNode: 23124, // 与上面Location对应
 			IsMention:    false,
@@ -83,7 +83,7 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 			DurationTime: 3,
 			Type:         1,
 			Tag:          1,
-			Location:     "教学楼树林",
+			Location:     "北邮锦江酒店",
 			IsOnline:     false,
 			LocationNode: 23124, // 与上面Location对应
 			IsMention:    true,

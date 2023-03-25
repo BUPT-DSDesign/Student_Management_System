@@ -2,7 +2,6 @@
     <div v-loading="loading" element-loading-text="正在为您检索您可能想去的地方" element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
         <div class="map" style="float:left;">
-
             <div id="container" style="width:500px;height:70vh;box-shadow: 0px 5px 5px #c8c8c8; " />
             <div class="input-card">
                 <div class="input-item">
@@ -13,54 +12,93 @@
                 </div>
             </div>
         </div>
-        <div class="search" style="float:right;">
-            <el-autocomplete v-model="inputValue" :fetch-suggestions="querySearch" @select="handleSelect"
-                placeholder="请输入您当前的位置" :trigger-on-focus="false" size="mini" class="el-auto">
+        <div class="search" style="float:right">
+            <h6>起始位置</h6>
+            <el-autocomplete v-model="inputValue" :fetch-suggestions="querySearch" placeholder="请输入您当前的位置"
+                @select="getInput" :trigger-on-focus="false" class="el-auto">
             </el-autocomplete>
-            <br>
-            <el-radio v-model="radio" label="1">课程导航</el-radio>
-            <el-radio v-model="radio" label="2">课外活动导航</el-radio>
-            <el-radio v-model="radio" label="3">临时事务导航</el-radio>
+            <div style="margin:10px 0">
+                <h6> 请选择导航类型</h6>
+                <el-radio v-model="radio" label="1">课程导航</el-radio>
+                <el-radio v-model="radio" label="2">课外活动导航</el-radio>
+                <el-radio v-model="radio" label="3">临时事务导航</el-radio>
+            </div>
+            <div v-show="radio == 1">
+                <h6>您今天的课程有</h6>
+                <el-table :data="curcourseList" style="width: 500px">
+                    <el-table-column label="节次" width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">第{{ scope.row.time }}节</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="课程名称" width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="submitclassNav(scope.$index, scope.row)">去上这节课</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
 
-            <el-table :data="curcourseList" style="width: 100%">
-                <el-table-column label="节次" width="180">
-                    <template slot-scope="scope">
-                        <i class="el-icon-time"></i>
-                        <span style="margin-left: 10px">{{ scope.row.time }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="课程名称" width="180">
-                    <template slot-scope="scope">
-                        <span style="margin-left: 10px">{{ scope.row.name }}</span>
-                    </template>
-                </el-table-column>
-                <el-table-column label="操作">
-                    <template slot-scope="scope">
-                        <el-button size="mini" @click="handleEdit(scope.$index, scope.row)">去上这节课</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <!-- <el-form-item label="终点">
-                    <el-input v-model="keyWord2" style="width:250px;"></el-input>
-                </el-form-item>
-                <ul class="list-group">
-                    <li v-for="(p, index) of filplacelist2" :key="index" @click="chooseaddress2($event)"
-                        style="font-size:13px;">
-                        {{ p.address }}
-                    </li>
-                </ul> -->
+            <div v-show="radio == 2">
+                <h6>您今天的活动有</h6>
+                <el-table :data="cureventList" style="width: 500px">
+                    <el-table-column label="时间" width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.time }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="活动名称" width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="submitclassNav(scope.$index, scope.row)">去做这项活动</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
+            <div v-show="radio == 3">
+                <h6>您今天的临时事务有</h6>
+                <el-table :data="cureventList" style="width: 500px">
+                    <el-table-column label="时间" width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">第{{ scope.row.time }}节</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="临时事务名称" width="180">
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.name }}</span>
+                        </template>
+                    </el-table-column>
+                    <el-table-column label="操作">
+                        <template slot-scope="scope">
+                            <el-button size="mini" @click="submiteventNav(scope.$index, scope.row)">去上这节课</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
             <!-- <el-form-item>
                     <el-button type="primary" @click="onSubmit">查询路线</el-button>
                 </el-form-item> -->
             <!-- </el-form> -->
         </div>
-        <el-button @click="testTsp">测试tsp问题</el-button>
+        <!-- <el-button @click="testTsp">测试tsp问题</el-button> -->
     </div>
 </template>
 <script>
 import { useNavigateStore } from '@/pinia/modules/navigate'
 import { CourseStore } from '@/store/course';
 import { useTimeStore } from '@/store/time';
+import { EventStore } from '@/store/event';
+
+import { Col } from 'element-ui';
 
 // 绘制线路需要的坐标
 // var lineArr = [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]];
@@ -71,13 +109,7 @@ export default {
             firstArr: [116.35530714718364, 39.96393072423919],// 中心点/初始坐标
             // lineArr: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]], // 路径上的点
             lineArr: [], // 路径上的点
-            keyWord1: '', //用户输入的关键字(起点)
-            keyWord2: '', //用户输入的关键字(终点)
-            filplacelist1: [], //模糊匹配后的列表（起点
-            filplacelist2: [], //模糊匹配后的列表（终点
-            dialogVisible: true,
             radio: '1',//单选框的选择
-            multipleSelection: [],//复选表格的所有选择
             //列表（全
             placelist: [
                 { id: 0, address: "青年公寓", value: "青年公寓" },
@@ -117,7 +149,7 @@ export default {
                 { id: 34, address: "鸿通楼", value: "鸿通楼" },
                 { id: 35, address: "邮局", value: "邮局" },
                 { id: 36, address: "教四(西门)", value: "教四(西门)" },
-                { id: 37, address: "教四(东门)", value: "教四(东门)" },
+                { id: 37, address: "教四", value: "教四(东门)" },
                 { id: 38, address: "教四(南门)", value: "教四(南门)" },
                 { id: 39, address: "西大门", value: "西大门" },
                 { id: 40, address: "校训石", value: "校训石" },
@@ -125,11 +157,11 @@ export default {
                 { id: 42, address: "主楼", value: "主楼" },
                 { id: 43, address: "教三(北门)", value: "教三(北门)" },
                 { id: 44, address: "教三(西门)", value: "教三(西门)" },
-                { id: 45, address: "教三(东门)", value: "教三(东门)" },
+                { id: 45, address: "教三", value: "教三" },
                 { id: 46, address: "校车发车点", value: "校车发车点" },
                 { id: 47, address: "校医院", value: "校医院" },
                 { id: 48, address: "中门邮局", value: "中门邮局" },
-                { id: 49, address: "教二(西门)", value: "教二(西门)" },
+                { id: 49, address: "教二", value: "教二(西门)" },
                 { id: 50, address: "教二(北门)", value: "教二(北门)" },
                 { id: 51, address: "可信网络通信协同创新中心(创新楼)", value: "可信网络通信协同创新中心(创新楼)" },
                 { id: 52, address: "体育场", value: "体育场" },
@@ -142,7 +174,7 @@ export default {
                 { id: 59, address: "篮球场", value: "篮球场" },
                 { id: 60, address: "学29公寓", value: "学29公寓" },
                 { id: 61, address: "行政办公楼(小白楼)", value: "行政办公楼(小白楼)" },
-                { id: 62, address: "教一楼(西门)", value: "教一楼(西门)" },
+                { id: 62, address: "教一", value: "教一楼(西门)" },
                 { id: 63, address: "教一楼(南门)", value: "教一楼(南门)" },
                 { id: 64, address: "教一楼(东门)", value: "教一楼(东门)" },
                 { id: 65, address: "体育馆", value: "体育馆" },
@@ -151,59 +183,13 @@ export default {
             ],
             mytime: useTimeStore(),
             curcourseList: [],
+            cureventList: [],
             courseList: [],
-            inputValue: "",
+            eventList: [],
+            inputValue: "", //用户输入的关键字
+            startId: -1,
+            endId: -1,
             useNavigateStore: new useNavigateStore(),
-            restaurants: [
-                { "value": "三全鲜食（北新泾店）", "address": "长宁区新渔路144号" },
-                { "value": "Hot honey 首尔炸鸡（仙霞路）", "address": "上海市长宁区淞虹路661号" },
-                { "value": "新旺角茶餐厅", "address": "上海市普陀区真北路988号创邑金沙谷6号楼113" },
-                { "value": "泷千家(天山西路店)", "address": "天山西路438号" },
-                { "value": "胖仙女纸杯蛋糕（上海凌空店）", "address": "上海市长宁区金钟路968号1幢18号楼一层商铺18-101" },
-                { "value": "贡茶", "address": "上海市长宁区金钟路633号" },
-                { "value": "豪大大香鸡排超级奶爸", "address": "上海市嘉定区曹安公路曹安路1685号" },
-                { "value": "茶芝兰（奶茶，手抓饼）", "address": "上海市普陀区同普路1435号" },
-                { "value": "十二泷町", "address": "上海市北翟路1444弄81号B幢-107" },
-                { "value": "星移浓缩咖啡", "address": "上海市嘉定区新郁路817号" },
-                { "value": "阿姨奶茶/豪大大", "address": "嘉定区曹安路1611号" },
-                { "value": "新麦甜四季甜品炸鸡", "address": "嘉定区曹安公路2383弄55号" },
-                { "value": "Monica摩托主题咖啡店", "address": "嘉定区江桥镇曹安公路2409号1F，2383弄62号1F" },
-                { "value": "浮生若茶（凌空soho店）", "address": "上海长宁区金钟路968号9号楼地下一层" },
-                { "value": "NONO JUICE  鲜榨果汁", "address": "上海市长宁区天山西路119号" },
-                { "value": "CoCo都可(北新泾店）", "address": "上海市长宁区仙霞西路" },
-                { "value": "快乐柠檬（神州智慧店）", "address": "上海市长宁区天山西路567号1层R117号店铺" },
-                { "value": "Merci Paul cafe", "address": "上海市普陀区光复西路丹巴路28弄6号楼819" },
-                { "value": "猫山王（西郊百联店）", "address": "上海市长宁区仙霞西路88号第一层G05-F01-1-306" },
-                { "value": "枪会山", "address": "上海市普陀区棕榈路" },
-                { "value": "纵食", "address": "元丰天山花园(东门) 双流路267号" },
-                { "value": "钱记", "address": "上海市长宁区天山西路" },
-                { "value": "壹杯加", "address": "上海市长宁区通协路" },
-                { "value": "唦哇嘀咖", "address": "上海市长宁区新泾镇金钟路999号2幢（B幢）第01层第1-02A单元" },
-                { "value": "爱茜茜里(西郊百联)", "address": "长宁区仙霞西路88号1305室" },
-                { "value": "爱茜茜里(近铁广场)", "address": "上海市普陀区真北路818号近铁城市广场北区地下二楼N-B2-O2-C商铺" },
-                { "value": "鲜果榨汁（金沙江路和美广店）", "address": "普陀区金沙江路2239号金沙和美广场B1-10-6" },
-                { "value": "开心丽果（缤谷店）", "address": "上海市长宁区威宁路天山路341号" },
-                { "value": "超级鸡车（丰庄路店）", "address": "上海市嘉定区丰庄路240号" },
-                { "value": "妙生活果园（北新泾店）", "address": "长宁区新渔路144号" },
-                { "value": "香宜度麻辣香锅", "address": "长宁区淞虹路148号" },
-                { "value": "凡仔汉堡（老真北路店）", "address": "上海市普陀区老真北路160号" },
-                { "value": "港式小铺", "address": "上海市长宁区金钟路968号15楼15-105室" },
-                { "value": "蜀香源麻辣香锅（剑河路店）", "address": "剑河路443-1" },
-                { "value": "北京饺子馆", "address": "长宁区北新泾街道天山西路490-1号" },
-                { "value": "饭典*新简餐（凌空SOHO店）", "address": "上海市长宁区金钟路968号9号楼地下一层9-83室" },
-                { "value": "焦耳·川式快餐（金钟路店）", "address": "上海市金钟路633号地下一层甲部" },
-                { "value": "动力鸡车", "address": "长宁区仙霞西路299弄3号101B" },
-                { "value": "浏阳蒸菜", "address": "天山西路430号" },
-                { "value": "四海游龙（天山西路店）", "address": "上海市长宁区天山西路" },
-                { "value": "樱花食堂（凌空店）", "address": "上海市长宁区金钟路968号15楼15-105室" },
-                { "value": "壹分米客家传统调制米粉(天山店)", "address": "天山西路428号" },
-                { "value": "福荣祥烧腊（平溪路店）", "address": "上海市长宁区协和路福泉路255弄57-73号" },
-                { "value": "速记黄焖鸡米饭", "address": "上海市长宁区北新泾街道金钟路180号1层01号摊位" },
-                { "value": "红辣椒麻辣烫", "address": "上海市长宁区天山西路492号" },
-                { "value": "(小杨生煎)西郊百联餐厅", "address": "长宁区仙霞西路88号百联2楼" },
-                { "value": "阳阳麻辣烫", "address": "天山西路389号" },
-                { "value": "南拳妈妈龙虾盖浇饭", "address": "普陀区金沙江路1699号鑫乐惠美食广场A13" }
-            ],
         }
     },
     //监视用户输入关键词keyWord1的变化，
@@ -237,40 +223,45 @@ export default {
     },
     created() { },
     beforeMount() {
-        const getTable = async () => {
-            const fg = await CourseStore.GetCourseTable();
-            if (fg) {
-                this.courseList = CourseStore.courseList;
-                //根据当前周，查找在本周的课程
-                this.courseList = this.courseList.filter((item) => {
-                    return item.week_schedule.indexOf(this.mytime.week) != -1;
-                });
-                //查找本天的课程，然后将他们按照顺序排列。
-                for (let i = 0; i < this.courseList.length; i++) {
-                    for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                        if (this.courseList[i].section_list[j] / 9 < this.mytime.day) {
-                            this.curcourseList.push({
-                                name: this.courseList[i].course_name,
-                                time: this.courseList[i].section_list[j] % 9,
-                            })
-                        }
-                        if (this.courseList[i].section_list[j] / 9 == 1) {
-                            this.curcourseList.push({
-                                name: this.courseList[i].course_name,
-                                time: 9,
-                            })
-                        }
-                    }
+        this.courseList = CourseStore.courseList;
+        //根据当前周，查找在本周的课程
+        this.courseList = this.courseList.filter((item) => {
+            return item.week_schedule.indexOf(this.mytime.week) != -1;
+        });
+        //查找本天的课程，然后将他们按照顺序排列。
+        for (let i = 0; i < this.courseList.length; i++) {
+            for (let j = 0; j < this.courseList[i].section_list.length; j++) {
+                if (this.courseList[i].section_list[j] / 9 < this.mytime.day) {
+                    this.curcourseList.push({
+                        name: this.courseList[i].course_name,
+                        place: this.courseList[i].classroom,
+                        time: this.courseList[i].section_list[j] % 9,
+                    })
                 }
-                //对课程按照节次进行排序
-                this.curcourseList.sort(function (a, b) {
-                    return a.time - b.time;
-                });
-            } else {
-                console.log('获取用户课程失败')
+                if (this.courseList[i].section_list[j] / 9 == 1) {
+                    this.curcourseList.push({
+                        name: this.courseList[i].course_name,
+                        place: this.courseList[i].classroom,
+                        time: 9,
+                    })
+                }
             }
         }
-        getTable();
+        //对课程按照节次进行排序
+        this.curcourseList.sort(function (a, b) {
+            return a.time - b.time;
+        });
+        //筛选活动列表
+        this.eventList = EventStore.eventlist;;
+        for (let i = 0; i < this.eventList.length; i++) {
+            if (this.eventList[i].start_week == this.mytime.week && this.eventList[i].start_day == this.mytime.day) {
+                this.cureventList.push({
+                    name: this.eventList[i].activity_name,
+                    time: this.eventList[i].start_time,
+                    place: this.eventList[i].location,
+                })
+            }
+        }
     },
     mounted() {
         setTimeout(() => {
@@ -279,25 +270,6 @@ export default {
         }, 1000)
     },
     methods: {
-        handleClose(done) {
-            this.$confirm('确认关闭？')
-                .then(_ => {
-                    done();
-                })
-                .catch(_ => { });
-        },
-        toggleSelection(rows) {
-            if (rows) {
-                rows.forEach(row => {
-                    this.$refs.multipleTable.toggleRowSelection(row);
-                });
-            } else {
-                this.$refs.multipleTable.clearSelection();
-            }
-        },
-        handleSelectionChange(val) {
-            this.multipleSelection = val;
-        },
         //给后端发送起始点的id和终止点的id
         getNavigatePath: async function (startId, endId) {
             return await this.useNavigateStore.GetNavigatePath(startId, endId)
@@ -311,14 +283,12 @@ export default {
                     startId = key;
                 }
             }
+
             for (let key in this.placelist) {
                 if (this.placelist[key].address == this.keyWord2) {
                     endId = key;
                 }
             }
-            //最后改成给后端发送startid和endid
-            // alert("起始点id:"+startId+"， 起始点地址："+this.placelist[startId].address+" ,终止点id："+endId+"， 终止点地址："+this.placelist[endId].address);
-
             // 起始点id， 终止点id
             const getPath = async () => {
                 const flag = await this.getNavigatePath(startId, endId)
@@ -352,15 +322,6 @@ export default {
                 }
             }
             getPath()
-
-        },
-        //点击ul自动填充input
-        chooseaddress1(e) {
-            this.keyWord1 = e.target.innerText;
-
-        },
-        chooseaddress2(e) {
-            this.keyWord2 = e.target.innerText;
 
         },
         // 初始化地图
@@ -432,15 +393,64 @@ export default {
             var placelist = this.placelist;
             var ret = queryString ? placelist.filter(this.createFilter(queryString)) : placelist;
             cb(ret);
-        
+
         },
         createFilter(queryString) {
             return (event) => {
                 return (event.address.includes(queryString) == true);
             };
         },
-        handleSelect(item) {
-            console.log(item);
+        getInput(item) {
+            console.log(item)
+            for (let key in this.placelist) {
+                //判断地址表的address是否有匹配上的
+                if (this.placelist[key].address == item.address) {
+                    this.startId = key;
+                }
+            }
+            console.log(this.startId)
+        },
+        submitclassNav(index, row) {
+            for (let key in this.placelist) {
+                //判断地址表的address是否有匹配上的
+                if (this.placelist[key].address == row.place.slice(0, 2)) {
+                    this.endId = key;
+                }
+            }
+            // 起始点id， 终止点id
+            const getPath = async () => {
+                const flag = await this.getNavigatePath(this.startId, this.endId)
+                if (flag) {
+                    // 从pinia传来的数据
+                    this.lineArr = this.useNavigateStore.rdata.node_list
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
+                } else {
+                    alert("您还未输入起始位置");
+                    console.log('未输入起始位置')
+                }
+            }
+            getPath()
+        },
+        submiteventNav(index, row) {
+            for (let key in this.placelist) {
+                if (this.placelist[key].address == row.place) {
+                    this.endId = key;
+                }
+            }
+            // 起始点id， 终止点id
+            const getPath = async () => {
+                const flag = await this.getNavigatePath(this.startId, this.endId)
+                if (flag) {
+                    // 从pinia传来的数据
+                    this.lineArr = this.useNavigateStore.rdata.node_list
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
+                } else {
+                    console.log('未输入起始位置')
+                }
+            }
+            getPath()
         },
     }
 }
@@ -473,7 +483,6 @@ export default {
 .el-form {
     background-color: #e7f5ff;
     padding: 15px;
-
     box-shadow: 0px 5px 5px #c8c8c8;
 }
 
@@ -483,31 +492,5 @@ export default {
 
 .map {
     margin-top: 20px;
-}
-
-.input-card {
-    margin-top: 50px;
-}
-
-.list-group {
-    margin-top: -18px;
-    margin-left: 41px;
-    height: 100px;
-    overflow-y: scroll;
-    z-index: 9999;
-}
-
-.list-group::-webkit-scrollbar {
-    width: 0;
-}
-
-.list-group li {
-    list-style: none;
-    padding: 1px;
-    cursor: pointer;
-}
-
-.list-group li:hover {
-    color: #1971c2;
 }
 </style>

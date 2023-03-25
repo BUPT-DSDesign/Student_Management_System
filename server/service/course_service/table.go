@@ -65,7 +65,7 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			Contact:            "18611555834",
 			SectionList:        []int{3,4,15,16},
 			WeekSchedule:       []int{1, 2, 4, 6, 11},
-			Classroom:          "教三-305",
+			Classroom:          "教一-305",
 			CourseLocationNode: nil,
 			IsCourseOnline:     false,
 			ExamTime:           "",
