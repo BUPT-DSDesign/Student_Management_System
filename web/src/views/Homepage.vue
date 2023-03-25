@@ -50,7 +50,6 @@ import signature from '@/components/Homepage/signature.vue';
 
 import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
-// import signature from '@/components/Homepage/signature.vue';
 import { useTimeStore } from '@/store/time';
 export default {
     data() {
@@ -89,7 +88,7 @@ export default {
                         if (this.courseList[i].section_list[j] / 9 < this.mytime.day) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: '第' + this.courseList[i].section_list[j] % 9 + '节',
+                                timestamp: this.courseList[i].section_list[j] % 9 ,
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
@@ -98,7 +97,7 @@ export default {
                         if (this.courseList[i].section_list[j] / 9 == 1) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: '第9节',
+                                timestamp: 9,
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
@@ -106,6 +105,15 @@ export default {
                         }
                     }
                 }
+                //对课程按照节次进行排序
+                this.curcourseList.sort(function (a, b) {
+                    return a.timestamp - b.timestamp;
+                });
+                //添加上汉字
+                this.curcourseList = this.curcourseList.map(function (item, index, arr) {
+                    item.timestamp = '第'+ item.timestamp+'节';
+                    return item;
+                })
             } else {
                 console.log('获取用户课程失败')
             }
