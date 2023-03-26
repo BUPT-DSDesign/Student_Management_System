@@ -7,10 +7,8 @@
   </div>
 </template>
 <script>
-import { useTimeStore } from "@/store/time"
+import { TimeStore } from "@/store/time"
 
-
-const timestore = useTimeStore();
 const map = {
   0: '00',
   1: '01',
@@ -24,19 +22,19 @@ const map = {
   9: '09',
 }
 var timer1 = setInterval(function () {
-  timestore.second += timestore.Tm;
-  if (timestore.second >= 60) {
-    timestore.second %= 60;
-    timestore.minute += 1;
-    if (timestore.minute == 60) {
-      timestore.minute %= 60;
-      timestore.hour += 1;
-      if (timestore.hour == 24) {
-        timestore.hour %= 24;
-        timestore.day += 1;
-        if (timestore.day == 7) {
-          timestore.day %= 7;
-          timestore.week += 1;
+  TimeStore.second += TimeStore.Tm;
+  if (TimeStore.second >= 60) {
+    TimeStore.second %= 60;
+    TimeStore.minute += 1;
+    if (TimeStore.minute == 60) {
+      TimeStore.minute %= 60;
+      TimeStore.hour += 1;
+      if (TimeStore.hour == 24) {
+        TimeStore.hour %= 24;
+        TimeStore.day += 1;
+        if (TimeStore.day == 7) {
+          TimeStore.day %= 7;
+          TimeStore.week += 1;
         }
       }
     }
@@ -46,7 +44,7 @@ var timer1 = setInterval(function () {
 export default {
   data() {
     return {
-      mytime: timestore,
+      mytime: TimeStore
     }
   },
   methods: {
@@ -55,29 +53,29 @@ export default {
   computed: {
     hourmap() {
       return function () {
-        if (this.mytime.hour < 10) {
-          return map[this.mytime.hour];
+        if (TimeStore.hour < 10) {
+          return map[TimeStore.hour];
         }
         else
-          return this.mytime.hour;
+          return TimeStore.hour;
       }
     },
     minutemap() {
       return function () {
-        if (this.mytime.minute < 10) {
-          return map[this.mytime.minute];
+        if (TimeStore.minute < 10) {
+          return map[TimeStore.minute];
         }
         else
-          return this.mytime.minute;
+          return TimeStore.minute;
       }
     },
     secondmap() {
       return function () {
-        if (this.mytime.second < 10) {
-          return map[this.mytime.second];
+        if (TimeStore.second < 10) {
+          return map[TimeStore.second];
         }
         else
-          return this.mytime.second;
+          return TimeStore.second;
       }
     }
   }

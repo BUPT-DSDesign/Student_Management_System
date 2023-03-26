@@ -95,7 +95,7 @@
 <script>
 import { useNavigateStore } from '@/pinia/modules/navigate'
 import { CourseStore } from '@/store/course';
-import { useTimeStore } from '@/store/time';
+import { TimeStore } from '@/store/time';
 import { EventStore } from '@/store/event';
 
 import { Col } from 'element-ui';
@@ -181,7 +181,6 @@ export default {
                 { id: 66, address: "游泳馆", value: "游泳馆" },
                 { id: 67, address: "科学会堂", value: "科学会堂", },
             ],
-            mytime: useTimeStore(),
             curcourseList: [],
             cureventList: [],
             courseList: [],
@@ -226,12 +225,12 @@ export default {
         this.courseList = CourseStore.courseList;
         //根据当前周，查找在本周的课程
         this.courseList = this.courseList.filter((item) => {
-            return item.week_schedule.indexOf(this.mytime.week) != -1;
+            return item.week_schedule.indexOf(TimeStore.week) != -1;
         });
         //查找本天的课程，然后将他们按照顺序排列。
         for (let i = 0; i < this.courseList.length; i++) {
             for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                if (this.courseList[i].section_list[j] / 9 < this.mytime.day) {
+                if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
                     this.curcourseList.push({
                         name: this.courseList[i].course_name,
                         place: this.courseList[i].classroom,
@@ -254,7 +253,7 @@ export default {
         //筛选活动列表
         this.eventList = EventStore.eventlist;;
         for (let i = 0; i < this.eventList.length; i++) {
-            if (this.eventList[i].start_week == this.mytime.week && this.eventList[i].start_day == this.mytime.day) {
+            if (this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
                 this.cureventList.push({
                     name: this.eventList[i].activity_name,
                     time: this.eventList[i].start_time,

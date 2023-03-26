@@ -41,6 +41,7 @@ export default {
       window.localStorage.clear()
       this.$router.replace('/')
       location.reload()
+
     },
   },
   components: {

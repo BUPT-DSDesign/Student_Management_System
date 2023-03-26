@@ -7,7 +7,7 @@
                 <h1 style="color:black ">{{ userInfo.username }}</h1>
             </div>
             <el-card class="box-card">
-                <p id="hitokoto" class="signature" > 获取中...</p>
+                <p id="hitokoto" class="signature"> 获取中...</p>
             </el-card>
 
         </div>
@@ -47,18 +47,16 @@
 <script>
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
-
 import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
-import { useTimeStore } from '@/store/time';
+import { TimeStore } from '@/store/time';
 export default {
     data() {
         return {
             eventNumber_remaining: 2,
             userInfo: {},
             courseList: [],
-            curcourseList: [],
-            mytime: useTimeStore(),
+            curcourseList: []
         }
     },
     beforeMount() {
@@ -73,22 +71,21 @@ export default {
             }
         }
         getUserInfo();
-
         const getTable = async () => {
             const fg = await CourseStore.GetCourseTable();
             if (fg) {
                 this.courseList = CourseStore.courseList;
                 //根据当前周，查找在本周的课程
                 this.courseList = this.courseList.filter((item) => {
-                    return item.week_schedule.indexOf(this.mytime.week) != -1;
+                    return item.week_schedule.indexOf(TimeStore.week) != -1;
                 });
                 //查找本天的课程，然后将他们按照顺序排列。
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                        if (this.courseList[i].section_list[j] / 9 < this.mytime.day) {
+                        if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: this.courseList[i].section_list[j] % 9 ,
+                                timestamp: this.courseList[i].section_list[j] % 9,
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
@@ -111,7 +108,7 @@ export default {
                 });
                 //添加上汉字
                 this.curcourseList = this.curcourseList.map(function (item, index, arr) {
-                    item.timestamp = '第'+ item.timestamp+'节';
+                    item.timestamp = '第' + item.timestamp + '节';
                     return item;
                 })
             } else {
@@ -119,7 +116,6 @@ export default {
             }
         }
         getTable();
-
         fetch('https://v1.hitokoto.cn')
             .then(function (res) {
                 return res.json();
@@ -137,19 +133,19 @@ export default {
         signature
     },
     computed: {
-        calDaypercent(){
+        calDaypercent() {
             return function () {
-                return Math.ceil((parseInt(this.mytime.second) * 1 + parseInt(this.mytime.minute) * 60 + parseInt(this.mytime.hour) * 3600)/864);
+                return Math.ceil((parseInt(TimeStore.second) * 1 + parseInt(TimeStore.minute) * 60 + parseInt(TimeStore.hour) * 3600) / 864);
             }
         },
         calWeekpercent() {
             return function () {
-                return Math.ceil((parseInt(this.mytime.day)*100) / 7);
+                return Math.ceil((parseInt(TimeStore.day) * 100) / 7);
             }
         },
         calTermpercent() {
             return function () {
-                return Math.ceil((parseInt(this.mytime.week) * 100) / 16);
+                return Math.ceil((parseInt(TimeStore.week) * 100) / 16);
             }
         },
     }
@@ -159,7 +155,7 @@ export default {
 <style>
 .signature {
     font-size: 12px;
-    width:260px;
+    width: 260px;
 }
 
 .el-card__body {
@@ -186,7 +182,6 @@ export default {
     grid-column: 1 / 2;
     grid-row: 1 / 3;
     background: #f8f9fa;
-
 }
 
 .two {
@@ -227,11 +222,12 @@ h6 {
     color: black;
     font-size: 15px;
 }
-h1{
-    font-size:30px;
-    margin-left:5px;
-    margin-right:-25px;
-    margin-top:20px;
+
+h1 {
+    font-size: 30px;
+    margin-left: 5px;
+    margin-right: -25px;
+    margin-top: 20px;
 }
 
 .ProgressBar {
@@ -256,6 +252,4 @@ h1{
 .eventblock {
     background-color: #e9ecef;
     margin: 10px 47px;
-}
-</style>
-
+}</style>
