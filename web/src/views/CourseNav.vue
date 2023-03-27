@@ -89,7 +89,7 @@
                 </el-form-item> -->
             <!-- </el-form> -->
         </div>
-        <!-- <el-button @click="testTsp">测试tsp问题</el-button> -->
+        <el-button @click="testTsp">测试tsp问题</el-button>
     </div>
 </template>
 <script>
@@ -305,9 +305,9 @@ export default {
 
         },
         testTsp() {
-            let startId = 10
-            let passIds = '{ "0": 1, "1": 4, "2": 13, "3": 30, "4": 41, "5": 42, "6": 43, "7": 44, "8": 3, "9": 17, "10": 18, "11": 19, "12": 50, "13": 59 }'
-
+            let startId = 59
+            let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
+            
             const getPath = async () => {
                 const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)
                 if (flag) {
@@ -316,11 +316,30 @@ export default {
                     this.lineArr = this.useNavigateStore.tspPath.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路成功',
+                        type: 'success'
+                    });
+                    
                 } else {
                     console.log('error')
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路失败',
+                        type: 'error'
+                    });
                 }
             }
+
             getPath()
+            
+            
+            setTimeout(() => {
+                tspLoading.close()
+            }, 2000);
 
         },
         // 初始化地图

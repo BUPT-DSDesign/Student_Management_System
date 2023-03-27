@@ -1,8 +1,11 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar :userInfo="userInfo"></uploadAvatar>
-            <!-- <signature :userInfo="userInfo"></signature> -->
+            <div>
+                <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+                <!-- <signature :userInfo="userInfo"></signature> -->
+            </div>
+            
             <div class="user">
                 <h1 style="color:black ">{{ userInfo.username }}</h1>
             </div>

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="Aside">
         <el-menu default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
             :collapse="isCollapse" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
             <h3 class="title">学生日程管理系统</h3>
@@ -24,7 +24,6 @@
                 <span slot="title">课程导航</span>
             </el-menu-item>
         </el-menu>
-
     </div>
 </template>
 
@@ -38,8 +37,6 @@ export default {
             isCollapse: false,
             // CourseStore: new CourseStore(),
             // useEventStore:new useEventStore(),
-            courseList: [],
-            eventList: [],
         };
     },
     methods: {
@@ -65,9 +62,6 @@ export default {
             const getTable1 = async () => {
                 const fg = await this.getCourseTable()
                 if (fg) {
-                    this.courseList = CourseStore.courseList;
-                    // console.log(this.courseList)
-                    // sessionStorage.setItem('classData', JSON.stringify(this.courseList))
                     this.$router.push('/Main/inClass');
                 } else {
                     console.log('error')
@@ -83,15 +77,12 @@ export default {
             const getTable2 = async () => {
                 const fg = await this.getEventTable()
                 if (fg) {
-                    this.eventList = EventStore.eventlist
                     this.$router.push('/Main/outClass');
                 } else {
                     console.log('error')
                 }
             }
             getTable2()
-
-            this.$router.push('/Main/outClass');
         },
 
     }
@@ -104,9 +95,16 @@ export default {
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
+.Aside {
+    height: 100%;
+}
+
 .el-menu-vertical-demo:not(.el-menu--collapse) {
     width: 200px;
-    min-height: 400px;
     height: 100%;
 }
 
