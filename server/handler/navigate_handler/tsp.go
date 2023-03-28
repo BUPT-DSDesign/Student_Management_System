@@ -23,7 +23,7 @@ type tspResponse struct {
 // @Security 	 ApiKeyAuth
 // @Param        start_id query int true "开始节点ID"
 // @Param        des_ids query []int true "途径节点集合"
-// @Success      200  {object}  NavigateResponse
+// @Success      200  {object}  tspResponse
 // @Router       /navigate/tsp [get]
 func TSPHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
