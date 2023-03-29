@@ -47,7 +47,6 @@ func InfoHandler(c *gin.Context) {
 		return
 	}
 
-	// 返回路径
 	c.JSON(http.StatusOK, infoResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,

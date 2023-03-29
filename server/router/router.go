@@ -77,6 +77,7 @@ func InitRouters() *gin.Engine {
 	{
 		logGroup.GET("/add", middleware.JwtAuthMiddleware(), log_handler.AddHandler)
 		logGroup.GET("/info", middleware.JwtAuthMiddleware(), log_handler.InfoHandler)
+		logGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), log_handler.DeleteHandler)
 	}
 
 	return r

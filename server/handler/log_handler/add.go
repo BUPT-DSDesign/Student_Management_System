@@ -54,7 +54,6 @@ func AddHandler(c *gin.Context) {
 		return
 	}
 
-	// 返回路径
 	c.JSON(http.StatusOK, addResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
