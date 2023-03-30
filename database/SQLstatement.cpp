@@ -3,6 +3,7 @@
 #include <string>
 #include <algorithm>
 using namespace std;
+/*******************SQLCreateDatabase**********************************/
 //创建数据库相关
 SQLCreateDatabase::SQLCreateDatabase(vector<string> &sql_vector)
 {
@@ -21,7 +22,7 @@ void SQLCreateDatabase::PraseSQLVector(vector<string> &sql_vector){
         db_name_ = sql_vector[2];
     }
 }
-//创建表相关
+/*******************SQLCreateTable**********************************/
 SQLCreateTable::SQLCreateTable(vector<string> &sql_vector){
     set_type2uint();//设置映射表
     PraseSQLVector(sql_vector);
@@ -171,15 +172,39 @@ PRIMARY KEY (Id_P)
             //TODO:报错
         }
     }
-
+    //限制列元素长度
+    if(attrs_.size() > 15){
+        //TODO:过长报错
+    }
 }
 
-//创建索引相关
+/*******************SQLCreateIndex**********************************/
 SQLCreateIndex::SQLCreateIndex(vector<string> &sql_vector){
     PraseSQLVector(sql_vector);
 }
-
+string SQLCreateIndex::get_tb_name(){ return tb_name_;}
+string SQLCreateIndex::get_col_name(){ return col_name_;}
+string SQLCreateIndex::get_index_name(){ return index_name_;}
 void SQLCreateIndex::PraseSQLVector(vector<string> &sql_vector){
-    //常见SQL语法(仅支持单一索引)
     //CREATE INDEX index_name ON table_name (col_name_)
+    uint16 pos = 2;
+    if(sql_vector.size() < 8){
+        //TODO: ERROR
+        return;
+    }
+    index_name_ = sql_vector[pos];
+    pos++;
+    transform(sql_vector[pos].begin(),sql_vector[pos].end(),sql_vector[pos].begin(),(int (*)(int))tolower);
+    //检测ON
+    if(sql_vector[pos]!="on"){
+        //TODO:Error
+    }
+    pos++;
+    tb_name_ = sql_vector[pos];
+    pos++;
+    if(sql_vector[pos]!="(" && sql_vector[pos+2]!=")"){
+        //TODO:Throw error
+    }
+    pos++;
+    col_name_ = sql_vector[pos];
 }

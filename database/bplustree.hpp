@@ -28,9 +28,9 @@ private:
 public:
     BPlusTree(Table &table);
     //以下为增删改查
-    void Add(int key,unique_ptr<byte> data);//新增元素
+    void Add(int key,byte &data);//新增元素
     string_view Delete(int key);//利用键值删除元素,返回被删除元素的json字符串
-    void Update(int key,unique_ptr<byte> data);//更改元素
+    void Update(int key,byte& data);//更改元素
     string_view Search(int key);//利用键值搜索元素,返回被删除元素的json字符串
     ~BPlusTree();
 };
