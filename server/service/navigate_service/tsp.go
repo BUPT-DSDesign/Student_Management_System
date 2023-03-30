@@ -51,7 +51,7 @@ func (f *tspFlow) checkNum() error {
 
 func (f *tspFlow) run(nodeList **[][2]float64) error {
 	// 调用tsp算法得到途径节点编号列表
-	result, err := tsp.TSP(f.startId, f.passIds, f.pathList, len(f.nodeList))
+	result, err := tsp.TSP(f.startId, f.passIds)
 	if err != nil {
 		return err
 	}

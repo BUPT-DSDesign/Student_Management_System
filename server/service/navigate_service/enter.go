@@ -1,6 +1,7 @@
 package navigate_service
 
 import (
+	"server/algorithm/initialize"
 	"server/algorithm/tsp"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -24,12 +25,14 @@ type server struct {
 var Server NavigateServer
 
 func init() {
-	//println("导航")
 	Server = &server{
 		tempNodeList: getNodeList(),
 		tempPathList: getPathList(),
 	}
 
-	// 两点之间的路线矩阵
-	tsp.InitRouteMatrix(Server.(*server).tempPathList, len(Server.(*server).tempNodeList))
+	// 初始化地图
+	initialize.InitMap(len(Server.(*server).tempNodeList), Server.(*server).tempPathList)
+
+	// tsp问题中需要用到的两点之间的路线矩阵
+	tsp.InitRouteMatrix(len(Server.(*server).tempNodeList))
 }
