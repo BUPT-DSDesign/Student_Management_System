@@ -16,22 +16,22 @@ struct BPlusTreeNode{
     bool is_leaf;//是否为叶子节点
     uint8 elem_count;//元素的个数
 };
-class BPlusTree
+class BPTree
 {
 private:
     /* data */
+    unique_ptr<fstream> table_;//表文件
     streampos root_pos_;//根节点位置
-    size_t file_size_;//表大小
-    unique_ptr<BPlusTreeNode> cur_;//B树指针,指向当前被加载的页
-    unique_ptr<byte> cache_;//缓存,用于读取字节流,byte为Cpp17新增类型
-    unique_ptr<Table> table_;//表对象
+    vector<TableColAttribute> col_info_;//表的信息
+    uint16 size_of_item;//每一个元素的大小
 public:
-    BPlusTree(Table &table);
-    //以下为增删改查
-    void Add(int key,byte &data);//新增元素
-    string_view Delete(int key);//利用键值删除元素,返回被删除元素的json字符串
-    void Update(int key,byte& data);//更改元素
-    string_view Search(int key);//利用键值搜索元素,返回被删除元素的json字符串
-    ~BPlusTree();
+    //打开已经存在的表文件
+    BPTree(string tbname);
+    //新建不存在的表文件
+    BPTree(string tbname,vector<TableColAttribute> &col_info);
+    //析构函数
+    ~BPTree();
+    //打印设置信息
+    void PrintAttr();
 };
 
