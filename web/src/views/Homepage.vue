@@ -1,20 +1,18 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <uploadAvatar></uploadAvatar>
-            <div class="user">
-                <h1 style="color:black">{{ userInfo.username }}</h1>
+            <div>
+                <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+                <!-- <signature :userInfo="userInfo"></signature> -->
             </div>
             
+            <div class="user">
+                <h1 style="color:black ">{{ userInfo.username }}</h1>
+            </div>
             <el-card class="box-card">
                 <p id="hitokoto" class="signature"> 获取中...</p>
-
             </el-card>
 
-<<<<<<< HEAD
-            </el-card>
-=======
->>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
         </div>
         <div class="two item">
             <div class="classblock" style="height: 120px;float: left;">
@@ -29,11 +27,11 @@
         <div class="three item">
             <div class="ProgressBar">
                 <h6>本日进度</h6>
-                <el-progress :percentage="60" :stroke-width="10"></el-progress>
+                <el-progress :percentage="calDaypercent()" :stroke-width="10"></el-progress>
                 <h6>本周进度</h6>
-                <el-progress :percentage="80" :stroke-width="10"></el-progress>
+                <el-progress :percentage="calWeekpercent()" :stroke-width="10"></el-progress>
                 <h6>本学期进度</h6>
-                <el-progress :percentage="20" :stroke-width="10"></el-progress>
+                <el-progress :percentage="calTermpercent()" :stroke-width="10"></el-progress>
             </div>
         </div>
         <div class="four item">
@@ -49,27 +47,19 @@
         </div>
     </div>
 </template>
-<!-- 本例不能添加链接内容，放在此处只是因为此接口比较方便，也许能够解决大部分的需求-->
 <script>
-import { calcurWeek } from "@/utils/time"
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
-
 import { CourseStore } from '@/store/course';
 import { UserStore } from '@/store/user'
-
-
-
-
+import { TimeStore } from '@/store/time';
 export default {
     data() {
         return {
             eventNumber_remaining: 2,
-            useUserStore: new useUserStore(),
-            useCourseStore: new useCourseStore(),
             userInfo: {},
             courseList: [],
-            curcourseList: [],
+            curcourseList: []
         }
     },
     beforeMount() {
@@ -77,39 +67,37 @@ export default {
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
             if (fg) {
-                console.log(UserStore)
+                // console.log(UserStore)
                 this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')
             }
         }
         getUserInfo();
-
         const getTable = async () => {
             const fg = await CourseStore.GetCourseTable();
             if (fg) {
                 this.courseList = CourseStore.courseList;
                 //根据当前周，查找在本周的课程
                 this.courseList = this.courseList.filter((item) => {
-                    return item.week_schedule.indexOf(calcurWeek().week) != -1;
+                    return item.week_schedule.indexOf(TimeStore.week) != -1;
                 });
                 //查找本天的课程，然后将他们按照顺序排列。
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                        if (this.courseList[i].section_list[j] / 9 < 1) {
+                        if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: '第' + this.courseList[i].section_list[j] % 9 + '节',
+                                timestamp: this.courseList[i].section_list[j] % 9,
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
-
                             })
                         }
                         if (this.courseList[i].section_list[j] / 9 == 1) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: '第9节',
+                                timestamp: 9,
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
@@ -117,12 +105,20 @@ export default {
                         }
                     }
                 }
+                //对课程按照节次进行排序
+                this.curcourseList.sort(function (a, b) {
+                    return a.timestamp - b.timestamp;
+                });
+                //添加上汉字
+                this.curcourseList = this.curcourseList.map(function (item, index, arr) {
+                    item.timestamp = '第' + item.timestamp + '节';
+                    return item;
+                })
             } else {
                 console.log('获取用户课程失败')
             }
         }
         getTable();
-
         fetch('https://v1.hitokoto.cn')
             .then(function (res) {
                 return res.json();
@@ -137,22 +133,32 @@ export default {
     },
     components: {
         uploadAvatar,
+        signature
     },
-    methods: {
-
+    computed: {
+        calDaypercent() {
+            return function () {
+                return Math.ceil((parseInt(TimeStore.second) * 1 + parseInt(TimeStore.minute) * 60 + parseInt(TimeStore.hour) * 3600) / 864);
+            }
+        },
+        calWeekpercent() {
+            return function () {
+                return Math.ceil((parseInt(TimeStore.day) * 100) / 7);
+            }
+        },
+        calTermpercent() {
+            return function () {
+                return Math.ceil((parseInt(TimeStore.week) * 100) / 16);
+            }
+        },
     }
 }
 </script>
 
-<<<<<<< HEAD
-<style lang="scss">
-.signature{
-    font-size:12px;
-=======
 <style>
 .signature {
     font-size: 12px;
->>>>>>> 06bb42513ac60b157b2938af5134b059a93a4ff8
+    width: 260px;
 }
 
 .el-card__body {
@@ -179,7 +185,6 @@ export default {
     grid-column: 1 / 2;
     grid-row: 1 / 3;
     background: #f8f9fa;
-
 }
 
 .two {
@@ -221,6 +226,13 @@ h6 {
     font-size: 15px;
 }
 
+h1 {
+    font-size: 30px;
+    margin-left: 5px;
+    margin-right: -25px;
+    margin-top: 20px;
+}
+
 .ProgressBar {
     margin-top: 30px;
 }
@@ -243,6 +255,4 @@ h6 {
 .eventblock {
     background-color: #e9ecef;
     margin: 10px 47px;
-}
-</style>
-
+}</style>

@@ -64,10 +64,10 @@ func addEdge(path []system.Path, head []int) ([]int, []Edge) {
 	}
 	return head, edges
 }
-func Dijkstra(start int, desc int, path []system.Path, nodeCnt int) (nodeList []int, err error) {
+func Dijkstra(start int, desc int, path []system.Path, nodeCnt int) (nodeList []int, distance float64, err error) {
 	// 判断请求是否合法
 	if start < 0 || desc < 0 || start >= nodeCnt || desc >= nodeCnt {
-		return nil, errors.New("请求节点id错误")
+		return nil, 0.0, errors.New("请求节点id错误")
 	}
 	//使用前向星存图
 	head := make([]int, nodeCnt+5)
@@ -104,7 +104,7 @@ func Dijkstra(start int, desc int, path []system.Path, nodeCnt int) (nodeList []
 	}
 	//最后，从终点回头输出路径
 	if dis[desc] == math.Inf(1) {
-		return nil, errors.New("没有这样的路径")
+		return nil, 0.0, errors.New("没有这样的路径")
 	}
 	nodeList = append(nodeList, desc)
 
@@ -117,5 +117,5 @@ func Dijkstra(start int, desc int, path []system.Path, nodeCnt int) (nodeList []
 		nodeList[i], nodeList[j] = nodeList[j], nodeList[i]
 	}
 
-	return nodeList, nil
+	return nodeList, dis[desc], nil
 }

@@ -5,6 +5,7 @@ import (
 	_ "server/docs"
 	"server/handler/activity_handler"
 	"server/handler/course_handler"
+	"server/handler/log_handler"
 	"server/handler/navigate_handler"
 	"server/handler/user_handler"
 	"server/middleware"
@@ -68,7 +69,15 @@ func InitRouters() *gin.Engine {
 	// 课外活动以及临时事务路由
 	activityGroup := rootPath.Group("/activity")
 	{
-		activityGroup.GET("/", middleware.JwtAuthMiddleware(), activity_handler.GetInfoHandler)
+		activityGroup.GET("/info", middleware.JwtAuthMiddleware(), activity_handler.GetInfoHandler)
+	}
+
+	// 日志路由
+	logGroup := rootPath.Group("/log")
+	{
+		logGroup.GET("/add", middleware.JwtAuthMiddleware(), log_handler.AddHandler)
+		logGroup.GET("/info", middleware.JwtAuthMiddleware(), log_handler.InfoHandler)
+		logGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), log_handler.DeleteHandler)
 	}
 
 	return r

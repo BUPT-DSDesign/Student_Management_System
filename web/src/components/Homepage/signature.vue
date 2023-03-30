@@ -1,25 +1,24 @@
 <template>
-    <div>
+    <div class="edit">
         <el-input
-        type="text"
-        placeholder="编辑个签"
-        v-model="userInfo.signature"
-        suffix-icon="el-icon-edit"
-        :border="false"
-        ref="signature"
-        class="signature"
-        @focus="edit">
-        </el-input>
-        <el-dialog title="编辑个签" :visible.sync="dialogVisible" width="30%">
-            <el-input placeholder="请输入签名内容" v-model="editSignature" maxlength="30" ref="editSignature" type="text"
-            show-word-limit ></el-input>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="cancelInput">取 消</el-button>
-                <el-button type="primary" @click="confirmInput">确 定</el-button>
-            </span>
-        </el-dialog>
+            type="text"
+            placeholder="编辑个签"
+            v-model="userInfo.signature"
+            suffix-icon="el-icon-edit"
+            :border="false"
+            ref="signature"
+            class="signature"
+            @focus="edit">
+            </el-input>
+            <el-dialog title="编辑个签" :visible.sync="dialogVisible" width="30%">
+                <el-input placeholder="请输入签名内容" v-model="editSignature" maxlength="30" ref="editSignature" type="text"
+                show-word-limit ></el-input>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="cancelInput">取 消</el-button>
+                    <el-button type="primary" @click="confirmInput">确 定</el-button>
+                </span>
+            </el-dialog>
     </div>
-   
 </template>
 
 <script>
@@ -73,6 +72,11 @@ export default {
 </script>
 
 <style>
+.edit {
+    width: 260px;
+    height: 39px;
+}
+
 .signature {
     width: 200px;
 }

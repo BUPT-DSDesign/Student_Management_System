@@ -9,3 +9,13 @@ export const Navigate = (startId, endId) => {
         method: 'get',
     })
 }
+
+// tsp问题接口
+export const TSP = (startId, passIds) => {
+    const url = '/navigate/tsp?' + 'start_id=' + startId + '&' + 'pass_ids=' + passIds
+
+    return service({
+        url: url,
+        method: 'get',
+    })
+}

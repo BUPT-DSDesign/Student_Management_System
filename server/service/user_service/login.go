@@ -42,7 +42,7 @@ func (f *loginFlow) checkNum() error {
 	/*
 		调用dao层的CRUD操作
 	*/
-	f.userId = 123456789 // 这个赋值在检验参数成功后进行
+	f.userId = 123 // 这个赋值在检验参数成功后进行
 	return nil
 }
 
