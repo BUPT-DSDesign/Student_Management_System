@@ -15,7 +15,6 @@ export const useUserStore = defineStore('user', () => {
         })
         try {
             const res = await Register(registerInfo)
-
             if (res.data.status_code == 0) {
                 initTokenAndId()
                 // 注册成功后把token和userId存起来
@@ -49,14 +48,13 @@ export const useUserStore = defineStore('user', () => {
         })
         try {
             const res = await Login(loginInfo)
-            // console.log()
-
             if (res.data.status_code == 0) {
                 initTokenAndId()
                 // 登录成功后把token和userId存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
-
+                let role = res.data.is_admin == false ? "admin" : "user";
+                localStorage.setItem("role", role);
                 loadingInstance.value.close()
                 // ....其他操作
                 return true
@@ -75,7 +73,6 @@ export const useUserStore = defineStore('user', () => {
     const GetUserInfo = async () => {
         try {
             const res = await GetInfo()
-            
             if (res.data.status_code == 0) {
                 userInfo.value = res.data.user_info
                 return true

@@ -27,19 +27,11 @@ const routes = [
         meta: { roles: ['user'] },
         //嵌套路由
         children: [
-<<<<<<< HEAD
-            // { path: 'ScheduleMge',component: ScheduleMge,},
             { path: 'inClass', component: inClass },
             { path: 'outClass', component: outClass },
             { path: 'CourseNav', component: CourseNav },
             { path: 'Homepage', component: Homepage },
             { path: 'logMessage', component: logMessage }
-=======
-            { path: 'inClass', component: inClass, meta: { roles: ['user'] } },
-            { path: 'outClass', component: outClass, meta: { roles: ['user'] } },
-            { path: 'CourseNav', component: CourseNav, meta: { roles: ['user'] } },
-            { path: 'Homepage', component: Homepage, meta: { roles: ['user'] } },
->>>>>>> 4d8050faa252a9e1faef3791d7cb4ce523123699
         ]
     },
     {

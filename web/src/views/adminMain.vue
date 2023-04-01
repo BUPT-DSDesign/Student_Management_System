@@ -19,7 +19,7 @@
     </div>
 </template>
 <script>
-import Aside from '../components/userAside.vue'
+import adminAside from '../components/adminAside.vue'
 import Header from '../components/Header.vue'
 
 export default {
@@ -38,7 +38,7 @@ export default {
         }
     },
     components: {
-        Aside,
+       adminAside,
         Header,
     }
 }

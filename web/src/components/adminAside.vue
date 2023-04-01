@@ -22,7 +22,7 @@ export default {
     },
     methods: {
         clickClassManage() {
-            this.$router.push('/Main/Homepage');
+            this.$router.push('/adminMain/classmanage');
         },
     }
 }
@@ -40,7 +40,7 @@ body {
 }
 
 .Aside {
-    height: 100%;
+    height: 100vh;
 }
 
 .el-menu-vertical-demo:not(.el-menu--collapse) {
