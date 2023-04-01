@@ -8,6 +8,7 @@ type StatusResponse struct {
 
 // 权限响应 (userId, token)
 type AccessResponse struct {
-	UserId int64  `json:"user_id"`
-	Token  string `json:"token"`
+	UserId  int64  `json:"user_id"`
+	Token   string `json:"token"`
+	IsAdmin bool   `json:"is_admin"`
 }

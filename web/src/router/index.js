@@ -11,7 +11,9 @@ import outClass from '../views/outClass.vue'
 import Main from '../views/Main.vue'
 import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
+import logMessage from '../views/logMessage.vue'
 import { Message } from 'element-ui'
+
 
 Vue.use(VueRouter)
 
@@ -28,6 +30,7 @@ const routes = [
             { path: 'outClass', component: outClass },
             { path: 'CourseNav', component: CourseNav },
             { path: 'Homepage', component: Homepage },
+            { path: 'logMessage', component: logMessage }
         ]
     },
     { path: '/', component: Login, },
