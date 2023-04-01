@@ -40,7 +40,6 @@ export default {
     },
     methods: {
         LoginIn: async function () {
-            // const useUserStore = new useUserStore()
             return await UserStore.LoginIn(this.ruleForm) 
         },
         submitForm(formName) {
@@ -49,7 +48,7 @@ export default {
                 if (valid) {
                     const fg = await this.LoginIn() // 这里等待请求过程完成
                     if (fg) {                              
-                        this.$router.push('/Main/Homepage')
+                        this.$router.push('/userMain/Homepage')
                         this.$message({
                             showClose: true,
                             center: true,
@@ -57,22 +56,6 @@ export default {
                             type: 'success'
                         });
                     }
-                    // // 下面是之前写的
-                    // that.$router.push('/Main/Homepage');
-                    // //post的第一个参数：传入后端的地址，第二个参数：登录数据
-                    // axios.post("http://localhost:8080/Student_Management_System/user/login", {
-                    //     usename: this.ruleForm.usename,
-                    //     password: this.ruleForm.password
-                    // }).then
-                    //     (function (response) {
-                    //         let data = response.data;
-                    //         console.log(data)
-                    //         if (data.status_code == 0 && data.status_msg == '登录成功') {
-                    //             that.$router.push('/Main/Homepage');
-                    //         }
-                    //     }, function (err) {
-                    //         console.log(err);
-                    //     })
                    
                 } else {
                     this.$message({
