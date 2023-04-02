@@ -43,18 +43,29 @@ export default {
             return await UserStore.LoginIn(this.ruleForm) 
         },
         submitForm(formName) {
-            // let that = this;
             this.$refs[formName].validate(async (valid) => {
                 if (valid) {
                     const fg = await this.LoginIn() // 这里等待请求过程完成
-                    if (fg) {                              
-                        this.$router.push('/userMain/Homepage')
-                        this.$message({
-                            showClose: true,
-                            center: true,
-                            message: '登录成功',
-                            type: 'success'
-                        });
+                    if (fg) {        
+                        if (localStorage.getItem("role") == 'user') {
+                            this.$router.push('/userMain/Homepage')
+                            this.$message({
+                                showClose: true,
+                                center: true,
+                                message: '用户登录成功',
+                                type: 'success'
+                            });
+                        } 
+                        else {
+                            this.$router.push('/adminMain/classManage')
+                            this.$message({
+                                showClose: true,
+                                center: true,
+                                message: '管理员登录成功',
+                                type: 'success'
+                            });
+                        }                  
+                        
                     }
                    
                 } else {

@@ -27,7 +27,6 @@ const routes = [
         meta: { roles: ['user'] },
         //嵌套路由
         children: [
-            // { path: 'ScheduleMge',component: ScheduleMge,},
             { path: 'inClass', component: inClass },
             { path: 'outClass', component: outClass },
             { path: 'CourseNav', component: CourseNav },
