@@ -8,7 +8,7 @@ import CourseNav from '../views/CourseNav.vue'
 import Homepage from '../views/Homepage.vue'
 import inClass from '../views/inClass.vue'
 import outClass from '../views/outClass.vue'
-import userMain from '../views/userMain.vue'
+import studentMain from '../views/studentMain.vue'
 import adminMain from '../views/adminMain.vue'
 import classManage from '../views/classManage.vue'
 import Register from '../views/Register.vue'
@@ -22,9 +22,9 @@ Vue.use(VueRouter)
 //2.将路由与组件进行映射,path是网页中的路径，而component是组件的名称
 const routes = [
     {
-        path: '/userMain',
-        component: userMain,
-        meta: { roles: ['user'] },
+        path: '/studentMain',
+        component: studentMain,
+        meta: { roles: ['student'] },
         //嵌套路由
         children: [
             { path: 'inClass', component: inClass },
@@ -43,8 +43,8 @@ const routes = [
             { path: 'classManage', component: classManage, meta: { roles: ['admin'] } },
         ]
     },
-    { path: '/', component: Login, meta: { roles: ['user','admin'] } },
-    { path: '/Register', component: Register, meta: { roles: ['user', 'admin'] } },
+    { path: '/', component: Login, meta: { roles: ['student','admin'] } },
+    { path: '/Register', component: Register, meta: { roles: ['student', 'admin'] } },
 ]
 
 //3.创建router实例

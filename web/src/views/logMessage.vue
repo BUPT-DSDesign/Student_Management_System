@@ -2,24 +2,24 @@
     <div class="container">
         <h3 style="color:black">日志信息记录表</h3>
         <el-table :data="logs" style="width: 100%" height="500" stripe>
-            <el-table-column fixed label="用户" align="center" width="170">
+            <el-table-column fixed label="用户" width="60">
                 <template>
-                    <img :src="avatarUrl" class="avatar">
+                    <img :src="avatarUrl" class="user-avatar">
                 </template>
             </el-table-column>
-            <el-table-column fixed label="时间" align="center" width="170">
+            <el-table-column fixed label="时间" align="center">
                 <template slot-scope="scope">
                     <i class="el-icon-time"></i>
                     <span style="margin-left: 10px">{{ scope.row.create_time }}</span>
                 </template>
             </el-table-column>
-            <el-table-column fixed label="内容" width="600" align="center">
+            <el-table-column fixed label="内容" align="center">
                 <template slot-scope="scope">
                     <i class="el-icon-document"></i>
                     <span style="margin-left: 10px">{{ scope.row.content }}</span>
                 </template>
             </el-table-column>
-            <el-table-column fixed label="操作" width="200" align="center">
+            <el-table-column fixed label="操作" align="center">
                 <template slot-scope="scope">
                     <el-button type="text" style="color: red;" @click="deleteLog(scope.row.log_id)">
                         <i class="el-icon-delete"></i>
@@ -74,10 +74,9 @@ export default {
 </script>
 
 <style>
-.avatar {
-    width: 35px;
-    height: 35px;
-    margin-left: 58px;
+.user-avatar {
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
 }
 </style>

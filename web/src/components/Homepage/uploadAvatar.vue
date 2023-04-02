@@ -1,5 +1,4 @@
 <template>
-   
     <el-tooltip class="item" effect="dark" content="更换头像" placement="bottom" :open-delay=200 offset="">
         <el-upload
             class="avatar-uploader"
@@ -12,7 +11,6 @@
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
     </el-tooltip>
-   
 </template>
 <script>
 import { Loading } from 'element-ui'
@@ -99,7 +97,6 @@ export default {
     float:left;
 }
 .avatar {
-    /* margin-top: 20px; */
     width: 180px;
     height: 180px;
     display: block;

@@ -3,7 +3,7 @@
         <div class="one item">
             <div>
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
-                <!-- <signature :userInfo="userInfo"></signature> -->
+                <signature :userInfo="userInfo"></signature>
             </div>
             
             <div class="user">

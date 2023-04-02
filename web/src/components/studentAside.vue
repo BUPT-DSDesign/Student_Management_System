@@ -50,11 +50,11 @@ export default {
             console.log(key, keyPath);
         },
         clickMain() {
-            this.$router.push('/Main/Homepage');
+            this.$router.push('/studentMain/Homepage');
         },
         //点击侧边菜单
         clickCourseNav() {
-            this.$router.push('/Main/CourseNav');
+            this.$router.push('/studentMain/CourseNav');
         },
 
         getCourseTable: async function () {
@@ -65,7 +65,7 @@ export default {
             const getTable1 = async () => {
                 const fg = await this.getCourseTable()
                 if (fg) {
-                    this.$router.push('/Main/inClass');
+                    this.$router.push('/studentMain/inClass');
                 } else {
                     console.log('error')
                 }
@@ -80,7 +80,7 @@ export default {
             const getTable2 = async () => {
                 const fg = await this.getEventTable()
                 if (fg) {
-                    this.$router.push('/Main/outClass');
+                    this.$router.push('/studentMain/outClass');
                 } else {
                     console.log('error')
                 }
@@ -93,7 +93,7 @@ export default {
                 const fg = await LogStore.GetLogMessage()
                 if (fg) {
                     console.log(LogStore.logs)
-                    this.$router.push('/userMain/logMessage')
+                    this.$router.push('/studentMain/logMessage')
                 } else {
                     console.log('error')
                 }

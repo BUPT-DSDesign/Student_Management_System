@@ -3,7 +3,7 @@
         <el-container>
             <el-aside width="200px">
                 <!-- 侧边栏 -->
-               <userAside :routes="getRoutes"></userAside>
+               <studentAside :routes="getRoutes"></studentAside>
             </el-aside>
             <el-container>
                 <el-header>   
@@ -19,7 +19,7 @@
     </div>
 </template>
 <script>
-import userAside from '../components/userAside.vue'
+import studentAside from '../components/studentAside.vue'
 import Header from '../components/Header.vue'
  
 export default {
@@ -38,7 +38,7 @@ export default {
         }
     },
     components: {
-        userAside,
+        studentAside,
         Header,
     }
 }
