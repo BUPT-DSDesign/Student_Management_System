@@ -1,7 +1,7 @@
 <template>
     <div v-loading="loading" element-loading-text="正在为您检索您可能想去的地方" element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
-        <div class="map" style="float:left;">
+        <div class="map" style="float:left; margin-right:20px">
             <div id="container" style="width:500px;height:70vh;box-shadow: 0px 5px 5px #c8c8c8; " />
             <div class="input-card">
                 <div class="input-item">
@@ -12,7 +12,7 @@
                 </div>
             </div>
         </div>
-        <div class="search" style="float:right ">
+        <div class="search" style="float:right margin-right:10px ">
             <h6>起始位置</h6>
             <el-autocomplete v-model="inputValue" :fetch-suggestions="querySearch" placeholder="请输入您当前的位置"
                 @select="getInput" :trigger-on-focus="false" class="el-auto">
@@ -25,7 +25,7 @@
             </div>
             <div v-show="radio == 1">
                 <h6>您今天的课程有</h6>
-                <el-table :data="curcourseList" style="width: 530px">
+                <el-table :data="curcourseList" style="width: 500px">
                     <el-table-column label="节次" width="180">
                         <template slot-scope="scope">
                             <span style="margin-left: 10px">第{{ scope.row.time }}节</span>
@@ -46,7 +46,7 @@
 
             <div v-show="radio == 2">
                 <h6>您今天的活动有</h6>
-                <el-table :data="outEventList" style="width: 530px">
+                <el-table :data="outEventList" style="width: 500px">
                     <el-table-column label="时间" width="180">
                         <template slot-scope="scope">
                             <span style="margin-left: 10px">{{ scope.row.time }}</span>
@@ -66,7 +66,7 @@
             </div>
             <div v-show="radio == 3">
                 <h6>您今天的临时事务有</h6>
-                <el-table :data="tempEventList" style="width: 530px" @selection-change="handleSelectionChange">
+                <el-table :data="tempEventList" style="width: 500px" @selection-change="handleSelectionChange">
                     <el-table-column type="selection" width="20">
                     </el-table-column>
                     <el-table-column label="时间" width="180">
@@ -79,12 +79,14 @@
                             <span style="margin-left: 10px">{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作">
-                        <template slot-scope="scope">
-                            <el-button size="mini" @click="submitTempEventNav(scope.$index, scope.row)">去做这项活动</el-button>
-                        </template>
-                    </el-table-column>
+                    <el-table-column label="地点" width="180">
+                            <template slot-scope="scope">
+                                <span style="margin-left: 10px">{{ scope.row.place }}</span>
+                            </template>
+                        </el-table-column>
                 </el-table>
+                <el-button @click="submitTempEventNav">去做这些活动</el-button>
+
             </div>
         </div>
         <el-button @click="testTsp">测试tsp问题</el-button>
@@ -187,11 +189,7 @@ export default {
             multipleSelection: [],//用户多选选中的临时事务
         }
     },
-    mounted() {
-        setTimeout(() => {
-            this.initMap() // 异步加载（否则报错initMap is not defined）
-            // this.initroad()
-        }, 1000);
+    beforeMount() {
         this.courseList = CourseStore.courseList;
         //根据当前周，查找在本周的课程
         this.courseList = this.courseList.filter((item) => {
@@ -224,7 +222,6 @@ export default {
         this.eventList = EventStore.eventlist;
         for (let i = 0; i < this.eventList.length; i++) {
             if (this.eventList[i].type == 0 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
-                console.log(this.eventList[i].activity_name);
                 this.outEventList.push({
                     name: this.eventList[i].activity_name,
                     time: this.eventList[i].start_time,
@@ -233,10 +230,8 @@ export default {
             }
         }
         //筛选临时活动列表
-        this.eventList = EventStore.eventlist;
         for (let i = 0; i < this.eventList.length; i++) {
             if (this.eventList[i].type == 1 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
-                console.log(this.eventList[i].activity_name);
                 this.tempEventList.push({
                     name: this.eventList[i].activity_name,
                     time: this.eventList[i].start_time,
@@ -244,41 +239,46 @@ export default {
                 })
             }
         }
+    },
+    mounted() {
+        setTimeout(() => {
+            this.initMap() // 异步加载（否则报错initMap is not defined）
+        }, 1000);
 
     },
     methods: {
-        //给后端发送起始点的id和终止点的id
-        getNavigatePath: async function (startId, endId) {
-            return await this.useNavigateStore.GetNavigatePath(startId, endId)
-        },
-        onSubmit() {
-            var startId = -1, endId = -1;
-            for (let key in this.placelist) {
-                //判断地址表的address是否有匹配上的
-                if (this.placelist[key].address == this.keyWord1) {
-                    startId = key;
-                }
-            }
-            for (let key in this.placelist) {
-                if (this.placelist[key].address == this.keyWord2) {
-                    endId = key;
-                }
-            }
-            // 起始点id， 终止点id
-            const getPath = async () => {
-                const flag = await this.getNavigatePath(startId, endId)
-                if (flag) {
-                    // 从pinia传来的数据
-                    this.lineArr = this.useNavigateStore.rdata.node_list
-                    this.firstArr = this.lineArr[0];
-                    this.initMap();
-                } else {
-                    console.log('error')
-                }
-            }
-            getPath()
+        // //给后端发送起始点的id和终止点的id
+        // getNavigatePath: async function (startId, endId) {
+        //     return await this.useNavigateStore.GetNavigatePath(startId, endId)
+        // },
+        // onSubmit() {
+        //     var startId = -1, endId = -1;
+        //     for (let key in this.placelist) {
+        //         //判断地址表的address是否有匹配上的
+        //         if (this.placelist[key].address == this.keyWord1) {
+        //             startId = key;
+        //         }
+        //     }
+        //     for (let key in this.placelist) {
+        //         if (this.placelist[key].address == this.keyWord2) {
+        //             endId = key;
+        //         }
+        //     }
+        //     // 起始点id， 终止点id
+        //     const getPath = async () => {
+        //         const flag = await this.getNavigatePath(startId, endId)
+        //         if (flag) {
+        //             // 从pinia传来的数据
+        //             this.lineArr = this.useNavigateStore.rdata.node_list
+        //             this.firstArr = this.lineArr[0];
+        //             this.initMap();
+        //         } else {
+        //             console.log('error')
+        //         }
+        //     }
+        //     getPath()
 
-        },
+        // },
         testTsp() {
             let startId = 59
             let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
@@ -308,14 +308,10 @@ export default {
                     });
                 }
             }
-
             getPath()
-
-
             setTimeout(() => {
                 tspLoading.close()
             }, 2000);
-
         },
         // 初始化地图
         initMap() {
@@ -394,7 +390,6 @@ export default {
             };
         },
         getInput(item) {
-            console.log(item)
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
                 if (this.placelist[key].address == item.address) {
@@ -425,7 +420,7 @@ export default {
             }
             getPath()
         },
-        //活动导航提交
+        //课外活动导航提交
         submitOutEventNav(index, row) {
             for (let key in this.placelist) {
                 if (this.placelist[key].address == row.place) {
@@ -434,28 +429,78 @@ export default {
             }
             // 起始点id， 终止点id
             const getPath = async () => {
-                const flag = await NavigateStore.GetNavigatePath(this.startId, NavigateStore.endId)
+                const flag = await NavigateStore.GetNavigatePath(NavigateStore.startId, NavigateStore.endId)
                 if (flag) {
                     // 从pinia传来的数据
                     this.lineArr = NavigateStore.rdata.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
                 } else {
+                    alert("您还未输入起始位置");
                     console.log('未输入起始位置')
                 }
             }
             getPath()
         },
-        submitTempEventNav(index, row) {
-            
+        // 临时事务导航提交
+        submitTempEventNav() {
+            let passArray = [];
+            for (let i = 0; i < this.multipleSelection.length; i++) {
+                for (let key in this.placelist) {
+                    //判断地址表的address是否有匹配上的
+                    if (this.placelist[key].address == this.multipleSelection[i].place) {
+                        passArray.push(parseInt(key));
+                    }
+                }
+            }
+            let jso = {};
+            for (let i = 0; i < passArray.length; i++) {
+                jso[i] = passArray[i]
+            }
+            let passIds = JSON.stringify(jso);
+            console.log(passIds)
+            const getPath = async () => {
+                const flag = await NavigateStore.GetTSPPath(NavigateStore.startId, passIds)
+                if (flag) {
+                    // 从pinia传来的数据
+                    console.log(NavigateStore.tspPath)
+                    this.lineArr = NavigateStore.tspPath.node_list
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路成功',
+                        type: 'success'
+                    });
+
+                } else {
+                    console.log('error')
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路失败',
+                        type: 'error'
+                    });
+                }
+            }
+            getPath();
+            setTimeout(() => {
+                tspLoading.close()
+            }, 2000);
         },
-        handleSelectionChange() {
-            
+        //获取多选的事务
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
         }
     }
 }
 </script>
 <style>
+.cell {
+    margin-left: 10px;
+}
+
 .list-group {
     color: #adb5bd;
     margin-top: 10px;

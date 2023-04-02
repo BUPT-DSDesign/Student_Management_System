@@ -54,7 +54,17 @@ export default {
         },
         //点击侧边菜单
         clickCourseNav() {
-            this.$router.push('/stuMain/CourseNav');
+            // 当点击侧边栏的课外信息时, 会向后端发送请求, 后端返回课外活动表
+            const getTable2 = async () => {
+                const fg = await this.getEventTable()
+                if (fg) {
+                     this.$router.push('/stuMain/CourseNav');
+                } else {
+                    console.log('error')
+                }
+            }
+            getTable2()
+           
         },
 
         getCourseTable: async function () {
