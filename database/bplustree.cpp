@@ -7,10 +7,30 @@
 #include <memory>
 #include <vector>
 using namespace std;
+bool BPNode::isLeaf(){
+    return head_.is_leaf_;
+}
+uint16 BPNode::getElemCount(){
+    return head_.busy_;
+}
+streampos BPNode::getChild(int id){
+    if(id < child_.size())
+        return child_[id];
+    return -1;
+}
+void BPNode::ReadChunk(streampos pos){
+    
+}
+void BPNode::CreateChunk(bool is_leaf,int data_size)
+{
+    head_.is_leaf_ = is_leaf;
+    head_.data_size_ = data_size;
+}
+
 BPTree::BPTree(string tbname)
 {
     string_view table_path = tbname + ".db";
-    table_ = make_unique<fstream>(table_path.data(),ios::binary|ios::out|ios::in);
+    table_ = make_shared<fstream>(table_path.data(),ios::binary|ios::out|ios::in);
     if (!table_->good()) {
         cout << "Table does not exist." << endl;
         exit(1);
@@ -18,7 +38,7 @@ BPTree::BPTree(string tbname)
     //读取列数量
     int col_num = 0;
     table_->read((char*)&col_num,sizeof(col_num));
-    //cout<<"有"<<col_num<<"列\n";
+    cout<<"有"<<col_num<<"列\n";
     //(*table_item_)>>col_num;
     //开始读取表属性
     TableColAttribute buf_atr;
@@ -32,7 +52,7 @@ BPTree::BPTree(string tbname)
 BPTree::BPTree(string tbname,vector<TableColAttribute> &col_info)
 {
     string_view table_path = tbname + ".db";
-    table_ = (make_unique<fstream>(table_path.data(),ios::binary|ios::out|ios::in));
+    table_ = (make_shared<fstream>(table_path.data(),ios::binary|ios::out|ios::in));
     //写入列长度
     int col_num = col_info.size();
     table_->write((char*)&col_num,sizeof(col_num));
@@ -55,4 +75,33 @@ void BPTree::PrintAttr(){
             <<t.is_primary_<<","
             <<t.length_<<"\n";
     }
+}
+string BPTree::Search(const uint64 &key){
+    //搜索
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    while(cur_!=-1){
+        //第一步,利用cur_来载入一个块
+        bufnode_.ReadChunk(cur_);
+        if(bufnode_.isLeaf()){
+            //如果是叶子节点了,就开始找值
+            break;
+        }
+        //否则开始迭代叶子结点
+        //每个区块里的元素都是从小到大排列
+        int child_id = bufnode_.getElemCount();
+        for(int i=0;i<bufnode_.getElemCount();i++){
+            uint64 node_key = bufnode_.getKey(i);
+            if(node_key > key)//此时,第i个孩子即为对应的节点
+            {
+                child_id = i;
+                break;
+            }
+                
+        }
+        cur_ = bufnode_.getChild(child_id);
+    }
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    
 }
