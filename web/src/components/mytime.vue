@@ -1,7 +1,6 @@
 <template>
   <div>
-    <h2 class="weektitle">第 {{ mytime.week }} 周 — 星期 {{ mytime.day }} — {{ hourmap() }}:{{ minutemap() }}:{{ secondmap()
-    }}</h2>
+    <h2 class="weektitle">第 {{ mytime.week }} 周 — 星期 {{ mytime.day }} — {{ hourmap() }}:{{ minutemap() }}</h2>
       <el-slider v-model="mytime.Tm" show-input input-size="mini" :max=100>
       </el-slider>
   </div>
@@ -22,23 +21,20 @@ const map = {
   9: '09',
 }
 var timer1 = setInterval(function () {
-  TimeStore.second += TimeStore.Tm;
-  if (TimeStore.second >= 60) {
-    TimeStore.second %= 60;
-    TimeStore.minute += 1;
-    if (TimeStore.minute == 60) {
+  console.log(TimeStore.minute, TimeStore.hour)
+  TimeStore.minute+= TimeStore.Tm;  
+    if (TimeStore.minute >= 60) {
       TimeStore.minute %= 60;
       TimeStore.hour += 1;
-      if (TimeStore.hour == 24) {
+      if (TimeStore.hour >= 24) {
         TimeStore.hour %= 24;
         TimeStore.day += 1;
-        if (TimeStore.day == 7) {
+        if (TimeStore.day >= 7) {
           TimeStore.day %= 7;
           TimeStore.week += 1;
         }
       }
     }
-  }
 }, 1000);
 
 export default {
@@ -69,15 +65,6 @@ export default {
           return TimeStore.minute;
       }
     },
-    secondmap() {
-      return function () {
-        if (TimeStore.second < 10) {
-          return map[TimeStore.second];
-        }
-        else
-          return TimeStore.second;
-      }
-    }
   }
 }
 

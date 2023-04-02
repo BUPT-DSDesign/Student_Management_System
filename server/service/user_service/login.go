@@ -53,9 +53,16 @@ func (f *loginFlow) run(access **common.AccessResponse) error {
 		return err
 	}
 
+	// 根据用户名查验该用户是否是管理员
+	isAdmin := false
+	if f.loginForm.Username == "admin" {
+		isAdmin = true
+	}
+
 	*access = &common.AccessResponse{
-		UserId: f.userId,
-		Token:  tokenString,
+		UserId:  f.userId,
+		Token:   tokenString,
+		IsAdmin: isAdmin,
 	}
 
 	return nil

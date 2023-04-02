@@ -127,8 +127,6 @@ export default {
             }
         },
     },
-
-
     methods: {
         //将相同教室的数组元素去重
         dedup(arr) {

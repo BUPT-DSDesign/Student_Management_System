@@ -55,9 +55,16 @@ func (f *registerFlow) run(access **common.AccessResponse) error {
 		return err
 	}
 
+	// 根据用户名查验该用户是否是管理员
+	isAdmin := false
+	if f.registerForm.Username == "admin" {
+		isAdmin = true
+	}
+
 	*access = &common.AccessResponse{
-		UserId: userId,
-		Token:  tokenString,
+		UserId:  userId,
+		Token:   tokenString,
+		IsAdmin: isAdmin,
 	}
 
 	//新建一个用户实例

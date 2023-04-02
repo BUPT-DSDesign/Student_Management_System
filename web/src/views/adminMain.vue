@@ -2,10 +2,12 @@
     <div>
         <el-container>
             <el-aside width="200px">
-               <Aside></Aside>
+                <!-- 侧边栏 -->
+                <adminAside :routes="getRoutes"></adminAside>
             </el-aside>
             <el-container>
-                <el-header>   
+                <el-header>
+                    <!-- 上方 -->
                     <Header></Header>
                 </el-header>
                 <el-main>
@@ -17,34 +19,36 @@
     </div>
 </template>
 <script>
-import Aside from '../components/Aside.vue'
+import adminAside from '../components/adminAside.vue'
 import Header from '../components/Header.vue'
- 
+
 export default {
     data() {
         return {
         }
     },
-
-    // methods: {
-    //     receiveData(data) {
-    //         this.courseList = data
-    //         console.log(this.courseList)
-    //         bus.$emit('courseList', this.courseList)
-    //     }
-    // },
-
+    computed: {
+        getRoutes() {
+            return global.antRouter
+        }
+    },
+    data() {
+        return {
+            userRole: 'Topest',
+        }
+    },
     components: {
-        Aside,
+       adminAside,
         Header,
     }
 }
 </script>
 <style>
-.el-header{
+.el-header {
     padding: 0;
 }
-.el-main{
+
+.el-main {
     padding: 0;
 }
 </style>

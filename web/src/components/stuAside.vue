@@ -23,6 +23,10 @@
                 <i class="el-icon-location"></i>
                 <span slot="title">课程导航</span>
             </el-menu-item>
+            <el-menu-item index="4" @click="clickLogMessage">
+                <i class="el-icon-news"></i>
+                <span slot="title">日志信息</span>
+            </el-menu-item>
         </el-menu>
     </div>
 </template>
@@ -30,13 +34,12 @@
 <script>
 import { CourseStore } from '@/store/course'
 import { EventStore } from '@/store/event'
+import { LogStore } from '@/store/log'                
 
 export default {
     data() {
         return {
             isCollapse: false,
-            // CourseStore: new CourseStore(),
-            // useEventStore:new useEventStore(),
         };
     },
     methods: {
@@ -84,7 +87,19 @@ export default {
             }
             getTable2()
         },
-
+        clickLogMessage() {
+            // 当点击日志信息时, 会向后端发送请求, 后端返回日志信息
+            const getLogMessage = async () => {
+                const fg = await LogStore.GetLogMessage()
+                if (fg) {
+                    console.log(LogStore.logs)
+                    this.$router.push('/userMain/logMessage')
+                } else {
+                    console.log('error')
+                }
+            }
+            getLogMessage()
+        }
     }
 }
 </script>
