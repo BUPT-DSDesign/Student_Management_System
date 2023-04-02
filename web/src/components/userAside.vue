@@ -93,7 +93,7 @@ export default {
                 const fg = await LogStore.GetLogMessage()
                 if (fg) {
                     console.log(LogStore.logs)
-                    this.$router.push('/Main/logMessage')
+                    this.$router.push('/userMain/logMessage')
                 } else {
                     console.log('error')
                 }
