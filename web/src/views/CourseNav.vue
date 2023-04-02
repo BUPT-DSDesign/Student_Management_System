@@ -280,15 +280,15 @@ export default {
 
         // },
         testTsp() {
-            let startId = 59
-            let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
+            let startId = 31
+            let passIds = '{"0": 13, "1": 28, "2": 17}'
 
             const getPath = async () => {
-                const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)
+                const flag = await NavigateStore.GetTSPPath(startId, passIds)
                 if (flag) {
                     // 从pinia传来的数据
-                    console.log(this.useNavigateStore.tspPath)
-                    this.lineArr = this.useNavigateStore.tspPath.node_list
+                    console.log(NavigateStore.tspPath)
+                    this.lineArr = NavigateStore.tspPath.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
                     this.$message({
@@ -309,9 +309,6 @@ export default {
                 }
             }
             getPath()
-            setTimeout(() => {
-                tspLoading.close()
-            }, 2000);
         },
         // 初始化地图
         initMap() {
@@ -485,9 +482,6 @@ export default {
                 }
             }
             getPath();
-            setTimeout(() => {
-                tspLoading.close()
-            }, 2000);
         },
         //获取多选的事务
         handleSelectionChange(val) {
