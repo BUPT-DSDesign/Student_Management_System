@@ -101,7 +101,6 @@ export default {
     },
     mounted() {
         this.eventlist = EventStore.eventlist;
-        console.log(this.eventlist)
     },
     methods: {
         //规范化类型  

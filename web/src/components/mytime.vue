@@ -21,7 +21,6 @@ const map = {
   9: '09',
 }
 var timer1 = setInterval(function () {
-  console.log(TimeStore.minute, TimeStore.hour)
   TimeStore.minute+= TimeStore.Tm;  
     if (TimeStore.minute >= 60) {
       TimeStore.minute %= 60;
