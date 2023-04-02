@@ -1,7 +1,7 @@
 <template>
     <div v-loading="loading" element-loading-text="正在为您检索您可能想去的地方" element-loading-spinner="el-icon-loading"
         element-loading-background="rgba(0, 0, 0, 0.8)">
-        <div class="map" style="float:left;">
+        <div class="map" style="float:left; margin-right:20px">
             <div id="container" style="width:500px;height:70vh;box-shadow: 0px 5px 5px #c8c8c8; " />
             <div class="input-card">
                 <div class="input-item">
@@ -12,7 +12,7 @@
                 </div>
             </div>
         </div>
-        <div class="search" style="float:right">
+        <div class="search" style="float:right margin-right:10px ">
             <h6>起始位置</h6>
             <el-autocomplete v-model="inputValue" :fetch-suggestions="querySearch" placeholder="请输入您当前的位置"
                 @select="getInput" :trigger-on-focus="false" class="el-auto">
@@ -46,7 +46,7 @@
 
             <div v-show="radio == 2">
                 <h6>您今天的活动有</h6>
-                <el-table :data="cureventList" style="width: 500px">
+                <el-table :data="outEventList" style="width: 500px">
                     <el-table-column label="时间" width="180">
                         <template slot-scope="scope">
                             <span style="margin-left: 10px">{{ scope.row.time }}</span>
@@ -59,17 +59,19 @@
                     </el-table-column>
                     <el-table-column label="操作">
                         <template slot-scope="scope">
-                            <el-button size="mini" @click="submitclassNav(scope.$index, scope.row)">去做这项活动</el-button>
+                            <el-button size="mini" @click="submitOutEventNav(scope.$index, scope.row)">去做这项活动</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
             <div v-show="radio == 3">
                 <h6>您今天的临时事务有</h6>
-                <el-table :data="cureventList" style="width: 500px">
+                <el-table :data="tempEventList" style="width: 500px" @selection-change="handleSelectionChange">
+                    <el-table-column type="selection" width="20">
+                    </el-table-column>
                     <el-table-column label="时间" width="180">
                         <template slot-scope="scope">
-                            <span style="margin-left: 10px">第{{ scope.row.time }}节</span>
+                            <span style="margin-left: 10px">{{ scope.row.time }}</span>
                         </template>
                     </el-table-column>
                     <el-table-column label="临时事务名称" width="180">
@@ -77,27 +79,24 @@
                             <span style="margin-left: 10px">{{ scope.row.name }}</span>
                         </template>
                     </el-table-column>
-                    <el-table-column label="操作">
-                        <template slot-scope="scope">
-                            <el-button size="mini" @click="submiteventNav(scope.$index, scope.row)">去上这节课</el-button>
-                        </template>
-                    </el-table-column>
+                    <el-table-column label="地点" width="180">
+                            <template slot-scope="scope">
+                                <span style="margin-left: 10px">{{ scope.row.place }}</span>
+                            </template>
+                        </el-table-column>
                 </el-table>
+                <el-button @click="submitTempEventNav">去做这些活动</el-button>
+
             </div>
-            <!-- <el-form-item>
-                    <el-button type="primary" @click="onSubmit">查询路线</el-button>
-                </el-form-item> -->
-            <!-- </el-form> -->
         </div>
         <el-button @click="testTsp">测试tsp问题</el-button>
     </div>
 </template>
 <script>
-import { useNavigateStore } from '@/pinia/modules/navigate'
 import { CourseStore } from '@/store/course';
 import { TimeStore } from '@/store/time';
 import { EventStore } from '@/store/event';
-
+import { NavigateStore } from "@/store/navigate"
 import { Col } from 'element-ui';
 
 // 绘制线路需要的坐标
@@ -182,45 +181,14 @@ export default {
                 { id: 67, address: "科学会堂", value: "科学会堂", },
             ],
             curcourseList: [],
-            cureventList: [],
+            outEventList: [],
+            tempEventList: [],
             courseList: [],
             eventList: [],
             inputValue: "", //用户输入的关键字
-            startId: -1,
-            endId: -1,
-            useNavigateStore: new useNavigateStore(),
+            multipleSelection: [],//用户多选选中的临时事务
         }
     },
-    //监视用户输入关键词keyWord1的变化，
-    watch: {
-        keyWord1(newvalue) {
-            //如果当前关键词为空
-            if (newvalue === "") {
-                this.filplacelist1 = [];
-            }
-            else {
-                //利用filter函数筛选匹配上的元素
-                this.filplacelist1 = this.placelist.filter((item) => {
-                    return item.address.indexOf(newvalue) != -1;
-                })
-            }
-        },
-        keyWord2(newvalue) {
-            //如果当前关键词为空
-            if (newvalue === "") {
-                this.filplacelist2 = [];
-            }
-            else {
-                //利用filter函数筛选匹配上的元素
-                this.filplacelist2 = this.placelist.filter((item) => {
-                    return item.address.indexOf(newvalue) != -1;
-                })
-            }
-
-        },
-
-    },
-    created() { },
     beforeMount() {
         this.courseList = CourseStore.courseList;
         //根据当前周，查找在本周的课程
@@ -250,11 +218,21 @@ export default {
         this.curcourseList.sort(function (a, b) {
             return a.time - b.time;
         });
-        //筛选活动列表
-        this.eventList = EventStore.eventlist;;
+        //筛选课外活动列表
+        this.eventList = EventStore.eventlist;
         for (let i = 0; i < this.eventList.length; i++) {
-            if (this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
-                this.cureventList.push({
+            if (this.eventList[i].type == 0 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
+                this.outEventList.push({
+                    name: this.eventList[i].activity_name,
+                    time: this.eventList[i].start_time,
+                    place: this.eventList[i].location,
+                })
+            }
+        }
+        //筛选临时活动列表
+        for (let i = 0; i < this.eventList.length; i++) {
+            if (this.eventList[i].type == 1 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
+                this.tempEventList.push({
                     name: this.eventList[i].activity_name,
                     time: this.eventList[i].start_time,
                     place: this.eventList[i].location,
@@ -265,49 +243,46 @@ export default {
     mounted() {
         setTimeout(() => {
             this.initMap() // 异步加载（否则报错initMap is not defined）
-            // this.initroad()
-        }, 1000)
+        }, 1000);
+
     },
     methods: {
-        //给后端发送起始点的id和终止点的id
-        getNavigatePath: async function (startId, endId) {
-            return await this.useNavigateStore.GetNavigatePath(startId, endId)
-        },
+        // //给后端发送起始点的id和终止点的id
+        // getNavigatePath: async function (startId, endId) {
+        //     return await this.useNavigateStore.GetNavigatePath(startId, endId)
+        // },
+        // onSubmit() {
+        //     var startId = -1, endId = -1;
+        //     for (let key in this.placelist) {
+        //         //判断地址表的address是否有匹配上的
+        //         if (this.placelist[key].address == this.keyWord1) {
+        //             startId = key;
+        //         }
+        //     }
+        //     for (let key in this.placelist) {
+        //         if (this.placelist[key].address == this.keyWord2) {
+        //             endId = key;
+        //         }
+        //     }
+        //     // 起始点id， 终止点id
+        //     const getPath = async () => {
+        //         const flag = await this.getNavigatePath(startId, endId)
+        //         if (flag) {
+        //             // 从pinia传来的数据
+        //             this.lineArr = this.useNavigateStore.rdata.node_list
+        //             this.firstArr = this.lineArr[0];
+        //             this.initMap();
+        //         } else {
+        //             console.log('error')
+        //         }
+        //     }
+        //     getPath()
 
-        onSubmit() {
-            var startId = -1, endId = -1;
-            for (let key in this.placelist) {
-                //判断地址表的address是否有匹配上的
-                if (this.placelist[key].address == this.keyWord1) {
-                    startId = key;
-                }
-            }
-
-            for (let key in this.placelist) {
-                if (this.placelist[key].address == this.keyWord2) {
-                    endId = key;
-                }
-            }
-            // 起始点id， 终止点id
-            const getPath = async () => {
-                const flag = await this.getNavigatePath(startId, endId)
-                if (flag) {
-                    // 从pinia传来的数据
-                    console.log(this.useNavigateStore.rdata)
-                    this.lineArr = this.useNavigateStore.rdata.node_list
-                    this.firstArr = this.lineArr[0];
-                    this.initMap();
-                } else {
-                    console.log('error')
-                }
-            }
-            getPath()
-
-        },
+        // },
         testTsp() {
             let startId = 59
             let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
-            
+
             const getPath = async () => {
                 const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)
                 if (flag) {
@@ -322,7 +297,7 @@ export default {
                         message: '寻路成功',
                         type: 'success'
                     });
-                    
+
                 } else {
                     console.log('error')
                     this.$message({
@@ -333,14 +308,10 @@ export default {
                     });
                 }
             }
-
             getPath()
-            
-            
             setTimeout(() => {
                 tspLoading.close()
             }, 2000);
-
         },
         // 初始化地图
         initMap() {
@@ -407,11 +378,11 @@ export default {
         stopAnimation() {
             this.marker.stopMove();
         },
+        //搜索框智能加载
         querySearch(queryString, cb) {
             var placelist = this.placelist;
             var ret = queryString ? placelist.filter(this.createFilter(queryString)) : placelist;
             cb(ret);
-
         },
         createFilter(queryString) {
             return (event) => {
@@ -419,28 +390,27 @@ export default {
             };
         },
         getInput(item) {
-            console.log(item)
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
                 if (this.placelist[key].address == item.address) {
-                    this.startId = key;
+                    NavigateStore.startId = key;
                 }
             }
-            console.log(this.startId)
         },
+        //课程导航提交
         submitclassNav(index, row) {
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
                 if (this.placelist[key].address == row.place.slice(0, 2)) {
-                    this.endId = key;
+                    NavigateStore.endId = key;
                 }
             }
             // 起始点id， 终止点id
             const getPath = async () => {
-                const flag = await this.getNavigatePath(this.startId, this.endId)
+                const flag = await NavigateStore.GetNavigatePath(NavigateStore.startId, NavigateStore.endId)
                 if (flag) {
                     // 从pinia传来的数据
-                    this.lineArr = this.useNavigateStore.rdata.node_list
+                    this.lineArr = NavigateStore.rdata.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
                 } else {
@@ -450,30 +420,87 @@ export default {
             }
             getPath()
         },
-        submiteventNav(index, row) {
+        //课外活动导航提交
+        submitOutEventNav(index, row) {
             for (let key in this.placelist) {
                 if (this.placelist[key].address == row.place) {
-                    this.endId = key;
+                    NavigateStore.endId = key;
                 }
             }
             // 起始点id， 终止点id
             const getPath = async () => {
-                const flag = await this.getNavigatePath(this.startId, this.endId)
+                const flag = await NavigateStore.GetNavigatePath(NavigateStore.startId, NavigateStore.endId)
                 if (flag) {
                     // 从pinia传来的数据
-                    this.lineArr = this.useNavigateStore.rdata.node_list
+                    this.lineArr = NavigateStore.rdata.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
                 } else {
+                    alert("您还未输入起始位置");
                     console.log('未输入起始位置')
                 }
             }
             getPath()
         },
+        // 临时事务导航提交
+        submitTempEventNav() {
+            let passArray = [];
+            for (let i = 0; i < this.multipleSelection.length; i++) {
+                for (let key in this.placelist) {
+                    //判断地址表的address是否有匹配上的
+                    if (this.placelist[key].address == this.multipleSelection[i].place) {
+                        passArray.push(parseInt(key));
+                    }
+                }
+            }
+            let jso = {};
+            for (let i = 0; i < passArray.length; i++) {
+                jso[i] = passArray[i]
+            }
+            let passIds = JSON.stringify(jso);
+            console.log(passIds)
+            const getPath = async () => {
+                const flag = await NavigateStore.GetTSPPath(NavigateStore.startId, passIds)
+                if (flag) {
+                    // 从pinia传来的数据
+                    console.log(NavigateStore.tspPath)
+                    this.lineArr = NavigateStore.tspPath.node_list
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路成功',
+                        type: 'success'
+                    });
+
+                } else {
+                    console.log('error')
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路失败',
+                        type: 'error'
+                    });
+                }
+            }
+            getPath();
+            setTimeout(() => {
+                tspLoading.close()
+            }, 2000);
+        },
+        //获取多选的事务
+        handleSelectionChange(val) {
+            this.multipleSelection = val;
+        }
     }
 }
 </script>
 <style>
+.cell {
+    margin-left: 10px;
+}
+
 .list-group {
     color: #adb5bd;
     margin-top: 10px;
