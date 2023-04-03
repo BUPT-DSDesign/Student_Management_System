@@ -50,6 +50,54 @@ func (f *infoFlow) run(logs **[]*system.LogInfo) error {
 			Content:    "导航",
 			UserId:     123,
 		},
+		{
+			LogId:      32132134,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "约会",
+			UserId:     123,
+		},
+		{
+			LogId:      32132135,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "做活动",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
 	}
 	return nil
 }

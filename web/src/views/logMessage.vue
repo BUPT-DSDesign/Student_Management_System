@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <h3 style="color:black">日志信息记录表</h3>
-        <el-table :data="logs" style="width: 100%" height="500" stripe>
+        <el-table :data="logs" style="width: 100%" :max-height="maxHeight" stripe :show-summary="false">
             <el-table-column fixed label="用户" width="60">
                 <template>
                     <img :src="avatarUrl" class="user-avatar">
@@ -25,10 +25,10 @@
                         <i class="el-icon-delete"></i>
                         <span style="margin-left: 5px">删除</span>
                     </el-button>
-                   
                 </template>
             </el-table-column>
-        </el-table>    
+        </el-table>
+        <el-button @click="exportToFile" type="primary" style="float:right">导出日志文件</el-button>  
         <el-dialog
             title="提示"
             :visible.sync="dialogVisible"
@@ -40,27 +40,26 @@
                 <el-button type="primary" @click="deleteLogTruely">确 定</el-button>
             </span>
         </el-dialog>
-        <el-button @click="exportToFile" type="success" style="float:right">导出日志文件</el-button>
+        
     </div>
 </template>
 
 <script>
 import { LogStore } from '@/store/log';
 import { UserStore } from '@/store/user';
+import { Loading } from 'element-ui';
 import Blob from 'blob';
 
 export default {
     data() {
         return {
-            logs: '',
+            logs: LogStore.logs,
             dialogVisible: false,
             tmpLogId: 0,
-            avatarUrl: ''
+            avatarUrl: UserStore.userInfo.avatar_url,
+            loadingInstance: '',
+            maxHeight: document.body.clientHeight - 150
         }
-    },
-    mounted() {
-        this.logs = LogStore.logs
-        this.avatarUrl = UserStore.userInfo.avatar_url 
     },
     methods: {
         deleteLog(logId) {
@@ -69,7 +68,25 @@ export default {
         },
         deleteLogTruely() {
             this.dialogVisible = false
-            console.log(this.tmpLogId)
+            const deleteLog = async () => {
+                const fg = await LogStore.DeleteLog(this.tmpLogId)
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '删除日志成功',
+                        type: 'success'
+                    });
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '删除日志失败',
+                        type: 'error'
+                    });
+                }
+            }
+            deleteLog()
         },
         exportToFile() {
             let data = ''
@@ -82,9 +99,18 @@ export default {
             const downloadUrl = window.URL.createObjectURL(blob) // 文件下载路径
             const link = document.createElement("a") 
             link.href = downloadUrl
-            link.download = "filename.txt"
+            link.download = 'log.txt'
+            this.loadingInstance = Loading.service({
+                lock: true,
+                text: '导出文件中，请稍候.....',
+                background: 'rgba(0, 0, 0, 0.7)'
+            })
             link.click()
             window.URL.revokeObjectURL(downloadUrl)
+            setTimeout(() => {
+                console.log('error')
+                this.loadingInstance.close()
+            }, 2500);
         }
     }
 }
