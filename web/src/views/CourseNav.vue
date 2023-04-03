@@ -247,37 +247,39 @@ export default {
 
     },
     methods: {
-        // //给后端发送起始点的id和终止点的id
-        // getNavigatePath: async function (startId, endId) {
-        //     return await this.useNavigateStore.GetNavigatePath(startId, endId)
-        // },
-        // onSubmit() {
-        //     var startId = -1, endId = -1;
-        //     for (let key in this.placelist) {
-        //         //判断地址表的address是否有匹配上的
-        //         if (this.placelist[key].address == this.keyWord1) {
-        //             startId = key;
-        //         }
-        //     }
-        //     for (let key in this.placelist) {
-        //         if (this.placelist[key].address == this.keyWord2) {
-        //             endId = key;
-        //         }
-        //     }
-        //     // 起始点id， 终止点id
+        // testTsp() {
+        //     let startId = 59
+        //     let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
+
         //     const getPath = async () => {
-        //         const flag = await this.getNavigatePath(startId, endId)
+        //         const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)
         //         if (flag) {
         //             // 从pinia传来的数据
-        //             this.lineArr = this.useNavigateStore.rdata.node_list
+        //             console.log(this.useNavigateStore.tspPath)
+        //             this.lineArr = this.useNavigateStore.tspPath.node_list
         //             this.firstArr = this.lineArr[0];
         //             this.initMap();
+        //             this.$message({
+        //                 showClose: true,
+        //                 center: true,
+        //                 message: '寻路成功',
+        //                 type: 'success'
+        //             });
+
         //         } else {
         //             console.log('error')
+        //             this.$message({
+        //                 showClose: true,
+        //                 center: true,
+        //                 message: '寻路失败',
+        //                 type: 'error'
+        //             });
         //         }
         //     }
         //     getPath()
-
+        //     setTimeout(() => {
+        //         tspLoading.close()
+        //     }, 2000);
         // },
         testTsp() {
             let startId = 31
@@ -455,7 +457,6 @@ export default {
                 jso[i] = passArray[i]
             }
             let passIds = JSON.stringify(jso);
-            console.log(passIds)
             const getPath = async () => {
                 const flag = await NavigateStore.GetTSPPath(NavigateStore.startId, passIds)
                 if (flag) {
