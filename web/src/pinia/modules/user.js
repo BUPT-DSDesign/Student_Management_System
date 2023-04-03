@@ -20,7 +20,6 @@ export const useUserStore = defineStore('user', () => {
                 // 注册成功后把token和userId存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
-
                 loadingInstance.value.close()
                 // ....其他操作
                 return true
