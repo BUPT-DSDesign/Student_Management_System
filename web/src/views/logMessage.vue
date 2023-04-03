@@ -40,12 +40,14 @@
                 <el-button type="primary" @click="deleteLogTruely">确 定</el-button>
             </span>
         </el-dialog>
+        <el-button @click="exportToFile" type="success" style="float:right">导出日志文件</el-button>
     </div>
 </template>
 
 <script>
 import { LogStore } from '@/store/log';
 import { UserStore } from '@/store/user';
+import Blob from 'blob';
 
 export default {
     data() {
@@ -68,6 +70,21 @@ export default {
         deleteLogTruely() {
             this.dialogVisible = false
             console.log(this.tmpLogId)
+        },
+        exportToFile() {
+            let data = ''
+            for (let i = 0; i < this.logs.length; i++) {
+                const time = this.logs[i].create_time
+                const content = this.logs[i].content
+                data += time + '    ' + content + '\n' 
+            }
+            const blob = new Blob([data], { type: "text/plain" })
+            const downloadUrl = window.URL.createObjectURL(blob) // 文件下载路径
+            const link = document.createElement("a") 
+            link.href = downloadUrl
+            link.download = "filename.txt"
+            link.click()
+            window.URL.revokeObjectURL(downloadUrl)
         }
     }
 }
