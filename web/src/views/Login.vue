@@ -47,8 +47,8 @@ export default {
                 if (valid) {
                     const fg = await this.LoginIn() // 这里等待请求过程完成
                     if (fg) {        
-                        if (localStorage.getItem("role") == 'user') {
-                            this.$router.push('/stuMain/Homepage')
+                        if (localStorage.getItem("role") == 'student') {
+                            this.$router.push('/studentMain/Homepage')
                             this.$message({
                                 showClose: true,
                                 center: true,

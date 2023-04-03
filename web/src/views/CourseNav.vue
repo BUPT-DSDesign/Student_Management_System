@@ -281,6 +281,37 @@ export default {
         //         tspLoading.close()
         //     }, 2000);
         // },
+        testTsp() {
+            let startId = 31
+            let passIds = '{"0": 13, "1": 28, "2": 17}'
+
+            const getPath = async () => {
+                const flag = await NavigateStore.GetTSPPath(startId, passIds)
+                if (flag) {
+                    // 从pinia传来的数据
+                    console.log(NavigateStore.tspPath)
+                    this.lineArr = NavigateStore.tspPath.node_list
+                    this.firstArr = this.lineArr[0];
+                    this.initMap();
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路成功',
+                        type: 'success'
+                    });
+
+                } else {
+                    console.log('error')
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '寻路失败',
+                        type: 'error'
+                    });
+                }
+            }
+            getPath()
+        },
         // 初始化地图
         initMap() {
             var that = this
@@ -452,9 +483,6 @@ export default {
                 }
             }
             getPath();
-            setTimeout(() => {
-                tspLoading.close()
-            }, 2000);
         },
         //获取多选的事务
         handleSelectionChange(val) {

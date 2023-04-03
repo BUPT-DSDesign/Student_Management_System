@@ -20,6 +20,12 @@ export const useUserStore = defineStore('user', () => {
                 // 注册成功后把token和userId存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
+<<<<<<< HEAD
+=======
+                let role = res.data.is_admin == true ? "admin" : "student";
+                localStorage.setItem("role", role);
+
+>>>>>>> 233f12f3ff2aa6c20c6fa517ee360e6a2ccd0d62
                 loadingInstance.value.close()
                 // ....其他操作
                 return true
@@ -52,7 +58,7 @@ export const useUserStore = defineStore('user', () => {
                 // 登录成功后把token和userId存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
-                let role = res.data.is_admin == true ? "admin" : "user";
+                let role = res.data.is_admin == true ? "admin" : "student";
                 localStorage.setItem("role", role);
                 loadingInstance.value.close()
                 // ....其他操作
