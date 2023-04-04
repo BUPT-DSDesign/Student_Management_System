@@ -8,7 +8,7 @@ import (
 
 const (
 	antCnt  = 30   // 蚂蚁数量
-	loopCnt = 200  // 循环次数
+	loopCnt = 300  // 循环次数
 	alpha   = 2    // 信息启发因子
 	beta    = 3    // 期望启发式因子
 	rou     = 0.1  // 全局信息素挥发参数

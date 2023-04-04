@@ -1,11 +1,11 @@
 package log_handler
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/model/entity/common"
 	"server/service/log_service"
-	"strconv"
 )
 
 type deleteResponse struct {
@@ -36,11 +36,16 @@ func DeleteHandler(c *gin.Context) {
 	}
 
 	// 日志id
-	logIdString := c.Query("log_id")
-	logId, _ := strconv.ParseInt(logIdString, 10, 64)
+	logIdsString := c.Query("log_ids")
+	logIdsMap := make(map[string]int64, 0)
+	_ = json.Unmarshal([]byte(logIdsString), &logIdsMap)
+	var logIds []int64
+	for _, v := range logIdsMap {
+		logIds = append(logIds, v)
+	}
 
 	// 调用服务
-	if err := log_service.Server.DoDelete(logId); err != nil {
+	if err := log_service.Server.DoDelete(logIds); err != nil {
 		c.JSON(http.StatusOK, deleteResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,

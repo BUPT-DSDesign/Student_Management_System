@@ -18,9 +18,11 @@ export const useLogStore = defineStore('log', () => {
             return false
         }
     }
+    
     const DeleteLog = async (logId) => {
         try {
             const res = await LogDelete(logId)
+            // console.log(logId)
             if (res.data.status_code == 0) {
                 GetLogMessage()
                 return true

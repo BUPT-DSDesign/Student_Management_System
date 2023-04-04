@@ -1,7 +1,8 @@
 <template>
     <div class="container">
         <h3 style="color:black">日志信息记录表</h3>
-        <el-table :data="logs" style="width: 100%" :max-height="maxHeight" stripe :show-summary="false">
+        <el-table :data="logs" style="width: 100%" :max-height="maxHeight" stripe :show-summary="false" @selection-change="handleSelectionChange">
+            <el-table-column type="selection" width="55" v-if="batchSelect"></el-table-column>
             <el-table-column fixed label="用户" width="60">
                 <template>
                     <img :src="avatarUrl" class="user-avatar">
@@ -28,13 +29,16 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-button @click="exportToFile" type="primary" style="float:right">导出日志文件</el-button>  
+        <el-button @click="batchDelete" type="danger" style="float:left" v-if="!afterBatchDelete">批量删除日志</el-button>
+        <el-button @click="cancelBatchDelete" style="float:left" v-if="afterBatchDelete">取消</el-button>
+        <el-button @click="confirmBatchDelete" style="float:left" type="primary" v-if="afterBatchDelete">确定</el-button>
+        <el-button @click="exportToFile" type="success" style="float:right">导出日志文件</el-button>  
         <el-dialog
             title="提示"
             :visible.sync="dialogVisible"
             width="30%"
             center>
-            <span style="color: red">确定要删除这条日志吗？</span>
+            <span style="color: red">确定要删除这些（条）日志吗？</span>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible = false">取 消</el-button>
                 <el-button type="primary" @click="deleteLogTruely">确 定</el-button>
@@ -55,28 +59,49 @@ export default {
         return {
             logs: LogStore.logs,
             dialogVisible: false,
-            tmpLogId: 0,
+            tmpLogIds: [],
             avatarUrl: UserStore.userInfo.avatar_url,
             loadingInstance: '',
-            maxHeight: document.body.clientHeight - 150
+            maxHeight: document.body.clientHeight - 153,
+            batchSelect: false,
+            afterBatchDelete: false
         }
     },
     methods: {
         deleteLog(logId) {
-            this.tmpLogId = logId
+            this.tmpLogIds = []
+            this.tmpLogIds.push(logId)
             this.dialogVisible = true
         },
         deleteLogTruely() {
             this.dialogVisible = false
+            if (this.tmpLogIds.length == 0) {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '您未选择要删除的日志',
+                    type: 'warning'
+                });
+                return
+            }
             const deleteLog = async () => {
-                const fg = await LogStore.DeleteLog(this.tmpLogId)
+                let jso = {}
+                for (let i = 0; i < this.tmpLogIds.length; i++) {
+                    jso[i] = this.tmpLogIds[i]
+                }
+                const logIdString = JSON.stringify(jso)
+                // console.log(logIdString)
+                const fg = await LogStore.DeleteLog(logIdString)
                 if (fg) {
+                    this.batchSelect = false
+                    this.afterBatchDelete = false
                     this.$message({
                         showClose: true,
                         center: true,
                         message: '删除日志成功',
                         type: 'success'
                     });
+                    this.logs = LogStore.logs     
                 } else {
                     this.$message({
                         showClose: true,
@@ -87,6 +112,25 @@ export default {
                 }
             }
             deleteLog()
+        },
+        batchDelete() {
+            this.batchSelect = true
+            this.afterBatchDelete = true
+        },
+        handleSelectionChange(val) {
+            this.tmpLogIds = []
+            val.forEach((data) => {
+                this.tmpLogIds.push(data.log_id)
+            })
+            console.log(this.tmpLogIds)
+        },
+        cancelBatchDelete() {
+            this.batchSelect = false
+            this.afterBatchDelete = false
+        },
+        confirmBatchDelete() {
+            
+            this.dialogVisible = true
         },
         exportToFile() {
             let data = ''

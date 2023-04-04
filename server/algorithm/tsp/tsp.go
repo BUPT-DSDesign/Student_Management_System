@@ -12,7 +12,7 @@ func TSP(startId int, passIds []int) ([]int, error) {
 		indexMap[i] = passIds[i-1]
 	}
 
-	// ga算法
+	//ga算法
 	//rawNodeList := ga(len(indexMap), indexMap)
 
 	// 蚁群算法

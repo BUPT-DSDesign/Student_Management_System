@@ -7,8 +7,8 @@ import (
 )
 
 const (
-	populationNum  = 100  // 种群规模
-	iterationCount = 1000 // 迭代次数
+	populationNum  = 200  // 种群规模
+	iterationCount = 3000 // 迭代次数
 	crossoverRate  = 0.9  // 交叉率
 	variationRate  = 0.1  // 变异率
 )
