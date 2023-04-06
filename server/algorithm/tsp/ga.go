@@ -1,13 +1,14 @@
 package tsp
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"time"
 )
 
 const (
-	populationNum  = 200  // 种群规模
+	populationNum  = 1000 // 种群规模
 	iterationCount = 3000 // 迭代次数
 	crossoverRate  = 0.9  // 交叉率
 	variationRate  = 0.1  // 变异率
@@ -34,7 +35,6 @@ func populationInit(individualNum int) {
 	// 随机化得到个体
 	for i := 0; i < populationNum; i++ {
 		// 随机化permutation
-		rand.Seed(time.Now().UnixNano())
 		rand.Shuffle(len(permutation), func(i, j int) { permutation[i], permutation[j] = permutation[j], permutation[i] })
 		individual := append(permutation, 0)
 
@@ -49,6 +49,7 @@ func populationInit(individualNum int) {
 		// 得到passList
 		population[i].passList = make([]int, len(individual))
 		copy(population[i].passList, individual)
+
 	}
 }
 
@@ -59,6 +60,7 @@ func populationCalc(indexMap []int) {
 	// 得到每个个体的适应度
 	for i := range population {
 		// 得到totalDistance
+		population[i].totalDistance = 0.0
 		for j, v := range population[i].passList {
 			population[i].totalDistance += routeMatrix[indexMap[v]][indexMap[population[i].passList[(j+1)%len(population[i].passList)]]].totalDistance
 		}
@@ -86,9 +88,8 @@ func populationSelect() {
 	// 通过赌轮选择法对个体进行选择
 	selectPopulation := make([]route, populationNum)
 	for i := 0; i < populationNum; i++ {
-		rand.Seed(time.Now().UnixNano())
 		randomRate := rand.Float64()
-		for j := 1; j < len(accumulateRate); j++ {
+		for j := 0; j < len(accumulateRate); j++ {
 			if randomRate <= accumulateRate[j] {
 				selectPopulation[i] = population[j]
 				break
@@ -97,7 +98,7 @@ func populationSelect() {
 	}
 
 	// 种群更新
-	for i := 1; i < populationNum; i++ {
+	for i := 0; i < populationNum; i++ {
 		population[i] = selectPopulation[i]
 	}
 }
@@ -105,19 +106,16 @@ func populationSelect() {
 // 交叉
 func populationCrossover(individualNum int) {
 	// 随机生成子代交配时交换染色体的数量
-	rand.Seed(time.Now().UnixNano())
 	changeChromosomeNum := rand.Intn(individualNum/2) + 1
 
 	// 子代交配
-	for i := 0; i < individualNum-1; i += 2 {
-		rand.Seed(time.Now().UnixNano())
+	for i := 0; i < populationNum; i += 2 {
 		randomRate := rand.Float64()
 
 		// 如果randomRate在交叉率以内, 则i个体与i + 1个体交配
 		if randomRate < crossoverRate {
 			// 生成随机交配点
-			rand.Seed(time.Now().UnixNano())
-			randomPoint := rand.Intn(individualNum-changeChromosomeNum) + 1
+			randomPoint := rand.Intn(individualNum - changeChromosomeNum + 1)
 
 			// 将二者的交叉片段互换, 并解决基因冲突
 			clashMap := make(map[int]int, 0)
@@ -141,7 +139,7 @@ func populationCrossover(individualNum int) {
 			}
 
 			// 解决基因冲突问题（断点前）
-			for j := 1; j < randomPoint; j++ {
+			for j := 0; j < randomPoint; j++ {
 				if v, ok := clashMap[population[i].passList[j]]; ok {
 					population[i].passList[j] = v
 				}
@@ -166,13 +164,11 @@ func populationCrossover(individualNum int) {
 // 变异
 func populationVariation(individualNum int) {
 	for i := 0; i < populationNum; i++ {
-		rand.Seed(time.Now().UnixNano())
 		randomRate := rand.Float64()
 
 		// 如果randomRate在变异率以内, 则i个体变异
 		if randomRate < variationRate {
 			// 基因交换次数
-			rand.Seed(time.Now().UnixNano())
 			exchangeTimes := rand.Intn(individualNum) + 1
 			for ; exchangeTimes > 0; exchangeTimes-- {
 				a := rand.Intn(individualNum-1) + 1
@@ -185,15 +181,18 @@ func populationVariation(individualNum int) {
 			}
 		}
 	}
+
 }
 
 // ga算法
 func ga(individualNum int, indexMap []int) []int {
 	// 初始化操作
+	rand.Seed(time.Now().UnixNano()) // 设置随机种子
 	populationInit(individualNum)
 	populationCalc(indexMap)
+
 	sort.Slice(population, func(i, j int) bool {
-		return population[i].survivalRate < population[j].survivalRate
+		return population[i].totalDistance > population[j].totalDistance
 	})
 
 	// 开始种群迭代
@@ -206,12 +205,20 @@ func ga(individualNum int, indexMap []int) []int {
 		populationCrossover(individualNum)
 		// 种群中的个体产生变异
 		populationVariation(individualNum)
-
 	}
+	populationCalc(indexMap)
 
 	sort.Slice(population, func(i, j int) bool {
-		return population[i].survivalRate < population[j].survivalRate
+		return population[i].totalDistance > population[j].totalDistance
 	})
+
+	for i := 0; i < populationNum; i++ {
+		fmt.Printf("%d个体：", i)
+		for j := 0; j < individualNum; j++ {
+			fmt.Printf("%d ", population[i].passList[j])
+		}
+		fmt.Printf("\n")
+	}
 
 	return population[populationNum-1].passList
 }

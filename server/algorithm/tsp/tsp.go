@@ -24,8 +24,8 @@ func TSP(startId int, passIds []int) ([]int, error) {
 	for i := 0; i < len(rawNodeList); i++ {
 		for j := 0; j < len(routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].passList)-1; j++ {
 			nodeList = append(nodeList, routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].passList[j])
-			total += routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].totalDistance
 		}
+		total += routeMatrix[indexMap[rawNodeList[i]]][indexMap[rawNodeList[(i+1)%len(rawNodeList)]]].totalDistance
 	}
 	nodeList = append(nodeList, startId)
 

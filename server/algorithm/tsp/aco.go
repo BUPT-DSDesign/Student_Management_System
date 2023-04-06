@@ -127,7 +127,6 @@ func (s *ant) search() [][2]int {
 // 选择下一节点
 func (s *ant) choose() int {
 	nextNode := -1
-	rand.Seed(time.Now().UnixNano())
 	q := rand.Float64()
 
 	// 如果q <= q0, 按先验知识, 否则按概率转移
@@ -143,7 +142,6 @@ func (s *ant) choose() int {
 			}
 		}
 	} else {
-		rand.Seed(time.Now().UnixNano())
 		p := rand.Float64() // 生成一个随机数, 用来判断落在哪个区间
 		sum := 0.0
 		probability := 0.0 // 概率的区间点
@@ -221,6 +219,7 @@ func calcAdjacentDistance(node int, nodeCnt int, indexMap []int) float64 {
 }
 
 func aco(nodeCnt int, indexMap []int) []int {
+	rand.Seed(time.Now().UnixNano()) // s设置随机种子
 	// 蚁群系统
 	Lnn = calcAdjacentDistance(0, nodeCnt, indexMap)
 	acs := new(antColonySystem)
