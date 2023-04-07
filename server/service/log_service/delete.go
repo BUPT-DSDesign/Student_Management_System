@@ -1,5 +1,7 @@
 package log_service
 
+import "server/model/dao"
+
 type deleteFlow struct {
 	// 包含handler层传来的参数等
 	logIds []int64
@@ -32,6 +34,11 @@ func (f *deleteFlow) checkNum() error {
 
 func (f *deleteFlow) run() error {
 	// 根据logIds在数据库删除日志
+	for _, v := range f.logIds {
+		if err := dao.Group.LogDao.DeleteLogById(v); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }

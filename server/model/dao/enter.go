@@ -21,6 +21,9 @@ type ActivityDao interface {
 
 // LogDao 日志数据库操作对象
 type LogDao interface {
+	QueryLogsByUserId(userId int64, logs **[]*system.LogInfo) error
+	AddLog(logInfo *system.LogInfo) error
+	DeleteLogById(logId int64) error
 }
 
 // GroupDao 数据库操作对象集合

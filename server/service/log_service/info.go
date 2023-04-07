@@ -1,6 +1,7 @@
 package log_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 )
 
@@ -99,5 +100,9 @@ func (f *infoFlow) run(logs **[]*system.LogInfo) error {
 			UserId:     123,
 		},
 	}
+	if err := dao.Group.LogDao.QueryLogsByUserId(f.userId, logs); err != nil {
+		return err
+	}
+
 	return nil
 }
