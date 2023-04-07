@@ -29,14 +29,14 @@ func (f *editSignatureFlow) do() error {
 
 // 检验参数
 func (f *editSignatureFlow) checkNum() error {
-
 	// 检验f.signature, 如是否出现敏感词汇啥的
 	return nil
 }
 
 func (f *editSignatureFlow) run() error {
 	// 根据f.userId更新数据库, 将其个性签名改成f.signature
-	dao.UserInfo.Signature = f.signature
-
+	if err := dao.Group.UserDao.UpdateSignature(f.userId, f.signature); err != nil {
+		return err
+	}
 	return nil
 }

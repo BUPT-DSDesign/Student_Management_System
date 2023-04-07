@@ -1,6 +1,8 @@
 <template>
     <div class="container">
-        <h3 style="color:black">日志信息记录表</h3>
+        <h3 style="color:black">
+            <i class="el-icon-notebook-1"></i>日志信息记录表
+        </h3>
         <el-table :data="logs" style="width: 100%" :max-height="maxHeight" stripe :show-summary="false" @selection-change="handleSelectionChange">
             <el-table-column type="selection" width="55" v-if="batchSelect"></el-table-column>
             <el-table-column fixed label="用户" width="60">
@@ -32,7 +34,7 @@
         <el-button @click="batchDelete" type="danger" style="float:left" v-if="!afterBatchDelete">批量删除日志</el-button>
         <el-button @click="cancelBatchDelete" style="float:left" v-if="afterBatchDelete">取消</el-button>
         <el-button @click="confirmBatchDelete" style="float:left" type="primary" v-if="afterBatchDelete">确定</el-button>
-        <el-button @click="exportToFile" type="success" style="float:right">导出日志文件</el-button>  
+        <el-button @click="exportToFile" type="success" style="float:right;margin-right: 17px;">导出日志文件</el-button>  
         <el-dialog
             title="提示"
             :visible.sync="dialogVisible"

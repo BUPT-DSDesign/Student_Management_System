@@ -1,7 +1,10 @@
 package user_service
 
 import (
+	"errors"
+	"server/model/dao"
 	"server/model/entity/common"
+	"server/model/entity/system"
 	"server/utils"
 )
 
@@ -36,9 +39,13 @@ func (f *registerFlow) do() (*common.AccessResponse, error) {
 // 检验参数
 func (f *registerFlow) checkNum() error {
 	// 检验f.registerForm, 如用户名是否已经存在等
-	/*
-		调用dao层的CRUD操作
-	*/
+	var userInfo *system.UserInfo
+	if err := dao.Group.UserDao.QueryUserByName(f.registerForm.Username, &userInfo); err != nil {
+		return err
+	}
+	if userInfo != nil {
+		return errors.New("用户名已经存在！")
+	}
 	return nil
 }
 
@@ -67,19 +74,22 @@ func (f *registerFlow) run(access **common.AccessResponse) error {
 		IsAdmin: isAdmin,
 	}
 
-	//新建一个用户实例
-	//userInfo := &system.UserInfo{
-	//	Username: f.registerForm.Username,
-	//	Password:  f.password,
-	//	Salt:      f.salt,
-	//	UserId:    userId,
-	//	StudentId: f.registerForm.StudentId,
-	//}
+	// 新建一个用户实例
+	userInfo := &system.UserInfo{
+		Username:  f.registerForm.Username,
+		Password:  f.password,
+		Salt:      f.salt,
+		UserId:    userId,
+		StudentId: f.registerForm.StudentId,
+		IsAdmin:   isAdmin,
+		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
+		Signature: "",
+	}
 
-	/*
-		存入数据库
-		调用dao层的CRUD操作
-	*/
+	err = dao.Group.UserDao.AddUser(userInfo)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

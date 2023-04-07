@@ -39,10 +39,30 @@ func (f *loginFlow) checkNum() error {
 	if f.loginForm.Password != "123456" {
 		return errors.New("密码错误")
 	}
+
 	/*
-		调用dao层的CRUD操作
+		var userInfo *system.UserInfo
+		if err := dao.Group.UserDao.QueryUserByName(f.loginForm.Username, &userInfo); err != nil {
+			return err
+		}
+		if userInfo == nil {
+			return errors.New("用户不存在, 请先注册！")
+		}
+		rawPassword, err := utils.Sha1(f.loginForm.Password)
+		if err != nil {
+			return err
+		}
+		password, err := utils.Sha256(rawPassword + userInfo.Salt)
+		if err != nil {
+			return err
+		}
+		if password != f.loginForm.Password {
+			return errors.New("您的密码错误, 请重新输入！")
+		}
+		f.userId = userInfo.UserId
 	*/
-	f.userId = 123 // 这个赋值在检验参数成功后进行
+
+	f.userId = 122131231 // 这个赋值在检验参数成功后进行
 	return nil
 }
 
