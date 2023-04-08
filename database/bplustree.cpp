@@ -199,13 +199,3 @@ void BPTree::splitNode(const uint64 &key,vector<byte> &data){
     //随后把键值向上插入
     insertKey2Index(0);
 }
-int main(){
-    TableColAttribute t1 = {T_INT,false,false,SIZE_OF_T[T_INT],"int"};
-    TableColAttribute t2 = {T_FLOAT,false,false,SIZE_OF_T[T_FLOAT],"float"};
-    vector<TableColAttribute> test;
-    test.push_back(t1);
-    test.push_back(t2);
-    BPTree b1("suka");
-    b1.PrintAttr();
-    return 0;
-}
