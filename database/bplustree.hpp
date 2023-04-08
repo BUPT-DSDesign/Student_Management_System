@@ -17,6 +17,7 @@ struct TableColAttribute
 };
 struct BPNodeHead{
     bool is_leaf_;//判断是不是叶子结点
+    bool is_dirty_;//判断这个页是不是脏页
     uint8 key_type_;//键的类型
     uint16 key_pos_;//键相对于原数据的偏移量
     uint16 degree_;//阶数/孩子的最大数量
@@ -28,31 +29,46 @@ class BPTree;
 class BPNode
 {
 private:
+    string_view file_name_;//文件名
+    //shared_ptr<fstream> file_head_;//文件读写头
     BPNodeHead head_;//节点头
-    vector<streampos> child_;//孩子的数量
+    vector<streampos> child_;//孩子的位置
     vector<byte> data_;//数据
+    vector<TableColAttribute> col_info_;//表的信息
+    friend class BPTree;
 public:
     BPNode();
-    void ReadChunk(streampos pos);//读取节点
-    void CreateChunk(bool is_leaf,int data_size);//新建节点
+    void ReadChunk(streampos pos);//TODO 读取节点,将区块信息写入
+    void CreateChunk(bool is_leaf,int data_size);//TODO 新建节点
     bool isLeaf();//判断是否为叶子结点
     uint16 getElemCount();//获取节点的元素个数
-    uint64 getKey(int id);//获取第k个元素的key
+    uint64 getKey(int id);//TODO 获取第k个元素的key
     streampos getChild(int id);//获取第k个孩子
+    vector<byte> getRawData(int id);//TODO 获取第k个元素的字节流数据
+    void setFile(shared_ptr<fstream> file);//设置文件指针
+
 };
 class BPTree
 {
 private:
     /* data */
-    shared_ptr<fstream> table_;//表文件
+    bool is_table_;//是table还是索引
     streampos root_pos_;//根节点位置
     streampos cur_;//当前读取的位置
-    vector<TableColAttribute> col_info_;//表的信息
     uint16 size_of_item;//每一个元素的大小
     //反序列化数据为json
     BPNode bufnode_;//当前读取的叶子节点
     string deserialize(vector<byte> &data);
-    friend class BPNode;
+    //找到叶子节点,并将数据载入节点
+    void search_leaf(const uint64 &key);
+    //二分查找键值,返回结果的对应下标
+    int binary_search(const uint64 &key);
+    //叶子结点满了之后分裂
+    void splitNode(const uint64 &key,vector<byte> &data);
+    //无分裂的插入
+    void insertNoSplit(const uint64 &key,vector<byte> &data);
+    //分裂后将节点向上传递
+    void insertKey2Index(const uint16 &pos);
 public:
     //以下为打开表文件的构造函数
     //打开已经存在的表文件
