@@ -4,6 +4,8 @@ import { ref } from 'vue'
 import { Loading } from 'element-ui'
 
 export const useNavigateStore = defineStore('navigate', () => {
+    const startId = ref(-1);
+    const endId = ref(-1);
     const rdata = ref(null) // 需要返回给view的数据
     const tspPath = ref(null) 
     const tspLoading = ref(null)
@@ -47,7 +49,11 @@ export const useNavigateStore = defineStore('navigate', () => {
         rdata,
         tspPath,
         GetNavigatePath,
-        GetTSPPath
+        GetTSPPath,
+        startId,
+        endId,
     }
+},{
+    persist: true
 })
 

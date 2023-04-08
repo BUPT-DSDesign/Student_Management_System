@@ -9,7 +9,6 @@
           <img class="icon" :src="avatarUrl" @error="changeToDefault">
         </span>
         <el-dropdown-menu>
-          <el-dropdown-item>个人中心</el-dropdown-item>
           <el-dropdown-item @click.native="layout">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>

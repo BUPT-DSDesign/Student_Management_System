@@ -50,29 +50,11 @@ export default {
             console.log(key, keyPath);
         },
         clickMain() {
-<<<<<<<< HEAD:web/src/components/studentAside.vue
             this.$router.push('/studentMain/Homepage');
         },
         //点击侧边菜单
         clickCourseNav() {
             this.$router.push('/studentMain/CourseNav');
-========
-            this.$router.push('/stuMain/Homepage');
-        },
-        //点击侧边菜单
-        clickCourseNav() {
-            // 当点击侧边栏的课外信息时, 会向后端发送请求, 后端返回课外活动表
-            const getTable2 = async () => {
-                const fg = await this.getEventTable()
-                if (fg) {
-                     this.$router.push('/stuMain/CourseNav');
-                } else {
-                    console.log('error')
-                }
-            }
-            getTable2()
-           
->>>>>>>> d5cbff461f541e54f1b5e0970e7b1dfe32de479c:web/src/components/stuAside.vue
         },
 
         getCourseTable: async function () {
@@ -83,11 +65,7 @@ export default {
             const getTable1 = async () => {
                 const fg = await this.getCourseTable()
                 if (fg) {
-<<<<<<<< HEAD:web/src/components/studentAside.vue
                     this.$router.push('/studentMain/inClass');
-========
-                    this.$router.push('/stuMain/inClass');
->>>>>>>> d5cbff461f541e54f1b5e0970e7b1dfe32de479c:web/src/components/stuAside.vue
                 } else {
                     console.log('error')
                 }
@@ -102,11 +80,7 @@ export default {
             const getTable2 = async () => {
                 const fg = await this.getEventTable()
                 if (fg) {
-<<<<<<<< HEAD:web/src/components/studentAside.vue
                     this.$router.push('/studentMain/outClass');
-========
-                    this.$router.push('/stuMain/outClass');
->>>>>>>> d5cbff461f541e54f1b5e0970e7b1dfe32de479c:web/src/components/stuAside.vue
                 } else {
                     console.log('error')
                 }
@@ -119,11 +93,7 @@ export default {
                 const fg = await LogStore.GetLogMessage()
                 if (fg) {
                     console.log(LogStore.logs)
-<<<<<<<< HEAD:web/src/components/studentAside.vue
                     this.$router.push('/studentMain/logMessage')
-========
-                    this.$router.push('/stuMain/logMessage')
->>>>>>>> d5cbff461f541e54f1b5e0970e7b1dfe32de479c:web/src/components/stuAside.vue
                 } else {
                     console.log('error')
                 }

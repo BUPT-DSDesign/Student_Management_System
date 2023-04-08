@@ -2,10 +2,9 @@ package user_service
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"server/model/dao"
-
-	"github.com/gin-gonic/gin"
 )
 
 type uploadAvatarFlow struct {
@@ -54,7 +53,6 @@ func (f *uploadAvatarFlow) run(avatarUrl **string) error {
 	*avatarUrl = &savePath
 
 	// 根据f.userId更新数据库
-	dao.UserInfo.AvatarUrl = savePath
-
+	dao.Group.UserDao.UpdateUserAvatar(f.userId, savePath)
 	return nil
 }

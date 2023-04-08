@@ -3,7 +3,7 @@
         <div class="one item">
             <div>
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
-                <!-- <signature :userInfo="userInfo"></signature> -->
+                <signature :userInfo="userInfo"></signature>
             </div>
             
             <div class="user">
@@ -138,7 +138,7 @@ export default {
     computed: {
         calDaypercent() {
             return function () {
-                return Math.ceil((parseInt(TimeStore.second) * 1 + parseInt(TimeStore.minute) * 60 + parseInt(TimeStore.hour) * 3600) / 864);
+                return Math.ceil((parseInt(TimeStore.minute) * 60 + parseInt(TimeStore.hour) * 3600) / 864);
             }
         },
         calWeekpercent() {

@@ -1,6 +1,7 @@
 package log_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 	"server/utils"
 )
@@ -47,13 +48,17 @@ func (f *addFlow) run(logId *int64) error {
 	}
 
 	// 创建一个日志实例, 后来存入数据库
-	_ = system.LogInfo{
+	logInfo := &system.LogInfo{
 		LogId:      id,
 		CreateTime: f.createTime,
 		Content:    f.content,
 		UserId:     f.userId,
 	}
-	//println(logInfo)
+
+	err = dao.Group.LogDao.AddLog(logInfo)
+	if err != nil {
+		return err
+	}
 
 	*logId = id
 

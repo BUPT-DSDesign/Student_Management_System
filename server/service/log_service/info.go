@@ -1,6 +1,7 @@
 package log_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 )
 
@@ -50,6 +51,58 @@ func (f *infoFlow) run(logs **[]*system.LogInfo) error {
 			Content:    "导航",
 			UserId:     123,
 		},
+		{
+			LogId:      32132134,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "约会",
+			UserId:     123,
+		},
+		{
+			LogId:      32132135,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "做活动",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
+		{
+			LogId:      32132136,
+			CreateTime: "第二周-星期天-9:00",
+			Content:    "推出",
+			UserId:     123,
+		},
 	}
+	if err := dao.Group.LogDao.QueryLogsByUserId(f.userId, logs); err != nil {
+		return err
+	}
+
 	return nil
 }

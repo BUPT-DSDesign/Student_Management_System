@@ -39,7 +39,9 @@ func (f *infoFlow) checkNum() error {
 
 func (f *infoFlow) run(userInfo **system.UserInfo) error {
 	// 根据f.userId得到用户信息
-	*userInfo = dao.UserInfo
+	if err := dao.Group.UserDao.QueryUserById(f.userId, userInfo); err != nil {
+		return err
+	}
 
 	return nil
 }

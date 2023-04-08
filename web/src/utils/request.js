@@ -5,7 +5,7 @@ import { useEventStore } from '@/pinia/modules/event'
 
 export const service = axios.create({
     baseURL: "http://localhost:8080/Student_Management_System",
-    timeout: 3000
+    timeout: 10000
 })
 
 // http request 拦截器

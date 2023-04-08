@@ -5,7 +5,7 @@ import { Loading } from 'element-ui'
 
 export const useUserStore = defineStore('user', () => {
     const loadingInstance = ref(null) // 加载框
-    
+
     // 注册
     const RegisterIn = async (registerInfo) => {
         loadingInstance.value = Loading.service({
@@ -20,6 +20,8 @@ export const useUserStore = defineStore('user', () => {
                 // 注册成功后把token和userId存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
+                let role = res.data.is_admin == false ? "admin" : "student";
+                localStorage.setItem("role", role);
 
                 loadingInstance.value.close()
                 // ....其他操作
@@ -53,7 +55,7 @@ export const useUserStore = defineStore('user', () => {
                 // 登录成功后把token和userId存起来
                 window.localStorage.setItem('token', res.data.token)
                 window.localStorage.setItem('userId', res.data.user_id)
-                let role = res.data.is_admin == true ? "admin" : "user";
+                let role = res.data.is_admin == true ? "admin" : "student";
                 localStorage.setItem("role", role);
                 loadingInstance.value.close()
                 // ....其他操作
@@ -103,6 +105,6 @@ export const useUserStore = defineStore('user', () => {
         GetUserInfo,
         EditUserSignature
     }
-},{
+}, {
     persist: true
 })

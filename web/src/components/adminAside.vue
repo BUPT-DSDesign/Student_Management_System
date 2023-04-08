@@ -1,6 +1,6 @@
 <template>
     <div class="Aside">
-        <el-menu default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+        <el-menu default-active="1" class="el-menu-vertical-demo"
             :collapse="isCollapse" background-color="#545c64" text-color="#fff" active-text-color="#ffd04b">
             <h3 class="title">学生日程管理系统</h3>
             <el-menu-item index="1" @click="clickClassManage">

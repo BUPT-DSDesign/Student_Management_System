@@ -1,16 +1,18 @@
 package log_service
 
+import "server/model/dao"
+
 type deleteFlow struct {
 	// 包含handler层传来的参数等
-	logId int64
+	logIds []int64
 }
 
-func newDeleteFlow(logId int64) *deleteFlow {
-	return &deleteFlow{logId: logId}
+func newDeleteFlow(logIds []int64) *deleteFlow {
+	return &deleteFlow{logIds: logIds}
 }
 
-func (s *server) DoDelete(logId int64) error {
-	return newDeleteFlow(logId).do()
+func (s *server) DoDelete(logIds []int64) error {
+	return newDeleteFlow(logIds).do()
 }
 
 func (f *deleteFlow) do() error {
@@ -26,12 +28,17 @@ func (f *deleteFlow) do() error {
 
 // 检验参数
 func (f *deleteFlow) checkNum() error {
-	// 这里logId参数一定合法
+	// 这里logIds参数一定合法
 	return nil
 }
 
 func (f *deleteFlow) run() error {
-	// 根据logId在数据库删除日志
+	// 根据logIds在数据库删除日志
+	for _, v := range f.logIds {
+		if err := dao.Group.LogDao.DeleteLogById(v); err != nil {
+			return err
+		}
+	}
 
 	return nil
 }
