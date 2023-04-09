@@ -51,27 +51,6 @@ const endTimeMap = {
     8: "18:00",
 }
 export default {
-    created () {
-        const getTable = async () => {
-            const fg = await CourseStore.GetCourseTable();
-        }
-        getTable();
-        this.classData = CourseStore.courseList
-        //添加一个属性以便格式化课程时间
-        for (let i = 0; i < this.classData.length; i++) {
-            let startTime = startTimeMap[this.classData[i].section_list[0] % 9];
-            let endTime = endTimeMap[this.classData[i].section_list.slice(-1) % 9];
-            this.classData[i]['classTime'] = startTime+'-'+endTime;
-
-        }
-        console.log(this.classData);
-        for (let i = 0; i < this.classData.length; i++) {
-            this.tableData.push({
-                classname: this.classData[i].course_name,
-                classtime: this.classData[i].classTime,
-            })
-        }
-    },
     data() {
         return {
             classData: [],
@@ -81,6 +60,32 @@ export default {
             dialogVisible1: false, //点击课程弹窗的可见性
             dialogVisible2: false, //添加课程弹窗的可见性
         }
+    },
+    created () {
+        const getTable = async () => {
+            const fg = await CourseStore.GetCourseTable();
+            if (fg) {
+                this.classData = CourseStore.courseList
+                //添加一个属性以便格式化课程时间
+                for (let i = 0; i < this.classData.length; i++) {
+                    let startTime = startTimeMap[this.classData[i].section_list[0] % 9];
+                    let endTime = endTimeMap[this.classData[i].section_list.slice(-1) % 9];
+                    this.classData[i]['classTime'] = startTime+'-'+endTime;
+
+                }
+                console.log(this.classData);
+                for (let i = 0; i < this.classData.length; i++) {
+                    this.tableData.push({
+                        classname: this.classData[i].course_name,
+                        classtime: this.classData[i].classTime,
+                    })
+                }
+            } else {
+                console.log('error')
+            }
+        }
+        getTable();
+       
     },
     methods: {
         clickcell(e) {
