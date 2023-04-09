@@ -30,11 +30,13 @@ class BPNode
 {
 private:
     string_view file_name_;//文件名
+    streampos chunk_pos_;//当前节点位置
     //shared_ptr<fstream> file_head_;//文件读写头
     BPNodeHead head_;//节点头
     vector<streampos> child_;//孩子的位置
     vector<byte> data_;//数据
     vector<TableColAttribute> col_info_;//表的信息
+    streampos node_pos;//当前节点的位置
     friend class BPTree;
 public:
     BPNode();
@@ -45,8 +47,12 @@ public:
     uint64 getKey(int id);//TODO 获取第k个元素的key
     streampos getChild(int id);//获取第k个孩子
     vector<byte> getRawData(int id);//TODO 获取第k个元素的字节流数据
-    void setFile(shared_ptr<fstream> file);//设置文件指针
-
+    void WriteChunk();//将节点写入
+    streampos getElemLocation(int id);//获取节点的真实位置
+    uint16 getElemLocInData(int id);//获取节点在data中的开始下标
+    auto dataEnd();//返回data的真实结束位置的迭代器
+    auto dataLoc(int id);//返回指向id的迭代器
+    void insertDataAtPos(int id,const uint64 &key,const vector<byte>& data);
 };
 class BPTree
 {
@@ -60,15 +66,15 @@ private:
     BPNode bufnode_;//当前读取的叶子节点
     string deserialize(vector<byte> &data);
     //找到叶子节点,并将数据载入节点
-    void search_leaf(const uint64 &key);
+    void searchLeaf(const uint64 &key);
     //二分查找键值,返回结果的对应下标
-    int binary_search(const uint64 &key);
+    int binarySearch(BPNode &node,const uint64 &key);
     //叶子结点满了之后分裂
     void splitNode(const uint64 &key,vector<byte> &data);
     //无分裂的插入
-    void insertNoSplit(const uint64 &key,vector<byte> &data);
+    void insertNoSplit(BPNode &node,const uint64 &key,vector<byte> &data);
     //分裂后将节点向上传递
-    void insertKey2Index(const uint16 &pos);
+    void insertKey(BPNode &node,const uint64 &key);
 public:
     //以下为打开表文件的构造函数
     //打开已经存在的表文件
