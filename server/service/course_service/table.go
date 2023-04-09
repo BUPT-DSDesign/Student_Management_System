@@ -94,7 +94,7 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312315,
 			Teacher:            "程莉",
 			Contact:            "18611555833",
-			SectionList:        []int{18,19,20},
+			SectionList:        []int{18,19},
 			WeekSchedule:       []int{1,2, 3, 5, 6, 7,8},
 			Classroom:          "教二-311",
 			CourseLocationNode: nil,

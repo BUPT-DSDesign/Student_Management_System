@@ -54,7 +54,7 @@
 import { LogStore } from '@/store/log';
 import { UserStore } from '@/store/user';
 import { Loading } from 'element-ui';
-import Blob from 'blob';
+// import Blob from 'blob';
 
 export default {
     data() {
@@ -137,7 +137,7 @@ export default {
         exportToFile() {
             let data = ''
             for (let i = 0; i < this.logs.length; i++) {
-                const time = this.logs[i].create_time
+                const time = this.logs[i].crneate_time
                 const content = this.logs[i].content
                 data += time + '    ' + content + '\n' 
             }
