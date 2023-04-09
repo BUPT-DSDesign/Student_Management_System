@@ -18,21 +18,22 @@ func newTSPFlow(startId int, passIds []int, nodeList []Node, pathList []system.P
 	return &tspFlow{startId: startId, passIds: passIds, nodeList: nodeList, pathList: pathList}
 }
 
-func (s *server) DoTSP(startId int, passIds []int) (*[][2]float64, error) {
+func (s *server) DoTSP(startId int, passIds []int) (*[][2]float64, *[][2]float64, error) {
 	return newTSPFlow(startId, passIds, s.tempNodeList, s.tempPathList).do()
 }
 
-func (f *tspFlow) do() (*[][2]float64, error) {
+func (f *tspFlow) do() (*[][2]float64, *[][2]float64, error) {
 	var nodeList *[][2]float64
+	var passList *[][2]float64
 
 	if err := f.checkNum(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
-	if err := f.run(&nodeList); err != nil {
-		return nil, err
+	if err := f.run(&nodeList, &passList); err != nil {
+		return nil, nil, err
 	}
 
-	return nodeList, nil
+	return nodeList, passList, nil
 }
 
 // 检验参数
@@ -49,7 +50,7 @@ func (f *tspFlow) checkNum() error {
 	return nil
 }
 
-func (f *tspFlow) run(nodeList **[][2]float64) error {
+func (f *tspFlow) run(nodeList **[][2]float64, passList **[][2]float64) error {
 	// 调用tsp算法得到途径节点编号列表
 	result, err := tsp.TSP(f.startId, f.passIds)
 	if err != nil {
@@ -57,11 +58,18 @@ func (f *tspFlow) run(nodeList **[][2]float64) error {
 	}
 
 	// 还需要将途径节点的编号变成经纬度传给前端
-	var tmpNodeList [][2]float64
+	var tmpNodeList1 [][2]float64
 	for _, v := range result {
-		tmpNodeList = append(tmpNodeList, [2]float64{f.nodeList[v].Longitude, f.nodeList[v].Latitude})
+		tmpNodeList1 = append(tmpNodeList1, [2]float64{f.nodeList[v].Longitude, f.nodeList[v].Latitude})
 	}
 
-	*nodeList = &tmpNodeList
+	// 用户选择目标点的经纬度
+	var tmpNodeList2 [][2]float64
+	for _, v := range f.passIds {
+		tmpNodeList2 = append(tmpNodeList2, [2]float64{f.nodeList[v].Longitude, f.nodeList[v].Latitude})
+	}
+
+	*nodeList = &tmpNodeList1
+	*passList = &tmpNodeList2
 	return nil
 }
