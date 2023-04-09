@@ -65,9 +65,7 @@ export default {
                                 type: 'success'
                             });
                         }                  
-                        
                     }
-                   
                 } else {
                     this.$message({
                         showClose: true,
