@@ -12,6 +12,7 @@ import (
 type tspResponse struct {
 	common.StatusResponse
 	NodeList *[][2]float64 `json:"node_list"` // 途径节点的经纬度
+	PassList *[][2]float64 `json:"pass_list"` // 用户选择的目标点的经纬度，用户在地图上显示
 }
 
 // TSPHandler 旅行商处理函数
@@ -52,7 +53,7 @@ func TSPHandler(c *gin.Context) {
 	}
 
 	// 调用服务
-	nodeList, err := navigate_service.Server.DoTSP(startId, passIds)
+	nodeList, passList, err := navigate_service.Server.DoTSP(startId, passIds)
 	if err != nil {
 		c.JSON(http.StatusOK, tspResponse{
 			StatusResponse: common.StatusResponse{
@@ -70,5 +71,6 @@ func TSPHandler(c *gin.Context) {
 			StatusMsg:  "路径返回成功",
 		},
 		NodeList: nodeList,
+		PassList: passList,
 	})
 }
