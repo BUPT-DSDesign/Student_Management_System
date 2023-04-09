@@ -56,13 +56,13 @@ import { TimeStore } from '@/store/time';
 export default {
     data() {
         return {
-            eventNumber_remaining: 2,
+            eventNumber_remaining: 0,
             userInfo: {},
             courseList: [],
             curcourseList: []
         }
     },
-    beforeMount() {
+    created() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()

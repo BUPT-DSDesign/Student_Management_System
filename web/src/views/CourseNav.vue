@@ -189,56 +189,73 @@ export default {
             multipleSelection: [],//用户多选选中的临时事务
         }
     },
-    beforeMount() {
-        this.courseList = CourseStore.courseList;
-        //根据当前周，查找在本周的课程
-        this.courseList = this.courseList.filter((item) => {
-            return item.week_schedule.indexOf(TimeStore.week) != -1;
-        });
-        //查找本天的课程，然后将他们按照顺序排列。
-        for (let i = 0; i < this.courseList.length; i++) {
-            for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
-                    this.curcourseList.push({
-                        name: this.courseList[i].course_name,
-                        place: this.courseList[i].classroom,
-                        time: this.courseList[i].section_list[j] % 9,
-                    })
+    created() {
+        const getTable1 = async () => {
+            const fg = await await CourseStore.GetCourseTable()
+            if (fg) {
+
+                this.courseList = CourseStore.courseList;
+                //根据当前周，查找在本周的课程
+                this.courseList = this.courseList.filter((item) => {
+                    return item.week_schedule.indexOf(TimeStore.week) != -1;
+                });
+                //查找本天的课程，然后将他们按照顺序排列。
+                for (let i = 0; i < this.courseList.length; i++) {
+                    for (let j = 0; j < this.courseList[i].section_list.length; j++) {
+                        if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
+                            this.curcourseList.push({
+                                name: this.courseList[i].course_name,
+                                place: this.courseList[i].classroom,
+                                time: this.courseList[i].section_list[j] % 9,
+                            })
+                        }
+                        if (this.courseList[i].section_list[j] / 9 == 1) {
+                            this.curcourseList.push({
+                                name: this.courseList[i].course_name,
+                                place: this.courseList[i].classroom,
+                                time: 9,
+                            })
+                        }
+                    }
                 }
-                if (this.courseList[i].section_list[j] / 9 == 1) {
-                    this.curcourseList.push({
-                        name: this.courseList[i].course_name,
-                        place: this.courseList[i].classroom,
-                        time: 9,
-                    })
+                //对课程按照节次进行排序
+                this.curcourseList.sort(function (a, b) {
+                    return a.time - b.time;
+                });
+            } else {
+                console.log('error')
+            }
+        };
+        getTable1();
+        const getTable2 = async () => {
+            const fg = await await EventStore.GetEventTable()
+            if (fg) { 
+                //筛选课外活动列表
+                this.eventList = EventStore.eventlist;
+                for (let i = 0; i < this.eventList.length; i++) {
+                    if (this.eventList[i].type == 0 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
+                        this.outEventList.push({
+                            name: this.eventList[i].activity_name,
+                            time: this.eventList[i].start_time,
+                            place: this.eventList[i].location,
+                        })
+                    }
                 }
+                  //筛选临时活动列表
+                for (let i = 0; i < this.eventList.length; i++) {
+                    if (this.eventList[i].type == 1 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
+                        this.tempEventList.push({
+                            name: this.eventList[i].activity_name,
+                            time: this.eventList[i].start_time,
+                            place: this.eventList[i].location,
+                        })
+                    }
+                }
+            } else {
+                console.log('error')
             }
         }
-        //对课程按照节次进行排序
-        this.curcourseList.sort(function (a, b) {
-            return a.time - b.time;
-        });
-        //筛选课外活动列表
-        this.eventList = EventStore.eventlist;
-        for (let i = 0; i < this.eventList.length; i++) {
-            if (this.eventList[i].type == 0 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
-                this.outEventList.push({
-                    name: this.eventList[i].activity_name,
-                    time: this.eventList[i].start_time,
-                    place: this.eventList[i].location,
-                })
-            }
-        }
-        //筛选临时活动列表
-        for (let i = 0; i < this.eventList.length; i++) {
-            if (this.eventList[i].type == 1 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
-                this.tempEventList.push({
-                    name: this.eventList[i].activity_name,
-                    time: this.eventList[i].start_time,
-                    place: this.eventList[i].location,
-                })
-            }
-        }
+        getTable2()
     },
     mounted() {
         setTimeout(() => {
