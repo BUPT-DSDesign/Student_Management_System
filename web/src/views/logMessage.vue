@@ -62,7 +62,7 @@ export default {
             logs: LogStore.logs,
             dialogVisible: false,
             tmpLogIds: [],
-            avatarUrl: UserStore.userInfo.avatar_url,
+            // avatarUrl: UserStore.userInfo.avatar_url,
             loadingInstance: '',
             maxHeight: document.body.clientHeight - 153,
             batchSelect: false,

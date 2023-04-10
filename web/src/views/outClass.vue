@@ -96,11 +96,8 @@ export default {
             search: '', //用于搜索过滤的对象
             formLabelWidth: '120px',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
-            eventlist: [],
+            eventlist: EventStore.eventlist,
         }
-    },
-    mounted() {
-        this.eventlist = EventStore.eventlist;
     },
     methods: {
         //规范化类型  

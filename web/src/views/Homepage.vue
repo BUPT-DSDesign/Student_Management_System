@@ -6,9 +6,9 @@
                 <signature :userInfo="userInfo"></signature>
             </div>
             
-            <div class="user">
+            <!-- <div class="user">
                 <h1 style="color:black ">{{ userInfo.username }}</h1>
-            </div>
+            </div> -->
             <el-card class="box-card">
                 <p id="hitokoto" class="signature"> 获取中...</p>
             </el-card>
@@ -62,7 +62,7 @@ export default {
             curcourseList: []
         }
     },
-    created() {
+    mounted() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
@@ -73,7 +73,8 @@ export default {
                 console.log('获取用户信息失败')
             }
         }
-        getUserInfo();
+        getUserInfo()
+        
         const getTable = async () => {
             const fg = await CourseStore.GetCourseTable();
             if (fg) {
@@ -118,7 +119,7 @@ export default {
                 console.log('获取用户课程失败')
             }
         }
-        getTable();
+        getTable()
         fetch('https://v1.hitokoto.cn')
             .then(function (res) {
                 return res.json();
