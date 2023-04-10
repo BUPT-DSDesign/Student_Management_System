@@ -41,6 +41,7 @@ export const useUserStore = defineStore('user', () => {
     const initTokenAndId = () => {
         window.localStorage.removeItem('token') //移除token
         window.localStorage.removeItem('userId') //移除id
+        window.localStorage.removeItem('role')
     }
     const LoginIn = async (loginInfo) => {
         loadingInstance.value = Loading.service({
@@ -50,6 +51,7 @@ export const useUserStore = defineStore('user', () => {
         })
         try {
             const res = await Login(loginInfo)
+            console.log(res.data)
             if (res.data.status_code == 0) {
                 initTokenAndId()
                 // 登录成功后把token和userId存起来

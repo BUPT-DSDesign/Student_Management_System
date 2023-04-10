@@ -62,11 +62,12 @@ export default {
             curcourseList: []
         }
     },
-    mounted() {
+    created() {
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
             if (fg) {
+                // console.log(UserStore)
                 this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')
