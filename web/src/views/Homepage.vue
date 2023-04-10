@@ -37,7 +37,7 @@
                 <el-progress :percentage="calTermpercent()" :stroke-width="10"></el-progress>
             </div>
         </div>
-        <div class="four item">
+        <div class="four item" style="overflow-y: scroll">
             <h2 style="color:black;margin-top:20px;margin-left: 62px">今日课程</h2>
             <div class="block">
                 <el-timeline>
@@ -201,7 +201,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 20px;
-    grid-auto-rows: minmax(150px, auto);
+    grid-auto-rows: minmax(50px, 110px);
 }
 
 .one {
