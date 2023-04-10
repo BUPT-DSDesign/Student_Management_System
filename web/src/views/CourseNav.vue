@@ -80,10 +80,10 @@
                         </template>
                     </el-table-column>
                     <el-table-column label="地点" width="180">
-                            <template slot-scope="scope">
-                                <span style="margin-left: 10px">{{ scope.row.place }}</span>
-                            </template>
-                        </el-table-column>
+                        <template slot-scope="scope">
+                            <span style="margin-left: 10px">{{ scope.row.place }}</span>
+                        </template>
+                    </el-table-column>
                 </el-table>
                 <el-button @click="submitTempEventNav">去做这些活动</el-button>
 
@@ -108,6 +108,7 @@ export default {
             firstArr: [116.35530714718364, 39.96393072423919],// 中心点/初始坐标
             // lineArr: [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]], // 路径上的点
             lineArr: [], // 路径上的点
+            markers: [],
             radio: '1',//单选框的选择
             //列表（全
             placelist: [
@@ -229,7 +230,7 @@ export default {
         getTable1();
         const getTable2 = async () => {
             const fg = await await EventStore.GetEventTable()
-            if (fg) { 
+            if (fg) {
                 //筛选课外活动列表
                 this.eventList = EventStore.eventlist;
                 for (let i = 0; i < this.eventList.length; i++) {
@@ -241,7 +242,7 @@ export default {
                         })
                     }
                 }
-                  //筛选临时活动列表
+                //筛选临时活动列表
                 for (let i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].type == 1 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
                         this.tempEventList.push({
@@ -264,44 +265,9 @@ export default {
 
     },
     methods: {
-        // testTsp() {
-        //     let startId = 59
-        //     let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
-
-        //     const getPath = async () => {
-        //         const flag = await this.useNavigateStore.GetTSPPath(startId, passIds)
-        //         if (flag) {
-        //             // 从pinia传来的数据
-        //             console.log(this.useNavigateStore.tspPath)
-        //             this.lineArr = this.useNavigateStore.tspPath.node_list
-        //             this.firstArr = this.lineArr[0];
-        //             this.initMap();
-        //             this.$message({
-        //                 showClose: true,
-        //                 center: true,
-        //                 message: '寻路成功',
-        //                 type: 'success'
-        //             });
-
-        //         } else {
-        //             console.log('error')
-        //             this.$message({
-        //                 showClose: true,
-        //                 center: true,
-        //                 message: '寻路失败',
-        //                 type: 'error'
-        //             });
-        //         }
-        //     }
-        //     getPath()
-        //     setTimeout(() => {
-        //         tspLoading.close()
-        //     }, 2000);
-        // },
         testTsp() {
             let startId = 30
             let passIds = '{"0": 1, "1": 3, "2": 5, "3": 7, "4": 9, "5": 11, "6": 13, "7": 15, "8": 17, "9": 19, "10": 21, "11": 23, "12": 25, "13": 27, "14":29, "15": 31, "16":33, "17":35, "18":37, "19": 39}'
-
             const getPath = async () => {
                 const flag = await NavigateStore.GetTSPPath(startId, passIds)
                 if (flag) {
@@ -309,7 +275,18 @@ export default {
                     console.log(NavigateStore.tspPath)
                     this.lineArr = NavigateStore.tspPath.node_list
                     this.firstArr = this.lineArr[0];
+                    let passlist = NavigateStore.tspPath.pass_list;
+                    this.markers = [];
+                    for (let i = 0; i < passlist.length; i++) {
+                        this.markers.push({
+                            icon: 'https://i.328888.xyz/2023/04/09/icaVW8.png',
+                            // 设置了 icon 以后，设置 icon 的偏移量，以 icon 的 [center bottom] 为原点
+                            offset: new AMap.Pixel(-13, -30),
+                            position: passlist[i],
+                        })
+                    }
                     this.initMap();
+                    this.nmarker();
                     this.$message({
                         showClose: true,
                         center: true,
@@ -349,10 +326,9 @@ export default {
                 position: this.firstArr,
                 icon: this.icon, // 添加 Icon 实例
                 offset: new AMap.Pixel(-60, -60), // 调整图片偏移
-                // autoRotation: true, // 自动旋转
-                // angle: -90 // 图片旋转角度
             })
             that.initroad() //初始化路径
+
         },
         // 初始化轨迹
         initroad() {
@@ -362,23 +338,33 @@ export default {
                 path: this.lineArr,
                 showDir: true,
                 strokeColor: '#28F', // 线颜色--浅蓝色
-                // strokeOpacity: 1,     //线透明度
                 strokeWeight: 6, // 线宽
-                // strokeStyle: "solid"  //线样式
                 lineJoin: 'round' // 折线拐点的绘制样式
             })
             // 绘制路过了的轨迹
             var passedPolyline = new AMap.Polyline({
                 map: this.map,
                 strokeColor: '#AF5',
-                // strokeOpacity: 1,     //线透明度
                 strokeWeight: 6 // 线宽
-                // strokeStyle: "solid"  //线样式
             })
             this.marker.on('moving', function (e) {
                 passedPolyline.setPath(e.passedPath);
             });
+            // this.nmarker();
             this.map.setFitView() // 合适的视口
+        },
+        nmarker() {
+            var that = this;
+            // 添加一些分布不均的点到地图上,地图上添加三个点标记，作为参照
+            this.markers.forEach(function (marker) {
+                new AMap.Marker({
+                    map: that.map,
+                    icon: marker.icon,
+                    position: [marker.position[0], marker.position[1]],
+                    offset: new AMap.Pixel(-13, -30)
+                });
+            });
+
         },
         startAnimation() {
             this.marker.moveAlong(this.lineArr, 200);
@@ -427,6 +413,7 @@ export default {
                 if (flag) {
                     // 从pinia传来的数据
                     this.lineArr = NavigateStore.rdata.node_list
+                    console.log(this.lineArr);
                     this.firstArr = this.lineArr[0];
                     this.initMap();
                 } else {
@@ -479,9 +466,19 @@ export default {
                 if (flag) {
                     // 从pinia传来的数据
                     console.log(NavigateStore.tspPath)
-                    this.lineArr = NavigateStore.tspPath.node_list
+                    this.lineArr = NavigateStore.tspPath.node_list;
                     this.firstArr = this.lineArr[0];
+                    let passlist = NavigateStore.tspPath.pass_list;
+                    this.markers = [];
+                    for (let i = 0; i < passlist.length; i++) {
+                        this.markers.push({
+                            icon: 'https://i.328888.xyz/2023/04/09/icaVW8.png',
+                            offset: new AMap.Pixel(-13, -30),
+                            position: passlist[i],
+                        })
+                    }
                     this.initMap();
+                    this.nmarker();
                     this.$message({
                         showClose: true,
                         center: true,
@@ -500,6 +497,7 @@ export default {
                 }
             }
             getPath();
+
         },
         //获取多选的事务
         handleSelectionChange(val) {
