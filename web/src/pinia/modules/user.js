@@ -32,12 +32,9 @@ export const useUserStore = defineStore('user', () => {
             loadingInstance.value.close()
             return false
         }
-        loadingInstance.value.close()
     }
 
-
     // 登录
-    // 初始化token, 用户每次登录的时候需要把原先的token清空
     const initTokenAndId = () => {
         window.localStorage.removeItem('token') //移除token
         window.localStorage.removeItem('userId') //移除id
@@ -70,7 +67,6 @@ export const useUserStore = defineStore('user', () => {
             loadingInstance.value.close()
             return false
         }
-        loadingInstance.value.close()
     }
 
     // 获取用户信息
@@ -108,6 +104,4 @@ export const useUserStore = defineStore('user', () => {
         GetUserInfo,
         EditUserSignature
     }
-}, {
-    persist: true
 })

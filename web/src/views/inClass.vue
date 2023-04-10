@@ -91,7 +91,7 @@ export default {
             curWeek: 1,
             weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
             time: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'],
-            classData: CourseStore.courseList,
+            classData: [],
             dialogVisible1: false, //点击弹窗的可见性
             dialogVisible2: false, //查询弹窗的可见性
             radio: 1,//多选框默认选中的单元
@@ -99,6 +99,17 @@ export default {
             filclasslist: [], //模糊匹配后的课程列表（li中的填充对象
             searchlist: [],//搜索后返回的数组对象(查询弹窗中的填充对象)
         };
+    },
+    created() {
+        const getCourseTable = async () => {
+            const fg = await CourseStore.GetCourseTable()
+            if (fg) {
+                this.classData = CourseStore.courseList
+            } else {
+                console.log('error')
+            }
+        }
+        getCourseTable()
     },
     watch: {
         keyWord(newvalue) {

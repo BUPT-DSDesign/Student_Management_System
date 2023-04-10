@@ -31,10 +31,7 @@
     </div>
 </template>
 
-<script>
-import { CourseStore } from '@/store/course'
-import { EventStore } from '@/store/event'
-import { LogStore } from '@/store/log'                
+<script>              
 
 export default {
     data() {
@@ -56,49 +53,14 @@ export default {
         clickCourseNav() {
             this.$router.push('/studentMain/CourseNav');
         },
-
-        getCourseTable: async function () {
-            return await CourseStore.GetCourseTable()
-        },
         clickinClass() {
-            // 当点击侧边栏的课内信息时, 会向后端发送请求, 后端返回课程表
-            const getTable1 = async () => {
-                const fg = await this.getCourseTable()
-                if (fg) {
-                    this.$router.push('/studentMain/inClass');
-                } else {
-                    console.log('error')
-                }
-            }
-            getTable1()
-        },
-        getEventTable: async function () {
-            return await EventStore.GetEventTable()
+            this.$router.push('/studentMain/inClass');
         },
         clickoutClass() {
-            // 当点击侧边栏的课外信息时, 会向后端发送请求, 后端返回课外活动表
-            const getTable2 = async () => {
-                const fg = await this.getEventTable()
-                if (fg) {
-                    this.$router.push('/studentMain/outClass');
-                } else {
-                    console.log('error')
-                }
-            }
-            getTable2()
+            this.$router.push('/studentMain/outClass')
         },
         clickLogMessage() {
-            // 当点击日志信息时, 会向后端发送请求, 后端返回日志信息
-            const getLogMessage = async () => {
-                const fg = await LogStore.GetLogMessage()
-                if (fg) {
-                    console.log(LogStore.logs)
-                    this.$router.push('/studentMain/logMessage')
-                } else {
-                    console.log('error')
-                }
-            }
-            getLogMessage()
+            this.$router.push('/studentMain/logMessage')
         }
     }
 }

@@ -53,7 +53,5 @@ export const useNavigateStore = defineStore('navigate', () => {
         startId,
         endId,
     }
-},{
-    persist: true
 })
 
