@@ -74,14 +74,12 @@ export default {
 
 <style>
 .edit {
-    /* width: 100%; */
+    /* margin-top: px; */
+    width: 45%;
     height: 39px;
     float:left;
 }
 
-.signature {
-    /* width: 200px; */
-}
 
 .signature .el-input__inner {
     border: none;

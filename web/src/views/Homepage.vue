@@ -4,10 +4,11 @@
             <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
                 <div class="user-info">
-                    <h5 style="color:black; font-size: medium;">用户名:{{ userInfo.username }}</h5>
-                    <h5 style="color:black; font-size: medium;">学号:{{ userInfo.student_id }}</h5>
+                    <h5 style="color:black; font-size: medium; text-align: left;">用户名: {{ userInfo.username }}</h5>
+                    <h5 style="color:black; font-size: medium; text-align: left;">学号: {{ userInfo.student_id }}</h5>
                 </div>
             </div>
+            
             <signature :userInfo="userInfo"></signature>
             
            
@@ -166,6 +167,7 @@ export default {
 .user-info {
     width: 40%;
     float: right;
+    padding-top: 20px;
 }
 .yiyan {
     font-size: 18px;
@@ -225,18 +227,13 @@ export default {
     grid-column: 2 / 4;
     grid-row: 2 / 5;
     background: #f8f9fa;
+    
 }
 
 .item {
     text-align: center;
     font-size: 200%;
     color: #fff;
-}
-
-.user {
-    margin-top: 50px;
-    margin-right: 50px;
-    float: right;
 }
 
 html {

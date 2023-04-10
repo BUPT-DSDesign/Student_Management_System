@@ -1,5 +1,5 @@
 <template>
-    <el-tooltip class="item" effect="dark" content="更换头像" placement="bottom" :open-delay=200 offset="">
+    <el-tooltip class="avatar-container" effect="dark" content="更换头像" placement="bottom" :open-delay=200 offset="">
         <el-upload
             class="avatar-uploader"
             action="http://127.0.0.1:8080/Student_Management_System/user/upload_avatar"
@@ -75,38 +75,25 @@ export default {
     border: 1px solid #d9d9d9;
     border-radius: 50%;
     cursor: pointer;
-    position: relative;
+    /* position: relative; */
     overflow: hidden;
+    display: block;
 }
-
 .avatar-uploader .el-upload:hover {
     border-color: #409EFF;
 }
 
-.avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 170px;
-    height: 170px;
-    line-height: 170px;
-    text-align: center;
-}
-.avatar-uploader{
-    margin-top:40px;
-    margin-left:10px;
-}
 .avatar {
-    width: 170px;
-    height: 170px;
+    width: 100%;
+    height: 100%;
     display: block;
 }
 .bottom {
-    clear: both;
     text-align: center;
 }
-.item {
+.avatar-container {
+    width: 45%;
     margin: 2px;
     float: left;
-
 }
 </style>
