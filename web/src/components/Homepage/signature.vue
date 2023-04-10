@@ -8,7 +8,8 @@
             :border="false"
             ref="signature"
             class="signature"
-            @focus="edit">
+            @focus="edit"
+            >
             </el-input>
             <el-dialog title="编辑个签" :visible.sync="dialogVisible" width="30%">
                 <el-input placeholder="请输入签名内容" v-model="editSignature" maxlength="30" ref="editSignature" type="text"
@@ -73,12 +74,13 @@ export default {
 
 <style>
 .edit {
-    width: 260px;
+    /* width: 100%; */
     height: 39px;
+    float:left;
 }
 
 .signature {
-    width: 200px;
+    /* width: 200px; */
 }
 
 .signature .el-input__inner {

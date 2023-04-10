@@ -1,16 +1,18 @@
 <template>
     <div class="wrapper">
         <div class="one item">
-            <div>
+            <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
-                <signature :userInfo="userInfo"></signature>
+                <div class="user-info">
+                    <h5 style="color:black; font-size: medium;">用户名:{{ userInfo.username }}</h5>
+                    <h5 style="color:black; font-size: medium;">学号:{{ userInfo.student_id }}</h5>
+                </div>
             </div>
+            <signature :userInfo="userInfo"></signature>
             
-            <!-- <div class="user">
-                <h1 style="color:black ">{{ userInfo.username }}</h1>
-            </div> -->
+           
             <el-card class="box-card">
-                <p id="hitokoto" class="signature"> 获取中...</p>
+                <p id="hitokoto" class="yiyan"> 获取中...</p>
             </el-card>
 
         </div>
@@ -157,18 +159,36 @@ export default {
 </script>
 
 <style>
-.signature {
-    font-size: 12px;
-    width: 260px;
+.user-container {
+    overflow: hidden;
+    width: 100%;
+}
+.user-info {
+    width: 40%;
+    float: right;
+}
+.yiyan {
+    font-size: 18px;
+    color: #2177b8;
+    width: 100%;
+}
+
+.el-card.is-always-shadow, .el-card.is-hover-shadow:focus, .el-card.is-hover-shadow:hover {
+    box-shadow: 0 0;
 }
 
 .el-card__body {
-    padding: 17px;
+    padding: 5px;
 }
 
 .box-card {
-    margin: 15px;
-    width: 300px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    border-block-width: 0px;
+    margin: 0;
+    background-color: #f8f9fa;
 }
 
 .block {
@@ -186,6 +206,7 @@ export default {
     grid-column: 1 / 2;
     grid-row: 1 / 3;
     background: #f8f9fa;
+    position: relative;
 }
 
 .two {

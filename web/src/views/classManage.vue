@@ -12,34 +12,39 @@
             <el-input
               v-model="search"
               size="mini"
-              placeholder="输入关键字搜索"/>
+              placeholder="输入关键字搜索"
+              prefix-icon="el-icon-search"/>
           </template>
           <template slot-scope="scope">
-            <el-button
+              <el-button
               size="mini"
               type="primary"
               @click="editClass(scope.$index, scope.row)">修改课程</el-button>
-            <el-button
+              <el-button
               size="mini"
               type="success"
               @click="publishTest(scope.$index, scope.row)">发布考试</el-button>
+              <el-button
+              size="mini"
+              type="danger"
+              @click="deleteClass(scope.$index, scope.row)">删除课程</el-button>
           </template>
         </el-table-column>
         </el-table>
         <el-button type="primary" plain>添加课程</el-button>
 
-         <!-- 点击弹窗 -->
-            <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
-                <el-card class="box-card">
-                    <div class="course_name">课程名称：{{ clickedClassData.course_name }}</div>
-                    <div class="course_time">课程时间：{{ clickedClassData.classTime }}</div>
-                    <div class="course_address">课程地点：{{ clickedClassData.classroom }}</div>
-                </el-card>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible1 = false">取 消</el-button>
-                    <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
-                </span>
-            </el-dialog>
+        <!-- 点击弹窗 -->
+        <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
+            <el-card class="box-card">
+                <div class="course_name">课程名称：{{ clickedClassData.course_name }}</div>
+                <div class="course_time">课程时间：{{ clickedClassData.classTime }}</div>
+                <div class="course_address">课程地点：{{ clickedClassData.classroom }}</div>
+            </el-card>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible1 = false">取 消</el-button>
+                <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -72,23 +77,28 @@ export default {
     created () {
         const getTable = async () => {
             const fg = await CourseStore.GetCourseTable();
-        }
-        getTable();
-        this.classData = CourseStore.courseList
-        //添加一个属性以便格式化课程时间
-        for (let i = 0; i < this.classData.length; i++) {
-            let startTime = startTimeMap[this.classData[i].section_list[0] % 9];
-            let endTime = endTimeMap[this.classData[i].section_list.slice(-1) % 9];
-            this.classData[i]['classTime'] = startTime+'-'+endTime;
+            if (fg) {
+                this.classData = CourseStore.courseList
+                //添加一个属性以便格式化课程时间
+                for (let i = 0; i < this.classData.length; i++) {
+                    let startTime = startTimeMap[this.classData[i].section_list[0] % 9];
+                    let endTime = endTimeMap[this.classData[i].section_list.slice(-1) % 9];
+                    this.classData[i]['classTime'] = startTime+'-'+endTime;
 
+                }
+                console.log(this.classData)
+                for (let i = 0; i < this.classData.length; i++) {
+                    this.tableData.push({
+                        classname: this.classData[i].course_name,
+                        classtime: this.classData[i].classTime,
+                    })
+                }
+            } else {
+                console.log('error')
+            }
         }
-        console.log(this.classData);
-        for (let i = 0; i < this.classData.length; i++) {
-            this.tableData.push({
-                classname: this.classData[i].course_name,
-                classtime: this.classData[i].classTime,
-            })
-        }
+        getTable()
+        
     },
     data() {
         return {

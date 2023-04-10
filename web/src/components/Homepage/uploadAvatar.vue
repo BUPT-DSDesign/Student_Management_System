@@ -86,19 +86,18 @@ export default {
 .avatar-uploader-icon {
     font-size: 28px;
     color: #8c939d;
-    width: 150px;
-    height: 150px;
-    line-height: 150px;
+    width: 170px;
+    height: 170px;
+    line-height: 170px;
     text-align: center;
 }
 .avatar-uploader{
     margin-top:40px;
     margin-left:10px;
-    float:left;
 }
 .avatar {
-    width: 180px;
-    height: 180px;
+    width: 170px;
+    height: 170px;
     display: block;
 }
 .bottom {
@@ -107,6 +106,7 @@ export default {
 }
 .item {
     margin: 2px;
-    display: block;
+    float: left;
+
 }
 </style>
