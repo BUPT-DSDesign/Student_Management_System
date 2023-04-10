@@ -38,6 +38,4 @@ export const useLogStore = defineStore('log', () => {
         GetLogMessage,
         DeleteLog
     }
-}, {
-    persist: true
 })

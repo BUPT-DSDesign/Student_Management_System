@@ -4,7 +4,7 @@
             <h2>日程安排表</h2>
             <div>
                 <el-table
-                    :data="eventlist.filter(data => !search || data.event.includes(search) || data.week.includes(search) || data.time.includes(search))"
+                    :data="eventList.filter(data => !search || data.event.includes(search) || data.week.includes(search) || data.time.includes(search))"
                     style="width: 100%" max-height="350">
                     <el-table-column label="日期" prop="start_day" fixed sortable :formatter="timeFormatter"
                         :sort-method="(a, b) => a.week.localeCompare(b.week)">
@@ -96,8 +96,19 @@ export default {
             search: '', //用于搜索过滤的对象
             formLabelWidth: '120px',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
-            eventlist: EventStore.eventlist,
+            eventList: [],
         }
+    },
+    created() {
+        const getActivityTable = async () => {
+            const fg = await EventStore.GetEventTable()
+            if (fg) {
+                this.eventList = EventStore.eventList
+            } else {
+                console.log('error')
+            }
+        }
+        getActivityTable()
     },
     methods: {
         //规范化类型  

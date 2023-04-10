@@ -3,7 +3,7 @@ import { CourseTable } from '@/api/course'
 import { ref } from 'vue'
 
 export const useCourseStore = defineStore('course', () => {
-    const courseList = ref({})
+    const courseList = ref([])
     const GetCourseTable = async () => {
         try {
             const res = await CourseTable()
@@ -22,6 +22,4 @@ export const useCourseStore = defineStore('course', () => {
         courseList,
         GetCourseTable
     }
-}, {
-    persist: true
 })

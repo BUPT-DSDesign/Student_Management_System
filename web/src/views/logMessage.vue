@@ -7,7 +7,7 @@
             <el-table-column type="selection" width="55" v-if="batchSelect"></el-table-column>
             <el-table-column fixed label="用户" width="60">
                 <template>
-                    <img :src="avatarUrl" class="user-avatar">
+                    <img :src="avatarUrl" class="user-avatar" @error="changeToDefault">
                 </template>
             </el-table-column>
             <el-table-column fixed label="时间" align="center">
@@ -59,17 +59,33 @@ import { Loading } from 'element-ui';
 export default {
     data() {
         return {
-            logs: LogStore.logs,
+            logs: [],
             dialogVisible: false,
             tmpLogIds: [],
-            // avatarUrl: UserStore.userInfo.avatar_url,
+            avatarUrl: UserStore.userInfo.avatar_url,
             loadingInstance: '',
             maxHeight: document.body.clientHeight - 153,
             batchSelect: false,
             afterBatchDelete: false
         }
     },
+    created() {
+        const getLogMessage = async () => {
+            const fg = await LogStore.GetLogMessage()
+            if (fg) {
+                this.logs = LogStore.logs
+            } else {
+                console.log('error')
+            }
+        }
+        getLogMessage()
+        const userId = window.localStorage.getItem('userId')
+        this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
+    },
     methods: {
+        changeToDefault() {
+            this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
+        },
         deleteLog(logId) {
             this.tmpLogIds = []
             this.tmpLogIds.push(logId)

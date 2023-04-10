@@ -3,13 +3,13 @@ import { EventTable } from '@/api/event'
 import { ref } from 'vue'
 
 export const useEventStore = defineStore('event', () => {
-    const eventlist = ref({})
+    const eventList = ref([])
     const GetEventTable = async () => {
         try {
             const res = await EventTable()
 
             if (res.data.status_code == 0) {
-                eventlist.value = res.data.activities
+                eventList.value = res.data.activities
                 return true
             }
             return false
@@ -19,9 +19,7 @@ export const useEventStore = defineStore('event', () => {
     }
 
     return {
-        eventlist,
+        eventList,
         GetEventTable
     }
-}, {
-    persist: true
 })
