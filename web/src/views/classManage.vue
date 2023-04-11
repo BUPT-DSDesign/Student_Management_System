@@ -35,11 +35,9 @@
 
         <!-- 点击弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
-            <el-card class="box-card">
                 <div class="course_name">课程名称：{{ clickedClassData.course_name }}</div>
                 <div class="course_time">课程时间：{{ clickedClassData.classTime }}</div>
                 <div class="course_address">课程地点：{{ clickedClassData.classroom }}</div>
-            </el-card>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible1 = false">取 消</el-button>
                 <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
