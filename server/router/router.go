@@ -53,6 +53,8 @@ func InitRouters() *gin.Engine {
 	{
 		// 课程表
 		courseGroup.GET("/table", middleware.JwtAuthMiddleware(), course_handler.TableHandler)
+		// 添加课程
+		courseGroup.POST("/add", middleware.JwtAuthMiddleware(), course_handler.AddHandler)
 	}
 
 	// 导航路由
