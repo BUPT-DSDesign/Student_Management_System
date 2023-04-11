@@ -1,5 +1,15 @@
 <template>
-    <div class="wrapper">
+    <div>
+        <el-row type="flex" class="row-bg top">
+          <el-col :span="12"><div class="grid-content bg-purple-light"></div></el-col>
+          <el-col :span="24"><div class="grid-content bg-purple"></div></el-col>
+        </el-row>
+        <el-row type="flex" class="row-bg" justify="center">
+          <el-col :span="12"><div class="grid-content bg-purple"></div></el-col>
+          <el-col :span="24"><div class="grid-content bg-purple-light"></div></el-col>
+        </el-row>
+    </div>
+    <!-- <div class="wrapper">
         <div class="one item">
             <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
@@ -48,7 +58,7 @@
                 </el-timeline>
             </div>
         </div>
-    </div>
+    </div> -->
 </template>
 <script>
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
@@ -201,7 +211,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 20px;
-    grid-auto-rows: minmax(50px, 110px);
+    grid-auto-rows: 20vh;
 }
 
 .one {
@@ -274,4 +284,33 @@ h1 {
 .eventblock {
     background-color: #e9ecef;
     margin: 10px 47px;
-}</style>
+}
+
+
+
+
+
+  .el-row {
+    margin-bottom: 20px;
+  }
+  .el-col {
+    border-radius: 4px;
+  }
+  .bg-purple-dark {
+    background: #99a9bf;
+  }
+  .bg-purple {
+    background: #d3dce6;
+  }
+  .bg-purple-light {
+    background: #e5e9f2;
+  }
+  .grid-content {
+    border-radius: 4px;
+    min-height: 40vh;
+  }
+  .row-bg {
+    padding: 10px 0;
+    background-color: #f9fafc;
+  }
+</style>

@@ -1,7 +1,7 @@
 <!-- 登录页面 -->
 <template>
     <div class="login-container">
-        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="120px" class="demo-ruleForm" hide-required-asterisk="false">
              <h1 class="title">用户登陆</h1>
             <el-form-item label="用户名" prop="username">
                 <el-input v-model="ruleForm.username" suffix-icon="el-icon-user" @keyup.enter.native="submitForm('ruleForm')"></el-input>

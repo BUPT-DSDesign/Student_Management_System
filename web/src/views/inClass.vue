@@ -33,11 +33,9 @@
         </el-button-group>
         <!-- 点击弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
-            <el-card class="box-card">
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
-                <div class="course_time">课程时间：{{ curClassData.section_list }}</div>
-                <div class="course_address">课程地点：{{ curClassData.classroom }}</div>
-            </el-card>
+                    <div class="course_time">课程时间：{{ curClassData.section_list }}</div>
+                    <div class="course_address">课程地点：{{ curClassData.classroom }}</div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible1 = false">取 消</el-button>
                 <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
@@ -45,11 +43,11 @@
         </el-dialog>
         <!-- 搜索弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible2" width="30%" :before-close="handleClose">
-            <el-card class="box-card" v-for="(item, index) in searchlist" :key="index">
+            <div v-for="(item, index) in searchlist" :key="index">
                 <div class="course_name">课程名称：{{ item.course_name }}</div>
                 <div class="course_time">课程时间：{{ item.section_list }}</div>
                 <div class="course_address">课程地点：{{ item.classroom }}</div>
-            </el-card>
+            </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible2 = false">取 消</el-button>
                 <el-button type="primary" @click="dialogVisible2 = false">确 定</el-button>
