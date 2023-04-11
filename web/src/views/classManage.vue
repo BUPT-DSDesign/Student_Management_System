@@ -1,7 +1,7 @@
 <template>
     <div style="margin:20px">
         <h1>课程管理</h1>
-        <el-table :data="tableData" height="380px" border style="width: 700px" @row-click="clickcell">
+        <el-table :data="tableData" height="380px" border style="width: 700px">
             <el-table-column prop="classname" label="课程名称" width="180" >
             </el-table-column>
             <el-table-column prop="classtime" label="课程时间" width="180">
@@ -43,6 +43,76 @@
                 <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
             </span>
         </el-dialog>
+             <!-- 修改课程 -->
+            <el-dialog title="课程详情" :visible.sync="dialogVisible2" width="500px" :before-close="handleClose">
+                <el-form ref="clickedClassData" :model="clickedClassData" label-width="150px" style="backgroundColor:#fff">
+                    <el-form-item label="课程名称">
+                        <el-input v-model="clickedClassData.course_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="授课老师">
+                        <el-input v-model="clickedClassData.teacher"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上课节次">
+                        <el-input v-model="clickedClassData.section_list"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上课周次">
+                        <el-input v-model="clickedClassData.week_schedule"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考试时间">
+                        <el-input v-model="clickedClassData.exam_time"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考试地点">
+                        <el-input v-model="clickedClassData.exam_location"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="submitEdit">保存修改</el-button>
+                        <el-button @click="dialogVisible2 = false">取消</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
+            <!-- 发布考试 -->
+            <el-dialog title="发布考试" :visible.sync="dialogVisible3" width="500px" :before-close="handleClose">
+                <el-form ref="clickedClassData" :model="clickedClassData" label-width="150px" style="backgroundColor:#fff">
+                    <el-form-item label="考试时间">
+                        <el-input v-model="clickedClassData.exam_time"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考试地点">
+                        <el-input v-model="clickedClassData.exam_location"></el-input>
+                    </el-form-item>
+                    <el-form-item>
+                        <el-button type="primary" @click="submitTest">发布</el-button>
+                        <el-button @click="dialogVisible3 = false">取消</el-button>
+                    </el-form-item>
+                </el-form>
+            </el-dialog>
+            <!-- 添加课程 -->
+            <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="500px">
+                <el-form :model="addClassData" label-width="150px" style="backgroundColor:#fff">
+                    <el-form-item label="课程名称">
+                        <el-input v-model="addClassData.course_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="授课老师">
+                        <el-input v-model="addClassData.teacher"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上课节次">
+                        <el-input v-model="addClassData.section_list"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上课周次">
+                        <el-input v-model="addClassData.week_schedule"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考试时间">
+                        <el-input v-model="addClassData.exam_time"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考试地点">
+                        <el-input v-model="addClassData.exam_location"></el-input>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible4 = false">取 消</el-button>
+                    <el-button type="primary" @click="dialogVisible4 = false">确 定</el-button>
+                </div>
+            </el-dialog>
+        
     </div>
 </template>
 
@@ -104,8 +174,12 @@ export default {
             tableData: [],
             clickedClass: '',  //当前点击的单元格的课程名称
             clickedClassData: {},  //记录当前点击单元格课程的信息（对象类型
+            addClassData: {},//添加的课程的信息
             dialogVisible1: false, //点击课程弹窗的可见性
             dialogVisible2: false, //添加课程弹窗的可见性
+            dialogVisible3: false, //发布考试弹窗的可见性
+            dialogVisible4: false,//添加课程弹窗的可见性
+            search: '', //用于搜索过滤的对象
         }
     },
     methods: {
@@ -126,12 +200,32 @@ export default {
         handleClose(done) {
             done();
         },
-        editClass(e) {
-            console.log(e)
+        //编辑课程
+        editClass(index, obj) {
+            this.clickedClass = obj.classname;
+            // 循环遍历找到数据库中该课程的所有信息
+            for (let i = 0; i < this.classData.length; i++) {
+                if (this.classData[i].course_name == this.clickedClass) {
+                    //如果有该课程，更新curClassData
+                    this.clickedClassData = this.classData[i];
+                }
+            }
+            //点击弹窗打开
+            this.dialogVisible2 = true;
         },
-        publishTest(e) {
-            console.log(e)
-        }
+        //发布考试
+        publishTest(index, obj) {
+            this.clickedClass = obj.classname;
+            // 循环遍历找到数据库中该课程的所有信息
+            for (let i = 0; i < this.classData.length; i++) {
+                if (this.classData[i].course_name == this.clickedClass) {
+                    //如果有该课程，更新curClassData
+                    this.clickedClassData = this.classData[i];
+                }
+            }
+            //点击弹窗打开
+            this.dialogVisible3 = true;
+        },
     },
 }
 </script>
