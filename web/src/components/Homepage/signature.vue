@@ -76,7 +76,7 @@ export default {
 .edit {
     /* margin-top: px; */
     width: 45%;
-    height: 39px;
+    height: 35px;
     float:left;
 }
 

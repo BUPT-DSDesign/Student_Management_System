@@ -1,21 +1,12 @@
 <template>
-    <!-- <div> -->
-        <!-- <el-row type="flex" class="row-bg top">
-          <el-col :span="12"><div class="grid-content bg-purple-light"></div></el-col>
-          <el-col :span="24"><div class="grid-content bg-purple"></div></el-col>
-        </el-row>
-        <el-row type="flex" class="row-bg" justify="center">
-          <el-col :span="12"><div class="grid-content bg-purple"></div></el-col>
-          <el-col :span="24"><div class="grid-content bg-purple-light"></div></el-col>
-        </el-row>
-    </div> -->
     <div class="wrapper">
         <div class="one item">
             <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
                 <div class="user-info">
-                    <h5 style="color:black; font-size: medium; text-align: left;">用户名: {{ userInfo.username }}</h5>
-                    <h5 style="color:black; font-size: medium; text-align: left;">学号: {{ userInfo.student_id }}</h5>
+                    <h4>姓名:{{ userInfo.username }}</h4>
+                    <h4>学号:{{ userInfo.student_id }}</h4>
+                    <h4>班级:{{ 2021211309 }}</h4>
                 </div>
             </div>
             
@@ -28,12 +19,12 @@
 
         </div>
         <div class="two item">
-            <div class="classblock" style="height: 120px;float: left;">
-                <img src="../assets/image/class.png" style="height: 120px;width: 120px; margin-left:11px">
+            <div class="classblock" style="height: 80%">
+                <img src="../assets/image/class.png" style="height: 100%;width: auto; margin-left:11px">
                 <span class="right-class">今天共有<h6 style="font-size:25px"> {{ curcourseList.length }}</h6>节课</span>
             </div>
-            <div class="eventblock" style="height: 120px;float: left;">
-                <img src="../assets/image/event.png" style="height: 120px;width: 120px; margin-left:11px">
+            <div class="eventblock" style="height: 80%">
+                <img src="../assets/image/event.png" style="height: 100%;width: auto; margin-left:11px">
                 <span class="right-event">今天共有<h6 style="font-size:25px">{{ eventNumber_remaining }}</h6>个活动</span>
             </div>
         </div>
@@ -175,12 +166,20 @@ export default {
     width: 100%;
 }
 .user-info {
-    width: 40%;
+    width: 50%;
     float: right;
-    padding-top: 20px;
+
+    padding-top: 10px;
+}
+h4 {
+    color:black; 
+    font-size: medium; 
+    text-align: center;
+    display: inline-block;
+    height: 33.3%;
 }
 .yiyan {
-    font-size: 18px;
+    font-size: 15px;
     color: #2177b8;
     width: 100%;
 }
@@ -225,6 +224,9 @@ export default {
     grid-column: 2 / 4;
     grid-row: 1 / 2;
     background: #f8f9fa;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .three {
@@ -271,7 +273,7 @@ h1 {
     color: black;
     font-size: 16px;
     float: right;
-    margin-top: 40px;
+    margin-top: 10px;
     margin-right: 40px;
     margin-left: 20px;
 }
@@ -283,34 +285,4 @@ h1 {
 .classblock,
 .eventblock {
     background-color: #e9ecef;
-    margin: 10px 47px;
-}
-
-
-
-
-
-  .el-row {
-    margin-bottom: 20px;
-  }
-  .el-col {
-    border-radius: 4px;
-  }
-  .bg-purple-dark {
-    background: #99a9bf;
-  }
-  .bg-purple {
-    background: #d3dce6;
-  }
-  .bg-purple-light {
-    background: #e5e9f2;
-  }
-  .grid-content {
-    border-radius: 4px;
-    min-height: 40vh;
-  }
-  .row-bg {
-    padding: 10px 0;
-    background-color: #f9fafc;
-  }
-</style>
+}</style>
