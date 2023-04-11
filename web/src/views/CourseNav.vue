@@ -25,7 +25,7 @@
             </div>
             <div v-show="radio == 1">
                 <h6>您今天的课程有</h6>
-                <el-table :data="curcourseList" style="width: 500px">
+                <el-table :data="curcourseList" style="width: 500px;height:300px;overflow-y: scroll">
                     <el-table-column label="节次" width="180">
                         <template slot-scope="scope">
                             <span style="margin-left: 10px">第{{ scope.row.time }}节</span>
@@ -46,7 +46,7 @@
 
             <div v-show="radio == 2">
                 <h6>您今天的活动有</h6>
-                <el-table :data="outEventList" style="width: 500px">
+                <el-table :data="outEventList" style="width: 500px ;height:300px;overflow-y: scroll">
                     <el-table-column label="时间" width="180">
                         <template slot-scope="scope">
                             <span style="margin-left: 10px">{{ scope.row.time }}</span>
@@ -66,10 +66,11 @@
             </div>
             <div v-show="radio == 3">
                 <h6>您今天的临时事务有</h6>
-                <el-table :data="tempEventList" style="width: 500px" @selection-change="handleSelectionChange">
+                <el-table :data="tempEventList" style="width: 500px ;height:300px;overflow-y: scroll"
+                    @selection-change="handleSelectionChange">
                     <el-table-column type="selection" width="20">
                     </el-table-column>
-                    <el-table-column label="时间" width="180">
+                    <el-table-column label="时间" width="100">
                         <template slot-scope="scope">
                             <span style="margin-left: 10px">{{ scope.row.time }}</span>
                         </template>
@@ -191,26 +192,30 @@ export default {
         }
     },
     created() {
+        //  this.curcourseList = [];
+        // this.outEventList = [];
+        // this.tempEventList = [];
         const getTable1 = async () => {
             const fg = await await CourseStore.GetCourseTable()
             if (fg) {
-
                 this.courseList = CourseStore.courseList;
                 //根据当前周，查找在本周的课程
                 this.courseList = this.courseList.filter((item) => {
                     return item.week_schedule.indexOf(TimeStore.week) != -1;
                 });
+
                 //查找本天的课程，然后将他们按照顺序排列。
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
                         if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
+                            console.log(this.courseList[i].section_list[j] / 9)
                             this.curcourseList.push({
                                 name: this.courseList[i].course_name,
                                 place: this.courseList[i].classroom,
                                 time: this.courseList[i].section_list[j] % 9,
                             })
                         }
-                        if (this.courseList[i].section_list[j] / 9 == 1) {
+                        if (this.courseList[i].section_list[j] / 9 == TimeStore.day) {
                             this.curcourseList.push({
                                 name: this.courseList[i].course_name,
                                 place: this.courseList[i].classroom,
@@ -228,11 +233,12 @@ export default {
             }
         };
         getTable1();
+
         const getTable2 = async () => {
             const fg = await await EventStore.GetEventTable()
             if (fg) {
                 //筛选课外活动列表
-                this.eventList = EventStore.eventlist;
+                this.eventList = EventStore.eventList;
                 for (let i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].type == 0 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
                         this.outEventList.push({
@@ -350,7 +356,6 @@ export default {
             this.marker.on('moving', function (e) {
                 passedPolyline.setPath(e.passedPath);
             });
-            // this.nmarker();
             this.map.setFitView() // 合适的视口
         },
         nmarker() {
@@ -415,6 +420,19 @@ export default {
                     this.lineArr = NavigateStore.rdata.node_list
                     console.log(this.lineArr);
                     this.firstArr = this.lineArr[0];
+                    // // 添加起点maker
+                    // let startMarker = new AMap.Marker({
+                    //     map: this.map,
+                    //     position: this.lineArr[0],
+                    //     icon: 'https://i.328888.xyz/2023/04/11/ipck5v.png',
+                    //     offset: new AMap.Pixel(-60, -60), // 调整图片偏移
+                    // });
+                    // let endMarker = new AMap.Marker({
+                    //     map: this.map,
+                    //     position: this.lineArr.slice(-1),
+                    //     icon: 'https://i.328888.xyz/2023/04/11/ipcW3U.png',
+                    //     offset: new AMap.Pixel(-60, -60), // 调整图片偏移
+                    // })
                     this.initMap();
                 } else {
                     alert("您还未输入起始位置");
@@ -536,9 +554,7 @@ export default {
 }
 
 .el-form {
-    background-color: #e7f5ff;
     padding: 15px;
-    box-shadow: 0px 5px 5px #c8c8c8;
 }
 
 .btn:hover {

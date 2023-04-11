@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="register">
-            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+            <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="150px" class="demo-ruleForm">
                  <el-form-item label="学号" prop="studentId">
                     <el-input v-model="ruleForm.studentId"></el-input>
                 </el-form-item>
@@ -124,8 +124,8 @@ export default {
 }
 .register {
     background-color:#fff;
-    width:400px;
-    height: 250px;
+    width:500px;
+    height: 300px;
     margin: auto auto;
     padding:50px;
     border-radius: 10px;

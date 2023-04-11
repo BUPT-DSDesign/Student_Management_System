@@ -1,6 +1,6 @@
 <template>
-    <div>
-        <el-row type="flex" class="row-bg top">
+    <!-- <div> -->
+        <!-- <el-row type="flex" class="row-bg top">
           <el-col :span="12"><div class="grid-content bg-purple-light"></div></el-col>
           <el-col :span="24"><div class="grid-content bg-purple"></div></el-col>
         </el-row>
@@ -8,8 +8,8 @@
           <el-col :span="12"><div class="grid-content bg-purple"></div></el-col>
           <el-col :span="24"><div class="grid-content bg-purple-light"></div></el-col>
         </el-row>
-    </div>
-    <!-- <div class="wrapper">
+    </div> -->
+    <div class="wrapper">
         <div class="one item">
             <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
@@ -58,7 +58,7 @@
                 </el-timeline>
             </div>
         </div>
-    </div> -->
+    </div>
 </template>
 <script>
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';

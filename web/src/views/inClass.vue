@@ -250,6 +250,9 @@ h2 {
 
 .searchbox {
     float: right;
+    padding:20px;
+    width:350px;
+    height:400px;
     margin-top: -500px;
     margin-left: 650px;
 }
