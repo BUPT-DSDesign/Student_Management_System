@@ -4,9 +4,9 @@
             <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
                 <div class="user-info">
-                    <h4>姓名: {{ userInfo.username }}</h4>
-                    <h4>学号: {{ userInfo.student_id }}</h4>
-                    <h4>班级: {{ userInfo.student_id }}</h4>
+                    <h4>姓名:{{ userInfo.username }}</h4>
+                    <h4>学号:{{ userInfo.student_id }}</h4>
+                    <h4>班级:{{ 2021211309 }}</h4>
                 </div>
             </div>
             
@@ -166,7 +166,7 @@ export default {
     width: 100%;
 }
 .user-info {
-    width: 40%;
+    width: 50%;
     float: right;
 
     padding-top: 10px;
@@ -174,7 +174,7 @@ export default {
 h4 {
     color:black; 
     font-size: medium; 
-    text-align: left;
+    text-align: center;
     display: inline-block;
     height: 33.3%;
 }
