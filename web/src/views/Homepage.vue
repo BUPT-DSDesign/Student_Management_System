@@ -4,8 +4,9 @@
             <div class="user-container">
                 <uploadAvatar :userInfo="userInfo"></uploadAvatar>
                 <div class="user-info">
-                    <h5 style="color:black; font-size: medium; text-align: left;">用户名: {{ userInfo.username }}</h5>
-                    <h5 style="color:black; font-size: medium; text-align: left;">学号: {{ userInfo.student_id }}</h5>
+                    <h4>姓名: {{ userInfo.username }}</h4>
+                    <h4>学号: {{ userInfo.student_id }}</h4>
+                    <h4>班级: {{ userInfo.student_id }}</h4>
                 </div>
             </div>
             
@@ -18,12 +19,12 @@
 
         </div>
         <div class="two item">
-            <div class="classblock" style="height: 120px;float: left;">
-                <img src="../assets/image/class.png" style="height: 120px;width: 120px; margin-left:11px">
+            <div class="classblock" style="height: 80%">
+                <img src="../assets/image/class.png" style="height: 100%;width: auto; margin-left:11px">
                 <span class="right-class">今天共有<h6 style="font-size:25px"> {{ curcourseList.length }}</h6>节课</span>
             </div>
-            <div class="eventblock" style="height: 120px;float: left;">
-                <img src="../assets/image/event.png" style="height: 120px;width: 120px; margin-left:11px">
+            <div class="eventblock" style="height: 80%">
+                <img src="../assets/image/event.png" style="height: 100%;width: auto; margin-left:11px">
                 <span class="right-event">今天共有<h6 style="font-size:25px">{{ eventNumber_remaining }}</h6>个活动</span>
             </div>
         </div>
@@ -167,10 +168,18 @@ export default {
 .user-info {
     width: 40%;
     float: right;
-    padding-top: 20px;
+
+    padding-top: 10px;
+}
+h4 {
+    color:black; 
+    font-size: medium; 
+    text-align: left;
+    display: inline-block;
+    height: 33.3%;
 }
 .yiyan {
-    font-size: 18px;
+    font-size: 15px;
     color: #2177b8;
     width: 100%;
 }
@@ -201,7 +210,7 @@ export default {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-gap: 20px;
-    grid-auto-rows: minmax(50px, 110px);
+    grid-auto-rows: 20vh;
 }
 
 .one {
@@ -215,6 +224,9 @@ export default {
     grid-column: 2 / 4;
     grid-row: 1 / 2;
     background: #f8f9fa;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .three {
@@ -261,7 +273,7 @@ h1 {
     color: black;
     font-size: 16px;
     float: right;
-    margin-top: 40px;
+    margin-top: 10px;
     margin-right: 40px;
     margin-left: 20px;
 }
@@ -273,5 +285,4 @@ h1 {
 .classblock,
 .eventblock {
     background-color: #e9ecef;
-    margin: 10px 47px;
 }</style>

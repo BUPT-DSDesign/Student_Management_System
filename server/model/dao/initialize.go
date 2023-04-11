@@ -3,6 +3,7 @@ package dao
 import (
 	"bufio"
 	"fmt"
+	"os/exec"
 )
 
 // 届时需要打开的数据库后端可执行文件相对路径
