@@ -36,7 +36,6 @@ private:
     BPNodeHead head_;//节点头
     vector<streampos> child_;//孩子的位置
     vector<byte> data_;//数据
-    vector<TableColAttribute> col_info_;//表的信息
     streampos node_pos;//当前节点的位置
     friend class BPTree;
 public:
@@ -67,8 +66,9 @@ private:
     streampos root_pos_;//根节点位置
     streampos cur_;//当前读取的位置
     uint16 size_of_item;//每一个元素的大小
-    //反序列化数据为json
     BPNode bufnode_;//当前读取的叶子节点
+    vector<TableColAttribute> col_info_;//表的信息
+    //反序列化数据为json
     string deserialize(vector<byte> &data);
     //找到叶子节点,并将数据载入节点
     void searchLeaf(const uint64 &key);

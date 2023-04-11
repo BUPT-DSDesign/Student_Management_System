@@ -6,6 +6,7 @@
 #include <string_view>
 #include <memory>
 #include <vector>
+#include <sstream>
 using namespace std;
 BPNode::BPNode(){
     //初始化vector大小
@@ -138,11 +139,15 @@ auto BPNode::dataBegin(){
     return data_.begin();
 }
 auto BPNode::dataEnd(){
-    return data_.begin()+head_.busy_*head_.data_size_;
+    //得判断是不是叶子节点,叶子节点需要另外一套操作
+    uint16 key_shift = (head_.is_leaf_)?sizeof(uint64):0;
+    return data_.begin()+head_.busy_*(head_.data_size_+key_shift);
 }
 auto BPNode::dataLoc(int id){
-    if(id < data_.size() && id >= 0){
-        return data_.begin()+id*head_.data_size_;
+    //得判断是不是叶子节点,叶子节点需要另外一套操作
+    uint16 key_shift = (head_.is_leaf_)?sizeof(uint64):0;
+    if(id*(head_.data_size_+key_shift) <= data_.size() && id >= 0){
+        return data_.begin()+id*(head_.data_size_+key_shift);
     }
     return dataEnd();
 }
@@ -157,6 +162,10 @@ auto BPNode::childLoc(int id){
         return child_.begin()+id;
     }
     return childEnd();
+}
+uint64 BPNode::getKey(int id){
+    uint64 key;
+    //获取键值,键值存在位置不同,如果是叶子则为实际存储数据前的4个字节,如果是非叶节点则就是data
 }
 BPTree::BPTree(string tbname)
 {
@@ -176,7 +185,7 @@ BPTree::BPTree(string tbname)
     TableColAttribute buf_atr;
     for(int i=0;i<col_num;i++){
         fp.read((char*)&buf_atr,sizeof(buf_atr));
-        bufnode_.col_info_.push_back(buf_atr);
+        col_info_.push_back(buf_atr);
     }
     //记录B+树根节点位置
     root_pos_ = fp.tellg();
@@ -193,7 +202,7 @@ BPTree::BPTree(string tbname,vector<TableColAttribute> &col_info)
     //写入每一列的属性
     for(auto &t:col_info){
         fp.write((char*)&t,sizeof(t));
-        bufnode_.col_info_.push_back(t);
+        col_info_.push_back(t);
     }
     //记录B+树根节点位置
     root_pos_ = fp.tellg();
@@ -203,7 +212,7 @@ BPTree::~BPTree(){
     
 }
 void BPTree::PrintAttr(){
-    for(auto &t:bufnode_.col_info_){
+    for(auto &t:col_info_){
         cout<<t.col_name_<<","
             <<(int)t.data_type_<<","
             <<t.is_not_null<<","
@@ -306,10 +315,8 @@ void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &a
         if(place_right){
             ++pos;
         }
-        //TODO 源代码这里有个Prevent,不知道啥意思
-        /*
+        //源代码这里有个Prevent,不知道啥意思
         if(place_right&& key < inner_node.getKey(pos))pos--;
-        */
         //开始分裂吧
         //先分裂数据
         std::copy(inner_node.dataLoc(pos+1),inner_node.dataEnd(),new_node.dataBegin());
@@ -317,9 +324,20 @@ void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &a
         //std::copy();
         new_node.head_.busy_ = inner_node.head_.busy_ - pos - 1;
         inner_node.head_.busy_ = pos + 1;
-        //TODO 然后选一个位置放下吧
+        //然后选一个位置放下吧
+        if(place_right){
+            insertNoSplit(new_node,key,{});
+        }else{
+            insertNoSplit(inner_node,key,{});
+        }
+        //保存修改过的两个区块
+        new_node.WriteChunk();
+        inner_node.WriteChunk();
+        resetIndexChildrenParent(new_node);
     }else{
-
+        //不需要拓,直接插入
+        insertNoSplit(inner_node,key,{});
+        inner_node.WriteChunk();
     }
 }
 
@@ -386,4 +404,86 @@ void BPTree::resetIndexChildrenParent(BPNode &node){
         tmpNode.head_.father_ = node.head_.chunk_pos_;
         tmpNode.WriteChunk();
     }
+}
+string BPTree::deserialize(vector<byte> &data){
+    //TODO 解析字节流数据为JSON并输出
+    //每次只能解析一个行数据
+    if(data.size()!=bufnode_.head_.data_size_){
+        //TODO 传入的不是bufnode的数据,报错
+        return "{}";
+    }
+   stringstream json;
+    //一条JSON信息举例
+    /*
+   {
+     "ColName1":Val1,
+     "ColName2":Val2,
+    }
+    */
+    
+    auto nowProcess = col_info_.begin();
+    for(auto it=data.begin();it!=data.end()&&nowProcess!=col_info_.end();){
+        if(nowProcess==col_info_.begin()){
+            //如果是开头,需要加上一个花括号
+            json<<"{";
+        }
+        //先加上名字
+        json << "\"" << nowProcess->col_name_ <<"\":";
+        //cout<<json.str()<<endl;
+        //cout<<json<<endl;
+        //先判断现在读取的是哪一列
+        switch(nowProcess->data_type_){
+            //1.数值类型:整型(符号型)
+            case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+                int64 val_int64;
+                std::copy(it,it+nowProcess->length_,reinterpret_cast<std::byte*>(&val_int64));
+                it += nowProcess->length_;
+                json << val_int64;
+                break;
+            //2.数值类型:浮点型(单精度)
+            case T_FLOAT:
+                float val_float;
+                std::copy(it,it+nowProcess->length_,reinterpret_cast<std::byte*>(&val_float));
+                it += nowProcess->length_;
+                json << val_float;
+                break;
+            //3.数值类型:浮点型(双精度)
+            case T_DOUBLE:
+                double val_double;
+                std::copy(it,it+nowProcess->length_,reinterpret_cast<std::byte*>(&val_double));
+                it += nowProcess->length_;
+                json <<val_double;
+                break;
+            //4.数值类型:无符号类型(日期和时间类型)
+            case T_DATE:case T_TIME:case T_YEAR:case T_TIMESTAMP:
+                uint64 val_uint64;
+                std::copy(it,it+nowProcess->length_,reinterpret_cast<std::byte*>(&val_uint64));
+                it += nowProcess->length_;
+                json << val_uint64;
+                break;
+            //5.字符类型
+            default:
+                char buffer[PAGE_SIZE]={0};//输出缓冲
+                std::copy(it,it+nowProcess->length_,reinterpret_cast<std::byte*>(buffer));
+                it += nowProcess->length_;
+                buffer[nowProcess->length_] = 0;//截断
+                string varchar;
+                varchar.assign(buffer);
+                json << varchar;
+                break;
+        }
+        nowProcess++;
+        if(nowProcess==col_info_.end()){
+            //到结尾了,需要加上},
+            json<<"}";
+            break;
+        }else{
+            json<<",";
+        }
+    }
+    if(nowProcess!=col_info_.end()){
+        //TODO 数据错误
+        return "{}";
+    }
+    return json.str();
 }
