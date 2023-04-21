@@ -130,7 +130,7 @@ void BPNode::insertDataAtPos(int id,const uint64 &key,const vector<byte>& data){
     uint16 pos = getElemLocInData(id);
     //随后开始写入
     //前四个字节为key
-    std::copy(&key,&key+sizeof(key),dataLoc(pos));
+    std::copy(reinterpret_cast<const std::byte*>(&key),reinterpret_cast<const std::byte*>(&key)+sizeof(key),dataLoc(pos));
     pos += sizeof(key);
     //随后开始把要改写的数据拷贝进入data
     std::copy(data.begin(),data.end(),dataLoc(pos));
@@ -289,7 +289,7 @@ void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &a
         //节点只有一个,即键值
         root.head_.busy_ = 1;
         //将值写入
-        std::copy(&key,&key+sizeof(key),root.data_.begin());
+        std::copy(reinterpret_cast<const std::byte*>(&key),reinterpret_cast<const std::byte*>(&key)+sizeof(key),root.data_.begin());
         //然后old为第一个孩子,after为第二个孩子(正好一前一后)
         root.child_[0] = old;
         root.child_[1] = after;
