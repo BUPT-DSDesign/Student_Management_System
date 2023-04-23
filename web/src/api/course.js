@@ -7,3 +7,12 @@ export const CourseTable = () => {
         method: 'get'
     })
 }
+
+// 添加课程
+export const AddCourse = (data) => {
+    return service({
+        url: '/course/add',
+        method: 'post',
+        data: data
+    })
+}

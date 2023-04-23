@@ -14,6 +14,17 @@ type RegisterRequest struct {
 
 // AddCourseRequest 添加课程请求
 type AddCourseRequest struct {
+	CourseName     string `json:"course_name" form:"course_name"`
+	Teacher        string `json:"teacher" form:"teacher"`
+	Contact        string `json:"contact" form:"contact"`
+	SectionList    []int  `json:"section_list" form:"section_list"`
+	WeekSchedule   []int  `json:"week_schedule" form:"week_schedule"`
+	Classroom      string `json:"classroom" form:"classroom"`
+	IsCourseOnline bool   `json:"is_course_online" form:"is_course_online"`
+	ExamTime       string `json:"exam_time" form:"exam_time"`
+	ExamLocation   string `json:"exam_location" form:"exam_location"`
+	ExamOption     int    `json:"exam_option" form:"exam_option"` // 考核方式
+	IsCompulsory   bool   `json:"is_compulsory" form:"is_compulsory"`
 }
 
 // NavigateRequest 导航请求

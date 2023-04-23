@@ -14,4 +14,5 @@ type CourseInfo struct {
 	ExamLocation       string `json:"exam_location"`
 	ExamLocationNode   []int  `json:"exam_location_node"`
 	ExamOption         int    `json:"exam_option"`
+	IsCompulsory       bool   `json:"is_compulsory"` // 课程是否必修
 }
