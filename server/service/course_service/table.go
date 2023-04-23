@@ -1,6 +1,7 @@
 package course_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 )
 
@@ -58,7 +59,7 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamLocationNode:   nil,
 			ExamOption:         0,
 		},
-		
+
 		{
 			CourseName:         "计算机组成原理",
 			CourseId:           2312313,
@@ -94,8 +95,8 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312315,
 			Teacher:            "程莉",
 			Contact:            "18611555836",
-			SectionList:        []int{19,20},
-			WeekSchedule:       []int{1,2, 3, 5, 6, 7,8},
+			SectionList:        []int{19, 20},
+			WeekSchedule:       []int{1, 2, 3, 5, 6, 7, 8},
 			Classroom:          "教二-311",
 			CourseLocationNode: nil,
 			IsCourseOnline:     false,
@@ -103,7 +104,7 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamLocation:       "",
 			ExamLocationNode:   nil,
 			ExamOption:         0,
-		},{
+		}, {
 			CourseName:         "数据结构课设",
 			CourseId:           2312316,
 			Teacher:            "张海旸",
@@ -119,6 +120,8 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamOption:         0,
 		},
 	}
+
+	_ = dao.Group.CourseDao.AddCourse((**courses)[0])
 
 	return nil
 }

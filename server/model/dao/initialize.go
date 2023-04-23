@@ -9,8 +9,12 @@ import (
 // 届时需要打开的数据库后端可执行文件相对路径
 const filename string = "./test"
 
-var stdinWriter *bufio.Writer
-var stdoutReader *bufio.Reader
+type DB struct {
+	stdinWriter  *bufio.Writer
+	stdoutReader *bufio.Reader
+}
+
+var db DB
 
 func init() {
 	go func() {
@@ -32,17 +36,22 @@ func init() {
 				panic(err)
 			}
 		}(cmd)
-		stdinWriter = bufio.NewWriter(stdin)
-		stdoutReader = bufio.NewReader(stdout)
+		db.stdinWriter = bufio.NewWriter(stdin)
+		db.stdoutReader = bufio.NewReader(stdout)
 	}()
 }
 
+// ExecSql 执行sql语句
+func (db *DB) ExecSql(sqlStr string) error {
+	return nil
+}
+
 func WriteLine(data string) error {
-	_, err := fmt.Fprintln(stdinWriter, data)
+	_, err := fmt.Fprintln(db.stdinWriter, data)
 	return err
 }
 
 func ReadLine() ([]byte, error) {
-	line, _, err := stdoutReader.ReadLine()
+	line, _, err := db.stdoutReader.ReadLine()
 	return line, err
 }

@@ -1,11 +1,29 @@
 package dao
 
-import "server/model/entity/system"
+import (
+	"fmt"
+	"server/model/entity/system"
+	"server/utils"
+)
 
 func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
-	/*
-		添加课程
-	*/
+	sqlStr := fmt.Sprintf("INSERT INTO course_info VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
+		courseInfo.CourseName,
+		courseInfo.CourseId,
+		courseInfo.Teacher,
+		courseInfo.Contact,
+		courseInfo.Classroom,
+		utils.BoolToInt8(courseInfo.IsCourseOnline),
+		courseInfo.ExamTime,
+		courseInfo.ExamLocation,
+		courseInfo.ExamOption,
+		utils.BoolToInt8(courseInfo.IsCompulsory),
+	)
+
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
 	return nil
 }
 

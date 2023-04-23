@@ -61,6 +61,8 @@ void Interpreter::ExecuteSQL(const string& statement)
 {
     //将statement传递给成员变量
     sql_statement_ = statement;
+    //将SQL语句转换为小写
+    //transform(sql_statement_.begin(), sql_statement_.end(), sql_statement_.begin(), (int (*)(int))tolower);
     try
     {
         //随后开始生成SQL_vector
