@@ -21,7 +21,7 @@
             </el-submenu>
             <el-menu-item index="3" @click="clickCourseNav">
                 <i class="el-icon-location"></i>
-                <span slot="title">课程导航</span>
+                <span slot="title">导航</span>
             </el-menu-item>
             <el-menu-item index="4" @click="clickLogMessage">
                 <i class="el-icon-news"></i>

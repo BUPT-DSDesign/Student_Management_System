@@ -38,31 +38,31 @@
             <!-- 添加活动按钮和弹窗 -->
             <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
                 @click="dialogAddVisible = true">添加活动</el-button>
-            <el-dialog title="添加活动" :visible.sync="dialogAddVisible">
-                <el-form :model="form">
-                    <el-form-item label="活动名称" :label-width="formLabelWidth">
+            <el-dialog title="添加活动" :visible.sync="dialogAddVisible" width="500px">
+                <el-form :model="form" label-width="150px">
+                    <el-form-item label="活动名称" >
                         <el-input v-model="form.event" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="活动地点" :label-width="formLabelWidth">
+                    <el-form-item label="活动地点" >
                         <el-input v-model="form.address" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="开始周次" :label-width="formLabelWidth">
+                    <el-form-item label="开始周次" >
                         <el-input v-model="form.start_week" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="结束周次" :label-width="formLabelWidth">
+                    <el-form-item label="结束周次" >
                         <el-input v-model="form.endweek" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="活动时间" :label-width="formLabelWidth">
+                    <el-form-item label="活动时间" >
                         <el-input v-model="form.start_time" autocomplete="off"></el-input>
                     </el-form-item>
-                    <el-form-item label="活动类型" :label-width="formLabelWidth" >
+                    <el-form-item label="活动类型"  >
                         <el-radio v-model="radio" label="1">个人活动</el-radio>
                         <el-radio v-model="radio" label="2">集体活动</el-radio>
                     </el-form-item>
                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="dialogAddVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="dialogAddVisible = false">确 定</el-button>
+                    <el-button type="primary" @click="dialogAddVisible = false">添加</el-button>
                 </div>
             </el-dialog>
             <!-- 闹钟提醒 -->
@@ -94,7 +94,6 @@ export default {
             },
             radio: '',
             search: '', //用于搜索过滤的对象
-            formLabelWidth: '120px',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
             eventList: [],
         }
