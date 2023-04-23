@@ -15,13 +15,13 @@ export const useCourseStore = defineStore('course', () => {
             return false
         } catch (err) {
             return false
-        }   
+        }
     }
 
     const AddCourseInfo = async (data) => {
         try {
             const res = await AddCourse(data)
-            
+            console.log(res.data)
             if (res.data.status_code == 0) {
                 return true
             }

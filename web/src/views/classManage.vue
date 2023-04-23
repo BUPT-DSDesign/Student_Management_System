@@ -72,19 +72,29 @@
             </el-form>
         </el-dialog>
         <!-- 添加课程 -->
-        <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="500px">
-            <el-form :model="addClassData" label-width="150px" style="backgroundColor:#fff">
+        <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="600px">
+            <el-form :model="addClassData" label-width="170px" style="backgroundColor:#fff">
                 <el-form-item label="课程名称">
                     <el-input v-model="addClassData.course_name"></el-input>
+                </el-form-item>
+                <el-form-item label="上课地点">
+                    <el-input v-model="addClassData.section_list"></el-input>
                 </el-form-item>
                 <el-form-item label="授课老师">
                     <el-input v-model="addClassData.teacher"></el-input>
                 </el-form-item>
+                <el-form-item label="联系方式">
+                    <el-input v-model="addClassData.contact"></el-input>
+                </el-form-item>
                 <el-form-item label="上课节次">
-                    <el-input v-model="addClassData.section_list"></el-input>
+                    <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }"
+                        filterable @change="section_list_change"></el-cascader>
                 </el-form-item>
                 <el-form-item label="上课周次">
-                    <el-input v-model="addClassData.week_schedule"></el-input>
+                    <el-select v-model="addClassData.week_list" placeholder="请选择" multiple>
+                        <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="考试时间">
                     <el-input v-model="addClassData.exam_time"></el-input>
@@ -92,10 +102,30 @@
                 <el-form-item label="考试地点">
                     <el-input v-model="addClassData.exam_location"></el-input>
                 </el-form-item>
+                <el-form-item label="考核方式">
+                    <el-radio-group v-model="addClassData.exam_option">
+                        <el-radio :label="0">论文考察</el-radio>
+                        <el-radio :label="1">线下考试</el-radio>
+                        <el-radio :label="2">线上考试</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+
+                <el-form-item label="是否为线上课程">
+                    <el-radio-group v-model="addClassData.is_course_online">
+                        <el-radio :label="1">是</el-radio>
+                        <el-radio :label="0">否</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="是否为必修课程">
+                    <el-radio-group v-model="addClassData.is_compulsory">
+                        <el-radio :label="1">是</el-radio>
+                        <el-radio :label="0">否</el-radio>
+                    </el-radio-group>
+                </el-form-item>
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible4 = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible4 = false">添 加</el-button>
+                <el-button type="primary" @click="submitAddForm">添 加</el-button>
             </div>
         </el-dialog>
 
@@ -127,6 +157,35 @@ const endTimeMap = {
     8: "17:00",
     9: "18:00",
 }
+const sectionMap = [{
+    value: 1,
+    label: '第一节'
+}, {
+    value: 2,
+    label: '第二节'
+}, {
+    value: 3,
+    label: '第三节'
+}, {
+    value: 4,
+    label: '第四节'
+}, {
+    value: 5,
+    label: '第五节'
+}, {
+    value: 6,
+    label: '第六节'
+}, {
+    value: 7,
+    label: '第七节'
+}, {
+    value: 8,
+    label: '第八节'
+}, {
+    value: 9,
+    label: '第九节'
+},
+];
 export default {
     created() {
         const getTable = async () => {
@@ -139,13 +198,11 @@ export default {
                     let end = 0;
                     for (let j = 0; j < this.classData[i].section_list.length - 1; j++) {
                         console.log(this.classData[i].section_list[j]);
-                        console.log(this.classData[i].section_list[j+1])
-                        if (this.classData[i].section_list[j]+1 == this.classData[i].section_list[j + 1]) {
-                            console.log("连续的")
+                        console.log(this.classData[i].section_list[j + 1])
+                        if (this.classData[i].section_list[j] + 1 == this.classData[i].section_list[j + 1]) {
                             end++;
                         }
                         else {
-                            console.log("不连续")
                             let startTime = startTimeMap[this.classData[i].section_list[start] % 9];
                             let endTime = endTimeMap[this.classData[i].section_list[end] % 9];
                             if (this.classData[i].hasOwnProperty('classTime')) {
@@ -195,6 +252,92 @@ export default {
             dialogVisible3: false, //发布考试弹窗的可见性
             dialogVisible4: false,//添加课程弹窗的可见性
             search: '', //用于搜索过滤的对象
+            radio3: 1,
+            week_num: [],
+            week_options: [{
+                value: 1,
+                label: '第一周'
+            }, {
+                value: 2,
+                label: '第二周'
+            }, {
+                value: 3,
+                label: '第三周'
+            }, {
+                value: 4,
+                label: '第四周'
+            }, {
+                value: 5,
+                label: '第五周'
+            }, {
+                value: 6,
+                label: '第六周'
+            }, {
+                value: 7,
+                label: '第七周'
+            }, {
+                value: 8,
+                label: '第八周'
+            }, {
+                value: 9,
+                label: '第九周'
+            }, {
+                value: 10,
+                label: '第十周'
+            }, {
+                value: 11,
+                label: '第十一周'
+            }, {
+                value: 12,
+                label: '第十二周'
+            }, {
+                value: 13,
+                label: '第十三周'
+            }, {
+                value: 14,
+                label: '第十四周'
+            }, {
+                value: 15,
+                label: '第十五周'
+            }
+            ],
+            options: [
+                {
+                    value: 1,
+                    label: '周一',
+                    children: sectionMap,
+                },
+                {
+                    value: 2,
+                    label: '周二',
+                    children: sectionMap,
+                },
+                {
+                    value: 3,
+                    label: '周三',
+                    children: sectionMap,
+                },
+                {
+                    value: 4,
+                    label: '周四',
+                    children: sectionMap,
+                },
+                {
+                    value: 5,
+                    label: '周五',
+                    children: sectionMap,
+                },
+                {
+                    value: 6,
+                    label: '周六',
+                    children: sectionMap,
+                },
+                {
+                    value: 7,
+                    label: '周天',
+                    children: sectionMap,
+                },
+            ]
         }
     },
     methods: {
@@ -241,10 +384,57 @@ export default {
             //点击弹窗打开
             this.dialogVisible3 = true;
         },
+        submitAddForm() {
+            this.dialogVisible4 = false;
+            console.log(this.addClassData);
+            let week_list = [];
+            this.addClassData.week_list.forEach(function (item) {
+                week_list.push(item);
+            })
+            week_list.sort();
+            this.addClassData.week_list = week_list;
+
+            let section_list = [];
+            this.addClassData.section_list.forEach(function (item) {
+                section_list.push((item[0] - 1) * 9 + item[1]);
+            })
+            section_list.sort();
+            console.log(section_list)
+
+            this.addClassData.section_list = section_list;
+
+            this.addClassData.is_course_online = 1 ? true : false;
+            this.addClassData.is_compulsory = 1 ? true : false;
+
+
+            const addCourse = async (data) => {
+                const fg = await CourseStore.AddCourseInfo(data);
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '添加课程成功',
+                        type: 'success'
+                    });
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '添加课程失败',
+                        type: 'error'
+                    });
+                }
+            }
+
+            addCourse(this.addClassData)
+
+            location.reload();
+        },
         addclass() {
-            //点击弹窗打开
             this.dialogVisible4 = true;
+
         }
     },
 }
 </script>
+<style></style>
