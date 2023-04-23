@@ -208,3 +208,56 @@ void SQLCreateIndex::PraseSQLVector(vector<string> &sql_vector){
     pos++;
     col_name_ = sql_vector[pos];
 }
+/*******************SQLCreateIndex**********************************/
+
+
+/*******************SQLInsert**********************************/
+SQLInsert::SQLInsert(vector<string> &sql_vector){
+    PraseSQLVector(sql_vector);
+}
+void SQLInsert::PraseSQLVector(vector<string> &sql_vector){
+
+}
+
+/*******************SQLInsertValue**********************************/
+SQLInsertValue::SQLInsertValue(vector<string> &sql_vector){
+
+}
+void SQLInsertValue::PraseSQLVector(vector<string> &sql_vector){
+    
+}
+
+/*******************SQLWhere**********************************/
+SQLWhere::SQLWhere(vector<string> &sql_vector){
+    PraseSQLVector(sql_vector);
+}
+void SQLWhere::PraseSQLVector(vector<string> &sql_vector){
+
+}
+
+/*******************SQLDelete**********************************/
+SQLDelete::SQLDelete(vector<string> &sql_vector){
+    PraseSQLVector(sql_vector);
+}
+void SQLDelete::PraseSQLVector(vector<string> &sql_vector){
+
+
+}
+
+/*******************SQLUpdate**********************************/
+SQLUpdate::SQLUpdate(vector<string> &sql_vector){
+
+
+}
+void SQLUpdate::PraseSQLVector(vector<string> &sql_vector){
+
+
+}
+
+/*******************SQLSelect**********************************/
+SQLSelect::SQLSelect(vector<string> &sql_vector){
+
+}
+void SQLSelect::PraseSQLVector(vector<string> &sql_vector){
+
+}

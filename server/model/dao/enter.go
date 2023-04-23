@@ -13,6 +13,8 @@ type UserDao interface {
 
 // CourseDao 课程数据库操作对象
 type CourseDao interface {
+	AddCourse(courseInfo *system.CourseInfo) error
+	DeleteCourse(courseId int64) error
 }
 
 // ActivityDao 活动数据库操作对象
