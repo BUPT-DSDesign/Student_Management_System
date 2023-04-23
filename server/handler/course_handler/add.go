@@ -34,6 +34,7 @@ func AddHandler(c *gin.Context) {
 
 	// 得到addCourseRequest
 	var addCourseRequest common.AddCourseRequest
+
 	_ = c.ShouldBindJSON(&addCourseRequest)
 
 	// 调用service服务
