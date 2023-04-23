@@ -140,7 +140,11 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             attr.is_not_null = false;
             // 第一个元素是列名称
             transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
-            attr.col_name_ = sql_vector[pos];
+            if(sql_vector[pos].length()<24){
+                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(),attr.col_name_);
+            }else{
+                std::copy(sql_vector[pos].begin(), sql_vector[pos].begin()+24,attr.col_name_);
+            }
             pos++;
             // 第二个元素是列数据类型
             transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
