@@ -49,7 +49,7 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312312,
 			Teacher:            "程莉",
 			Contact:            "18611555833",
-			SectionList:        []int{1, 2, 3},
+			SectionList:        []int{1, 2, 3,25,26},
 			WeekSchedule:       []int{1, 3, 5, 6, 7},
 			Classroom:          "教三-304",
 			CourseLocationNode: nil,
@@ -65,7 +65,11 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312313,
 			Teacher:            "张斌",
 			Contact:            "18611555834",
+<<<<<<< HEAD
 			SectionList:        []int{15, 16},
+=======
+			SectionList:        []int{15,16,30,31},
+>>>>>>> 95179cfbb33727db3d92816879d0e5d7f1340d9b
 			WeekSchedule:       []int{1, 2, 4, 6, 11},
 			Classroom:          "教一-305",
 			CourseLocationNode: nil,
@@ -80,7 +84,11 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312314,
 			Teacher:            "张斌",
 			Contact:            "18611555835",
+<<<<<<< HEAD
 			SectionList:        []int{11, 12},
+=======
+			SectionList:        []int{4,5,11,12},
+>>>>>>> 95179cfbb33727db3d92816879d0e5d7f1340d9b
 			WeekSchedule:       []int{1, 2, 4, 5, 7},
 			Classroom:          "教三-305",
 			CourseLocationNode: nil,
@@ -109,8 +117,13 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312316,
 			Teacher:            "张海旸",
 			Contact:            "18611555837",
+<<<<<<< HEAD
 			SectionList:        []int{6, 7, 8, 9},
 			WeekSchedule:       []int{1, 2, 3, 5, 6, 7, 8},
+=======
+			SectionList:        []int{6,7,8},
+			WeekSchedule:       []int{1,2, 3, 5, 6, 7,8},
+>>>>>>> 95179cfbb33727db3d92816879d0e5d7f1340d9b
 			Classroom:          "教二-335",
 			CourseLocationNode: nil,
 			IsCourseOnline:     false,
