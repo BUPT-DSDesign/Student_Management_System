@@ -7,14 +7,7 @@
 #include "table.hpp"
 #define PAGE_SIZE 16*1024 //参考INNODB
 using namespace std;
-struct TableColAttribute
-{
-    uint8 data_type_;//数据类型
-    bool is_primary_;//是否为主键
-    bool is_not_null;//是否必须存在
-    uint16 length_;//该数据类型长度(比特)
-    char col_name_[24];//列名     
-};
+
 struct BPNodeHead{
     bool is_leaf_;//判断是不是叶子结点
     bool is_dirty_;//判断是否为脏页(即该页数据是否已经被删除)
