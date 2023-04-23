@@ -87,8 +87,8 @@
                     <el-input v-model="addClassData.contact"></el-input>
                 </el-form-item>
                 <el-form-item label="上课节次">
-                    <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }" filterable
-                        @change="section_list_change"></el-cascader>
+                    <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }"
+                        filterable @change="section_list_change"></el-cascader>
                 </el-form-item>
                 <el-form-item label="上课周次">
                     <el-select v-model="addClassData.week_list" placeholder="请选择" multiple>
@@ -304,7 +304,7 @@ export default {
             options: [
                 {
                     value: 1,
-                    label:'周一',
+                    label: '周一',
                     children: sectionMap,
                 },
                 {
@@ -312,7 +312,7 @@ export default {
                     label: '周二',
                     children: sectionMap,
                 },
-               {
+                {
                     value: 3,
                     label: '周三',
                     children: sectionMap,
@@ -403,8 +403,31 @@ export default {
 
             this.addClassData.section_list = section_list;
 
-            this.addClassData.is_course_online = 1 ? ture : false;
-            this.addClassData.is_compulsory = 1 ? ture : false;
+            this.addClassData.is_course_online = 1 ? true : false;
+            this.addClassData.is_compulsory = 1 ? true : false;
+
+
+            const addCourse = async (data) => {
+                const fg = await CourseStore.AddCourseInfo(data);
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '添加课程成功',
+                        type: 'success'
+                    });
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '添加课程失败',
+                        type: 'error'
+                    });
+                }
+            }
+
+            addCourse(this.addClassData)
+
             location.reload();
         },
         addclass() {
