@@ -1,6 +1,7 @@
 package course_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 )
 
@@ -58,13 +59,13 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamLocationNode:   nil,
 			ExamOption:         0,
 		},
-		
+
 		{
 			CourseName:         "计算机组成原理",
 			CourseId:           2312313,
 			Teacher:            "张斌",
 			Contact:            "18611555834",
-			SectionList:        []int{15,16},
+			SectionList:        []int{15, 16},
 			WeekSchedule:       []int{1, 2, 4, 6, 11},
 			Classroom:          "教一-305",
 			CourseLocationNode: nil,
@@ -79,7 +80,7 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312314,
 			Teacher:            "张斌",
 			Contact:            "18611555835",
-			SectionList:        []int{11,12},
+			SectionList:        []int{11, 12},
 			WeekSchedule:       []int{1, 2, 4, 5, 7},
 			Classroom:          "教三-305",
 			CourseLocationNode: nil,
@@ -94,8 +95,8 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			CourseId:           2312315,
 			Teacher:            "程莉",
 			Contact:            "18611555836",
-			SectionList:        []int{19,20},
-			WeekSchedule:       []int{1,2, 3, 5, 6, 7,8},
+			SectionList:        []int{19, 20},
+			WeekSchedule:       []int{1, 2, 3, 5, 6, 7, 8},
 			Classroom:          "教二-311",
 			CourseLocationNode: nil,
 			IsCourseOnline:     false,
@@ -103,13 +104,13 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamLocation:       "",
 			ExamLocationNode:   nil,
 			ExamOption:         0,
-		},{
+		}, {
 			CourseName:         "数据结构课设",
 			CourseId:           2312316,
 			Teacher:            "张海旸",
 			Contact:            "18611555837",
-			SectionList:        []int{6,7,8,9},
-			WeekSchedule:       []int{1,2, 3, 5, 6, 7,8},
+			SectionList:        []int{6, 7, 8, 9},
+			WeekSchedule:       []int{1, 2, 3, 5, 6, 7, 8},
 			Classroom:          "教二-335",
 			CourseLocationNode: nil,
 			IsCourseOnline:     false,
@@ -119,6 +120,8 @@ func (f *tableFlow) run(courses **[]*system.CourseInfo) error {
 			ExamOption:         0,
 		},
 	}
+
+	_ = dao.Group.CourseDao.AddCourse((**courses)[0])
 
 	return nil
 }
