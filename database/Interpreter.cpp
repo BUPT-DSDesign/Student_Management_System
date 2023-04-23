@@ -172,10 +172,10 @@ void Interpreter::PraseSQL(){
             api->CreateTable(*st);
             break;
         }
-        case SQL_DROP_DATABASE://删除表
+        case SQL_DROP_TABLE://删除表
         {
-            unique_ptr<SQLDropDatabase> st = make_unique<SQLDropDatabase>(SQLDropDatabase(sql_vector_));
-            api->DropDatabase(*st);
+            unique_ptr<SQLDropTable> st = make_unique<SQLDropTable>(SQLDropTable(sql_vector_));
+            api->DropTable(*st);
             break;
         }
         case SQL_DROP_INDEX://删除索引
