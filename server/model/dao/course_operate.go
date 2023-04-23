@@ -7,9 +7,6 @@ import (
 )
 
 func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
-	/*
-		添加课程
-	*/
 	sqlStr := fmt.Sprintf("INSERT INTO course_info VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
 		courseInfo.CourseName,
 		courseInfo.CourseId,

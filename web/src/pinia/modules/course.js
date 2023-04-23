@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { CourseTable } from '@/api/course'
+import { CourseTable, AddCourse } from '@/api/course'
 import { ref } from 'vue'
 
 export const useCourseStore = defineStore('course', () => {
@@ -18,8 +18,21 @@ export const useCourseStore = defineStore('course', () => {
         }   
     }
 
+    const AddCourseInfo = async (data) => {
+        try {
+            const res = await AddCourse(data)
+            
+            if (res.data.status_code == 0) {
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+
     return {
         courseList,
-        GetCourseTable
+        GetCourseTable,
+        AddCourseInfo
     }
 })
