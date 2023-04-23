@@ -7,3 +7,10 @@ export const CourseTable = () => {
         method: 'get'
     })
 }
+export const CourseAdd = () => {
+    return service({
+        url: '/course/add',
+        method: 'post',
+        data: data,
+    })
+}
