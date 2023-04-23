@@ -94,6 +94,7 @@ private:
 };
 
 //SQL插入的对象
+/*
 class SQLInsertValue: public SQLBase
 {
 public:
@@ -103,7 +104,7 @@ private:
     uint8 data_type_;//数据类型
     string val_;//值
 };
-
+*/
 //增加
 class SQLInsert: public SQLBase
 {
@@ -111,21 +112,20 @@ public:
     SQLInsert(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
 private:
-    string tb_name;//表名
-    vector<SQLInsertValue> values_;//待新增的数据
+    string tb_name_;//表名
+    vector<string> col_name_;//对应的列名
+    vector<string> values_;//需要新增的数据
+    //vector<SQLInsertValue> values_;//待新增的数据
 };
 
 //Where约束
-class SQLWhere: public SQLBase
+typedef struct
 {
-public:
-    SQLWhere(vector<string> &sql_vector);
-    void PraseSQLVector(vector<string> &sql_vector);
-private:
+    bool is_need_;//是需要该条件,还是不需要该条件
 	uint8 op_type_;//Where约束的运算符类型
 	string key_;//对应键值
 	string value_;//约束值
-};
+}SQLWhere;
 
 //删除操作
 class SQLDelete: public SQLBase
@@ -135,7 +135,8 @@ public:
     void PraseSQLVector(vector<string> &sql_vector);
 private:
     string tb_name_;//表名
-    vector<SQLWhere> values_;//待删除的数据限定信息
+    vector<SQLWhere> condition_;//查询条件
+    vector<uint8> relation_;//前后多个条件之间的关系
 };
 class SQLUpdate: public SQLBase
 {
@@ -152,7 +153,10 @@ public:
     SQLSelect(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
 private:
-
+    string tb_name_;//表名
+    vector<string> col_name_;//对应的列名
+    vector<SQLWhere> condition_;//查询条件
+    vector<uint8> relation_;//前后多个条件之间的关系
 };
 
 
