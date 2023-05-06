@@ -1,12 +1,28 @@
 package dao
 
-import "server/model/entity/system"
+import (
+	"fmt"
+	"server/model/entity/system"
+	"server/utils"
+)
 
 // AddUser 添加用户操作
 func (s *userDao) AddUser(userInfo *system.UserInfo) error {
-	/*
-		添加用户操作
-	*/
+	sqlStr := fmt.Sprintf("INSERT INTO user_info VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
+		userInfo.Username,
+		userInfo.Password,
+		userInfo.Salt,
+		userInfo.UserId,
+		userInfo.StudentId,
+		utils.BoolToInt8(userInfo.IsAdmin),
+		userInfo.AvatarUrl,
+		userInfo.Signature,
+	)
+
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
 	return nil
 }
 

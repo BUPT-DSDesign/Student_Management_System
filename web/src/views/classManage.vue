@@ -428,7 +428,7 @@ export default {
 
             addCourse(this.addClassData)
 
-            location.reload();
+            // location.reload();
         },
         addclass() {
             this.dialogVisible4 = true;
