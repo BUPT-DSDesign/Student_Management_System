@@ -96,7 +96,7 @@ public:
     //更新元素
     bool Update(const uint64 &key,vector<byte> &data);
     //序列化数据(json转换为字节流)
-    vector<byte> Serialize(string rawJson);
+    //vector<byte> Serialize(string rawJson);
     //打印设置信息
     void PrintAttr();
 };
