@@ -59,6 +59,7 @@ class SQLDropDatabase: public SQLBase
 public:
     SQLDropDatabase(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_db_name();
 private:
     string db_name_;//数据库名字
 };
@@ -69,6 +70,7 @@ class SQLDropIndex: public SQLBase
 public:
     SQLDropIndex(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_index_name();
 private:
     string index_name_;//索引名
 };
@@ -79,6 +81,7 @@ class SQLDropTable: public SQLBase
 public:
     SQLDropTable(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_tb_name();
 private:
     string tb_name_;//表名
 };
@@ -89,6 +92,7 @@ class SQLUse: public SQLBase
 public:
     SQLUse(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_db_name();
 private:
     string db_name_;//数据库名称
 };
@@ -111,6 +115,9 @@ class SQLInsert: public SQLBase
 public:
     SQLInsert(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_tb_name();
+    vector<string>& get_col_name();
+    vector<string>& get_values();
 private:
     string tb_name_;//表名
     vector<string> col_name_;//对应的列名
@@ -133,18 +140,31 @@ class SQLDelete: public SQLBase
 public:
     SQLDelete(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_tb_name();
+    vector<SQLWhere>& get_condition();
+    vector<uint8>& get_relation();
 private:
     string tb_name_;//表名
     vector<SQLWhere> condition_;//查询条件
     vector<uint8> relation_;//前后多个条件之间的关系
 };
+//SQL的更新操作
 class SQLUpdate: public SQLBase
 {
 public:
     SQLUpdate(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_tb_name();
+    vector<string>& get_col_name();
+    vector<string>& get_values();
+    vector<SQLWhere>& get_condition();
+    vector<uint8>& get_relation();
 private:
-    
+    string tb_name_;//表名
+    vector<string> col_name_;//对应的列名
+    vector<string> values_;//需要更新的数据
+    vector<SQLWhere> condition_;//查询条件
+    vector<uint8> relation_;//前后多个条件之间的关系
 };
 
 class SQLSelect: public SQLBase
@@ -152,6 +172,10 @@ class SQLSelect: public SQLBase
 public:
     SQLSelect(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
+    string get_tb_name();
+    vector<string>& get_col_name();
+    vector<SQLWhere>& get_condition();
+    vector<uint8>& get_relation();
 private:
     string tb_name_;//表名
     vector<string> col_name_;//对应的列名
