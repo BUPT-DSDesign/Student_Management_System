@@ -27,3 +27,5 @@
 /server/node_modules
 /database/.vscode
 /database/test.cpp
+/database/database
+/database/testsql
