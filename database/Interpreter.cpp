@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "Interpreter.hpp"
 #include "datatype.hpp"
+#include "myexception.hpp"
 using namespace std;
 
 Interpreter::Interpreter():sql_type_(SQL_ERROR)
@@ -102,7 +103,7 @@ vector<string> Interpreter::SplitSQL(const string &statement,const string &delim
 void Interpreter::GetSQLType(){
     //若sql_vector无数值,则返回消息
     if(sql_vector_.size()==0){
-        throw "Error:SQL generate failed\n";
+        throw SQLTypeError("SQL Generate Error");
         return;
     }
     //将命令关键字命令变为小写
@@ -122,7 +123,7 @@ void Interpreter::GetSQLType(){
     else{
         //后解析二元运算符
         if(sql_vector_.size()<2){
-            throw "Error:SQL format error\n";
+            throw SQLTypeError("SQL format error:SQL type not found");
         }
         transform(sql_vector_[1].begin(),sql_vector_[1].end(),sql_vector_[1].begin(),(int (*)(int))tolower);
         const string& op_second = sql_vector_[1];
@@ -135,7 +136,7 @@ void Interpreter::GetSQLType(){
             }else if(op_second == "database"){
                 sql_type_ = SQL_CREATE_DATABASE;
             }else{
-                throw "Error:SQL format error\n";
+                throw SQLTypeError("SQL format error:SQL type not found");
             }
         }else if(op_first == "drop"){
             if(op_second == "table"){
@@ -146,10 +147,19 @@ void Interpreter::GetSQLType(){
             }else if(op_second == "database"){
                 sql_type_ = SQL_DROP_DATABASE;
             }else{
-                throw "Error:SQL format error\n";
+                throw SQLTypeError("SQL format error:SQL type not found");
+            }
+        }else if(op_first == "show"){
+            if(op_second == "databases"){
+                sql_type_ = SQL_SHOW_DATABASES;
+            }
+            else if(op_second == "tables"){
+                sql_type_ = SQL_SHOW_TABLES;
+            }else{
+                throw SQLTypeError("SQL format error:SQL type not found");
             }
         }else{
-            throw "Error:SQL format error\n";
+            throw SQLTypeError("SQL format error:SQL type not found");
         }
     }
 }
@@ -159,6 +169,16 @@ void Interpreter::PraseSQL(){
         case SQL_QUIT://退出数据库
         {
             Quit();
+            break;
+        }
+        case SQL_SHOW_DATABASES://展示数据库
+        {
+            api->ShowDatabases();
+            break;
+        }
+        case SQL_SHOW_TABLES://展示表
+        {
+            api->ShowTables();
             break;
         }
         case SQL_CREATE_DATABASE://创建数据库
