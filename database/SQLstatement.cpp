@@ -1,4 +1,5 @@
 #include "SQLstatement.hpp"
+#include "myexception.hpp"
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -19,7 +20,8 @@ void SQLCreateDatabase::PraseSQLVector(vector<string> &sql_vector)
     // CREATE DATABASE name
     if (sql_vector.size() < 3)
     {
-        // TODO:处理错误
+        throw SQLSyntaxError("SQL CREATE DATABASE SYNTAX ERROR,TOO SHORT");
+        return;
     }
     else
     {
@@ -74,14 +76,14 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
     uint16 pos = 2;
     if (sql_vector.size() < 3)
     {
-        // TODO:Error
+        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,TOO SHORT");
         return;
     }
     tb_name_ = sql_vector[pos];
     pos++;
     if (sql_vector[pos] != "(")
     {
-        // TODO:Format Error
+        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO (");
         return;
     }
     pos++;
@@ -97,18 +99,21 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         {
             if (has_primary_key)
             {
-                // TODO:已经有主键了,报错
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,TOO MANY PRIMARY KEY");
+                return;
             }
             pos++;
             transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
             if (sql_vector[pos] != "key")
             {
-                // TODO:ERROR OCCUR
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO KEYWORD 'KEY'");
+                return;
             }
             pos++;
             if (sql_vector[pos] != "(")
             {
-                // TODO:ERROR OCCUR
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO (");
+                return;
             }
             pos++;
             for (auto &v : attrs_)
@@ -123,12 +128,14 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             if (!has_primary_key)
             {
-                // TODO:找不到主键报错
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO PRIMARY KEY");
+                return;
             }
             pos++;
             if (sql_vector[pos] != ")")
             {
-                // TODO:ERROR OCCUR
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,BRACKET NOT MATCH");
+                return;
             }
         }
         else
@@ -156,7 +163,8 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                // TODO: 错误处理
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO SUCH DATA TYPE");
+                return;
             }
             keyword = sql_vector[pos];
             pos++;
@@ -175,7 +183,8 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                     pos++;
                     if (sql_vector[pos] != ")")
                     {
-                        // TODO:报错
+                        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,BRACKET NOT MATCH");
+                        return;
                     }
                     pos++;
                 }
@@ -194,13 +203,15 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                     }
                     else
                     {
-                        // TODO:报错
+                        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NULL',BUT GET OTHER");
+                        return;
                     }
                     pos++;
                 }
                 else
                 {
-                    // TODO:报错
+                    throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NOT',BUT GET OTHER");
+                    return;
                 }
             }
             // 将这行新增
@@ -213,13 +224,16 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         }
         else if (sql_vector[pos] != ")")
         {
-            // TODO:报错
+            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,BRACKET NOT MATCH");
+            return;
         }
     }
     // 限制列元素长度
     if (attrs_.size() > 15)
     {
-        // TODO:过长报错
+        
+        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,TOO MANY COLUMNS");
+        return;
     }
 }
 
@@ -237,7 +251,7 @@ void SQLCreateIndex::PraseSQLVector(vector<string> &sql_vector)
     uint16 pos = 2;
     if (sql_vector.size() < 8)
     {
-        // TODO: ERROR
+        throw SQLSyntaxError("SQL CREATE INDEX SYNTAX ERROR,TOO SHORT");
         return;
     }
     index_name_ = sql_vector[pos];
@@ -246,7 +260,8 @@ void SQLCreateIndex::PraseSQLVector(vector<string> &sql_vector)
     // 检测ON
     if (sql_vector[pos] != "on")
     {
-        // TODO:Error
+        throw SQLSyntaxError("SQL CREATE INDEX SYNTAX ERROR,NO KEYWORD 'ON'");
+        return;
     }
     pos++;
     transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
@@ -254,7 +269,8 @@ void SQLCreateIndex::PraseSQLVector(vector<string> &sql_vector)
     pos++;
     if (sql_vector[pos] != "(" && sql_vector[pos + 2] != ")")
     {
-        // TODO:Throw error
+        throw SQLSyntaxError("SQL CREATE INDEX SYNTAX ERROR,BRACKET NOT MATCH");
+        return;
     }
     pos++;
     col_name_ = sql_vector[pos];
@@ -281,11 +297,21 @@ vector<string>& SQLInsert::get_values()
 
 void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
 {
+    //SQL Insert 的语法如下
+    //INSERT INTO table_name (列1, 列2,...) VALUES (值1, 值2,....)
+    //或者
+    //INSERT INTO table_name VALUES (值1, 值2,....)
+    //每个值用单引号或者双引号括起来
+    if (sql_vector.size() < 4)
+    {
+        throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,TOO SHORT");
+        return;
+    }
     auto it = sql_vector.begin() + 1;
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "into")
     {
-        // TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,NO KEYWORD 'INTO'");
         return;
     }
     it++;
@@ -317,7 +343,7 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
                 }
                 if (*it != "\'")
                 {
-                    // TODO FORMAT ERROR
+                    throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
                     return;
                 }
             }
@@ -336,13 +362,13 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
                 }
                 if (*it != "\"")
                 {
-                    // TODO FORMAT ERROR
+                    throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
                     return;
                 }
             }
             else
             {
-                // TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT QUOTATION MARK, BUT GET OTHER");
                 return;
             }
             if (*it == ",")
@@ -355,21 +381,22 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                // TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT ',' OR ')', BUT GET OTHER");
+                return;
             }
         }
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "values")
     {
-        // TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,NO KEYWORD 'VALUES'");
         return;
     }
     it++;
     // 接下来解析values中的值
     if (*it != "(")
     {
-        // TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,NO '('");
         return;
     }
     it++;
@@ -392,7 +419,7 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
             }
             if (*it != "\'")
             {
-                // TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
                 return;
             }
         }
@@ -411,13 +438,13 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
             }
             if (*it != "\"")
             {
-                // TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
                 return;
             }
         }
         else
         {
-            // TODO FORMAT ERROR
+            throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT QUOTATION MARK, BUT GET OTHER");
             return;
         }
         if (*it == ",")
@@ -430,13 +457,14 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
         }
         else
         {
-            // TODO FORMAT ERROR
+            throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT ',' OR ')', BUT GET OTHER");
+            return;
         }
     }
     if (col_name_.size() != 0 && col_name_.size() != values_.size())
     {
         // 设置的行和值不配对，报错
-        // TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,NUMBER OF COLUMNS AND VALUES NOT MATCH");
         return;
     }
     return;
@@ -474,11 +502,16 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
     //将诸如下列的SQL语句解析到私有成员变量中
     //DELETE FROM table_name WHERE [condition];
 
+    if (sql_vector.size() < 3)
+    {
+        throw SQLSyntaxError("SQL DELETE SYNTAX ERROR,TOO SHORT");
+        return;
+    }
     auto it = sql_vector.begin() + 1;
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "from")
     {
-        //TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER");
         return;
     }
     it++;
@@ -489,7 +522,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
         //证明有WHERE条件,解析
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         if(*it != "where"){
-            //TODO FORMAT ERROR
+            throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER");
             return;
         }
         it++;
@@ -533,7 +566,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
                     sq.op_type_ = OP_LESS;
                 }
             }else{
-                //TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                 return;
             }
             //接下来是值
@@ -547,7 +580,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
                 }else if(*it == "or"){
                     relation_.push_back(OP_OR);
                 }else{
-                    //TODO FORMAT ERROR
+                    throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                     return;
                 }
                 is_attr = true;
@@ -594,6 +627,11 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
     //如果value是数字,则不需要用单引号或者双引号括起来
     //如果value是字符串,则需要用单引号或者双引号括起来
 
+    if (sql_vector.size() < 5)
+    {
+        throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR,TOO SHORT");
+        return;
+    }
     auto it = sql_vector.begin() + 1;
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     tb_name_ = *it;
@@ -601,7 +639,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "set")
     {
-        //TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT KEYWORD 'SET', BUT GET OTHER");
         return;
     }
     it++;
@@ -616,7 +654,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
         it++;
         if (*it != "=")
         {
-            //TODO FORMAT ERROR
+            throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT OPERATOR '=', BUT GET OTHER");
             return;
         }
         //接下来是值
@@ -636,14 +674,14 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                //TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT ',' OR 'WHERE', BUT GET OTHER");
                 return;
             }
         }
     }
     if (col_name_.size() != values_.size())
     {
-        //TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, NUMBER OF COLUMNS AND VALUES NOT MATCH");
         return;
     }
     if(*it == "where"){
@@ -688,7 +726,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
                     sq.op_type_ = OP_LESS;
                 }
             }else{
-                //TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                 return;
             }
             //接下来是值
@@ -702,7 +740,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
                 }else if(*it == "or"){
                     relation_.push_back(OP_OR);
                 }else{
-                    //TODO FORMAT ERROR
+                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                     return;
                 }
                 is_attr = true;
@@ -734,6 +772,18 @@ vector<uint8>& SQLSelect::get_relation()
 
 void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
 {
+    //SQL Select 语句标准如下
+    //SELECT column_name,column_name FROM table_name WHERE column_name operator value;
+    //其中operator可以是=,>,<,>=,<=,<>
+    //value可以是数字或者字符串
+    //如果value是字符串,则需要用单引号或者双引号括起来
+    //如果value是数字,则不需要用单引号或者双引号括起来
+
+    if (sql_vector.size() < 4)
+    {
+        throw SQLSyntaxError("SQL SELECT SYNTAX ERROR,TOO SHORT");
+        return;
+    }
     auto it = sql_vector.begin() + 1;
     if(*it != "*"){
         //查询的不是全体,是特定列
@@ -754,7 +804,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if(*it != "from"){
-        //TODO FORMAT ERROR
+        throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER");
         return;
     }
     it++;
@@ -766,7 +816,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
         //如果没到结尾,说明有where条件
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         if(*it != "where"){
-            //TODO FORMAT ERROR
+            throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER");
             return;
         }
         it++;
@@ -810,7 +860,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
                     sq.op_type_ = OP_LESS;
                 }
             }else{
-                //TODO FORMAT ERROR
+                throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                 return;
             }
             //接下来是值
@@ -824,7 +874,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
                 }else if(*it == "or"){
                     relation_.push_back(OP_OR);
                 }else{
-                    //TODO FORMAT ERROR
+                    throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                     return;
                 }
                 is_attr = true;
@@ -849,13 +899,13 @@ void SQLDropDatabase::PraseSQLVector(vector<string> &sql_vector)
     auto it = sql_vector.begin() + 1;
     if (sql_vector.size() < 3)
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL DROP DATABASE SYNTAX ERROR,TOO SHORT");
         return;
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "database")
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL DROP DATABASE SYNTAX ERROR,EXCEPT KEYWORD 'DATABASE', BUT GET OTHER");
         return;
     }
     it++;
@@ -878,13 +928,13 @@ void SQLDropIndex::PraseSQLVector(vector<string> &sql_vector)
     auto it = sql_vector.begin() + 1;
     if (sql_vector.size() < 3)
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL DROP INDEX SYNTAX ERROR,TOO SHORT");
         return;
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "index")
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL DROP INDEX SYNTAX ERROR,EXCEPT KEYWORD 'INDEX', BUT GET OTHER");
         return;
     }
     it++;
@@ -907,13 +957,13 @@ void SQLDropTable::PraseSQLVector(vector<string> &sql_vector)
     auto it = sql_vector.begin() + 1;
     if (sql_vector.size() < 3)
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL DROP TABLE SYNTAX ERROR,TOO SHORT");
         return;
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "table")
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL DROP TABLE SYNTAX ERROR,EXCEPT KEYWORD 'TABLE', BUT GET OTHER");
         return;
     }
     it++;
@@ -936,7 +986,7 @@ void SQLUse::PraseSQLVector(vector<string> &sql_vector)
     auto it = sql_vector.begin() + 1;
     if (sql_vector.size() < 2)
     {
-        //TODO Format Error
+        throw SQLSyntaxError("SQL USE SYNTAX ERROR,TOO SHORT");
         return;
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
