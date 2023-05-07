@@ -44,12 +44,12 @@ void DB_API::ShowDatabases(){
     cout << "] }" << endl;
 }
 
-void DB_API::ShowTables(string &db_name){
+void DB_API::ShowTables(){
     //通过搜索path_/db_name下的文件来展示表
     //表列表以JSON格式输出到标准输入输出流中
     //JSON格式如下
     // { "tables": [ "tb1", "tb2", "tb3" ] }
-    filesystem::path db_path(path_ + "/" + db_name);
+    filesystem::path db_path(path_ + "/" + db_name_);
     cout << "{ \"tables\": [ ";
     for (auto &p : filesystem::directory_iterator(db_path))
     {
