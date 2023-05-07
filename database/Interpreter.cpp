@@ -156,6 +156,11 @@ void Interpreter::GetSQLType(){
 
 void Interpreter::PraseSQL(){
     switch(sql_type_){
+        case SQL_QUIT://退出数据库
+        {
+            Quit();
+            break;
+        }
         case SQL_CREATE_DATABASE://创建数据库
         {
             unique_ptr<SQLCreateDatabase> st = make_unique<SQLCreateDatabase>(SQLCreateDatabase(sql_vector_));
@@ -219,4 +224,9 @@ void Interpreter::PraseSQL(){
         case SQL_ALTER:case SQL_ERROR:default:
             break;
     }
+    
+}
+
+void Interpreter::Quit(){
+    api->Quit();
 }

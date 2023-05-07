@@ -11,7 +11,7 @@ void DB_API::Quit(){
 }
 void DB_API::CreateDatabase(SQLCreateDatabase &statement){
     //利用SQLCreateDatabase中的db_name_创建一个文件夹
-    filesystem::path db_path(path_ + "\\" + statement.get_db_name());
+    filesystem::path db_path(path_ + "/" + statement.get_db_name());
     if(!filesystem::exists(db_path)){
         filesystem::create_directory(db_path);
     }
@@ -45,11 +45,11 @@ void DB_API::ShowDatabases(){
 }
 
 void DB_API::ShowTables(string &db_name){
-    //通过搜索path_\\db_name下的文件来展示表
+    //通过搜索path_/db_name下的文件来展示表
     //表列表以JSON格式输出到标准输入输出流中
     //JSON格式如下
     // { "tables": [ "tb1", "tb2", "tb3" ] }
-    filesystem::path db_path(path_ + "\\" + db_name);
+    filesystem::path db_path(path_ + "/" + db_name);
     cout << "{ \"tables\": [ ";
     for (auto &p : filesystem::directory_iterator(db_path))
     {
@@ -60,7 +60,7 @@ void DB_API::ShowTables(string &db_name){
 
 void DB_API::DropDatabase(SQLDropDatabase &statement){
     //利用SQLDropDatabase中的db_name_删除一个文件夹
-    filesystem::path db_path(path_ + "\\" + statement.get_db_name());
+    filesystem::path db_path(path_ + "/" + statement.get_db_name());
     if(filesystem::exists(db_path)){
         filesystem::remove_all(db_path);
     }
@@ -68,7 +68,7 @@ void DB_API::DropDatabase(SQLDropDatabase &statement){
 
 void DB_API::DropTable(SQLDropTable &statement){
     //利用SQLDropTable中的tb_name_删除一个表文件
-    filesystem::path tb_path(path_ + "\\" + statement.get_tb_name());
+    filesystem::path tb_path(path_ + "/" + statement.get_tb_name());
     if(filesystem::exists(tb_path)){
         filesystem::remove(tb_path);
     }
@@ -77,7 +77,7 @@ void DB_API::DropTable(SQLDropTable &statement){
 
 void DB_API::DropIndex(SQLDropIndex &statement){
     //利用SQLDropIndex中的tb_name_和col_name_删除一个索引文件
-    filesystem::path index_path(path_ + "\\" + db_name_ + "\\" + statement.get_index_name());
+    filesystem::path index_path(path_ + "/" + db_name_ + "/" + statement.get_index_name());
     if(filesystem::exists(index_path)){
         filesystem::remove(index_path);
     }

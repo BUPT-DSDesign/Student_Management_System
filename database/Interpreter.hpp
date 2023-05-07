@@ -21,8 +21,7 @@ public:
     Interpreter();//测试用
     vector<string> get_gen_SQL(string &statement);//测试GenSQL用
     Interpreter(const string dirPath);
-    ~Interpreter();
     void ExecuteSQL(const string& statement);//实现SQL解析
-
+    void Quit();//退出数据库
 };
 
