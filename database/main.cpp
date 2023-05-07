@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "Interpreter.hpp"
-#include "myexception.hpp"
+#include "MyException.hpp"
 
 using namespace std;
 
