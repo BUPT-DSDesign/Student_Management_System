@@ -1,6 +1,9 @@
 package dao
 
-import "server/model/entity/system"
+import (
+	"server/model/entity/common"
+	"server/model/entity/system"
+)
 
 // UserDao 用户数据库操作对象
 type UserDao interface {
@@ -15,6 +18,7 @@ type UserDao interface {
 type CourseDao interface {
 	AddCourse(courseInfo *system.CourseInfo) error
 	DeleteCourse(courseId int64) error
+	UpdateCourse(newCourseInfo *common.AddCourseRequest) error
 }
 
 // ActivityDao 活动数据库操作对象
