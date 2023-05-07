@@ -33,6 +33,12 @@ private:
     friend class BPTree;
 public:
     BPNode();
+    std::vector<std::streampos>::iterator childBegin();//返回child的开始位置的迭代器
+    std::vector<std::streampos>::iterator childEnd();//返回child结束位置的迭代器
+    std::vector<std::streampos>::iterator childLoc(int id);//返回指向child id的迭代器
+    std::vector<std::byte>::iterator dataBegin();//返回data开始位置的迭代器
+    std::vector<std::byte>::iterator dataEnd();//返回data的真实结束位置的迭代器
+    std::vector<std::byte>::iterator dataLoc(int id);//返回指向id的迭代器
     void ReadChunk(streampos pos);//TODO 读取节点,将区块信息写入
     void CreateChunk(bool is_leaf,int data_size);//TODO 新建节点
     bool isLeaf();//判断是否为叶子结点
@@ -43,12 +49,7 @@ public:
     void WriteChunk();//将节点写入
     //streampos getElemLocation(int id);//获取节点的真实位置
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
-    auto childBegin();//返回child的开始位置的迭代器
-    auto childEnd();//返回child结束位置的迭代器
-    auto childLoc(int id);//返回指向child id的迭代器
-    auto dataBegin();//返回data开始位置的迭代器
-    auto dataEnd();//返回data的真实结束位置的迭代器
-    auto dataLoc(int id);//返回指向id的迭代器
+    
     void insertDataAtPos(int id,const uint64 &key,const vector<byte>& data);
 };
 class BPTree

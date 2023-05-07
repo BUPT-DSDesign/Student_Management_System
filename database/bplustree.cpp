@@ -135,29 +135,29 @@ void BPNode::insertDataAtPos(int id,const uint64 &key,const vector<byte>& data){
     //随后开始把要改写的数据拷贝进入data
     std::copy(data.begin(),data.end(),dataLoc(pos));
 }
-auto BPNode::dataBegin(){
+std::vector<std::byte>::iterator BPNode::dataBegin(){
     return data_.begin();
 }
-auto BPNode::dataEnd(){
+std::vector<std::byte>::iterator BPNode::dataEnd(){
     //得判断是不是叶子节点,叶子节点需要另外一套操作
     uint16 key_shift = (head_.is_leaf_)?sizeof(uint64):0;
     return data_.begin()+head_.busy_*(head_.data_size_+key_shift);
 }
-auto BPNode::dataLoc(int id){
+std::vector<std::byte>::iterator BPNode::dataLoc(int id){
     //得判断是不是叶子节点,叶子节点需要另外一套操作
     uint16 key_shift = (head_.is_leaf_)?sizeof(uint64):0;
     if(id*(head_.data_size_+key_shift) <= data_.size() && id >= 0){
         return data_.begin()+id*(head_.data_size_+key_shift);
     }
-    return dataEnd();
+    return data_.begin()+head_.busy_*(head_.data_size_+key_shift);
 }
-auto BPNode::childBegin(){
+std::vector<std::streampos>::iterator BPNode::childBegin(){
     return child_.begin();
 }
-auto BPNode::childEnd(){
+std::vector<std::streampos>::iterator BPNode::childEnd(){
     return child_.begin()+head_.busy_+1;
 }
-auto BPNode::childLoc(int id){
+std::vector<std::streampos>::iterator BPNode::childLoc(int id){
     if(id <= head_.busy_ && id >= 0){
         return child_.begin()+id;
     }
