@@ -1,7 +1,11 @@
 package course_service
 
 import (
+	"errors"
+	"server/model/dao"
 	"server/model/entity/common"
+	"server/model/entity/system"
+	"server/utils"
 )
 
 type addFlow struct {
@@ -32,20 +36,45 @@ func (f *addFlow) do() error {
 // 检验参数
 func (f *addFlow) checkNum() error {
 	// 根据userId, 判断是否是管理员进行操作
-	//var userInfo *system.UserInfo
-	//if err := dao.Group.UserDao.QueryUserById(f.userId, &userInfo); err != nil {
-	//	return err
-	//}
-	//if userInfo.IsAdmin == false {
-	//	return errors.New("您不是管理员, 没有权限添加课程")
-	//}
+	var userInfo *system.UserInfo
+	if err := dao.Group.UserDao.QueryUserById(f.userId, &userInfo); err != nil {
+		return err
+	}
+	if userInfo.IsAdmin == false {
+		return errors.New("您不是管理员, 没有权限添加课程")
+	}
 	return nil
 }
 
 func (f *addFlow) run() error {
-	/*
-		调用dao层的CRUD操作
-	*/
+	// 生成课程id
+	courseId, err := utils.GenerateId()
+	if err != nil {
+		return err
+	}
+
+	// 将addCourseRequest转换为courseInfo
+	courseInfo := &system.CourseInfo{
+		CourseName:         f.addCourseRequest.CourseName,
+		CourseId:           courseId,
+		Teacher:            f.addCourseRequest.Teacher,
+		Contact:            f.addCourseRequest.Contact,
+		SectionList:        f.addCourseRequest.SectionList,
+		WeekSchedule:       f.addCourseRequest.WeekSchedule,
+		Classroom:          f.addCourseRequest.Classroom,
+		CourseLocationNode: nil, // 教室的地点编号
+		IsCourseOnline:     f.addCourseRequest.IsCourseOnline,
+		ExamTime:           f.addCourseRequest.ExamTime,
+		ExamLocation:       f.addCourseRequest.ExamLocation,
+		ExamLocationNode:   nil, // 考试的地点编号
+		ExamOption:         f.addCourseRequest.ExamOption,
+		IsCompulsory:       f.addCourseRequest.IsCompulsory,
+	}
+
+	// 将courseInfo存入数据库
+	if err := dao.Group.CourseDao.AddCourse(courseInfo); err != nil {
+		return err
+	}
 
 	return nil
 }
