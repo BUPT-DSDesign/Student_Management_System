@@ -12,7 +12,7 @@ type deleteResponse struct {
 	common.StatusResponse
 }
 
-// deleteHandler  删除课程Handler
+// DeleteHandler  删除课程Handler
 // @Summary      删除课程
 // @Description  根据id删除课程
 // @Tags         课程表相关接口
@@ -20,7 +20,7 @@ type deleteResponse struct {
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  deleteResponse
 // @Router       /course/delete [delete]
-func deleteHandler(c *gin.Context) {
+func DeleteHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
 	if !ok1 || !ok2 {
