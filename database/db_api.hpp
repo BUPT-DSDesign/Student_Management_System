@@ -6,7 +6,8 @@ class DB_API
 {
 private:
     // 我们使用如下两个变量确定数据库位置
-    string path_; // 数据库地址
+    string path_; // 数据库所在文件夹
+    string db_name_; // 数据库名字
 public:
     DB_API(const string &path);
     ~DB_API();
@@ -26,7 +27,7 @@ public:
     void ShowDatabases();
 
     // 展示数据库中表的详细信息
-    void ShowTables();
+    void ShowTables(string &db_name);
 
     // 删除数据库
     void DropDatabase(SQLDropDatabase &statement);

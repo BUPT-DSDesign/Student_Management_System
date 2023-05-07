@@ -7,7 +7,6 @@ using namespace std;
 // 创建数据库相关
 SQLCreateDatabase::SQLCreateDatabase(vector<string> &sql_vector)
 {
-
     PraseSQLVector(sql_vector);
 }
 string SQLCreateDatabase::get_db_name()
@@ -267,6 +266,19 @@ SQLInsert::SQLInsert(vector<string> &sql_vector)
 {
     PraseSQLVector(sql_vector);
 }
+string SQLInsert::get_tb_name()
+{
+    return tb_name_;
+}
+vector<string>& SQLInsert::get_col_name()
+{
+    return col_name_;
+}
+vector<string>& SQLInsert::get_values()
+{
+    return values_;
+}
+
 void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
 {
     auto it = sql_vector.begin() + 1;
@@ -445,22 +457,281 @@ SQLDelete::SQLDelete(vector<string> &sql_vector)
 {
     PraseSQLVector(sql_vector);
 }
+string SQLDelete::get_tb_name()
+{
+    return tb_name_;
+}
+vector<SQLWhere>& SQLDelete::get_condition()
+{
+    return condition_;
+}
+vector<uint8>& SQLDelete::get_relation()
+{
+    return relation_;
+}
 void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
 {
+    //将诸如下列的SQL语句解析到私有成员变量中
+    //DELETE FROM table_name WHERE [condition];
+
+    auto it = sql_vector.begin() + 1;
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    if (*it != "from")
+    {
+        //TODO FORMAT ERROR
+        return;
+    }
+    it++;
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    tb_name_ = *it;
+    it++;
+    if(it != sql_vector.end()){
+        //证明有WHERE条件,解析
+        transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+        if(*it != "where"){
+            //TODO FORMAT ERROR
+            return;
+        }
+        it++;
+        bool is_attr = true;
+        while(is_attr){
+            is_attr = false;
+            //对应列名
+            SQLWhere sq;
+            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+            //判断有没有NOT运算符
+            if(*it == "not"){
+                sq.is_need_ = false;
+            }else{
+                sq.is_need_ = true;
+                it++;
+                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+            }
+            sq.key_ = *it;
+            //接下来是运算符处理
+            it++;
+            if(*it == "="){
+                sq.op_type_ = OP_EQUAL;
+                it++;
+            }else if(*it == ">"){
+                it++;
+                if(*it == "="){
+                    sq.op_type_ = OP_GREATER_EQUAL;
+                    it++;
+                }else{
+                    sq.op_type_ = OP_GREATER;
+                }
+            }else if(*it == "<"){
+                it++;
+                if(*it == "="){
+                    sq.op_type_ = OP_LESS_EQUAL;
+                    it++;
+                }else if(*it == ">"){
+                    sq.op_type_ = OP_NOT_EQUAL;
+                    it++;
+                }else{  
+                    sq.op_type_ = OP_LESS;
+                }
+            }else{
+                //TODO FORMAT ERROR
+                return;
+            }
+            //接下来是值
+            sq.value_ = *it;
+            condition_.push_back(sq);
+            it++;
+            if(it!=sql_vector.end()){
+                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+                if(*it == "and"){
+                    relation_.push_back(OP_AND);
+                }else if(*it == "or"){
+                    relation_.push_back(OP_OR);
+                }else{
+                    //TODO FORMAT ERROR
+                    return;
+                }
+                is_attr = true;
+            }
+        }
+    }
 }
 
 /*******************SQLUpdate**********************************/
 SQLUpdate::SQLUpdate(vector<string> &sql_vector)
 {
+    PraseSQLVector(sql_vector);
 }
+string SQLUpdate::get_tb_name()
+{
+    return tb_name_;
+}
+vector<string>& SQLUpdate::get_col_name()
+{
+    return col_name_;
+}
+vector<string>& SQLUpdate::get_values()
+{
+    return values_;
+}
+vector<SQLWhere>& SQLUpdate::get_condition()
+{
+    return condition_;
+}
+vector<uint8>& SQLUpdate::get_relation()
+{
+    return relation_;
+}
+
 void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
 {
+    //将诸如下列的SQL语句切分成的sql_vector解析到类的私有成员变量中
+    //UPDATE table_name SET column1 = value1, column2 = value2...., columnN = valueN WHERE [condition];
+    //WHERE的condition部分示例如下
+    //WHERE column_name operator value
+    //operator可以是=,>,<,>=,<=,<>
+    //value可以是数字或者字符串
+    //如果value是字符串,则需要用单引号或者双引号括起来
+    //如果value是数字,则不需要用单引号或者双引号括起来
+    //如果value是字符串,则需要用单引号或者双引号括起来
+
+    auto it = sql_vector.begin() + 1;
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    tb_name_ = *it;
+    it++;
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    if (*it != "set")
+    {
+        //TODO FORMAT ERROR
+        return;
+    }
+    it++;
+    bool is_attr = true;
+    while (is_attr)
+    {
+        is_attr = false;
+        //对应列名
+        transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+        col_name_.push_back(*it);
+        //接下来是运算符处理
+        it++;
+        if (*it != "=")
+        {
+            //TODO FORMAT ERROR
+            return;
+        }
+        //接下来是值
+        it++;
+        values_.push_back(*it);
+        it++;
+        if (it != sql_vector.end())
+        {
+            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+            if (*it == ",")
+            {
+                is_attr = true;
+            }
+            else if (*it == "where")
+            {
+                break;
+            }
+            else
+            {
+                //TODO FORMAT ERROR
+                return;
+            }
+        }
+    }
+    if (col_name_.size() != values_.size())
+    {
+        //TODO FORMAT ERROR
+        return;
+    }
+    if(*it == "where"){
+        it++;
+        bool is_attr = true;
+        while(is_attr){
+            is_attr = false;
+            //对应列名
+            SQLWhere sq;
+            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+            //判断有没有NOT运算符
+            if(*it == "not"){
+                sq.is_need_ = false;
+            }else{
+                sq.is_need_ = true;
+                it++;
+                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+            }
+            sq.key_ = *it;
+            //接下来是运算符处理
+            it++;
+            if(*it == "="){
+                sq.op_type_ = OP_EQUAL;
+                it++;
+            }else if(*it == ">"){
+                it++;
+                if(*it == "="){
+                    sq.op_type_ = OP_GREATER_EQUAL;
+                    it++;
+                }else{
+                    sq.op_type_ = OP_GREATER;
+                }
+            }else if(*it == "<"){
+                it++;
+                if(*it == "="){
+                    sq.op_type_ = OP_LESS_EQUAL;
+                    it++;
+                }else if(*it == ">"){
+                    sq.op_type_ = OP_NOT_EQUAL;
+                    it++;
+                }else{  
+                    sq.op_type_ = OP_LESS;
+                }
+            }else{
+                //TODO FORMAT ERROR
+                return;
+            }
+            //接下来是值
+            sq.value_ = *it;
+            condition_.push_back(sq);
+            it++;
+            if(it!=sql_vector.end()){
+                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+                if(*it == "and"){
+                    relation_.push_back(OP_AND);
+                }else if(*it == "or"){
+                    relation_.push_back(OP_OR);
+                }else{
+                    //TODO FORMAT ERROR
+                    return;
+                }
+                is_attr = true;
+            }
+        }
+    }
 }
 /*******************SQLSelect**********************************/
 SQLSelect::SQLSelect(vector<string> &sql_vector)
 {
     PraseSQLVector(sql_vector);
 }
+string SQLSelect::get_tb_name()
+{
+    return tb_name_;
+}
+vector<string>& SQLSelect::get_col_name()
+{
+    return col_name_;
+}
+vector<SQLWhere>& SQLSelect::get_condition()
+{
+    return condition_;
+}
+vector<uint8>& SQLSelect::get_relation()
+{
+    return relation_;
+}
+
 void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
 {
     auto it = sql_vector.begin() + 1;
@@ -560,4 +831,114 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
             }
         }
     }
+}
+
+/***************SQLDropDatabase**********/
+SQLDropDatabase::SQLDropDatabase(vector<string> &sql_vector)
+{
+    PraseSQLVector(sql_vector);
+}
+string SQLDropDatabase::get_db_name()
+{
+    return db_name_;
+}
+void SQLDropDatabase::PraseSQLVector(vector<string> &sql_vector)
+{
+    // 常见SQL语法
+    // DROP DATABASE name
+    auto it = sql_vector.begin() + 1;
+    if (sql_vector.size() < 3)
+    {
+        //TODO Format Error
+        return;
+    }
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    if (*it != "database")
+    {
+        //TODO Format Error
+        return;
+    }
+    it++;
+    db_name_ = *it;
+}
+
+/***************SQLDropIndex**********/
+SQLDropIndex::SQLDropIndex(vector<string> &sql_vector)
+{
+    PraseSQLVector(sql_vector);
+}
+string SQLDropIndex::get_index_name()
+{
+    return index_name_;
+}
+void SQLDropIndex::PraseSQLVector(vector<string> &sql_vector)
+{
+    // 常见SQL语法
+    // DROP INDEX index_name
+    auto it = sql_vector.begin() + 1;
+    if (sql_vector.size() < 3)
+    {
+        //TODO Format Error
+        return;
+    }
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    if (*it != "index")
+    {
+        //TODO Format Error
+        return;
+    }
+    it++;
+    index_name_ = *it;
+}
+
+/***************SQLDropTable***************/
+SQLDropTable::SQLDropTable(vector<string> &sql_vector)
+{
+    PraseSQLVector(sql_vector);
+}
+string SQLDropTable::get_tb_name()
+{
+    return tb_name_;
+}
+void SQLDropTable::PraseSQLVector(vector<string> &sql_vector)
+{
+    // 常见SQL语法
+    // DROP TABLE table_name
+    auto it = sql_vector.begin() + 1;
+    if (sql_vector.size() < 3)
+    {
+        //TODO Format Error
+        return;
+    }
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    if (*it != "table")
+    {
+        //TODO Format Error
+        return;
+    }
+    it++;
+    tb_name_ = *it;
+}
+
+/********SQLUse*********/
+SQLUse::SQLUse(vector<string> &sql_vector)
+{
+    PraseSQLVector(sql_vector);
+}
+string SQLUse::get_db_name()
+{
+    return db_name_;
+}
+void SQLUse::PraseSQLVector(vector<string> &sql_vector)
+{
+    // 常见SQL语法
+    // USE database_name
+    auto it = sql_vector.begin() + 1;
+    if (sql_vector.size() < 2)
+    {
+        //TODO Format Error
+        return;
+    }
+    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    db_name_ = *it;
 }
