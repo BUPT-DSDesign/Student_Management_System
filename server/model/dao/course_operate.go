@@ -32,5 +32,9 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 		先根据课程id删除数据库中的课程数据,
 		再根据有哪些学生含有这些课, 删除对应的内容
 	*/
+	sqlStr := fmt.Sprintf("DELETE FROM course_info WHERE course_id = '%v'", courseId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
 	return nil
 }

@@ -43,6 +43,9 @@ func init() {
 
 // ExecSql 执行sql语句
 func (db *DB) ExecSql(sqlStr string) error {
+	if err := WriteLine(sqlStr); err != nil {
+		return err
+	}
 	return nil
 }
 

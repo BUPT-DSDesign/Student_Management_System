@@ -9,7 +9,10 @@ import (
 func (s *logDao) QueryLogsByUserId(UserId int64, logs **[]*system.LogInfo) error {
 	/*
 		根据用户id查询日志
+		需要把数据放到logs中
 	*/
+	//sqlStr := fmt.Sprintf("SELECT * FROM log_info WHERE user_id = '%v'", UserId)
+
 	return nil
 }
 
@@ -33,5 +36,9 @@ func (s *logDao) DeleteLogById(logId int64) error {
 	/*
 		删除日志
 	*/
+	sqlStr := fmt.Sprintf("DELETE FROM log_info WHERE log_id = '%v'", logId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
 	return nil
 }
