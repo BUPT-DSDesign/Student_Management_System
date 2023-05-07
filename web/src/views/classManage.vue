@@ -91,7 +91,7 @@
                         filterable @change="section_list_change"></el-cascader>
                 </el-form-item>
                 <el-form-item label="上课周次">
-                    <el-select v-model="addClassData.week_list" placeholder="请选择" multiple>
+                    <el-select v-model="addClassData.week_schedule" placeholder="请选择" multiple>
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
@@ -387,12 +387,12 @@ export default {
         submitAddForm() {
             this.dialogVisible4 = false;
             console.log(this.addClassData);
-            let week_list = [];
-            this.addClassData.week_list.forEach(function (item) {
-                week_list.push(item);
+            let week_schedule = [];
+            this.addClassData.week_schedule.forEach(function (item) {
+                week_schedule.push(item);
             })
-            week_list.sort();
-            this.addClassData.week_list = week_list;
+            week_schedule.sort();
+            this.addClassData.week_schedule = week_schedule;
 
             let section_list = [];
             this.addClassData.section_list.forEach(function (item) {
@@ -416,6 +416,7 @@ export default {
                         message: '添加课程成功',
                         type: 'success'
                     });
+                    this.addClassData = {}
                 } else {
                     this.$message({
                         showClose: true,
@@ -423,6 +424,7 @@ export default {
                         message: '添加课程失败',
                         type: 'error'
                     });
+                    this.addClassData = {}
                 }
             }
 
