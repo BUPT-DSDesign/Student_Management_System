@@ -1,5 +1,5 @@
 #include "SQLstatement.hpp"
-#include "myexception.hpp"
+#include "MyException.hpp"
 #include <vector>
 #include <string>
 #include <algorithm>

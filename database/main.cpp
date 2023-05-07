@@ -3,6 +3,7 @@
 #include <algorithm>
 
 #include "Interpreter.hpp"
+#include "MyException.hpp"
 
 using namespace std;
 
@@ -25,8 +26,12 @@ int main(int argc,char* argv[]){
                     break;
                 }
                 interpreter.ExecuteSQL(statement.str());
-            }catch(const char* e){
-                cerr<<e<<"\n";
+            }catch(const SQLSyntaxError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
+            }catch(const SQLTypeError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Statement Type Error,You can check the manual for Supported SQL Type\n";
             }
             statement.str("");
         }

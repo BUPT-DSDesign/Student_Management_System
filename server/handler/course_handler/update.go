@@ -11,7 +11,7 @@ type updateResponse struct {
 	common.StatusResponse
 }
 
-// updateHandler  更新课程Handler
+// UpdateHandler  更新课程Handler
 // @Summary      更新课程
 // @Description  更新课程信息
 // @Tags        更新课程
@@ -19,7 +19,7 @@ type updateResponse struct {
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  updateResponse
 // @Router       /course/update [put]
-func updateHandler(c *gin.Context) {
+func UpdateHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
 	if !ok1 || !ok2 {

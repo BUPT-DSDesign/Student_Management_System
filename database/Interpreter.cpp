@@ -8,7 +8,7 @@
 #include <algorithm>
 #include "Interpreter.hpp"
 #include "datatype.hpp"
-#include "myexception.hpp"
+#include "MyException.hpp"
 using namespace std;
 
 Interpreter::Interpreter():sql_type_(SQL_ERROR)
