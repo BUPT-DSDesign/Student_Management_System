@@ -38,31 +38,78 @@
             <!-- 添加活动按钮和弹窗 -->
             <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
                 @click="dialogAddVisible = true">添加活动</el-button>
-            <el-dialog title="添加活动" :visible.sync="dialogAddVisible" width="500px">
-                <el-form :model="form" label-width="150px">
-                    <el-form-item label="活动名称" >
-                        <el-input v-model="form.event" autocomplete="off"></el-input>
+            <el-dialog title="添加活动" :visible="dialogAddVisible">
+                <el-radio-group v-model="addEventData.activityType">
+                    <el-radio-button label="group">集体活动</el-radio-button>
+                    <el-radio-button label="personal">个人活动</el-radio-button>
+                    <el-radio-button label="temp">临时活动</el-radio-button>
+                </el-radio-group>
+
+                <el-form v-if="addEventData.activityType === 'group'">
+                    <el-form-item label="活动名称">
+                                <el-input v-model="addEventData.name"></el-input>
+                            </el-form-item>
+                    <el-form-item label="活动时间">
+                        <el-cascader v-model="addEventData.section_list" :options="options" :props="{ multiple: true }"
+                            filterable @change="section_list_change"></el-cascader>
                     </el-form-item>
-                    <el-form-item label="活动地点" >
-                        <el-input v-model="form.address" autocomplete="off"></el-input>
+                    <el-form-item label="活动周次">
+                        <el-select v-model="addEventData.week_schedule" placeholder="请选择" multiple>
+                            <el-option v-for="item in week_options" :key="item.value" :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
                     </el-form-item>
-                    <el-form-item label="开始周次" >
-                        <el-input v-model="form.start_week" autocomplete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="结束周次" >
-                        <el-input v-model="form.endweek" autocomplete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="活动时间" >
-                        <el-input v-model="form.start_time" autocomplete="off"></el-input>
-                    </el-form-item>
-                    <el-form-item label="活动类型"  >
-                        <el-radio v-model="radio" label="1">个人活动</el-radio>
-                        <el-radio v-model="radio" label="2">集体活动</el-radio>
+                    <el-form-item label="活动地点">
+                        <el-input v-model="addEventData.location"></el-input>
                     </el-form-item>
                 </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogAddVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="dialogAddVisible = false">添加</el-button>
+                <el-form v-else-if="addEventData.activityType === 'personal'">
+                    <el-form-item label="活动名称">
+                            <el-input v-model="addEventData.name"></el-input>
+                        </el-form-item>
+                    <el-form-item label="活动时间">
+                        <el-cascader v-model="addEventData.section_list" :options="options" :props="{ multiple: true }"
+                            filterable @change="section_list_change"></el-cascader>
+                    </el-form-item>
+                    <el-form-item label="活动周次">
+                        <el-select v-model="addEventData.week_schedule" placeholder="请选择" multiple>
+                            <el-option v-for="item in week_options" :key="item.value" :label="item.label"
+                                :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="活动地点">
+                        <el-input v-model="addEventData.location"></el-input>
+                    </el-form-item>
+                </el-form>
+                <el-form v-else-if="addEventData.activityType === 'temp'">
+                    <el-form-item label="活动名称">
+                                <el-input v-model="addEventData.name"></el-input>
+                            </el-form-item>
+                    <el-form-item label="活动时间">
+                        <el-time-picker placeholder="选择时间" v-model="addEventData.time"
+                            style="width: 100%;"></el-time-picker>
+                    </el-form-item>
+                        <el-form-item label="周次">
+                            <el-select v-model="form.week" placeholder="请选择" @change="getWeekDays">
+                                <el-option v-for="week in weeks" :key="week" :label="`第 ${week} 周`"
+                                    :value="week"></el-option>
+                            </el-select>
+                        </el-form-item>
+                        <el-form-item label="星期">
+                            <el-select v-model="form.day" placeholder="请选择">
+                                <el-option v-for="day in days" :key="day" :label="`周${day}`" :value="day"></el-option>
+                            </el-select>
+                        </el-form-item>
+                    <el-form-item label="活动地点">
+                        <el-input v-model="addEventData.location"></el-input>
+                    </el-form-item>
+                </el-form>
+
+                <div slot="footer">
+                    <el-button @click.native="dialogAddVisible = false">取消</el-button>
+                    <el-button type="primary" @click.native="submitAddForm">确定</el-button>
                 </div>
             </el-dialog>
             <!-- 闹钟提醒 -->
@@ -74,6 +121,37 @@
 <script>
 import eventDialog from '../components/eventDialog.vue'  //引入弹窗组件
 import { EventStore } from '@/store/event';
+const sectionMap = [{
+    value: 1,
+    label: '第一节'
+}, {
+    value: 2,
+    label: '第二节'
+}, {
+    value: 3,
+    label: '第三节'
+}, {
+    value: 4,
+    label: '第四节'
+}, {
+    value: 5,
+    label: '第五节'
+}, {
+    value: 6,
+    label: '第六节'
+}, {
+    value: 7,
+    label: '第七节'
+}, {
+    value: 8,
+    label: '第八节'
+}, {
+    value: 9,
+    label: '第九节'
+},
+];
+
+
 
 export default {
     data() {
@@ -92,10 +170,99 @@ export default {
                 startweek: '',
                 endweek: '',
             },
+            addEventData: {
+                activityType: 'group',
+            },
             radio: '',
             search: '', //用于搜索过滤的对象
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
             eventList: [],
+             weeks: Array.from({ length: 15 }, (_, i) => i + 1),
+            days: ['一', '二', '三', '四', '五', '六', '日'],
+            week_options: [{
+                value: 1,
+                label: '第一周'
+            }, {
+                value: 2,
+                label: '第二周'
+            }, {
+                value: 3,
+                label: '第三周'
+            }, {
+                value: 4,
+                label: '第四周'
+            }, {
+                value: 5,
+                label: '第五周'
+            }, {
+                value: 6,
+                label: '第六周'
+            }, {
+                value: 7,
+                label: '第七周'
+            }, {
+                value: 8,
+                label: '第八周'
+            }, {
+                value: 9,
+                label: '第九周'
+            }, {
+                value: 10,
+                label: '第十周'
+            }, {
+                value: 11,
+                label: '第十一周'
+            }, {
+                value: 12,
+                label: '第十二周'
+            }, {
+                value: 13,
+                label: '第十三周'
+            }, {
+                value: 14,
+                label: '第十四周'
+            }, {
+                value: 15,
+                label: '第十五周'
+            }
+            ],
+            options: [
+                {
+                    value: 1,
+                    label: '周一',
+                    children: sectionMap,
+                },
+                {
+                    value: 2,
+                    label: '周二',
+                    children: sectionMap,
+                },
+                {
+                    value: 3,
+                    label: '周三',
+                    children: sectionMap,
+                },
+                {
+                    value: 4,
+                    label: '周四',
+                    children: sectionMap,
+                },
+                {
+                    value: 5,
+                    label: '周五',
+                    children: sectionMap,
+                },
+                {
+                    value: 6,
+                    label: '周六',
+                    children: sectionMap,
+                },
+                {
+                    value: 7,
+                    label: '周天',
+                    children: sectionMap,
+                },
+            ],
         }
     },
     created() {
@@ -150,7 +317,15 @@ export default {
             this.selected = row;
             this.dialogDetailVisible = true;
         },
+        submitAddForm() {
+            this.dialogAddVisible = false;
+        },
+        section_list_change() {
 
+        },
+        getWeekDays() {
+            // 根据选择的周次更新可选的周几
+        }
     },
     components: {
         eventDialog,
