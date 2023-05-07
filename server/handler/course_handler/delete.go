@@ -15,7 +15,7 @@ type deleteResponse struct {
 // deleteHandler  删除课程Handler
 // @Summary      删除课程
 // @Description  根据id删除课程
-// @Tags         课程表相关接口
+// @Tags         删除课程相关接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  deleteResponse
