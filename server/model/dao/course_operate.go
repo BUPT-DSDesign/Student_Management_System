@@ -46,3 +46,17 @@ func (s *courseDao) UpdateCourse(newCourseInfo *common.AddCourseRequest) error {
 	*/
 	return nil
 }
+
+func (s *courseDao) QueryCourseByName(courseName string, courses **[]*system.CourseInfo) error {
+	/*
+		根据课程名查询课程
+	*/
+	return nil
+}
+
+func (s *courseDao) QueryCourseByClassroom(classroom string, courses **[]*system.CourseInfo) error {
+	/*
+		根据教室查询课程
+	*/
+	return nil
+}

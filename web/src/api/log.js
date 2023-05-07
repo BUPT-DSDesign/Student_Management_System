@@ -10,7 +10,7 @@ export const LogInfo = () => {
 
 // 删除日志
 export const LogDelete = (logIds) => {
-    const url = 'log/delete?log_ids=' + logIds
+    const url = '/log/delete?log_ids=' + logIds
     return service({
         url: url,
         method: 'delete'

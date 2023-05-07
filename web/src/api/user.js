@@ -21,7 +21,7 @@ export const Login = (data) => {
 // 获取用户信息
 export const GetInfo = () => {
     return service({
-        url: "user/info",
+        url: "/user/info",
         method: 'get'
     })
 }

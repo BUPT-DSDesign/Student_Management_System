@@ -10,6 +10,7 @@ type CourseServer interface {
 	DoAdd(userId int64, addCourseRequest common.AddCourseRequest) error
 	DoDelete(userId int64, courseId int64) error
 	DoUpdate(userId int64, updateCourseRequest common.AddCourseRequest) error
+	DoSearch(userId int64, isByCourseName uint8, keyWord string) (*[]*system.CourseInfo, error)
 }
 
 type server struct {
