@@ -65,12 +65,13 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
     语法
     CREATE TABLE Persons
     (
-    Id_P int NOT NULL,
-    LastName varchar(255) NOT NULL,
-    FirstName varchar(255),
-    Address varchar(255),
-    City varchar(255),
-    PRIMARY KEY (Id_P)
+    id BIGINT NOT NULL COMMENT '主键',
+    name varchar(20) NOT NULL COMMENT '群聊名称',
+    person_size INT NOT NULL DEFAULT 2 COMMENT '人数',
+    owner_id BIGINT NOT NULL COMMENT '群主id',
+    create_time DATETIME NULL DEFAULT NULL COMMENT '创建时间',
+    update_time DATETIME NULL DEFAULT NULL COMMENT '更新时间',
+    PRIMARY KEY (id)
     );
     */
     uint16 pos = 2;
@@ -146,10 +147,13 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             attr.is_not_null = false;
             // 第一个元素是列名称
             transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
-            if(sql_vector[pos].length()<24){
-                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(),attr.col_name_);
-            }else{
-                std::copy(sql_vector[pos].begin(), sql_vector[pos].begin()+24,attr.col_name_);
+            if (sql_vector[pos].length() < 24)
+            {
+                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.col_name_);
+            }
+            else
+            {
+                std::copy(sql_vector[pos].begin(), sql_vector[pos].begin() + 24, attr.col_name_);
             }
             pos++;
             // 第二个元素是列数据类型
@@ -189,29 +193,137 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                     pos++;
                 }
             }
-            // 检查是否为逗号/右括号,不是则检测是否为not null关键字
+            // 检查是否为逗号/右括号,不是则检测关键字,包含有NOT NULL,DEFAULT,COMMENT
             if (sql_vector[pos] != "," && sql_vector[pos] != ")")
             {
-                transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
-                if (sql_vector[pos] == "not")
+                bool is_key = true;
+                while (is_key)
                 {
-                    pos++;
+                    is_key = false;
                     transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
-                    if (sql_vector[pos] == "null")
+                    if (sql_vector[pos] == "not") // NOT NULL
                     {
-                        attr.is_not_null = true;
+                        pos++;
+                        transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
+                        if (sql_vector[pos] == "null")
+                        {
+                            attr.is_not_null = true;
+                        }
+                        else
+                        {
+                            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NULL',BUT GET OTHER");
+                            return;
+                        }
+                        pos++;
+                    }
+                    else if (sql_vector[pos] == "default") // DEFAULT
+                    {
+                        pos++;
+                        if (sql_vector[pos] == "\'")
+                        {
+                            pos++;
+                            if (sql_vector[pos] == "\'")
+                            {
+                                // 数据为空
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                            }
+                            else
+                            {
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                                pos++;
+                            }
+                            if (sql_vector[pos] != "\'")
+                            {
+                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,QUOTATION MARK NOT MATCH");
+                                return;
+                            }
+                        }
+                        else if (sql_vector[pos] == "\"")
+                        {
+                            pos++;
+                            if (sql_vector[pos] == "\"")
+                            {
+                                // 数据为空
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                            }
+                            else
+                            {
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                                pos++;
+                            }
+                            if (sql_vector[pos] != "\"")
+                            {
+                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,QUOTATION MARK NOT MATCH");
+                                return;
+                            }
+                        }else{
+                            //判断是否为数字类型(包括各种int和float,不是则报错)
+                            //只有数字类型不需要用单引号或者双引号括起来
+                            if((attr.data_type_>>4) != 0x0){
+                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT QUOTATION MARK,BUT GET OTHER");
+                                return;
+                            }
+                            std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                            pos++;
+                        }
+                    }
+                    else if (sql_vector[pos] == "comment")// COMMENT
+                    {
+                        pos++;
+                        if (sql_vector[pos] == "\'")
+                        {
+                            pos++;
+                            if (sql_vector[pos] == "\'")
+                            {
+                                // 数据为空
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                            }
+                            else
+                            {
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                                pos++;
+                            }
+                            if (sql_vector[pos] != "\'")
+                            {
+                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,QUOTATION MARK NOT MATCH");
+                                return;
+                            }
+                        }
+                        else if (sql_vector[pos] == "\"")
+                        {
+                            pos++;
+                            if (sql_vector[pos] == "\"")
+                            {
+                                // 数据为空
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                            }
+                            else
+                            {
+                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                                pos++;
+                            }
+                            if (sql_vector[pos] != "\"")
+                            {
+                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,QUOTATION MARK NOT MATCH");
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            //COMMENT內容必然是字符串,如果不是,则报错
+                            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT STRING VALUE,BUT GET OTHER");
+                            return;
+                        }
                     }
                     else
                     {
-                        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NULL',BUT GET OTHER");
+                        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NOT NULL' 'COMMENT' 'DEFAULT',BUT GET OTHER");
                         return;
                     }
-                    pos++;
-                }
-                else
-                {
-                    throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NOT',BUT GET OTHER");
-                    return;
+                    if(sql_vector[pos] != "," && sql_vector[pos] != ")"){
+                        //如果不是逗号或者右括号,则继续检测
+                        is_key = true;
+                    }
                 }
             }
             // 将这行新增
@@ -229,9 +341,9 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         }
     }
     // 限制列元素长度
-    if (attrs_.size() > 15)
+    if (attrs_.size() > 16)
     {
-        
+
         throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,TOO MANY COLUMNS");
         return;
     }
@@ -286,22 +398,24 @@ string SQLInsert::get_tb_name()
 {
     return tb_name_;
 }
-vector<string>& SQLInsert::get_col_name()
+vector<string> &SQLInsert::get_col_name()
 {
     return col_name_;
 }
-vector<string>& SQLInsert::get_values()
+vector<string> &SQLInsert::get_values()
 {
     return values_;
 }
 
 void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
 {
-    //SQL Insert 的语法如下
-    //INSERT INTO table_name (列1, 列2,...) VALUES (值1, 值2,....)
-    //或者
-    //INSERT INTO table_name VALUES (值1, 值2,....)
-    //每个值用单引号或者双引号括起来
+    // SQL Insert 的语法如下
+    // INSERT INTO table_name (列1, 列2,...) VALUES (值1, 值2,....)
+    // 或者
+    // INSERT INTO table_name VALUES (值1, 值2,....)
+    // 值可以是字符串或者数字
+    // 如果值为数字,可以不用引号括起来
+
     if (sql_vector.size() < 4)
     {
         throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,TOO SHORT");
@@ -326,51 +440,10 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
         while (is_attr)
         {
             is_attr = false;
-            if (*it == "\'")
-            {
-                it++;
-                if (*it == "\'")
-                {
-                    // 数据为空
-                    col_name_.push_back("");
-                }
-                else
-                {
-                    //列名固定小写
-                    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                    col_name_.push_back(*it);
-                    it++;
-                }
-                if (*it != "\'")
-                {
-                    throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
-                    return;
-                }
-            }
-            else if (*it == "\"")
-            {
-                it++;
-                if (*it == "\"")
-                {
-                    // 数据为空
-                    col_name_.push_back("");
-                }
-                else
-                {
-                    col_name_.push_back(*it);
-                    it++;
-                }
-                if (*it != "\"")
-                {
-                    throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
-                    return;
-                }
-            }
-            else
-            {
-                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT QUOTATION MARK, BUT GET OTHER");
-                return;
-            }
+            // 列名固定小写,而且列名不需要用引号括起来
+            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+            col_name_.push_back(*it);
+            it++;
             if (*it == ",")
             {
                 is_attr = true;
@@ -444,8 +517,9 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
         }
         else
         {
-            throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT QUOTATION MARK, BUT GET OTHER");
-            return;
+            //只有数字类型不需要用单引号或者双引号括起来
+            values_.push_back(*it);
+            it++;
         }
         if (*it == ",")
         {
@@ -489,18 +563,18 @@ string SQLDelete::get_tb_name()
 {
     return tb_name_;
 }
-vector<SQLWhere>& SQLDelete::get_condition()
+vector<SQLWhere> &SQLDelete::get_condition()
 {
     return condition_;
 }
-vector<uint8>& SQLDelete::get_relation()
+vector<uint8> &SQLDelete::get_relation()
 {
     return relation_;
 }
 void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
 {
-    //将诸如下列的SQL语句解析到私有成员变量中
-    //DELETE FROM table_name WHERE [condition];
+    // 将诸如下列的SQL语句解析到私有成员变量中
+    // DELETE FROM table_name WHERE [condition];
 
     if (sql_vector.size() < 3)
     {
@@ -518,68 +592,95 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     tb_name_ = *it;
     it++;
-    if(it != sql_vector.end()){
-        //证明有WHERE条件,解析
+    if (it != sql_vector.end())
+    {
+        // 证明有WHERE条件,解析
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-        if(*it != "where"){
+        if (*it != "where")
+        {
             throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER");
             return;
         }
         it++;
         bool is_attr = true;
-        while(is_attr){
+        while (is_attr)
+        {
             is_attr = false;
-            //对应列名
+            // 对应列名
             SQLWhere sq;
             transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            //判断有没有NOT运算符
-            if(*it == "not"){
+            // 判断有没有NOT运算符
+            if (*it == "not")
+            {
                 sq.is_need_ = false;
-            }else{
+            }
+            else
+            {
                 sq.is_need_ = true;
                 it++;
                 transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
             }
             sq.key_ = *it;
-            //接下来是运算符处理
+            // 接下来是运算符处理
             it++;
-            if(*it == "="){
+            if (*it == "=")
+            {
                 sq.op_type_ = OP_EQUAL;
                 it++;
-            }else if(*it == ">"){
+            }
+            else if (*it == ">")
+            {
                 it++;
-                if(*it == "="){
+                if (*it == "=")
+                {
                     sq.op_type_ = OP_GREATER_EQUAL;
                     it++;
-                }else{
+                }
+                else
+                {
                     sq.op_type_ = OP_GREATER;
                 }
-            }else if(*it == "<"){
+            }
+            else if (*it == "<")
+            {
                 it++;
-                if(*it == "="){
+                if (*it == "=")
+                {
                     sq.op_type_ = OP_LESS_EQUAL;
                     it++;
-                }else if(*it == ">"){
+                }
+                else if (*it == ">")
+                {
                     sq.op_type_ = OP_NOT_EQUAL;
                     it++;
-                }else{  
+                }
+                else
+                {
                     sq.op_type_ = OP_LESS;
                 }
-            }else{
+            }
+            else
+            {
                 throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                 return;
             }
-            //接下来是值
+            // 接下来是值
             sq.value_ = *it;
             condition_.push_back(sq);
             it++;
-            if(it!=sql_vector.end()){
+            if (it != sql_vector.end())
+            {
                 transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                if(*it == "and"){
+                if (*it == "and")
+                {
                     relation_.push_back(OP_AND);
-                }else if(*it == "or"){
+                }
+                else if (*it == "or")
+                {
                     relation_.push_back(OP_OR);
-                }else{
+                }
+                else
+                {
                     throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                     return;
                 }
@@ -598,34 +699,34 @@ string SQLUpdate::get_tb_name()
 {
     return tb_name_;
 }
-vector<string>& SQLUpdate::get_col_name()
+vector<string> &SQLUpdate::get_col_name()
 {
     return col_name_;
 }
-vector<string>& SQLUpdate::get_values()
+vector<string> &SQLUpdate::get_values()
 {
     return values_;
 }
-vector<SQLWhere>& SQLUpdate::get_condition()
+vector<SQLWhere> &SQLUpdate::get_condition()
 {
     return condition_;
 }
-vector<uint8>& SQLUpdate::get_relation()
+vector<uint8> &SQLUpdate::get_relation()
 {
     return relation_;
 }
 
 void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
 {
-    //将诸如下列的SQL语句切分成的sql_vector解析到类的私有成员变量中
-    //UPDATE table_name SET column1 = value1, column2 = value2...., columnN = valueN WHERE [condition];
-    //WHERE的condition部分示例如下
-    //WHERE column_name operator value
-    //operator可以是=,>,<,>=,<=,<>
-    //value可以是数字或者字符串
-    //如果value是字符串,则需要用单引号或者双引号括起来
-    //如果value是数字,则不需要用单引号或者双引号括起来
-    //如果value是字符串,则需要用单引号或者双引号括起来
+    // 将诸如下列的SQL语句切分成的sql_vector解析到类的私有成员变量中
+    // UPDATE table_name SET column1 = value1, column2 = value2...., columnN = valueN WHERE [condition];
+    // WHERE的condition部分示例如下
+    // WHERE column_name operator value
+    // operator可以是=,>,<,>=,<=,<>
+    // value可以是数字或者字符串
+    // 如果value是字符串,则需要用单引号或者双引号括起来
+    // 如果value是数字,则不需要用单引号或者双引号括起来
+    // 如果value是字符串,则需要用单引号或者双引号括起来
 
     if (sql_vector.size() < 5)
     {
@@ -647,17 +748,17 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
     while (is_attr)
     {
         is_attr = false;
-        //对应列名
+        // 对应列名
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         col_name_.push_back(*it);
-        //接下来是运算符处理
+        // 接下来是运算符处理
         it++;
         if (*it != "=")
         {
             throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT OPERATOR '=', BUT GET OTHER");
             return;
         }
-        //接下来是值
+        // 接下来是值
         it++;
         values_.push_back(*it);
         it++;
@@ -684,62 +785,88 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
         throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, NUMBER OF COLUMNS AND VALUES NOT MATCH");
         return;
     }
-    if(*it == "where"){
+    if (*it == "where")
+    {
         it++;
         bool is_attr = true;
-        while(is_attr){
+        while (is_attr)
+        {
             is_attr = false;
-            //对应列名
+            // 对应列名
             SQLWhere sq;
             transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            //判断有没有NOT运算符
-            if(*it == "not"){
+            // 判断有没有NOT运算符
+            if (*it == "not")
+            {
                 sq.is_need_ = false;
-            }else{
+            }
+            else
+            {
                 sq.is_need_ = true;
                 it++;
                 transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
             }
             sq.key_ = *it;
-            //接下来是运算符处理
+            // 接下来是运算符处理
             it++;
-            if(*it == "="){
+            if (*it == "=")
+            {
                 sq.op_type_ = OP_EQUAL;
                 it++;
-            }else if(*it == ">"){
+            }
+            else if (*it == ">")
+            {
                 it++;
-                if(*it == "="){
+                if (*it == "=")
+                {
                     sq.op_type_ = OP_GREATER_EQUAL;
                     it++;
-                }else{
+                }
+                else
+                {
                     sq.op_type_ = OP_GREATER;
                 }
-            }else if(*it == "<"){
+            }
+            else if (*it == "<")
+            {
                 it++;
-                if(*it == "="){
+                if (*it == "=")
+                {
                     sq.op_type_ = OP_LESS_EQUAL;
                     it++;
-                }else if(*it == ">"){
+                }
+                else if (*it == ">")
+                {
                     sq.op_type_ = OP_NOT_EQUAL;
                     it++;
-                }else{  
+                }
+                else
+                {
                     sq.op_type_ = OP_LESS;
                 }
-            }else{
+            }
+            else
+            {
                 throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                 return;
             }
-            //接下来是值
+            // 接下来是值
             sq.value_ = *it;
             condition_.push_back(sq);
             it++;
-            if(it!=sql_vector.end()){
+            if (it != sql_vector.end())
+            {
                 transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                if(*it == "and"){
+                if (*it == "and")
+                {
                     relation_.push_back(OP_AND);
-                }else if(*it == "or"){
+                }
+                else if (*it == "or")
+                {
                     relation_.push_back(OP_OR);
-                }else{
+                }
+                else
+                {
                     throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                     return;
                 }
@@ -757,27 +884,27 @@ string SQLSelect::get_tb_name()
 {
     return tb_name_;
 }
-vector<string>& SQLSelect::get_col_name()
+vector<string> &SQLSelect::get_col_name()
 {
     return col_name_;
 }
-vector<SQLWhere>& SQLSelect::get_condition()
+vector<SQLWhere> &SQLSelect::get_condition()
 {
     return condition_;
 }
-vector<uint8>& SQLSelect::get_relation()
+vector<uint8> &SQLSelect::get_relation()
 {
     return relation_;
 }
 
 void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
 {
-    //SQL Select 语句标准如下
-    //SELECT column_name,column_name FROM table_name WHERE column_name operator value;
-    //其中operator可以是=,>,<,>=,<=,<>
-    //value可以是数字或者字符串
-    //如果value是字符串,则需要用单引号或者双引号括起来
-    //如果value是数字,则不需要用单引号或者双引号括起来
+    // SQL Select 语句标准如下
+    // SELECT column_name,column_name FROM table_name WHERE column_name operator value;
+    // 其中operator可以是=,>,<,>=,<=,<>
+    // value可以是数字或者字符串
+    // 如果value是字符串,则需要用单引号或者双引号括起来
+    // 如果value是数字,则不需要用单引号或者双引号括起来
 
     if (sql_vector.size() < 4)
     {
@@ -785,95 +912,128 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
         return;
     }
     auto it = sql_vector.begin() + 1;
-    if(*it != "*"){
-        //查询的不是全体,是特定列
+    if (*it != "*")
+    {
+        // 查询的不是全体,是特定列
         bool is_attr = true;
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-        while(is_attr){
+        while (is_attr)
+        {
             is_attr = false;
             transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
             col_name_.push_back(*it);
             it++;
-            if(*it == ","){
-                //如果还有
+            if (*it == ",")
+            {
+                // 如果还有
                 is_attr = true;
             }
         }
-    }else{
+    }
+    else
+    {
         it++;
     }
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-    if(*it != "from"){
+    if (*it != "from")
+    {
         throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER");
         return;
     }
     it++;
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-    //表名
+    // 表名
     tb_name_ = *it;
     it++;
-    if(it != sql_vector.end()){
-        //如果没到结尾,说明有where条件
+    if (it != sql_vector.end())
+    {
+        // 如果没到结尾,说明有where条件
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-        if(*it != "where"){
+        if (*it != "where")
+        {
             throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER");
             return;
         }
         it++;
         bool is_attr = true;
-        while(is_attr){
+        while (is_attr)
+        {
             is_attr = false;
-            //对应列名
+            // 对应列名
             SQLWhere sq;
             transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            //判断有没有NOT运算符
-            if(*it == "not"){
+            // 判断有没有NOT运算符
+            if (*it == "not")
+            {
                 sq.is_need_ = false;
-            }else{
+            }
+            else
+            {
                 sq.is_need_ = true;
                 it++;
                 transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
             }
             sq.key_ = *it;
-            //接下来是运算符处理
+            // 接下来是运算符处理
             it++;
-            if(*it == "="){
+            if (*it == "=")
+            {
                 sq.op_type_ = OP_EQUAL;
                 it++;
-            }else if(*it == ">"){
+            }
+            else if (*it == ">")
+            {
                 it++;
-                if(*it == "="){
+                if (*it == "=")
+                {
                     sq.op_type_ = OP_GREATER_EQUAL;
                     it++;
-                }else{
+                }
+                else
+                {
                     sq.op_type_ = OP_GREATER;
                 }
-            }else if(*it == "<"){
+            }
+            else if (*it == "<")
+            {
                 it++;
-                if(*it == "="){
+                if (*it == "=")
+                {
                     sq.op_type_ = OP_LESS_EQUAL;
                     it++;
-                }else if(*it == ">"){
+                }
+                else if (*it == ">")
+                {
                     sq.op_type_ = OP_NOT_EQUAL;
                     it++;
-                }else{  
+                }
+                else
+                {
                     sq.op_type_ = OP_LESS;
                 }
-            }else{
+            }
+            else
+            {
                 throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                 return;
             }
-            //接下来是值
+            // 接下来是值
             sq.value_ = *it;
             condition_.push_back(sq);
             it++;
-            if(it!=sql_vector.end()){
+            if (it != sql_vector.end())
+            {
                 transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                if(*it == "and"){
+                if (*it == "and")
+                {
                     relation_.push_back(OP_AND);
-                }else if(*it == "or"){
+                }
+                else if (*it == "or")
+                {
                     relation_.push_back(OP_OR);
-                }else{
+                }
+                else
+                {
                     throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
                     return;
                 }

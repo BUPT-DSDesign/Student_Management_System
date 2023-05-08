@@ -12,7 +12,9 @@ typedef struct
     bool is_primary_;//是否为主键
     bool is_not_null;//是否必须存在
     uint16 length_;//该数据类型长度(比特)
-    char col_name_[27];//列名,最长为27个字符     
+    char col_name_[27];//列名,最长为27个字符
+    char default_[256];//默认值,最长为256个字符
+    char comment_[256];//注释,最长为256个字符     
 }TableColAttribute;
 //定义表结构
 //表采用InnoDB的结构,即每一条记录都是定长的,每一条记录都有一个row_id,用于索引
