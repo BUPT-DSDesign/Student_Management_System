@@ -18,7 +18,7 @@ type editSignatureResponse struct {
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  editSignatureResponse
-// @Router       /user/edit_signature[put]
+// @Router       /user/edit_signature [put]
 
 func EditSignatureHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")

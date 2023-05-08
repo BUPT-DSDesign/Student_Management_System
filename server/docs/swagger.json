@@ -18,6 +18,106 @@
     "host": "localhost:8080",
     "basePath": "/Student_Management_System",
     "paths": {
+        "/activity": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取学生所有的课外活动信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "课外活动相关接口"
+                ],
+                "summary": "课外活动信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/activity_handler.getInfoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/add": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "管理员添加课程",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "管理员添加课程相关接口"
+                ],
+                "summary": "添加课程",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.addResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "根据id删除课程",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "删除课程相关接口"
+                ],
+                "summary": "删除课程",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.deleteResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/search": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "查询课程",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "查询课程相关接口"
+                ],
+                "summary": "查询课程",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.searchResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/course/table": {
             "get": {
                 "security": [
@@ -38,6 +138,140 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/course_handler.tableResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/update": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "更新课程信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "更新课程"
+                ],
+                "summary": "更新课程",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.updateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/log/add": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "添加一条日志",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "添加日志"
+                ],
+                "summary": "添加日志",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "时间",
+                        "name": "create_time",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "内容",
+                        "name": "content",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/log_handler.addResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/log/delete": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "删除一条日志",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "删除日志"
+                ],
+                "summary": "删除日志",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "日志id",
+                        "name": "log_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/log_handler.deleteResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/log/info": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "查询日志",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "查询日志"
+                ],
+                "summary": "查询日志",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/log_handler.infoResponse"
                         }
                     }
                 }
@@ -82,6 +316,76 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/navigate_handler.NavigateResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/navigate/tsp": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "解决旅行商问题",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "旅行商问题"
+                ],
+                "summary": "旅行商",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "开始节点ID",
+                        "name": "start_id",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "array",
+                        "items": {
+                            "type": "integer"
+                        },
+                        "description": "途径节点集合",
+                        "name": "des_ids",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/navigate_handler.tspResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/info": {
+            "get": {
+                "description": "获取用户信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户鉴权"
+                ],
+                "summary": "用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user_handler.infoResponse"
                         }
                     }
                 }
@@ -154,9 +458,49 @@
                     }
                 }
             }
+        },
+        "/user/upload_avatar": {
+            "post": {
+                "description": "用户上传头像",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户鉴权"
+                ],
+                "summary": "上传头像",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user_handler.uploadAvatarResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "activity_handler.getInfoResponse": {
+            "type": "object",
+            "properties": {
+                "activities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.ActivityInfo"
+                    }
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
         "common.LoginRequest": {
             "type": "object",
             "properties": {
@@ -182,6 +526,45 @@
                 }
             }
         },
+        "course_handler.addResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "course_handler.deleteResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "course_handler.searchResponse": {
+            "type": "object",
+            "properties": {
+                "course_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.CourseInfo"
+                    }
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
         "course_handler.tableResponse": {
             "type": "object",
             "properties": {
@@ -189,6 +572,59 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/system.CourseInfo"
+                    }
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "course_handler.updateResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "log_handler.addResponse": {
+            "type": "object",
+            "properties": {
+                "log_id": {
+                    "type": "integer"
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "log_handler.deleteResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "log_handler.infoResponse": {
+            "type": "object",
+            "properties": {
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.LogInfo"
                     }
                 },
                 "status_code": {
@@ -222,6 +658,84 @@
                 },
                 "status_msg": {
                     "type": "string"
+                }
+            }
+        },
+        "navigate_handler.tspResponse": {
+            "type": "object",
+            "properties": {
+                "node_list": {
+                    "description": "途径节点的经纬度",
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "pass_list": {
+                    "description": "用户选择的目标点的经纬度，用户在地图上显示",
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "number"
+                        }
+                    }
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "system.ActivityInfo": {
+            "type": "object",
+            "properties": {
+                "activity_id": {
+                    "type": "integer"
+                },
+                "activity_name": {
+                    "type": "string"
+                },
+                "duration_time": {
+                    "type": "integer"
+                },
+                "is_mention": {
+                    "description": "是否需要提醒",
+                    "type": "boolean"
+                },
+                "is_online": {
+                    "description": "是否线上",
+                    "type": "boolean"
+                },
+                "location": {
+                    "type": "string"
+                },
+                "location_id": {
+                    "description": "线下地点的节点编号",
+                    "type": "integer"
+                },
+                "start_day": {
+                    "type": "integer"
+                },
+                "start_time": {
+                    "type": "string"
+                },
+                "start_week": {
+                    "type": "integer"
+                },
+                "tag": {
+                    "type": "integer"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -264,6 +778,10 @@
                     "description": "考试时间, 格式为'第几周-星期几-几点~几点（HH:mm~HH:mm）', 如'第十六周-星期三-19:00~20:00'",
                     "type": "string"
                 },
+                "is_compulsory": {
+                    "description": "课程是否必修",
+                    "type": "boolean"
+                },
                 "is_course_online": {
                     "type": "boolean"
                 },
@@ -284,6 +802,24 @@
                 }
             }
         },
+        "system.LogInfo": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "log_id": {
+                    "type": "integer"
+                },
+                "user_id": {
+                    "description": "对应的用户id, 对应某个用户的日志",
+                    "type": "integer"
+                }
+            }
+        },
         "system.PathGuider": {
             "type": "object",
             "properties": {
@@ -297,9 +833,51 @@
                 }
             }
         },
+        "system.UserInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "description": "保存用户头像的路径",
+                    "type": "string"
+                },
+                "is_admin": {
+                    "type": "boolean"
+                },
+                "signature": {
+                    "description": "......后续应该还要加上一些字段",
+                    "type": "string"
+                },
+                "student_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "user_handler.infoResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                },
+                "user_info": {
+                    "$ref": "#/definitions/system.UserInfo"
+                }
+            }
+        },
         "user_handler.loginResponse": {
             "type": "object",
             "properties": {
+                "is_admin": {
+                    "type": "boolean"
+                },
                 "status_code": {
                     "type": "integer"
                 },
@@ -317,6 +895,9 @@
         "user_handler.registerResponse": {
             "type": "object",
             "properties": {
+                "is_admin": {
+                    "type": "boolean"
+                },
                 "status_code": {
                     "type": "integer"
                 },
@@ -328,6 +909,20 @@
                 },
                 "user_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "user_handler.uploadAvatarResponse": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
                 }
             }
         }

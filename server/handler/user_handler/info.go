@@ -21,7 +21,7 @@ type infoResponse struct {
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  infoResponse
-// @Router       /user/info[get]
+// @Router       /user/info [get]
 func InfoHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)

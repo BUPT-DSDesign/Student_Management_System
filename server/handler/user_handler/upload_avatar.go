@@ -20,7 +20,7 @@ type uploadAvatarResponse struct {
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  uploadAvatarResponse
-// @Router       /user/upload_avatar[post]
+// @Router       /user/upload_avatar [post]
 func UploadAvatarHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)

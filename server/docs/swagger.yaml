@@ -1,5 +1,16 @@
 basePath: /Student_Management_System
 definitions:
+  activity_handler.getInfoResponse:
+    properties:
+      activities:
+        items:
+          $ref: '#/definitions/system.ActivityInfo'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
   common.LoginRequest:
     properties:
       password:
@@ -16,11 +27,70 @@ definitions:
       username:
         type: string
     type: object
+  course_handler.addResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  course_handler.deleteResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  course_handler.searchResponse:
+    properties:
+      course_list:
+        items:
+          $ref: '#/definitions/system.CourseInfo'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
   course_handler.tableResponse:
     properties:
       course_list:
         items:
           $ref: '#/definitions/system.CourseInfo'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  course_handler.updateResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  log_handler.addResponse:
+    properties:
+      log_id:
+        type: integer
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  log_handler.deleteResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  log_handler.infoResponse:
+    properties:
+      logs:
+        items:
+          $ref: '#/definitions/system.LogInfo'
         type: array
       status_code:
         type: integer
@@ -43,6 +113,59 @@ definitions:
         type: integer
       status_msg:
         type: string
+    type: object
+  navigate_handler.tspResponse:
+    properties:
+      node_list:
+        description: 途径节点的经纬度
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+      pass_list:
+        description: 用户选择的目标点的经纬度，用户在地图上显示
+        items:
+          items:
+            type: number
+          type: array
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  system.ActivityInfo:
+    properties:
+      activity_id:
+        type: integer
+      activity_name:
+        type: string
+      duration_time:
+        type: integer
+      is_mention:
+        description: 是否需要提醒
+        type: boolean
+      is_online:
+        description: 是否线上
+        type: boolean
+      location:
+        type: string
+      location_id:
+        description: 线下地点的节点编号
+        type: integer
+      start_day:
+        type: integer
+      start_time:
+        type: string
+      start_week:
+        type: integer
+      tag:
+        type: integer
+      type:
+        type: integer
+      user_id:
+        type: integer
     type: object
   system.CourseInfo:
     properties:
@@ -71,6 +194,9 @@ definitions:
       exam_time:
         description: 考试时间, 格式为'第几周-星期几-几点~几点（HH:mm~HH:mm）', 如'第十六周-星期三-19:00~20:00'
         type: string
+      is_compulsory:
+        description: 课程是否必修
+        type: boolean
       is_course_online:
         type: boolean
       section_list:
@@ -84,6 +210,18 @@ definitions:
           type: integer
         type: array
     type: object
+  system.LogInfo:
+    properties:
+      content:
+        type: string
+      create_time:
+        type: string
+      log_id:
+        type: integer
+      user_id:
+        description: 对应的用户id, 对应某个用户的日志
+        type: integer
+    type: object
   system.PathGuider:
     properties:
       distance:
@@ -93,8 +231,36 @@ definitions:
         description: 向量方向,用航向角来计算(正北为0,360等分)
         type: integer
     type: object
+  system.UserInfo:
+    properties:
+      avatar_url:
+        description: 保存用户头像的路径
+        type: string
+      is_admin:
+        type: boolean
+      signature:
+        description: '......后续应该还要加上一些字段'
+        type: string
+      student_id:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  user_handler.infoResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+      user_info:
+        $ref: '#/definitions/system.UserInfo'
+    type: object
   user_handler.loginResponse:
     properties:
+      is_admin:
+        type: boolean
       status_code:
         type: integer
       status_msg:
@@ -106,6 +272,8 @@ definitions:
     type: object
   user_handler.registerResponse:
     properties:
+      is_admin:
+        type: boolean
       status_code:
         type: integer
       status_msg:
@@ -114,6 +282,15 @@ definitions:
         type: string
       user_id:
         type: integer
+    type: object
+  user_handler.uploadAvatarResponse:
+    properties:
+      avatar_url:
+        type: string
+      status_code:
+        type: integer
+      status_msg:
+        type: string
     type: object
 host: localhost:8080
 info:
@@ -129,6 +306,66 @@ info:
   title: Student Management System API
   version: alpha 1.0
 paths:
+  /activity:
+    get:
+      description: 获取学生所有的课外活动信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/activity_handler.getInfoResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 课外活动信息
+      tags:
+      - 课外活动相关接口
+  /course/add:
+    post:
+      description: 管理员添加课程
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.addResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 添加课程
+      tags:
+      - 管理员添加课程相关接口
+  /course/delete:
+    delete:
+      description: 根据id删除课程
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.deleteResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除课程
+      tags:
+      - 删除课程相关接口
+  /course/search:
+    get:
+      description: 查询课程
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.searchResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询课程
+      tags:
+      - 查询课程相关接口
   /course/table:
     get:
       description: 获取学生所有的课程表信息
@@ -144,6 +381,89 @@ paths:
       summary: 课程表
       tags:
       - 课程表相关接口
+  /course/update:
+    put:
+      description: 更新课程信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.updateResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 更新课程
+      tags:
+      - 更新课程
+  /log/add:
+    get:
+      consumes:
+      - application/json
+      description: 添加一条日志
+      parameters:
+      - description: 时间
+        in: query
+        name: create_time
+        required: true
+        type: string
+      - description: 内容
+        in: query
+        name: content
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/log_handler.addResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 添加日志
+      tags:
+      - 添加日志
+  /log/delete:
+    get:
+      consumes:
+      - application/json
+      description: 删除一条日志
+      parameters:
+      - description: 日志id
+        in: query
+        name: log_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/log_handler.deleteResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除日志
+      tags:
+      - 删除日志
+  /log/info:
+    get:
+      consumes:
+      - application/json
+      description: 查询日志
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/log_handler.infoResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询日志
+      tags:
+      - 查询日志
   /navigate/path:
     get:
       consumes:
@@ -172,6 +492,51 @@ paths:
       summary: 导航
       tags:
       - 导航功能
+  /navigate/tsp:
+    get:
+      consumes:
+      - application/json
+      description: 解决旅行商问题
+      parameters:
+      - description: 开始节点ID
+        in: query
+        name: start_id
+        required: true
+        type: integer
+      - description: 途径节点集合
+        in: query
+        items:
+          type: integer
+        name: des_ids
+        required: true
+        type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/navigate_handler.tspResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 旅行商
+      tags:
+      - 旅行商问题
+  /user/info:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_handler.infoResponse'
+      summary: 用户信息
+      tags:
+      - 用户鉴权
   /user/login:
     post:
       consumes:
@@ -214,6 +579,21 @@ paths:
           schema:
             $ref: '#/definitions/user_handler.registerResponse'
       summary: 注册
+      tags:
+      - 用户鉴权
+  /user/upload_avatar:
+    post:
+      consumes:
+      - application/json
+      description: 用户上传头像
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_handler.uploadAvatarResponse'
+      summary: 上传头像
       tags:
       - 用户鉴权
 securityDefinitions:

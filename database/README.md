@@ -31,7 +31,7 @@
 该模块为Code Generator,解析SQL语句来调用对应API
 
 ### SQLstatement
-此处为SQL各式操作的详细参数以及有关操作
+此处为SQL各式操作的详细参数以及
 
 ### my_exception
 此处为异常处理,主要是各种异常的定义
