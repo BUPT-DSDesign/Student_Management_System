@@ -59,6 +59,8 @@ func InitRouters() *gin.Engine {
 		courseGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), course_handler.DeleteHandler)
 		// 更新课程
 		courseGroup.PUT("/update", middleware.JwtAuthMiddleware(), course_handler.UpdateHandler)
+		// 搜索课程
+		courseGroup.GET("/search", middleware.JwtAuthMiddleware(), course_handler.SearchHandler)
 	}
 
 	// 导航路由
