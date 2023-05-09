@@ -27,16 +27,26 @@
                 <i class="el-icon-news"></i>
                 <span slot="title">日志信息</span>
             </el-menu-item>
+            <el-dialog title="闹钟提醒" :visible="popupVisible" :modal="false" :custom-class="'popup'" @close="popupVisible = false">
+                <div>
+                    <p>{{ courseName }}马上要上课了</p>
+                    <p>课程开始时间：{{ startTime }}</p>
+                    <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
+                </div>
+            </el-dialog>
         </el-menu>
     </div>
 </template>
 
-<script>              
+<script>
 
 export default {
     data() {
         return {
             isCollapse: false,
+            courseName: '计算机组成原理',
+            startTime: '08:00',
+            popupVisible: true
         };
     },
     methods: {
@@ -61,6 +71,9 @@ export default {
         },
         clickLogMessage() {
             this.$router.push('/studentMain/logMessage')
+        },
+        goToNavigation() {
+            this.$router.push('/studentMain/CourseNav');
         }
     }
 }
@@ -72,7 +85,8 @@ export default {
     padding: 0;
 }
 
-html, body {
+html,
+body {
     height: 100%;
 }
 
@@ -94,5 +108,14 @@ h3 {
     font-size: 18px;
     text-align: center;
     color: #fff;
+}
+.popup {
+  position: fixed;
+  width:195px;
+  bottom:2px;
+  left: 1px;
+}
+.popup .el-dialog__body {
+    padding:5px;
 }
 </style>
