@@ -10,15 +10,16 @@ import (
 type updateFlow struct {
 	// 包含handler层传来的参数等
 	userId           int64
+	courseId         int64
 	addCourseRequest common.AddCourseRequest
 }
 
-func newUpdateFlow(userId int64, addCourseRequest common.AddCourseRequest) *updateFlow {
-	return &updateFlow{userId: userId, addCourseRequest: addCourseRequest}
+func newUpdateFlow(userId int64, courseId int64, addCourseRequest common.AddCourseRequest) *updateFlow {
+	return &updateFlow{userId: userId, courseId: courseId, addCourseRequest: addCourseRequest}
 }
 
-func (s *server) DoUpdate(userId int64, updateCourseRequest common.AddCourseRequest) error {
-	return newUpdateFlow(userId, updateCourseRequest).do()
+func (s *server) DoUpdate(userId int64, courseId int64, updateCourseRequest common.AddCourseRequest) error {
+	return newUpdateFlow(userId, courseId, updateCourseRequest).do()
 }
 
 func (f *updateFlow) do() error {
@@ -47,7 +48,7 @@ func (f *updateFlow) checkNum() error {
 
 func (f *updateFlow) run() error {
 	// 根据f.addCourseRequest更新课程
-	if err := dao.Group.CourseDao.UpdateCourse(&f.addCourseRequest); err != nil {
+	if err := dao.Group.CourseDao.UpdateCourse(f.courseId, &f.addCourseRequest); err != nil {
 		return err
 	}
 

@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"server/model/entity/common"
 	"server/service/course_service"
+	"strconv"
 )
 
 type updateResponse struct {
@@ -34,11 +35,15 @@ func UpdateHandler(c *gin.Context) {
 
 	// 得到addCourseRequest
 	var addCourseRequest common.AddCourseRequest
-
 	_ = c.ShouldBindJSON(&addCourseRequest)
 
+	// 得到courseId
+	courseIdString := c.Query("course_id")
+	strconv.ParseInt(courseIdString, 10, 64)
+	courseId, _ := strconv.ParseInt(courseIdString, 10, 64)
+
 	// 调用service服务
-	if err := course_service.Server.DoUpdate(userId, addCourseRequest); err != nil {
+	if err := course_service.Server.DoUpdate(userId, courseId, addCourseRequest); err != nil {
 		c.JSON(http.StatusOK, updateResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,

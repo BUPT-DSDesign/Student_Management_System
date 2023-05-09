@@ -18,7 +18,7 @@ type UserDao interface {
 type CourseDao interface {
 	AddCourse(courseInfo *system.CourseInfo) error
 	DeleteCourse(courseId int64) error
-	UpdateCourse(newCourseInfo *common.AddCourseRequest) error
+	UpdateCourse(courseId int64, newCourseInfo *common.AddCourseRequest) error
 	QueryCourseByName(courseName string, courses **[]*system.CourseInfo) error
 	QueryCourseByClassroom(classroom string, courses **[]*system.CourseInfo) error
 }
