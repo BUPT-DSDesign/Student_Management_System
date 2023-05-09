@@ -216,7 +216,6 @@ export default {
                         }
 
                     }
-                    console.log("遍历完了")
                     let startTime = startTimeMap[this.classData[i].section_list[start] % 9];
                     let endTime = endTimeMap[this.classData[i].section_list[end] % 9];
                     if (this.classData[i].hasOwnProperty('classTime')) {
@@ -430,7 +429,7 @@ export default {
 
             addCourse(this.addClassData)
 
-            // location.reload();
+            
         },
         addclass() {
             this.dialogVisible4 = true;
