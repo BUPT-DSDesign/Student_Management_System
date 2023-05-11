@@ -41,6 +41,5 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 		在数据库中根据f.userId查询活动
 		调用dao层的CRUD操作
 	*/
-
 	return nil
 }

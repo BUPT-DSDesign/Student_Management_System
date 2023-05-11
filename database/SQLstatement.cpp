@@ -1,5 +1,6 @@
 #include "SQLstatement.hpp"
 #include "MyException.hpp"
+#include <cstring>
 #include <vector>
 #include <string>
 #include <algorithm>
@@ -119,6 +120,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             pos++;
             for (auto &v : attrs_)
             {
+                //cout<<v.col_name_<<endl;
                 if (v.col_name_ == sql_vector[pos])
                 {
                     // 找到主键,设置
@@ -129,7 +131,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             if (!has_primary_key)
             {
-                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO PRIMARY KEY");
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO KEY NAMED "+sql_vector[pos]);
                 return;
             }
             pos++;
@@ -147,13 +149,14 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             attr.is_not_null = false;
             // 第一个元素是列名称
             transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
-            if (sql_vector[pos].length() < 24)
+            memset(attr.col_name_, 0, 27);
+            if (sql_vector[pos].length() < 26)
             {
                 std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.col_name_);
             }
             else
             {
-                std::copy(sql_vector[pos].begin(), sql_vector[pos].begin() + 24, attr.col_name_);
+                std::copy(sql_vector[pos].begin(), sql_vector[pos].begin() + 26, attr.col_name_);
             }
             pos++;
             // 第二个元素是列数据类型
@@ -167,7 +170,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO SUCH DATA TYPE");
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO SUCH DATA TYPE:"+sql_vector[pos]);
                 return;
             }
             keyword = sql_vector[pos];
@@ -211,7 +214,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                         }
                         else
                         {
-                            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NULL',BUT GET OTHER");
+                            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NULL',BUT GET OTHER:"+sql_vector[pos]);
                             return;
                         }
                         pos++;
@@ -222,6 +225,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                         if (sql_vector[pos] == "\'")
                         {
                             pos++;
+                            memset(attr.default_, 0, 256);
                             if (sql_vector[pos] == "\'")
                             {
                                 // 数据为空
@@ -260,7 +264,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                             //判断是否为数字类型(包括各种int和float,不是则报错)
                             //只有数字类型不需要用单引号或者双引号括起来
                             if((attr.data_type_>>4) != 0x0){
-                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT QUOTATION MARK,BUT GET OTHER");
+                                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT QUOTATION MARK,BUT GET OTHER:"+sql_vector[pos]);
                                 return;
                             }
                             std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
@@ -273,6 +277,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                         if (sql_vector[pos] == "\'")
                         {
                             pos++;
+                            memset(attr.comment_, 0, 256);
                             if (sql_vector[pos] == "\'")
                             {
                                 // 数据为空
@@ -311,13 +316,13 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                         else
                         {
                             //COMMENT內容必然是字符串,如果不是,则报错
-                            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT STRING VALUE,BUT GET OTHER");
+                            throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT STRING VALUE,BUT GET OTHER:"+sql_vector[pos]);
                             return;
                         }
                     }
                     else
                     {
-                        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NOT NULL' 'COMMENT' 'DEFAULT',BUT GET OTHER");
+                        throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT KEYWORD 'NOT NULL' 'COMMENT' 'DEFAULT',BUT GET OTHER:"+sql_vector[pos]);
                         return;
                     }
                     if(sql_vector[pos] != "," && sql_vector[pos] != ")"){
@@ -333,6 +338,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         {
             // 还有
             is_attr = true;
+            pos++;
         }
         else if (sql_vector[pos] != ")")
         {
@@ -454,7 +460,7 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT ',' OR ')', BUT GET OTHER");
+                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT ',' OR ')', BUT GET OTHER:"+*it);
                 return;
             }
         }
@@ -531,7 +537,7 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
         }
         else
         {
-            throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT ',' OR ')', BUT GET OTHER");
+            throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,EXCEPT ',' OR ')', BUT GET OTHER:"+*it);
             return;
         }
     }
@@ -585,7 +591,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "from")
     {
-        throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER");
+        throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER:"+*it);
         return;
     }
     it++;
@@ -598,7 +604,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         if (*it != "where")
         {
-            throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER");
+            throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER:"+*it);
             return;
         }
         it++;
@@ -661,7 +667,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
+                throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
                 return;
             }
             // 接下来是值
@@ -681,7 +687,7 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
                 }
                 else
                 {
-                    throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
+                    throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
                     return;
                 }
                 is_attr = true;
@@ -740,7 +746,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "set")
     {
-        throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT KEYWORD 'SET', BUT GET OTHER");
+        throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT KEYWORD 'SET', BUT GET OTHER:"+*it);
         return;
     }
     it++;
@@ -755,7 +761,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
         it++;
         if (*it != "=")
         {
-            throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT OPERATOR '=', BUT GET OTHER");
+            throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT OPERATOR '=', BUT GET OTHER:"+*it);
             return;
         }
         // 接下来是值
@@ -775,7 +781,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT ',' OR 'WHERE', BUT GET OTHER");
+                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT ',' OR 'WHERE', BUT GET OTHER:"+*it);
                 return;
             }
         }
@@ -847,7 +853,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
+                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
                 return;
             }
             // 接下来是值
@@ -867,7 +873,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
                 }
                 else
                 {
-                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
+                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
                     return;
                 }
                 is_attr = true;
@@ -937,7 +943,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "from")
     {
-        throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER");
+        throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'FROM', BUT GET OTHER:"+*it);
         return;
     }
     it++;
@@ -951,7 +957,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         if (*it != "where")
         {
-            throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER");
+            throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER:"+*it);
             return;
         }
         it++;
@@ -1014,7 +1020,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
+                throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
                 return;
             }
             // 接下来是值
@@ -1034,7 +1040,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
                 }
                 else
                 {
-                    throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER");
+                    throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
                     return;
                 }
                 is_attr = true;
@@ -1065,7 +1071,7 @@ void SQLDropDatabase::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "database")
     {
-        throw SQLSyntaxError("SQL DROP DATABASE SYNTAX ERROR,EXCEPT KEYWORD 'DATABASE', BUT GET OTHER");
+        throw SQLSyntaxError("SQL DROP DATABASE SYNTAX ERROR,EXCEPT KEYWORD 'DATABASE', BUT GET OTHER:"+*it);
         return;
     }
     it++;
@@ -1094,7 +1100,7 @@ void SQLDropIndex::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "index")
     {
-        throw SQLSyntaxError("SQL DROP INDEX SYNTAX ERROR,EXCEPT KEYWORD 'INDEX', BUT GET OTHER");
+        throw SQLSyntaxError("SQL DROP INDEX SYNTAX ERROR,EXCEPT KEYWORD 'INDEX', BUT GET OTHER:"+*it);
         return;
     }
     it++;
@@ -1123,7 +1129,7 @@ void SQLDropTable::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     if (*it != "table")
     {
-        throw SQLSyntaxError("SQL DROP TABLE SYNTAX ERROR,EXCEPT KEYWORD 'TABLE', BUT GET OTHER");
+        throw SQLSyntaxError("SQL DROP TABLE SYNTAX ERROR,EXCEPT KEYWORD 'TABLE', BUT GET OTHER:"+*it);
         return;
     }
     it++;
