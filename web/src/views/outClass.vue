@@ -170,6 +170,7 @@ export default {
             addEventData: {
                 activityType: 'group',
             },
+            deleteEventData:{},
             radio: '',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
             searchText: '',
@@ -388,6 +389,29 @@ export default {
         //删除活动按钮,row即为活动对象
         handleDelete(index, row) {
             console.log(row);
+            this.deleteEventData = row.event_id;
+            const deleteEvent = async (data) => {
+                const fg = await EventStore.DeleteEventInfo(data);
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '删除课程成功',
+                        type: 'success'
+                    });
+                    this.deleteEventData = {}
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '删除课程失败',
+                        type: 'error'
+                    });
+                    this.deleteEventData = {}
+                }
+            }
+
+            deleteEvent(this.deleteEventData)
         },
         // 查看详情按钮
         handleClick(row) {
@@ -396,7 +420,48 @@ export default {
         },
         submitAddForm() {
             this.dialogAddVisible = false;
-            console.log(this.addEventData);
+            
+            let submit = {};
+            if (this.addEventData.activityType == 'personal') {
+                submit.activityType = 0;
+                submit.start_time=
+            }
+            else if (this.addEventData.activityType == 'group') {
+                submit.activityType = 1;
+                submit.start_time=
+            }
+            else if (this.addEventData.activityType == 'gtemp') {
+                submit.activityType = 2;
+                submit.start_time = this.addEventData.time;
+                submit.start_week = this.addEventData.week;
+                submit.start_day = this.addEventData.day;
+                submit.location = this.addEventData.address;
+            }
+            submit.activity_name = addEventData.name;
+
+
+            const addEvent = async (data) => {
+                const fg = await EventStore.AddEventInfo(data);
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '添加活动成功',
+                        type: 'success'
+                    });
+                    submit = {}
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '添加活动失败',
+                        type: 'error'
+                    });
+                    submit = {}
+                }
+            }
+
+            addEvent(submit)
         },
     },
     computed: {

@@ -17,9 +17,36 @@ export const useEventStore = defineStore('event', () => {
             return false
         }
     }
+    //添加活动
+    const AddEventeInfo = async (data) => {
+        try {
+            const res = await AddEvente(data)
+            console.log(res.data)
+            if (res.data.status_code == 0) {
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+
+    //删除活动
+    const DeleteEventInfo = async (data) => {
+        try {
+            const res = await DeleteEvent(data)
+            console.log(res.data)
+            if (res.data.status_code == 0) {
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
 
     return {
         eventList,
-        GetEventTable
+        GetEventTable,
+        AddEventeInfo,
+        DeleteEventInfo
     }
 })
