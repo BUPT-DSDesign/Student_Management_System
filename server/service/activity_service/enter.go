@@ -8,6 +8,7 @@ import (
 type ActivityServer interface {
 	DoGetInfo(userId int64) (*[]*system.ActivityInfo, error)
 	DoAdd(userId int64, addActivityRequest common.AddActivityRequest) error
+	DoDelete(userId int64, activityId int64) error
 }
 
 type server struct {

@@ -77,14 +77,22 @@ func InitRouters() *gin.Engine {
 	// 课外活动以及临时事务路由
 	activityGroup := rootPath.Group("/activity")
 	{
+		// 获取课外活动列表
 		activityGroup.GET("/info", middleware.JwtAuthMiddleware(), activity_handler.GetInfoHandler)
+		// 添加课外活动
+		activityGroup.POST("/add", middleware.JwtAuthMiddleware(), activity_handler.AddHandler)
+		// 删除课外活动
+		activityGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), activity_handler.DeleteHandler)
 	}
 
 	// 日志路由
 	logGroup := rootPath.Group("/log")
 	{
+		// 添加日志
 		logGroup.GET("/add", middleware.JwtAuthMiddleware(), log_handler.AddHandler)
+		// 获取日志列表
 		logGroup.GET("/info", middleware.JwtAuthMiddleware(), log_handler.InfoHandler)
+		// 删除日志
 		logGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), log_handler.DeleteHandler)
 	}
 
