@@ -106,10 +106,9 @@ export default {
                         // 将注册成功的信息写入日志
                         const log = {
                             "create_time":  TimeStore.getTime(),
-                            "content": "成功注册",
+                            "content": "成功注册账号",
                         }
                         LogStore.addLog(log)
-
                     }
                 } else {
                     this.$message({

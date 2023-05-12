@@ -22,7 +22,7 @@ export const LogAdd = (data) => {
     return service({
         url: '/log/add',
         method: 'post',
-        data
+        data: data
     })
 }
 

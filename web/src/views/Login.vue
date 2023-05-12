@@ -67,7 +67,7 @@ export default {
                                 type: 'success'
                             });
                         }       
-                         // 将登录成功的信息写入日志
+                        // 将登录成功的信息写入日志
                         const log = {
                             "create_time":  TimeStore.getTime(),
                             "content": "登录系统",
