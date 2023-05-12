@@ -22,7 +22,7 @@ type addResponse struct {
 // @Param        create_time query string true "时间"
 // @Param        content query string true "内容"
 // @Success      200  {object}  addResponse
-// @Router       /log/add [get]
+// @Router       /log/add [post]
 func AddHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
@@ -36,18 +36,31 @@ func AddHandler(c *gin.Context) {
 		return
 	}
 
-	// 日志创建时间
-	createTime := c.Query("create_time")
+	// 获取body参数
+	bodyData := make(map[string]interface{}, 0)
+	_ = c.ShouldBindJSON(&bodyData)
 
+	// 日志创建时间
+	createTime, ok1 := bodyData["create_time"].(string)
 	// 日志内容
-	content := c.Query("content")
+	content, ok2 := bodyData["content"].(string)
+
+	if !ok1 || !ok2 {
+		c.JSON(http.StatusOK, addResponse{
+			StatusResponse: common.StatusResponse{
+				StatusCode: 2,
+				StatusMsg:  "缺少相关参数",
+			},
+		})
+		return
+	}
 
 	// 调用服务
 	logId, err := log_service.Server.DoAdd(createTime, content, userId)
 	if err != nil {
 		c.JSON(http.StatusOK, addResponse{
 			StatusResponse: common.StatusResponse{
-				StatusCode: 2,
+				StatusCode: 3,
 				StatusMsg:  err.Error(),
 			},
 		})

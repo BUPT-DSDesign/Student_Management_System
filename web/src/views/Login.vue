@@ -17,6 +17,8 @@
 
 <script>
 import { UserStore } from '@/store/user';
+import { LogStore } from '@/store/log';
+import { TimeStore } from '@/store/time';
 
 export default {
     data() {
@@ -64,7 +66,14 @@ export default {
                                 message: '管理员登录成功',
                                 type: 'success'
                             });
-                        }                  
+                        }       
+                         // 将登录成功的信息写入日志
+                        const log = {
+                            "create_time":  TimeStore.getTime(),
+                            "content": "登录系统",
+                        }
+                        console.log(log)
+                        LogStore.AddLog(log)           
                     }
                 } else {
                     this.$message({

@@ -15,6 +15,10 @@ export const useTimeStore = defineStore('time', () => {
         hour.value = 0
         minute.value = 0
     }
+
+    const getTime = () => {
+        return "第 " + week.value + " 周 " + "星期 " + day.value + " " + hour.value + ":" + minute.value
+    }
     
     return {
         Tm,
@@ -22,7 +26,8 @@ export const useTimeStore = defineStore('time', () => {
         day,
         hour,
         minute,
-        clear
+        clear,
+        getTime
     }
 }, {
     persist: true

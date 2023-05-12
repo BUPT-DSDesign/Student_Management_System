@@ -89,7 +89,7 @@ func InitRouters() *gin.Engine {
 	logGroup := rootPath.Group("/log")
 	{
 		// 添加日志
-		logGroup.GET("/add", middleware.JwtAuthMiddleware(), log_handler.AddHandler)
+		logGroup.POST("/add", middleware.JwtAuthMiddleware(), log_handler.AddHandler)
 		// 获取日志列表
 		logGroup.GET("/info", middleware.JwtAuthMiddleware(), log_handler.InfoHandler)
 		// 删除日志
