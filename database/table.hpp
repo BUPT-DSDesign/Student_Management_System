@@ -33,7 +33,9 @@ typedef struct{
     uint16 col_id_;//索引所对应的列
     char index_name_[30];//索引文件名,最长为30个字符
 }IndexAttribute;
-
+//表
+//这个类用于操作表,包括新建表,删除表,插入记录,删除记录,修改记录,查询记录
+//同时还包括索引的操作,包括新建索引,删除索引,查询索引
 class Table
 {
 private:
@@ -57,8 +59,8 @@ public:
     Table(const string& db_path,const string& table_name);
     //新建一张表
     Table(const string& db_path,const string& table_name,vector<TableColAttribute> &col_info);
-    int get_record_length();//获取每一条记录长度
-    void set_record_length();//设置
+    //插入一条记录
+
     
     ~Table();
 };

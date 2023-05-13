@@ -189,7 +189,29 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
             table_info_->write(it.comment_.data(),it.comment_length_);
         }
     }
+    //计算每一列的偏移量
+    uint16 shift = 0;
+    for(int i = 0;i < col_cnt_;i++){
+        col_shift_.push_back(shift);
+        shift += col_info[i].length_;
+    }
+    //计算每一条记录的长度
+    record_length_ = shift;
+    //写入索引的数量
+    index_cnt_ = 0;
+    table_info_->write(reinterpret_cast<char*>(&index_cnt_),sizeof(uint16));
+    //最后打开表的数据文件,其文件路径为db_path/table_name.tb,
+    string fileData = db_path_+"/"+table_name_+".tb";
+    tb_data_ = make_unique<BPTree>(fileData);
+    //如果有索引文件,一并将其加载入内存
+    for(auto &it:index_name_){
+        string fileIndex = db_path_+"/"+it+".idx";
+        tb_index_[it] = make_unique<BPTree>(fileIndex);
+    }
 }
+Table::~Table(){}
+
+
 string Table::deserialize(vector<byte> &data){
     //每次只能解析一个行数据
     if(data.size()!=record_length_){
