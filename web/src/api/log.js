@@ -17,3 +17,12 @@ export const LogDelete = (logIds) => {
     })
 }
 
+// 增添日志
+export const LogAdd = (data) => {
+    return service({
+        url: '/log/add',
+        method: 'post',
+        data: data
+    })
+}
+

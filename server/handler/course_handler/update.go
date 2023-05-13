@@ -39,7 +39,6 @@ func UpdateHandler(c *gin.Context) {
 
 	// 得到courseId
 	courseIdString := c.Query("course_id")
-	strconv.ParseInt(courseIdString, 10, 64)
 	courseId, _ := strconv.ParseInt(courseIdString, 10, 64)
 
 	// 调用service服务

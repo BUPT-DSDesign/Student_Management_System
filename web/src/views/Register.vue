@@ -23,6 +23,9 @@
 </template>
 <script>
 import { UserStore } from '@/store/user'
+import { LogStore } from '@/store/log'
+import { TimeStore } from '@/store/time'
+
 export default {
     data() {
         var checkStudentId = (rule, value, callback) => {
@@ -100,6 +103,12 @@ export default {
                             message: '注册成功, 直接跳转至主页面',
                             type: 'success'
                         });
+                        // 将注册成功的信息写入日志
+                        const log = {
+                            "create_time":  TimeStore.getTime(),
+                            "content": "成功注册账号",
+                        }
+                        LogStore.addLog(log)
                     }
                 } else {
                     this.$message({

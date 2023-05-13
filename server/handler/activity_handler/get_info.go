@@ -20,7 +20,7 @@ type getInfoResponse struct {
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  getInfoResponse
-// @Router       /activity [get]
+// @Router       /activity/info [get]
 func GetInfoHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)

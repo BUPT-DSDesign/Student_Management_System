@@ -27,6 +27,17 @@ type AddCourseRequest struct {
 	IsCompulsory   bool   `json:"is_compulsory" form:"is_compulsory"`
 }
 
+// AddActivityRequest 添加活动请求
+type AddActivityRequest struct {
+	ActivityName string `json:"activity_name" form:"activity_name"`
+	StartTime    string `json:"start_time" form:"start_time"`
+	Type         int    `json:"type" form:"type"`
+	Location     string `json:"location" form:"location"`
+	Tag          string `json:"tag" form:"tag"`
+	Frequency    int    `json:"frequency" form:"frequency"`
+	IsMention    bool   `json:"is_mention" form:"is_mention"` // 是否需要提醒
+}
+
 // NavigateRequest 导航请求
 type NavigateRequest struct {
 	FromId int `json:"from_id"` //开始节点

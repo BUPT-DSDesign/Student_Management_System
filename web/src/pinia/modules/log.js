@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LogInfo, LogDelete } from "@/api/log";
+import { LogInfo, LogDelete, LogAdd } from "@/api/log";
 import { ref } from "vue";
 
 export const useLogStore = defineStore('log', () => {
@@ -18,6 +18,20 @@ export const useLogStore = defineStore('log', () => {
             return false
         }
     }
+
+    const AddLog = async (data) => {
+        try {
+            const res = await LogAdd(data)
+            if (res.data.status_code == 0) {
+                return true
+            }
+            return false
+        } catch (err) {
+            console.log(err)
+            return false
+        }
+    }
+
     
     const DeleteLog = async (logId) => {
         try {
@@ -36,6 +50,7 @@ export const useLogStore = defineStore('log', () => {
     return {
         logs,
         GetLogMessage,
-        DeleteLog
+        DeleteLog,
+        AddLog
     }
 })
