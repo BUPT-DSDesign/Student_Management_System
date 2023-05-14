@@ -19,8 +19,12 @@ type CourseDao interface {
 	AddCourse(courseInfo *system.CourseInfo) error
 	DeleteCourse(courseId int64) error
 	UpdateCourse(courseId int64, newCourseInfo *common.AddCourseRequest) error
+	QueryCompulsoryCourse(courses **[]*system.CourseInfo) error
+	QueryElectiveCourse(userId int64, courses **[]*system.CourseInfo) error
 	QueryCourseByName(courseName string, courses **[]*system.CourseInfo) error
 	QueryCourseByClassroom(classroom string, courses **[]*system.CourseInfo) error
+	QuerySectionListById(courseId int64, sectionList *[]int) error
+	QueryWeekScheduleById(courseId int64, weekSchedule *[]int) error
 }
 
 // ActivityDao 活动数据库操作对象

@@ -6,7 +6,7 @@ import (
 	"github.com/bwmarrin/snowflake"
 )
 
-// 雪花算法生成用户Id
+// GenerateId 雪花算法生成用户Id
 func GenerateId() (int64, error) {
 	// 创建一个节点
 	node, err := snowflake.NewNode(time.Now().Unix()%1024 + 1)

@@ -134,6 +134,8 @@
 
 <script>
 import { CourseStore } from '@/store/course';
+import { LogStore } from '@/store/log';
+import { TimeStore } from '@/store/time';
 
 const startTimeMap = {
     1: "8:00",
@@ -415,7 +417,15 @@ export default {
                         message: '添加课程成功',
                         type: 'success'
                     });
+                    // 将添加课程的信息添加到日志中
+                    const log = {
+                        "create_time": TimeStore.getTime(),
+                        "log_content": "添加课程---" + this.addClassData.course_name
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)
                     this.addClassData = {}
+                                       
                 } else {
                     this.$message({
                         showClose: true,

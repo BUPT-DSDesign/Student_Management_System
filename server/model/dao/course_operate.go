@@ -8,6 +8,7 @@ import (
 )
 
 func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
+	//goland:noinspection ALL
 	sqlStr := fmt.Sprintf("INSERT INTO course_info VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
 		courseInfo.CourseName,
 		courseInfo.CourseId,
@@ -23,6 +24,24 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
+	}
+
+	// 添加到课程-节次表
+	for _, v := range courseInfo.SectionList {
+		id, _ := utils.GenerateId()
+		sqlStr = fmt.Sprintf("INSERT INTO course_section VALUES('%v', '%v', '%v')", id, courseInfo.CourseId, v)
+		if err := db.ExecSql(sqlStr); err != nil {
+			return err
+		}
+	}
+
+	// 添加课程-周次表
+	for _, v := range courseInfo.WeekSchedule {
+		id, _ := utils.GenerateId()
+		sqlStr = fmt.Sprintf("INSERT INTO course_week_schedule VALUES('%v', '%v', '%v')", id, courseInfo.CourseId, v)
+		if err := db.ExecSql(sqlStr); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -65,6 +84,55 @@ func (s *courseDao) UpdateCourse(courseId int64, newCourseInfo *common.AddCourse
 	}
 
 	return nil
+}
+
+func (s *courseDao) QueryCompulsoryCourse(courses **[]*system.CourseInfo) error {
+	/*
+		查询必修课
+	*/
+	sqlStr := "SELECT * FROM course_info WHERE is_compulsory = 1"
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.CourseInfo) error {
+	/*
+		查询选修课
+	*/
+	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id IN (SELECT course_id FROM student_course WHERE user_id = '%v')", userId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *courseDao) QuerySectionListById(courseId int64, sectionList *[]int) error {
+	/*
+		根据课程id查询节次
+	*/
+	sqlStr := fmt.Sprintf("SELECT section_id FROM course_section WHERE course_id = '%v'", courseId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *courseDao) QueryWeekScheduleById(courseId int64, weekSchedule *[]int) error {
+	/*
+		根据课程id查询周次
+	*/
+	sqlStr := fmt.Sprintf("SELECT week_id FROM course_week_schedule WHERE course_id = '%v'", courseId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	return nil
+
 }
 
 func (s *courseDao) QueryCourseByName(courseName string, courses **[]*system.CourseInfo) error {

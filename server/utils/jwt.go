@@ -12,13 +12,13 @@ const durationTime = time.Hour * 7 * 24
 // 加密key
 var jwtSecretKey = []byte("DSDesign-group.key")
 
-// 将claims与userId绑定
+// Claims 将claims与userId绑定
 type Claims struct {
 	UserId int64
 	jwt.RegisteredClaims
 }
 
-// 颁发token
+// ReleaseToken 颁发token
 func ReleaseToken(userId int64) (string, error) {
 	expirationTime := time.Now().Add(durationTime) // token过期时间
 	claim := &Claims{
@@ -38,8 +38,8 @@ func ReleaseToken(userId int64) (string, error) {
 	return token.SignedString(jwtSecretKey)
 }
 
-// 解析token
-func ParaseToken(tokenString string) (*Claims, error) {
+// ParseToken 解析token
+func ParseToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecretKey, nil
 	})

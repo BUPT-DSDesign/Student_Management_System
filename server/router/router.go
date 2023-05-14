@@ -7,6 +7,7 @@ import (
 	"server/handler/course_handler"
 	"server/handler/log_handler"
 	"server/handler/navigate_handler"
+	"server/handler/polling_handler"
 	"server/handler/user_handler"
 	"server/middleware"
 
@@ -94,6 +95,13 @@ func InitRouters() *gin.Engine {
 		logGroup.GET("/info", middleware.JwtAuthMiddleware(), log_handler.InfoHandler)
 		// 删除日志
 		logGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), log_handler.DeleteHandler)
+	}
+
+	// 轮询路由
+	pollingGroup := rootPath.Group("/polling")
+	{
+		// 获取课程是否来临
+		pollingGroup.GET("/is_course_arrive", middleware.JwtAuthMiddleware(), polling_handler.IsCourseArriveHandler)
 	}
 
 	return r

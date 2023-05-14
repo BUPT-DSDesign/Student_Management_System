@@ -92,6 +92,34 @@ func createActivityTable() error {
 	return nil
 }
 
+func createCourseSectionTable() error {
+	// 创建课程-节次表
+	sql := "CREATE TABLE course_section (" +
+		"id BIGINT NOT NULL," +
+		"course_id BIGINT NOT NULL," +
+		"section_id INT NOT NULL" +
+		"PRIMARY KEY (id)" +
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+	return nil
+}
+
+func createCourseWeekTable() error {
+	// 创建课程-周次表
+	sql := "CREATE TABLE course_week (" +
+		"id BIGINT NOT NULL," +
+		"course_id BIGINT NOT NULL," +
+		"week_id INT NOT NULL" +
+		"PRIMARY KEY (id)" +
+		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+	return nil
+}
+
 func init() {
 	//if err := createUserTable(); err != nil {
 	//	log.Fatal(err)

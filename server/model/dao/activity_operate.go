@@ -36,3 +36,13 @@ func (s *activityDao) DeleteActivity(activityId int64) error {
 
 	return nil
 }
+
+func (s *activityDao) QueryNeedMentionActivity(userId int64, activities **[]*system.ActivityInfo) error {
+	sqlStr := fmt.Sprintf("SELECT * FROM activity_info WHERE user_id = '%v' AND is_mention = '%v'", userId, 1)
+
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	return nil
+}

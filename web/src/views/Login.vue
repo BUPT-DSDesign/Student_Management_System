@@ -94,6 +94,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .login-container {
+    background-size: cover;
     background-color: #ccc;
     height: 100vh;
     display: flex;

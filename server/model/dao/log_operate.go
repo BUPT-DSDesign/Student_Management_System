@@ -11,7 +11,10 @@ func (s *logDao) QueryLogsByUserId(UserId int64, logs **[]*system.LogInfo) error
 		根据用户id查询日志
 		需要把数据放到logs中
 	*/
-	//sqlStr := fmt.Sprintf("SELECT * FROM log_info WHERE user_id = '%v'", UserId)
+	sqlStr := fmt.Sprintf("SELECT * FROM log_info WHERE user_id = '%v'", UserId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
 
 	return nil
 }

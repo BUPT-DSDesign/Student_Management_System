@@ -25,6 +25,11 @@ import (
 // @externalDocs.description  OpenAPI
 // @externalDocs.url          https://swagger.io/resources/open-api/
 func main() {
+	//section := []int{1, 2, 3, 5, 6, 8, 9}
+	//for _, v := range utils.SplitSectionList(section) {
+	//	fmt.Printf("section: %v, %v\n", v[0], v[1])
+	//}
+
 	// userId, _ := utils.GenerateId()
 	// tokenString, _ := utils.ReleaseToken(userId)
 	// fmt.Printf("userId: %v\n", userId)
@@ -34,5 +39,5 @@ func main() {
 	//r.Use(middleware.TlsHandler(8080))
 	//_ = r.RunTLS(":8080", "./secret/test.pem", "./secret/test.key")
 	_ = r.Run(":8080")
-	
+
 }
