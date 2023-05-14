@@ -84,16 +84,21 @@ public:
     //默认键值可以由unsigned long long存储
     //用键值寻找单个元素,返回值为字节流
     vector<byte> Search(const uint64 &key);
-    //按范围寻找元素,返回值为字节流
+    //利用键值,按范围寻找元素,返回值为字节流
     vector<byte> SearchRange(const uint64& left,const uint64& right);
+    //读取最开头的叶节点所对应区块(当查找条件不为键值时)
+    void ReadFirstChunk();
+    //读取上一个叶节点所对应区块
+    void ReadPrevChunk();
+    //读取下一个叶节点所对应区块
+    void ReadNextChunk();
+    //返回当前叶节点的所有元素
+    vector<vector<byte>> GetAllElem();
     //删除某个元素
     bool Remove(const uint64 &key);
     //插入元素
     bool Insert(const uint64 &key,vector<byte> &data);
     //更新元素
     bool Update(const uint64 &key,vector<byte> &data);
-    //序列化数据(json转换为字节流)
-    //vector<byte> Serialize(string rawJson);
-    //打印设置信息
-    void PrintAttr();
+    
 };

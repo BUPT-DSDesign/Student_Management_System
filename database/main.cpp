@@ -21,7 +21,7 @@ int main(int argc,char* argv[]){
         statement<<buf;
         if(buf.find(';') != string::npos){
             try{
-                if(statement.str().find("quit") != string::npos){
+                if(statement.str().find("quit") != string::npos || statement.str().find("QUIT") != string::npos || statement.str().find("Quit") != string::npos){
                     interpreter.ExecuteSQL(statement.str());
                     break;
                 }

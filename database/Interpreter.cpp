@@ -10,10 +10,12 @@
 #include "datatype.hpp"
 #include "MyException.hpp"
 using namespace std;
-
 Interpreter::Interpreter():sql_type_(SQL_ERROR)
 {
     //测试SQL引擎用的构造方式
+}
+Interpreter::~Interpreter()
+{
 }
 Interpreter::Interpreter(const string dirPath):sql_type_(SQL_ERROR)//未指定,初始值为-1
 {
@@ -23,7 +25,9 @@ Interpreter::Interpreter(const string dirPath):sql_type_(SQL_ERROR)//未指定,�
         filesystem::create_directory(database);
     }
     //实例化智能指针api
+    #ifndef TEST_SQL
     api = make_unique<DB_API>(DB_API(dirPath));
+    #endif
 }
 
 void Interpreter::GenSQL(){
@@ -173,72 +177,96 @@ void Interpreter::PraseSQL(){
         }
         case SQL_SHOW_DATABASES://展示数据库
         {
+        #ifndef TEST_SQL
             api->ShowDatabases();
+        #endif
             break;
         }
         case SQL_SHOW_TABLES://展示表
         {
+        #ifndef TEST_SQL
             api->ShowTables();
+        #endif
             break;
         }
         case SQL_CREATE_DATABASE://创建数据库
         {
             unique_ptr<SQLCreateDatabase> st = make_unique<SQLCreateDatabase>(SQLCreateDatabase(sql_vector_));
+        #ifndef TEST_SQL
             api->CreateDatabase(*st);
+        #endif
             break;
         }
         case SQL_CREATE_INDEX://新建索引
         {
             unique_ptr<SQLCreateIndex> st = make_unique<SQLCreateIndex>(SQLCreateIndex(sql_vector_));
+        #ifndef TEST_SQL
             api->CreateIndex(*st);
+        #endif
             break;
         }
         case SQL_CREATE_TABLE://新建表
         {
             unique_ptr<SQLCreateTable> st = make_unique<SQLCreateTable>(SQLCreateTable(sql_vector_));
+        #ifndef TEST_SQL
             api->CreateTable(*st);
+        #endif
             break;
         }
         case SQL_DROP_TABLE://删除表
         {
             unique_ptr<SQLDropTable> st = make_unique<SQLDropTable>(SQLDropTable(sql_vector_));
+        #ifndef TEST_SQL
             api->DropTable(*st);
+        #endif
             break;
         }
         case SQL_DROP_INDEX://删除索引
         {
             unique_ptr<SQLDropIndex> st = make_unique<SQLDropIndex>(SQLDropIndex(sql_vector_));
+        #ifndef TEST_SQL
             api->DropIndex(*st);
+        #endif
             break;
         }
         case SQL_USE://使用数据库
         {
             unique_ptr<SQLUse> st=make_unique<SQLUse>(SQLUse(sql_vector_));
+        #ifndef TEST_SQL
             api->Use(*st);
+        #endif
             break;
         }
         case SQL_INSERT://插入
         {
             unique_ptr<SQLInsert> st=make_unique<SQLInsert>(SQLInsert(sql_vector_));
+        #ifndef TEST_SQL
             api->Insert(*st);
+        #endif
             break;
         }
         case SQL_DELETE:
         {
             unique_ptr<SQLDelete> st=make_unique<SQLDelete>(SQLDelete(sql_vector_));
+        #ifndef TEST_SQL
             api->Delete(*st);
+        #endif
             break;
         }
         case SQL_UPDATE:
         {
             unique_ptr<SQLUpdate> st=make_unique<SQLUpdate>(SQLUpdate(sql_vector_));
+        #ifndef TEST_SQL
             api->Update(*st);
+        #endif
             break;
         }
         case SQL_SELECT:
         {
             unique_ptr<SQLSelect> st=make_unique<SQLSelect>(SQLSelect(sql_vector_));
+        #ifndef TEST_SQL
             api->Select(*st);
+        #endif
             break;
         }
         case SQL_ALTER:case SQL_ERROR:default:
@@ -248,5 +276,7 @@ void Interpreter::PraseSQL(){
 }
 
 void Interpreter::Quit(){
+#ifndef TEST_SQL
     api->Quit();
+#endif
 }

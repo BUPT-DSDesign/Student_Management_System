@@ -27,8 +27,20 @@ public:
 private:
     std::string msg_;
 };
+//在DBmanager中使用的报错
+class DBManagerError: public std::exception
+{
+public:
+    DBManagerError(const std::string& msg):msg_(msg){}
+    const char* what() const noexcept override{
+        return ("DBManagerError:"+msg_).c_str();
+    }
+private:
+    std::string msg_;
+};
 
-//在table中使用的报错
+
+//在Table中使用的报错
 class TableOpenError: public std::exception
 {
 public:
