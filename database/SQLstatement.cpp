@@ -56,7 +56,7 @@ string SQLCreateTable::get_tb_name()
 {
     return tb_name_;
 }
-vector<TableColAttribute> SQLCreateTable::get_attr()
+vector<TableColAttribute>& SQLCreateTable::get_attr()
 {
     return attrs_;
 }
