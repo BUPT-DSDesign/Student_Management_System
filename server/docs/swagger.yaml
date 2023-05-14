@@ -1,5 +1,19 @@
 basePath: /Student_Management_System
 definitions:
+  activity_handler.addResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  activity_handler.deleteResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
   activity_handler.getInfoResponse:
     properties:
       activities:
@@ -135,33 +149,34 @@ definitions:
       status_msg:
         type: string
     type: object
+  polling_handler.isCourseArriveResponse:
+    properties:
+      course_info:
+        $ref: '#/definitions/system.CourseInfo'
+      is_arrive:
+        type: boolean
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
   system.ActivityInfo:
     properties:
       activity_id:
         type: integer
       activity_name:
         type: string
-      duration_time:
+      frequency:
         type: integer
       is_mention:
         description: 是否需要提醒
         type: boolean
-      is_online:
-        description: 是否线上
-        type: boolean
       location:
         type: string
-      location_id:
-        description: 线下地点的节点编号
-        type: integer
-      start_day:
-        type: integer
       start_time:
         type: string
-      start_week:
-        type: integer
       tag:
-        type: integer
+        type: string
       type:
         type: integer
       user_id:
@@ -306,7 +321,37 @@ info:
   title: Student Management System API
   version: alpha 1.0
 paths:
-  /activity:
+  /activity/add:
+    post:
+      description: 增加活动信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/activity_handler.addResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 增加活动信息
+      tags:
+      - 增加课外活动相关接口
+  /activity/delete:
+    delete:
+      description: 删除活动信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/activity_handler.deleteResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 删除活动信息
+      tags:
+      - 删除活动相关接口
+  /activity/info:
     get:
       description: 获取学生所有的课外活动信息
       produces:
@@ -397,7 +442,7 @@ paths:
       tags:
       - 更新课程
   /log/add:
-    get:
+    post:
       consumes:
       - application/json
       description: 添加一条日志
@@ -503,7 +548,8 @@ paths:
         name: start_id
         required: true
         type: integer
-      - description: 途径节点集合
+      - collectionFormat: csv
+        description: 途径节点集合
         in: query
         items:
           type: integer
@@ -522,6 +568,21 @@ paths:
       summary: 旅行商
       tags:
       - 旅行商问题
+  /polling/is_course_arrive:
+    get:
+      consumes:
+      - application/json
+      description: 课程是否来临
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/polling_handler.isCourseArriveResponse'
+      summary: 课程是否来临
+      tags:
+      - 用户鉴权
   /user/info:
     get:
       consumes:

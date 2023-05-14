@@ -18,7 +18,7 @@ type addResponse struct {
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  addResponse
-// @Router       /activity/add [get]
+// @Router       /activity/add [post]
 func AddHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
