@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 #include <any>
+#include <map>
 #include "datatype.hpp"
 #include "bplustree.hpp"
 using namespace std;
@@ -54,12 +55,20 @@ private:
     map<string,string> col2index_;//列名到索引名的映射
     map<string,int> col2id_;//列名到列id的映射
     string deserialize(vector<byte> &data);//反序列化数据为json
+    
 public:
+    //默认构造函数
+    Table();
+    //拷贝构造函数
+    Table(const Table& tb);
     //打开一张已有的表
     Table(const string& db_path,const string& table_name);
     //新建一张表
     Table(const string& db_path,const string& table_name,vector<TableColAttribute> &col_info);
-    //插入一条记录
+    //删除一张表
+    void DropTable();
+    //新建索引
+    void CreateIndex(const string& col_name,const string& index_name);
 
     
     ~Table();
