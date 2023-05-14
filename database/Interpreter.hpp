@@ -1,6 +1,9 @@
 #pragma once
 #include "datatype.hpp"
+#include "SQLstatement.hpp"
+#ifndef TEST_SQL
 #include "db_api.hpp"
+#endif
 #include <vector>
 #include <string>
 #include <memory>
@@ -16,9 +19,12 @@ private:
     vector<string> SplitSQL(const string &statement,const string &delim);
     void GetSQLType();//获取SQL的类型
     void PraseSQL();//对接API接口并调用
+#ifndef TEST_SQL
     unique_ptr<DB_API> api;//智能指针
+#endif
 public:
     Interpreter();//测试用
+    ~Interpreter();
     vector<string> get_gen_SQL(string &statement);//测试GenSQL用
     Interpreter(const string dirPath);
     void ExecuteSQL(const string& statement);//实现SQL解析

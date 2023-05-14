@@ -1,33 +1,33 @@
 #include "db_api.hpp"
 #include <filesystem>
+DB_API::DB_API(const DB_API &api):path_(api.path_),db_name_(api.db_name_){
+    //设置数据库所在根目录
+    db_manager_ = make_unique<DBmanager>(DBmanager(path_));
+}
 DB_API::DB_API(const string& path):path_(path){
-
+    //设置数据库所在根目录
+    db_manager_ = make_unique<DBmanager>(DBmanager(path));
 }
 DB_API::~DB_API(){
 
 }
 void DB_API::Quit(){
-
+    //退出数据库(与数据库断开链接)
+    db_manager_->CloseDatabase();
 }
 void DB_API::CreateDatabase(SQLCreateDatabase &statement){
     //利用SQLCreateDatabase中的db_name_创建一个文件夹
-    filesystem::path db_path(path_ + "/" + statement.get_db_name());
-    if(!filesystem::exists(db_path)){
-        filesystem::create_directory(db_path);
-    }
+    db_manager_->CreateDatabase(statement.get_db_name());
 }
 
 void DB_API::CreateTable(SQLCreateTable &statement){
-    //利用SQLCreateTable中的tb_name_创建一个表文件,此处调用bplustree的构造函数
-    //同时将表的属性写入表文件
-    //TODO
-
+    //利用SQLCreateTable中的tb_name_创建一个表文件
+    db_manager_->CreateTable(statement.get_tb_name(),statement.get_attr());
 }
 
 void DB_API::CreateIndex(SQLCreateIndex &statement){
     //利用SQLCreateIndex中的tb_name_和col_name_创建一个索引文件
-    //索引文件通过调用bplustree的构造函数创建
-    //TODO
+    db_manager_->CreateIndex(statement.get_tb_name(),statement.get_col_name(),statement.get_index_name());
 }
 
 void DB_API::ShowDatabases(){
@@ -45,47 +45,31 @@ void DB_API::ShowDatabases(){
 }
 
 void DB_API::ShowTables(){
-    //通过搜索path_/db_name下的文件来展示表
+    //通过调用DBmanager的ShowTables函数来展示数据库中的表
     //表列表以JSON格式输出到标准输入输出流中
     //JSON格式如下
     // { "tables": [ "tb1", "tb2", "tb3" ] }
-    filesystem::path db_path(path_ + "/" + db_name_);
-    cout << "{ \"tables\": [ ";
-    for (auto &p : filesystem::directory_iterator(db_path))
-    {
-        cout << "\"" << p.path().filename().string() << "\", ";
-    }
-    cout << "] }" << endl;
+    db_manager_->ShowTables();
 }
 
 void DB_API::DropDatabase(SQLDropDatabase &statement){
     //利用SQLDropDatabase中的db_name_删除一个文件夹
-    filesystem::path db_path(path_ + "/" + statement.get_db_name());
-    if(filesystem::exists(db_path)){
-        filesystem::remove_all(db_path);
-    }
+    db_manager_->DropDatabase(statement.get_db_name());
 }
 
 void DB_API::DropTable(SQLDropTable &statement){
     //利用SQLDropTable中的tb_name_删除一个表文件
-    filesystem::path tb_path(path_ + "/" + statement.get_tb_name());
-    if(filesystem::exists(tb_path)){
-        filesystem::remove(tb_path);
-    }
-    //TODO 删除索引文件
+    db_manager_->DropTable(statement.get_tb_name());
 }
 
 void DB_API::DropIndex(SQLDropIndex &statement){
     //利用SQLDropIndex中的tb_name_和col_name_删除一个索引文件
-    filesystem::path index_path(path_ + "/" + db_name_ + "/" + statement.get_index_name());
-    if(filesystem::exists(index_path)){
-        filesystem::remove(index_path);
-    }
+    db_manager_->DropIndex(statement.get_index_name());
 }
 
 void DB_API::Use(SQLUse &statement){
     //利用SQLUse中的db_name_连接上某个数据库
-    db_name_ = statement.get_db_name();
+    db_manager_->UseDatabase(statement.get_db_name());
 }
 
 void DB_API::Insert(SQLInsert &statement){

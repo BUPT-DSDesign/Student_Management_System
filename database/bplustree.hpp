@@ -4,9 +4,9 @@
 #include <string_view>
 #include <memory>
 #include "datatype.hpp"
-#include "table.hpp"
 #define PAGE_SIZE 16*1024 //参考INNODB
 using namespace std;
+
 
 struct BPNodeHead{
     bool is_leaf_;//判断是不是叶子结点
@@ -61,9 +61,7 @@ private:
     streampos cur_;//当前读取的位置
     uint16 size_of_item;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
-    vector<TableColAttribute> col_info_;//表的信息
-    //反序列化数据为json
-    string deserialize(vector<byte> &data);
+    
     //找到叶子节点,并将数据载入节点
     void searchLeaf(const uint64 &key);
     //二分查找键值,返回结果的对应下标
@@ -77,27 +75,30 @@ private:
     //将节点的父亲全部更新
     void resetIndexChildrenParent(BPNode &node);
 public:
-    //以下为打开表文件的构造函数
-    //打开已经存在的表文件
-    BPTree(string tbname);
-    //新建不存在的表文件
-    BPTree(string tbname,vector<TableColAttribute> &col_info);
+    //以下为打开
+    //打开一个已有的B+树文件
+    BPTree(string path);
     //析构函数
     ~BPTree();
     //以下为BPlusTree的操作
     //默认键值可以由unsigned long long存储
-    //用键值寻找单个元素,返回值为json
-    string Search(const uint64 &key);
-    //按范围寻找元素,返回值为json
-    string SearchRange(const uint64& left,const uint64& right);
+    //用键值寻找单个元素,返回值为字节流
+    vector<byte> Search(const uint64 &key);
+    //利用键值,按范围寻找元素,返回值为字节流
+    vector<byte> SearchRange(const uint64& left,const uint64& right);
+    //读取最开头的叶节点所对应区块(当查找条件不为键值时)
+    void ReadFirstChunk();
+    //读取上一个叶节点所对应区块
+    void ReadPrevChunk();
+    //读取下一个叶节点所对应区块
+    void ReadNextChunk();
+    //返回当前叶节点的所有元素
+    vector<vector<byte>> GetAllElem();
     //删除某个元素
     bool Remove(const uint64 &key);
     //插入元素
     bool Insert(const uint64 &key,vector<byte> &data);
     //更新元素
     bool Update(const uint64 &key,vector<byte> &data);
-    //序列化数据(json转换为字节流)
-    //vector<byte> Serialize(string rawJson);
-    //打印设置信息
-    void PrintAttr();
+    
 };

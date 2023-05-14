@@ -56,7 +56,7 @@ string SQLCreateTable::get_tb_name()
 {
     return tb_name_;
 }
-vector<TableColAttribute> SQLCreateTable::get_attr()
+vector<TableColAttribute>& SQLCreateTable::get_attr()
 {
     return attrs_;
 }
@@ -225,15 +225,16 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                         if (sql_vector[pos] == "\'")
                         {
                             pos++;
-                            memset(attr.default_, 0, 256);
+                            char buffer[256] = {0};
                             if (sql_vector[pos] == "\'")
                             {
                                 // 数据为空
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                                attr.default_length_ = 0;
                             }
                             else
                             {
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                                attr.default_length_ = sql_vector[pos].length();
+                                attr.default_ = sql_vector[pos];
                                 pos++;
                             }
                             if (sql_vector[pos] != "\'")
@@ -248,11 +249,12 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                             if (sql_vector[pos] == "\"")
                             {
                                 // 数据为空
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                                attr.default_length_ = 0;
                             }
                             else
                             {
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                                attr.default_length_ = sql_vector[pos].length();
+                                attr.default_ = sql_vector[pos];
                                 pos++;
                             }
                             if (sql_vector[pos] != "\"")
@@ -267,7 +269,26 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                                 throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT QUOTATION MARK,BUT GET OTHER:"+sql_vector[pos]);
                                 return;
                             }
-                            std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.default_);
+                            attr.default_length_ = sql_vector[pos].length();
+                            //将数字解析为对应类型
+
+                            switch (attr.data_type_){
+                                case T_TINY_INT:case T_SMALL_INT:case T_INT:
+                                    attr.default_ = stoi(sql_vector[pos]);
+                                    break;
+                                case T_BIG_INT:
+                                    attr.default_ = stol(sql_vector[pos]);
+                                    break;
+                                case T_FLOAT:
+                                    attr.default_ = stof(sql_vector[pos]);
+                                    break;
+                                case T_DOUBLE:
+                                    attr.default_ = stod(sql_vector[pos]);
+                                    break;
+                                default:
+                                    throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,EXCEPT NUMBER,BUT GET OTHER:"+sql_vector[pos]);
+                                    return;
+                            }
                             pos++;
                         }
                     }
@@ -277,15 +298,16 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                         if (sql_vector[pos] == "\'")
                         {
                             pos++;
-                            memset(attr.comment_, 0, 256);
+                            //memset(attr.comment_, 0, 256);
                             if (sql_vector[pos] == "\'")
                             {
                                 // 数据为空
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                                attr.comment_length_ = 0;
                             }
                             else
                             {
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                                attr.comment_length_ = sql_vector[pos].length();
+                                attr.comment_ = sql_vector[pos];
                                 pos++;
                             }
                             if (sql_vector[pos] != "\'")
@@ -300,11 +322,12 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                             if (sql_vector[pos] == "\"")
                             {
                                 // 数据为空
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                                attr.comment_length_ = 0;
                             }
                             else
                             {
-                                std::copy(sql_vector[pos].begin(), sql_vector[pos].end(), attr.comment_);
+                                attr.comment_length_ = sql_vector[pos].length();
+                                attr.comment_ = sql_vector[pos];
                                 pos++;
                             }
                             if (sql_vector[pos] != "\"")

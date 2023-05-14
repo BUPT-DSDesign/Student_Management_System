@@ -29,10 +29,11 @@ export const useCourseStore = defineStore('course', () => {
             return false
         }
     }
+    
 
     return {
         courseList,
         GetCourseTable,
-        AddCourseInfo
+        AddCourseInfo,
     }
 })

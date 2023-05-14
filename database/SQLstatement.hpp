@@ -27,7 +27,7 @@ class SQLCreateTable: public SQLBase
 public:
     SQLCreateTable(vector<string> &sql_vector);
     string get_tb_name();
-    vector<TableColAttribute> get_attr();
+    vector<TableColAttribute>& get_attr();
     void set_type2uint();
     ~SQLCreateTable(){}
     void PraseSQLVector(vector<string> &sql_vector);
@@ -126,6 +126,7 @@ private:
 };
 
 //Where约束
+//TODO 重构Where解析,写的太乱了
 typedef struct
 {
     bool is_need_;//是需要该条件,还是不需要该条件
