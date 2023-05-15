@@ -7,7 +7,7 @@ import (
 )
 
 // 届时需要打开的数据库后端可执行文件相对路径
-const filename string = "./testsql ./"
+const filename string = "./testsql"
 
 type DB struct {
 	stdinWriter  *bufio.Writer
