@@ -102,6 +102,8 @@ func InitRouters() *gin.Engine {
 	{
 		// 获取课程是否来临
 		pollingGroup.GET("/is_course_arrive", middleware.JwtAuthMiddleware(), polling_handler.IsCourseArriveHandler)
+		// 获取课外活动是否来临
+		pollingGroup.GET("/is_activity_arrive", middleware.JwtAuthMiddleware(), polling_handler.IsActivityArriveHandler)
 	}
 
 	return r

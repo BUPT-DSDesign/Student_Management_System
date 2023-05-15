@@ -31,6 +31,7 @@ type CourseDao interface {
 type ActivityDao interface {
 	AddActivity(activityInfo *system.ActivityInfo) error
 	DeleteActivity(activityId int64) error
+	QueryNeedMentionActivity(userId int64, activities **[]*system.ActivityInfo) error
 }
 
 // LogDao 日志数据库操作对象
