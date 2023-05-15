@@ -14,7 +14,7 @@ type addResponse struct {
 // AddHandler  添加课程Handler
 // @Summary      添加课程
 // @Description  管理员添加课程
-// @Tags         管理员添加课程相关接口
+// @Tags         课程接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  addResponse

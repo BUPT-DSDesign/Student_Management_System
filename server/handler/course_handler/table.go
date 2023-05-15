@@ -16,7 +16,7 @@ type tableResponse struct {
 // TableHandler  课程表Handler
 // @Summary      课程表
 // @Description  获取学生所有的课程表信息
-// @Tags         课程表相关接口
+// @Tags         课程接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  tableResponse

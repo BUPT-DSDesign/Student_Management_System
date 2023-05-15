@@ -37,7 +37,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "增加课外活动相关接口"
+                    "活动接口"
                 ],
                 "summary": "增加活动信息",
                 "responses": {
@@ -62,7 +62,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "删除活动相关接口"
+                    "活动接口"
                 ],
                 "summary": "删除活动信息",
                 "responses": {
@@ -87,7 +87,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "课外活动相关接口"
+                    "活动接口"
                 ],
                 "summary": "课外活动信息",
                 "responses": {
@@ -112,7 +112,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "管理员添加课程相关接口"
+                    "课程接口"
                 ],
                 "summary": "添加课程",
                 "responses": {
@@ -137,7 +137,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "删除课程相关接口"
+                    "课程接口"
                 ],
                 "summary": "删除课程",
                 "responses": {
@@ -162,7 +162,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "查询课程相关接口"
+                    "课程接口"
                 ],
                 "summary": "查询课程",
                 "responses": {
@@ -187,7 +187,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "课程表相关接口"
+                    "课程接口"
                 ],
                 "summary": "课程表",
                 "responses": {
@@ -212,7 +212,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "更新课程"
+                    "课程接口"
                 ],
                 "summary": "更新课程",
                 "responses": {
@@ -240,7 +240,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "添加日志"
+                    "日志接口"
                 ],
                 "summary": "添加日志",
                 "parameters": [
@@ -284,7 +284,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "删除日志"
+                    "日志接口"
                 ],
                 "summary": "删除日志",
                 "parameters": [
@@ -321,7 +321,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "查询日志"
+                    "日志接口"
                 ],
                 "summary": "查询日志",
                 "responses": {
@@ -349,7 +349,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "导航功能"
+                    "导航接口"
                 ],
                 "summary": "导航",
                 "parameters": [
@@ -393,7 +393,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "旅行商问题"
+                    "导航接口"
                 ],
                 "summary": "旅行商",
                 "parameters": [
@@ -436,7 +436,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "轮询接口"
                 ],
                 "summary": "课程是否来临",
                 "responses": {
@@ -459,7 +459,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "用户信息",
                 "responses": {
@@ -482,7 +482,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "登录",
                 "parameters": [
@@ -516,7 +516,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "注册",
                 "parameters": [
@@ -550,7 +550,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "上传头像",
                 "responses": {

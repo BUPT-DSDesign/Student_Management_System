@@ -17,7 +17,7 @@ type isCourseArriveResponse struct {
 // IsCourseArriveHandler 课程是否来临
 // @Summary      课程是否来临
 // @Description  课程是否来临
-// @Tags         用户鉴权
+// @Tags         轮询接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  isCourseArriveResponse

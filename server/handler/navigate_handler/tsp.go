@@ -18,7 +18,7 @@ type tspResponse struct {
 // TSPHandler 旅行商处理函数
 // @Summary      旅行商
 // @Description  解决旅行商问题
-// @Tags         旅行商问题
+// @Tags         导航接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Security 	 ApiKeyAuth

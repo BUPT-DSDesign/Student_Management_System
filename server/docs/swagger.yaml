@@ -335,7 +335,7 @@ paths:
       - ApiKeyAuth: []
       summary: 增加活动信息
       tags:
-      - 增加课外活动相关接口
+      - 活动接口
   /activity/delete:
     delete:
       description: 删除活动信息
@@ -350,7 +350,7 @@ paths:
       - ApiKeyAuth: []
       summary: 删除活动信息
       tags:
-      - 删除活动相关接口
+      - 活动接口
   /activity/info:
     get:
       description: 获取学生所有的课外活动信息
@@ -365,7 +365,7 @@ paths:
       - ApiKeyAuth: []
       summary: 课外活动信息
       tags:
-      - 课外活动相关接口
+      - 活动接口
   /course/add:
     post:
       description: 管理员添加课程
@@ -380,7 +380,7 @@ paths:
       - ApiKeyAuth: []
       summary: 添加课程
       tags:
-      - 管理员添加课程相关接口
+      - 课程接口
   /course/delete:
     delete:
       description: 根据id删除课程
@@ -395,7 +395,7 @@ paths:
       - ApiKeyAuth: []
       summary: 删除课程
       tags:
-      - 删除课程相关接口
+      - 课程接口
   /course/search:
     get:
       description: 查询课程
@@ -410,7 +410,7 @@ paths:
       - ApiKeyAuth: []
       summary: 查询课程
       tags:
-      - 查询课程相关接口
+      - 课程接口
   /course/table:
     get:
       description: 获取学生所有的课程表信息
@@ -425,7 +425,7 @@ paths:
       - ApiKeyAuth: []
       summary: 课程表
       tags:
-      - 课程表相关接口
+      - 课程接口
   /course/update:
     put:
       description: 更新课程信息
@@ -440,7 +440,7 @@ paths:
       - ApiKeyAuth: []
       summary: 更新课程
       tags:
-      - 更新课程
+      - 课程接口
   /log/add:
     post:
       consumes:
@@ -468,7 +468,7 @@ paths:
       - ApiKeyAuth: []
       summary: 添加日志
       tags:
-      - 添加日志
+      - 日志接口
   /log/delete:
     get:
       consumes:
@@ -491,7 +491,7 @@ paths:
       - ApiKeyAuth: []
       summary: 删除日志
       tags:
-      - 删除日志
+      - 日志接口
   /log/info:
     get:
       consumes:
@@ -508,7 +508,7 @@ paths:
       - ApiKeyAuth: []
       summary: 查询日志
       tags:
-      - 查询日志
+      - 日志接口
   /navigate/path:
     get:
       consumes:
@@ -536,7 +536,7 @@ paths:
       - ApiKeyAuth: []
       summary: 导航
       tags:
-      - 导航功能
+      - 导航接口
   /navigate/tsp:
     get:
       consumes:
@@ -567,7 +567,7 @@ paths:
       - ApiKeyAuth: []
       summary: 旅行商
       tags:
-      - 旅行商问题
+      - 导航接口
   /polling/is_course_arrive:
     get:
       consumes:
@@ -582,7 +582,7 @@ paths:
             $ref: '#/definitions/polling_handler.isCourseArriveResponse'
       summary: 课程是否来临
       tags:
-      - 用户鉴权
+      - 轮询接口
   /user/info:
     get:
       consumes:
@@ -597,7 +597,7 @@ paths:
             $ref: '#/definitions/user_handler.infoResponse'
       summary: 用户信息
       tags:
-      - 用户鉴权
+      - 用户接口
   /user/login:
     post:
       consumes:
@@ -619,7 +619,7 @@ paths:
             $ref: '#/definitions/user_handler.loginResponse'
       summary: 登录
       tags:
-      - 用户鉴权
+      - 用户接口
   /user/register:
     post:
       consumes:
@@ -641,7 +641,7 @@ paths:
             $ref: '#/definitions/user_handler.registerResponse'
       summary: 注册
       tags:
-      - 用户鉴权
+      - 用户接口
   /user/upload_avatar:
     post:
       consumes:
@@ -656,7 +656,7 @@ paths:
             $ref: '#/definitions/user_handler.uploadAvatarResponse'
       summary: 上传头像
       tags:
-      - 用户鉴权
+      - 用户接口
 securityDefinitions:
   ApiKeyAuth:
     in: header

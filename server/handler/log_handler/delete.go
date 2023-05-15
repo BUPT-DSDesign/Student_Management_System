@@ -15,7 +15,7 @@ type deleteResponse struct {
 // DeleteHandler 删除日志处理函数
 // @Summary      删除日志
 // @Description  删除一条日志
-// @Tags         删除日志
+// @Tags         日志接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Security 	 ApiKeyAuth

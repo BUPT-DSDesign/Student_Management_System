@@ -16,7 +16,7 @@ type loginResponse struct {
 // LoginHandler  登录Handler
 // @Summary      登录
 // @Description  用户登录
-// @Tags         用户鉴权
+// @Tags         用户接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Param		 user_input body common.LoginRequest true "用户信息"

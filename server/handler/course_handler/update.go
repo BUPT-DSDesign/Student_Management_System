@@ -15,7 +15,7 @@ type updateResponse struct {
 // UpdateHandler  更新课程Handler
 // @Summary      更新课程
 // @Description  更新课程信息
-// @Tags        更新课程
+// @Tags        课程接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  updateResponse

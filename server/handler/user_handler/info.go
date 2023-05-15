@@ -17,7 +17,7 @@ type infoResponse struct {
 // InfoHandler 用户信息
 // @Summary      用户信息
 // @Description  获取用户信息
-// @Tags         用户鉴权
+// @Tags         用户接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  infoResponse

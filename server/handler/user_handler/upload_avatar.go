@@ -16,7 +16,7 @@ type uploadAvatarResponse struct {
 // UploadAvatarHandler 上传头像
 // @Summary      上传头像
 // @Description  用户上传头像
-// @Tags         用户鉴权
+// @Tags         用户接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  uploadAvatarResponse
