@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"encoding/json"
 	"fmt"
 	"server/model/entity/system"
 )
@@ -16,6 +17,14 @@ func (s *logDao) QueryLogsByUserId(UserId int64, logs **[]*system.LogInfo) error
 		return err
 	}
 
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, *logs); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -27,10 +36,10 @@ func (s *logDao) AddLog(logInfo *system.LogInfo) error {
 		logInfo.Content,
 		logInfo.UserId,
 	)
-
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -43,5 +52,6 @@ func (s *logDao) DeleteLogById(logId int64) error {
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
+
 	return nil
 }

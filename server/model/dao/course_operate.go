@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"encoding/json"
 	"fmt"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -26,11 +27,20 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		return err
 	}
 
+	_, err := ReadLine()
+	if err != nil {
+		return err
+	}
+
 	// 添加到课程-节次表
 	for _, v := range courseInfo.SectionList {
 		id, _ := utils.GenerateId()
 		sqlStr = fmt.Sprintf("INSERT INTO course_section VALUES('%v', '%v', '%v')", id, courseInfo.CourseId, v)
-		if err := db.ExecSql(sqlStr); err != nil {
+		if err = db.ExecSql(sqlStr); err != nil {
+			return err
+		}
+		_, err = ReadLine()
+		if err != nil {
 			return err
 		}
 	}
@@ -39,7 +49,11 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 	for _, v := range courseInfo.WeekSchedule {
 		id, _ := utils.GenerateId()
 		sqlStr = fmt.Sprintf("INSERT INTO course_week_schedule VALUES('%v', '%v', '%v')", id, courseInfo.CourseId, v)
-		if err := db.ExecSql(sqlStr); err != nil {
+		if err = db.ExecSql(sqlStr); err != nil {
+			return err
+		}
+		_, err = ReadLine()
+		if err != nil {
 			return err
 		}
 	}
@@ -53,10 +67,18 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
+	_, err := ReadLine()
+	if err != nil {
+		return err
+	}
 
 	// 再删除学生选课表中的内容
 	sqlStr = fmt.Sprintf("DELETE FROM student_course WHERE course_id = '%v'", courseId)
-	if err := db.ExecSql(sqlStr); err != nil {
+	if err = db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+	_, err = ReadLine()
+	if err != nil {
 		return err
 	}
 	return nil
@@ -78,8 +100,12 @@ func (s *courseDao) UpdateCourse(courseId int64, newCourseInfo *common.AddCourse
 		utils.BoolToInt8(newCourseInfo.IsCompulsory),
 		courseId,
 	)
-
 	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
 		return err
 	}
 
@@ -95,6 +121,14 @@ func (s *courseDao) QueryCompulsoryCourse(courses **[]*system.CourseInfo) error 
 		return err
 	}
 
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, *courses); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -104,6 +138,14 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 	*/
 	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id IN (SELECT course_id FROM student_course WHERE user_id = '%v')", userId)
 	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, *courses); err != nil {
 		return err
 	}
 
@@ -119,6 +161,14 @@ func (s *courseDao) QuerySectionListById(courseId int64, sectionList *[]int) err
 		return err
 	}
 
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, sectionList); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -128,6 +178,14 @@ func (s *courseDao) QueryWeekScheduleById(courseId int64, weekSchedule *[]int) e
 	*/
 	sqlStr := fmt.Sprintf("SELECT week_id FROM course_week_schedule WHERE course_id = '%v'", courseId)
 	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, weekSchedule); err != nil {
 		return err
 	}
 
@@ -144,6 +202,14 @@ func (s *courseDao) QueryCourseByName(courseName string, courses **[]*system.Cou
 		return err
 	}
 
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, *courses); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -153,6 +219,14 @@ func (s *courseDao) QueryCourseByClassroom(classroom string, courses **[]*system
 	*/
 	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE classroom = '%v'", classroom)
 	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, *courses); err != nil {
 		return err
 	}
 
