@@ -187,16 +187,37 @@ export default {
         },
         //查询的点击事件
         onSubmit() {
+            let search = {};
             if (this.radio == 1) {
-                this.searchlist = this.classData.filter((item) => {
-                    return item.course_name.indexOf(this.keyWord) != -1;
-                });
+                search.is_course_name = 1;
+                search.keyWord = this.keyWord;
             }
             else if (this.radio == 2) {
-                this.searchlist = this.classData.filter((item) => {
-                    return item.classroom.indexOf(this.keyWord) != -1;
-                });
+                search.is_course_name = 0;
+                search.keyWord = this.keyWord;
             }
+             const inqueryCourse = async (data) => {
+                const fg = await CourseStore.inqueryCourseInfo(data);
+                 if (fg) {
+                     this.searchlist = CourseStore.searchCourseList;;
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '查询课程成功',
+                        type: 'success'
+                    });
+                    search = {}
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '课程失败',
+                        type: 'error'
+                    });
+                    search = {}
+                }
+            }
+            inqueryCourse(search);
             //点击弹窗
             this.dialogVisible2 = true;
         },

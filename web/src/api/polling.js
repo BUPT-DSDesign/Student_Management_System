@@ -7,3 +7,10 @@ const IsCourseArrive = (curTime) => {
         method: 'get',
     })
 }
+const IsEventArrive = (curTime) => {
+    const url = '/polling/is_event_arrive?cur_time=' + curTime
+    return service({
+        url: url,
+        method: 'get',
+    })
+}

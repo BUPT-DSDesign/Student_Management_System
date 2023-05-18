@@ -19,7 +19,7 @@ export const useTimeStore = defineStore('time', () => {
     const getTime = () => {
         return "第" + week.value + "周" + "-" + "星期" + day.value + "-" + (hour.value < 10 ? ("0" + hour.value) : hour.value) + ":" + (minute.value < 10 ? ("0" + minute.value) : minute.value)
     }
-    
+
     return {
         Tm,
         week,

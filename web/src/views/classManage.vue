@@ -12,65 +12,68 @@
                 </template>
                 <template slot-scope="scope">
                     <el-button size="mini" type="primary" @click="editClass(scope.$index, scope.row)">修改课程</el-button>
-                    <el-button size="mini" type="success" @click="publishTest(scope.$index, scope.row)">发布考试</el-button>
                     <el-button size="mini" type="danger" @click="deleteClass(scope.$index, scope.row)">删除课程</el-button>
                 </template>
             </el-table-column>
         </el-table>
         <el-button type="primary" plain @click="addclass">添加课程</el-button>
-
-        <!-- 点击弹窗 -->
-        <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
-            <div class="course_name">课程名称：{{ clickedClassData.course_name }}</div>
-            <div class="course_time">课程时间：{{ clickedClassData.classTime }}</div>
-            <div class="course_address">课程地点：{{ clickedClassData.classroom }}</div>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible1 = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
-            </span>
-        </el-dialog>
         <!-- 修改课程 -->
-        <el-dialog title="课程详情" :visible.sync="dialogVisible2" width="500px" :before-close="handleClose">
-            <el-form ref="clickedClassData" :model="clickedClassData" label-width="150px" style="backgroundColor:#fff">
-                <el-form-item label="课程名称">
-                    <el-input v-model="clickedClassData.course_name"></el-input>
-                </el-form-item>
-                <el-form-item label="授课老师">
-                    <el-input v-model="clickedClassData.teacher"></el-input>
-                </el-form-item>
-                <el-form-item label="上课节次">
-                    <el-input v-model="clickedClassData.section_list"></el-input>
-                </el-form-item>
-                <el-form-item label="上课周次">
-                    <el-input v-model="clickedClassData.week_schedule"></el-input>
-                </el-form-item>
-                <el-form-item label="考试时间">
-                    <el-input v-model="clickedClassData.exam_time"></el-input>
-                </el-form-item>
-                <el-form-item label="考试地点">
-                    <el-input v-model="clickedClassData.exam_location"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="submitEdit">保存修改</el-button>
-                    <el-button @click="dialogVisible2 = false">取消</el-button>
-                </el-form-item>
-            </el-form>
-        </el-dialog>
-        <!-- 发布考试 -->
-        <el-dialog title="发布考试" :visible.sync="dialogVisible3" width="500px" :before-close="handleClose">
-            <el-form ref="clickedClassData" :model="clickedClassData" label-width="150px" style="backgroundColor:#fff">
-                <el-form-item label="考试时间">
-                    <el-input v-model="clickedClassData.exam_time"></el-input>
-                </el-form-item>
-                <el-form-item label="考试地点">
-                    <el-input v-model="clickedClassData.exam_location"></el-input>
-                </el-form-item>
-                <el-form-item>
-                    <el-button type="primary" @click="submitTest">发布</el-button>
-                    <el-button @click="dialogVisible3 = false">取消</el-button>
-                </el-form-item>
-            </el-form>
-        </el-dialog>
+        <el-dialog title="修改课程" :visible.sync="dialogVisible2" width="600px">
+                <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
+                    <el-form-item label="课程名称">
+                        <el-input v-model="clickedClassData.course_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上课地点">
+                        <el-input v-model="clickedClassData.section_list"></el-input>
+                    </el-form-item>
+                    <el-form-item label="授课老师">
+                        <el-input v-model="clickedClassData.teacher"></el-input>
+                    </el-form-item>
+                    <el-form-item label="联系方式">
+                        <el-input v-model="clickedClassData.contact"></el-input>
+                    </el-form-item>
+                    <el-form-item label="上课节次">
+                        <el-cascader v-model="clickedClassData.section_list" :options="options" :props="{ multiple: true }"
+                            filterable ></el-cascader>
+                    </el-form-item>
+                    <el-form-item label="上课周次">
+                        <el-select v-model="clickedClassData.week_schedule" placeholder="请选择" multiple>
+                            <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
+                            </el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="考试时间">
+                        <el-input v-model="clickedClassData.exam_time"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考试地点">
+                        <el-input v-model="clickedClassData.exam_location"></el-input>
+                    </el-form-item>
+                    <el-form-item label="考核方式">
+                        <el-radio-group v-model="clickedClassData.exam_option">
+                            <el-radio :label="0">论文考察</el-radio>
+                            <el-radio :label="1">线下考试</el-radio>
+                            <el-radio :label="2">线上考试</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+
+                    <el-form-item label="是否为线上课程">
+                        <el-radio-group v-model="clickedClassData.is_course_online">
+                            <el-radio :label="1">是</el-radio>
+                            <el-radio :label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                    <el-form-item label="是否为必修课程">
+                        <el-radio-group v-model="clickedClassData.is_compulsory">
+                            <el-radio :label="1">是</el-radio>
+                            <el-radio :label="0">否</el-radio>
+                        </el-radio-group>
+                    </el-form-item>
+                </el-form>
+                <div slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible4 = false">取 消</el-button>
+                    <el-button type="primary" @click="submitEditForm">保存修改</el-button>
+                </div>
+            </el-dialog>      
         <!-- 添加课程 -->
         <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="600px">
             <el-form :model="addClassData" label-width="170px" style="backgroundColor:#fff">
@@ -88,7 +91,7 @@
                 </el-form-item>
                 <el-form-item label="上课节次">
                     <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }"
-                        filterable @change="section_list_change"></el-cascader>
+                        filterable ></el-cascader>
                 </el-form-item>
                 <el-form-item label="上课周次">
                     <el-select v-model="addClassData.week_schedule" placeholder="请选择" multiple>
@@ -358,34 +361,83 @@ export default {
             done();
         },
         //编辑课程
-        editClass(index, obj) {
-            this.clickedClass = obj.classname;
-            // 循环遍历找到数据库中该课程的所有信息
-            for (let i = 0; i < this.classData.length; i++) {
-                if (this.classData[i].course_name == this.clickedClass) {
-                    //如果有该课程，更新curClassData
-                    this.clickedClassData = this.classData[i];
-                }
-            }
+        editClass(index, row) {
+            let name = row.classname;
+            this.clickedClassData= this.classData.find(obj => obj.course_name == name);
             //点击弹窗打开
             this.dialogVisible2 = true;
         },
-        //发布考试
-        publishTest(index, obj) {
-            this.clickedClass = obj.classname;
-            // 循环遍历找到数据库中该课程的所有信息
-            for (let i = 0; i < this.classData.length; i++) {
-                if (this.classData[i].course_name == this.clickedClass) {
-                    //如果有该课程，更新curClassData
-                    this.clickedClassData = this.classData[i];
+        deleteClass(index, row) {
+            let name=row.classname;
+            const matchingObj = this.classData.find(obj => obj.course_name == name);
+            let id = matchingObj ? matchingObj.course_id : null;
+              const deleteCourse = async (data) => {
+                const fg = await CourseStore.DeleteCourseInfo(data);
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '删除课程成功',
+                        type: 'success'
+                    });
+                    this.deleteClassData = {}
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '删除课程失败',
+                        type: 'error'
+                    });
+                    this.deleteClassData = {}
                 }
             }
-            //点击弹窗打开
-            this.dialogVisible3 = true;
+
+            deleteCourse(id);
+        },
+        submitEditForm() {
+            this.dialogVisible2 = false;
+            let week_schedule = [];
+            this.clickedClassData.week_schedule.forEach(function (item) {
+                week_schedule.push(item);
+            })
+            week_schedule.sort();
+            this.clickedClassData.week_schedule = week_schedule;
+
+            let section_list = [];
+            this.clickedClassData.section_list.forEach(function (item) {
+                section_list.push((item[0] - 1) * 9 + item[1]);
+            })
+            section_list.sort();
+            this.clickedClassData.section_list = section_list;
+
+            this.clickedClassData.is_course_online = 1 ? true : false;
+            this.clickedClassData.is_compulsory = 1 ? true : false;
+
+            const editCourse = async (data) => {
+                const fg = await CourseStore.EditCourseInfo(data);
+                if (fg) {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '修改课程成功',
+                        type: 'success'
+                    });
+                    this.clickedClassData = {}
+                } else {
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        message: '修改课程失败',
+                        type: 'error'
+                    });
+                    this.clickedClassData = {}
+                }
+            }
+
+            editCourse(this.clickedClassData)
         },
         submitAddForm() {
             this.dialogVisible4 = false;
-            console.log(this.addClassData);
             let week_schedule = [];
             this.addClassData.week_schedule.forEach(function (item) {
                 week_schedule.push(item);
@@ -398,8 +450,6 @@ export default {
                 section_list.push((item[0] - 1) * 9 + item[1]);
             })
             section_list.sort();
-            console.log(section_list)
-
             this.addClassData.section_list = section_list;
 
             this.addClassData.is_course_online = 1 ? true : false;
