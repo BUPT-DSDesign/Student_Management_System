@@ -16,7 +16,7 @@ type infoResponse struct {
 // InfoHandler 查询某个用户的日志
 // @Summary      查询日志
 // @Description  查询日志
-// @Tags         查询日志
+// @Tags         日志接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Security 	 ApiKeyAuth

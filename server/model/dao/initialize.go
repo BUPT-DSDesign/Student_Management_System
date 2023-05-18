@@ -46,6 +46,7 @@ func (db *DB) ExecSql(sqlStr string) error {
 	if err := WriteLine(sqlStr); err != nil {
 		return err
 	}
+
 	return nil
 }
 

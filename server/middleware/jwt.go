@@ -23,7 +23,7 @@ func JwtAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claim, err := utils.ParaseToken(tokenString)
+		claim, err := utils.ParseToken(tokenString)
 		// 无效token
 		if err != nil {
 			c.JSON(http.StatusOK, common.StatusResponse{

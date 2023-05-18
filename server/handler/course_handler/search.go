@@ -17,7 +17,7 @@ type searchResponse struct {
 // SearchHandler  查询课程Handler
 // @Summary      查询课程
 // @Description  查询课程
-// @Tags         查询课程相关接口
+// @Tags         课程接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  searchResponse

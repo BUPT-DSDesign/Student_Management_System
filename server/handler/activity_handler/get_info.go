@@ -16,7 +16,7 @@ type getInfoResponse struct {
 // GetInfoHandler  课外活动Handler
 // @Summary      课外活动信息
 // @Description  获取学生所有的课外活动信息
-// @Tags         课外活动相关接口
+// @Tags         活动接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  getInfoResponse

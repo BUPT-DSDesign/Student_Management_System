@@ -8,24 +8,24 @@ import (
 	"server/service/course_service"
 )
 
-type tableResponse struct {
+type allResponse struct {
 	common.StatusResponse
 	Courses *[]*system.CourseInfo `json:"course_list"`
 }
 
-// TableHandler  课程表Handler
-// @Summary      课程表
-// @Description  获取学生所有的课程表信息
+// AllHandler  所有课Handler
+// @Summary      所有课
+// @Description  获取所有所有课
 // @Tags         课程接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
-// @Success      200  {object}  tableResponse
-// @Router       /course/table [get]
-func TableHandler(c *gin.Context) {
+// @Success      200  {object}  allResponse
+// @Router       /course/all [get]
+func AllHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
 	if !ok1 || !ok2 {
-		c.JSON(http.StatusOK, tableResponse{
+		c.JSON(http.StatusOK, allResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 1,
 				StatusMsg:  "解析id出错",
@@ -35,9 +35,9 @@ func TableHandler(c *gin.Context) {
 	}
 
 	// 调用service服务
-	courses, err := course_service.Server.DoTable(userId)
+	courses, err := course_service.Server.DoAll(userId)
 	if err != nil {
-		c.JSON(http.StatusOK, tableResponse{
+		c.JSON(http.StatusOK, allResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,
 				StatusMsg:  err.Error(),
@@ -47,10 +47,10 @@ func TableHandler(c *gin.Context) {
 	}
 
 	// 课程表返回成功
-	c.JSON(http.StatusOK, tableResponse{
+	c.JSON(http.StatusOK, allResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
-			StatusMsg:  "课程表返回成功",
+			StatusMsg:  "课程列表返回成功",
 		},
 		Courses: courses,
 	})

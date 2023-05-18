@@ -20,7 +20,7 @@ type NavigateResponse struct {
 // RunNavigateHandler 导航
 // @Summary      导航
 // @Description  获取导航路线
-// @Tags         导航功能
+// @Tags         导航接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Security 	 ApiKeyAuth

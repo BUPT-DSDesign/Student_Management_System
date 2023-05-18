@@ -31,6 +31,7 @@
             <el-button type="primary" @click="toNextweek()">下一周<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
+        <el-button type="primary" @click="openSelectCourseSystem">进入选课系统</el-button>
         <!-- 点击弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
@@ -75,6 +76,52 @@
                 </el-card>
             </el-col>
         </el-row>
+        <!-- 选课系统 -->
+        <el-dialog title="选课系统" :visible.sync="selectCourseSystemVis" width="50%">
+            <h3 style="color:black">
+                选修课列表
+            </h3>
+            <el-table :data="selectiveCourseData" height="260" border style="width: 100%">
+                <el-table-column label="课程名" fixed align="center">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.course_name }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="教师" fixed align="center">
+                    <template slot-scope="scope">
+                        <span>{{ scope.row.teacher }}</span>
+                    </template>
+                </el-table-column>
+
+                <el-table-column label="操作" fixed align="center" width="300">
+                    <template slot-scope="scope">
+                        <el-button size="small" type="primary" @click="seeCourseInfo(scope.row)">查看课程详情</el-button>
+                         <!-- 点击弹窗 -->
+                        
+                        <el-button size="small" type="success" :disabled="scope.row.is_selected" @click="openConfirmFrame(scope.row.course_id)">{{scope.row.is_selected == true ? '已选': '选课'}}</el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="selectCourseSystemVis = false">关闭</el-button>
+            </span>
+        </el-dialog>
+        <el-dialog title="课程详情" :visible.sync="courseInfoVis" width="30%">
+            <div>课程名称：{{ selectedCourseInfo.course_name }}</div>
+            <div>课程节次：{{ selectedCourseInfo.section_list }}</div>
+            <div>课程周次：{{ selectedCourseInfo.week_schedule }}</div>
+            <div>课程地点：{{ selectedCourseInfo.classroom }}</div>
+            <div>教师：{{ selectedCourseInfo.teacher }}</div>
+            <div>联系方式：{{ selectedCourseInfo.contact }}</div>
+            <div>考试时间：{{ selectedCourseInfo.exam_time }}</div>
+            <div>考试地点：{{ selectedCourseInfo.exam_location }}</div>
+            <span slot="footer" class="dialog-footer">
+                <el-button @click="courseInfoVis = false">取 消</el-button>
+                <el-button type="primary" @click="courseInfoVis = false">确 定</el-button>
+            </span>
+        </el-dialog>
 
     </div>
 </template>
@@ -96,6 +143,10 @@ export default {
             keyWord: '', //用户查询的课程关键字
             filclasslist: [], //模糊匹配后的课程列表（li中的填充对象
             searchlist: [],//搜索后返回的数组对象(查询弹窗中的填充对象)
+            selectCourseSystemVis: false, //选课系统弹窗的可见性
+            selectiveCourseData: [],
+            selectedCourseInfo: {},
+            courseInfoVis: false
         };
     },
     created() {
@@ -108,6 +159,16 @@ export default {
             }
         }
         getCourseTable()
+
+        const getSelectiveCourse = async () => {
+            const fg = await CourseStore.GetSelectiveCourse()
+            if (fg) {
+                this.selectiveCourseData = CourseStore.selectiveCourseList
+            } else {
+                console.log('error')
+            }
+        }
+        getSelectiveCourse()
     },
     watch: {
         keyWord(newvalue) {
@@ -134,6 +195,41 @@ export default {
         },
     },
     methods: {
+        seeCourseInfo(data) {
+            this.selectedCourseInfo = data
+            this.courseInfoVis = true
+        },
+        openConfirmFrame(courseId) {
+            this.$confirm('确定选修该课程吗？', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(async () => {
+                const fg = await CourseStore.SelectCourse(courseId)
+                if (fg) {
+                    this.$message({
+                        type: 'success',
+                        message: '选修课程成功!'
+                    });
+                    
+                } else {
+                    this.$message({
+                        type: 'error',
+                        message: '选修失败!'
+                    });
+                }
+            }).catch(() => {
+                this.$message({
+                    type: 'info',
+                    message: '已取消选修'
+                });
+            });
+        },
+        
+        // 打开选课系统
+        openSelectCourseSystem() {
+            this.selectCourseSystemVis = true
+        },
         //将相同教室的数组元素去重
         dedup(arr) {
             const res = new Map()
@@ -250,6 +346,7 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+
 .list-group{
     color: #adb5bd;
     margin-left:10px;

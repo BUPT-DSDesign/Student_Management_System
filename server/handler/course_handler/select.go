@@ -4,28 +4,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/model/entity/common"
-	"server/model/entity/system"
 	"server/service/course_service"
+	"strconv"
 )
 
-type tableResponse struct {
+type selectResponse struct {
 	common.StatusResponse
-	Courses *[]*system.CourseInfo `json:"course_list"`
 }
 
-// TableHandler  课程表Handler
-// @Summary      课程表
-// @Description  获取学生所有的课程表信息
+// SelectHandler  选课Handler
+// @Summary      选课
+// @Description  学生选课
 // @Tags         课程接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
-// @Success      200  {object}  tableResponse
-// @Router       /course/table [get]
-func TableHandler(c *gin.Context) {
+// @Success      200  {object}  selectResponse
+// @Router       /course/select [post]
+func SelectHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
 	if !ok1 || !ok2 {
-		c.JSON(http.StatusOK, tableResponse{
+		c.JSON(http.StatusOK, selectResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 1,
 				StatusMsg:  "解析id出错",
@@ -34,10 +33,13 @@ func TableHandler(c *gin.Context) {
 		return
 	}
 
+	// 获取课程id
+	courseIdString := c.Query("course_id")
+	courseId, _ := strconv.ParseInt(courseIdString, 10, 64)
+
 	// 调用service服务
-	courses, err := course_service.Server.DoTable(userId)
-	if err != nil {
-		c.JSON(http.StatusOK, tableResponse{
+	if err := course_service.Server.DoSelect(userId, courseId); err != nil {
+		c.JSON(http.StatusOK, selectResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,
 				StatusMsg:  err.Error(),
@@ -47,11 +49,10 @@ func TableHandler(c *gin.Context) {
 	}
 
 	// 课程表返回成功
-	c.JSON(http.StatusOK, tableResponse{
+	c.JSON(http.StatusOK, selectResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
-			StatusMsg:  "课程表返回成功",
+			StatusMsg:  "选课成功",
 		},
-		Courses: courses,
 	})
 }

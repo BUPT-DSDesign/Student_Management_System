@@ -15,7 +15,7 @@ type addResponse struct {
 // AddHandler 添加日志处理函数
 // @Summary      添加日志
 // @Description  添加一条日志
-// @Tags         添加日志
+// @Tags         日志接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Security 	 ApiKeyAuth

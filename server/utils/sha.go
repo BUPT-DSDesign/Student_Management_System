@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// SHA1加密
+// Sha1 SHA1加密
 func Sha1(s string) (string, error) {
 	hash := sha1.New()
 	if _, err := hash.Write([]byte(s)); err != nil {
@@ -19,7 +19,7 @@ func Sha1(s string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// SHA256加密
+// Sha256 SHA256加密
 func Sha256(s string) (string, error) {
 	hash := sha256.New()
 	if _, err := hash.Write([]byte(s)); err != nil {
@@ -29,7 +29,7 @@ func Sha256(s string) (string, error) {
 	return hex.EncodeToString(hash.Sum(nil)), nil
 }
 
-// 盐值生成
+// GenerateSalt 盐值生成
 func GenerateSalt(size int) (string, error) {
 	if size > 10 || size <= 0 {
 		return "", errors.New("非法长度,长度应为1-10之间的整数")

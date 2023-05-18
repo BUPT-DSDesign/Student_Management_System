@@ -14,7 +14,7 @@ type editSignatureResponse struct {
 // EditSignatureHandler 编辑个性签名
 // @Summary      个性签名
 // @Description  编辑个性签名
-// @Tags         用户鉴权
+// @Tags         用户接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Success      200  {object}  editSignatureResponse

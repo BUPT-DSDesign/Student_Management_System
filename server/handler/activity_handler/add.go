@@ -14,11 +14,11 @@ type addResponse struct {
 // AddHandler  增加活动Handler
 // @Summary      增加活动信息
 // @Description  增加活动信息
-// @Tags         增加课外活动相关接口
+// @Tags         活动接口
 // @Produce      application/json
 // @Security 	 ApiKeyAuth
 // @Success      200  {object}  addResponse
-// @Router       /activity [get]
+// @Router       /activity/add [post]
 func AddHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)

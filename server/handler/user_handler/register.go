@@ -16,7 +16,7 @@ type registerResponse struct {
 // RegisterHandler 用户注册
 // @Summary      注册
 // @Description  用户注册
-// @Tags         用户鉴权
+// @Tags         用户接口
 // @Accept 		 application/json
 // @Produce      application/json
 // @Param		 user_input body common.RegisterRequest true "用户信息"

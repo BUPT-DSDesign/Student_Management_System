@@ -99,6 +99,7 @@ import { TimeStore } from '@/store/time';
 import { EventStore } from '@/store/event';
 import { NavigateStore } from "@/store/navigate"
 import { Col } from 'element-ui';
+import { LogStore } from '@/store/log';
 
 // 绘制线路需要的坐标
 // var lineArr = [[116.35530714718364, 39.96393072423919], [116.35542348293764, 39.964436412717816], [116.35600217544192, 39.9646045260412]];
@@ -431,6 +432,13 @@ export default {
                     //     offset: new AMap.Pixel(-60, -60), // 调整图片偏移
                     // })
                     this.initMap();
+                    // 将执行导航的信息添加到日志中
+                    const log = {
+                        "create_time": TimeStore.getTime(),
+                        "log_content": "进行导航---从" + this.placelist[NavigateStore.startId].address + "到" + this.placelist[NavigateStore.endId].address,
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)
                 } else {
                     alert("您还未输入起始位置");
                     console.log('未输入起始位置')
@@ -453,6 +461,13 @@ export default {
                     this.lineArr = NavigateStore.rdata.node_list
                     this.firstArr = this.lineArr[0];
                     this.initMap();
+                    // 将执行导航的信息添加到日志中
+                    const log = {
+                        "create_time": TimeStore.getTime(),
+                        "log_content": "进行导航---从" + this.placelist[NavigateStore.startId].address + "到" + this.placelist[NavigateStore.endId].address,
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)
                 } else {
                     alert("您还未输入起始位置");
                     console.log('未输入起始位置')
@@ -500,6 +515,14 @@ export default {
                         message: '寻路成功',
                         type: 'success'
                     });
+                    // 将执行导航的信息添加到日志中
+                    const log = {
+                        "create_time": TimeStore.getTime(),
+                        "log_content": "进行了多目标路径导航---" + "起始地点:" + this.placelist[NavigateStore.startId].address + "经过地点:" + this.multipleSelection[0].place + "等" + this.multipleSelection.length + "个地点",
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)
+                    
 
                 } else {
                     console.log('error')

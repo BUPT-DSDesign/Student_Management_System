@@ -12,9 +12,13 @@ func createUserTable() error {
 		"avatar_url VARCHAR(100) NOT NULL," +
 		"signature VARCHAR(100) NOT NULL," +
 		"PRIMARY KEY (user_id)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
-	println(sql)
+		");"
 	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
 		return err
 	}
 	return nil
@@ -34,8 +38,13 @@ func createCourseTable() error {
 		"exam_option VARCHAR(20) NOT NULL," +
 		"is_compulsory TINYINT NOT NULL," +
 		"PRIMARY KEY (course_id)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+		");"
 	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
 		return err
 	}
 	return nil
@@ -48,8 +57,13 @@ func createStudentCourseTable() error {
 		"student_id BIGINT NOT NULL," +
 		"course_id BIGINT NOT NULL," +
 		"PRIMARY KEY (id)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+		");"
 	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
 		return err
 	}
 	return nil
@@ -63,8 +77,13 @@ func createLogTable() error {
 		"content VARCHAR(100) NOT NULL," +
 		"user_id BIGINT  NOT NULL," +
 		"PRIMARY KEY (log_id)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+		");"
 	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
 		return err
 	}
 	return nil
@@ -83,17 +102,78 @@ func createActivityTable() error {
 		"frequency INT NOT NULL," +
 		"is_mention TINYINT NOT NULL," +
 		"PRIMARY KEY (activity_id)" +
-		") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;"
+		");"
 
 	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
+func createCourseSectionTable() error {
+	// 创建课程-节次表
+	sql := "CREATE TABLE course_section (" +
+		"id BIGINT NOT NULL," +
+		"course_id BIGINT NOT NULL," +
+		"section_id INT NOT NULL" +
+		"PRIMARY KEY (id)" +
+		");"
+	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createCourseWeekTable() error {
+	// 创建课程-周次表
+	sql := "CREATE TABLE course_week (" +
+		"id BIGINT NOT NULL," +
+		"course_id BIGINT NOT NULL," +
+		"week_id INT NOT NULL" +
+		"PRIMARY KEY (id)" +
+		");"
+	if err := db.ExecSql(sql); err != nil {
+		return err
+	}
+
+	_, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func init() {
 	//if err := createUserTable(); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := createCourseTable(); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := createStudentCourseTable(); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := createLogTable(); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := createActivityTable(); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := createCourseSectionTable(); err != nil {
+	//	log.Fatal(err)
+	//}
+	//if err := createCourseWeekTable(); err != nil {
 	//	log.Fatal(err)
 	//}
 }

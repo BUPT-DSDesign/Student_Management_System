@@ -18,7 +18,57 @@
     "host": "localhost:8080",
     "basePath": "/Student_Management_System",
     "paths": {
-        "/activity": {
+        "/activity/add": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "增加活动信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "活动接口"
+                ],
+                "summary": "增加活动信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/activity_handler.addResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/activity/delete": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "删除活动信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "活动接口"
+                ],
+                "summary": "删除活动信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/activity_handler.deleteResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/activity/info": {
             "get": {
                 "security": [
                     {
@@ -30,7 +80,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "课外活动相关接口"
+                    "活动接口"
                 ],
                 "summary": "课外活动信息",
                 "responses": {
@@ -55,7 +105,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "管理员添加课程相关接口"
+                    "课程接口"
                 ],
                 "summary": "添加课程",
                 "responses": {
@@ -80,7 +130,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "删除课程相关接口"
+                    "课程接口"
                 ],
                 "summary": "删除课程",
                 "responses": {
@@ -105,7 +155,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "查询课程相关接口"
+                    "课程接口"
                 ],
                 "summary": "查询课程",
                 "responses": {
@@ -130,7 +180,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "课程表相关接口"
+                    "课程接口"
                 ],
                 "summary": "课程表",
                 "responses": {
@@ -155,7 +205,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "更新课程"
+                    "课程接口"
                 ],
                 "summary": "更新课程",
                 "responses": {
@@ -169,7 +219,7 @@
             }
         },
         "/log/add": {
-            "get": {
+            "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
@@ -183,7 +233,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "添加日志"
+                    "日志接口"
                 ],
                 "summary": "添加日志",
                 "parameters": [
@@ -227,7 +277,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "删除日志"
+                    "日志接口"
                 ],
                 "summary": "删除日志",
                 "parameters": [
@@ -264,7 +314,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "查询日志"
+                    "日志接口"
                 ],
                 "summary": "查询日志",
                 "responses": {
@@ -292,7 +342,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "导航功能"
+                    "导航接口"
                 ],
                 "summary": "导航",
                 "parameters": [
@@ -336,7 +386,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "旅行商问题"
+                    "导航接口"
                 ],
                 "summary": "旅行商",
                 "parameters": [
@@ -352,6 +402,7 @@
                         "items": {
                             "type": "integer"
                         },
+                        "collectionFormat": "csv",
                         "description": "途径节点集合",
                         "name": "des_ids",
                         "in": "query",
@@ -368,6 +419,29 @@
                 }
             }
         },
+        "/polling/is_course_arrive": {
+            "get": {
+                "description": "课程是否来临",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "轮询接口"
+                ],
+                "summary": "课程是否来临",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/polling_handler.isCourseArriveResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/info": {
             "get": {
                 "description": "获取用户信息",
@@ -378,7 +452,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "用户信息",
                 "responses": {
@@ -401,7 +475,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "登录",
                 "parameters": [
@@ -435,7 +509,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "注册",
                 "parameters": [
@@ -469,7 +543,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "用户鉴权"
+                    "用户接口"
                 ],
                 "summary": "上传头像",
                 "responses": {
@@ -484,6 +558,28 @@
         }
     },
     "definitions": {
+        "activity_handler.addResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "activity_handler.deleteResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
         "activity_handler.getInfoResponse": {
             "type": "object",
             "properties": {
@@ -692,6 +788,23 @@
                 }
             }
         },
+        "polling_handler.isCourseArriveResponse": {
+            "type": "object",
+            "properties": {
+                "course_info": {
+                    "$ref": "#/definitions/system.CourseInfo"
+                },
+                "is_arrive": {
+                    "type": "boolean"
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
         "system.ActivityInfo": {
             "type": "object",
             "properties": {
@@ -701,35 +814,21 @@
                 "activity_name": {
                     "type": "string"
                 },
-                "duration_time": {
+                "frequency": {
                     "type": "integer"
                 },
                 "is_mention": {
                     "description": "是否需要提醒",
                     "type": "boolean"
                 },
-                "is_online": {
-                    "description": "是否线上",
-                    "type": "boolean"
-                },
                 "location": {
                     "type": "string"
-                },
-                "location_id": {
-                    "description": "线下地点的节点编号",
-                    "type": "integer"
-                },
-                "start_day": {
-                    "type": "integer"
                 },
                 "start_time": {
                     "type": "string"
                 },
-                "start_week": {
-                    "type": "integer"
-                },
                 "tag": {
-                    "type": "integer"
+                    "type": "string"
                 },
                 "type": {
                     "type": "integer"
