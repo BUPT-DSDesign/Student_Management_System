@@ -16,3 +16,29 @@ export const AddCourse = (data) => {
         data: data
     })
 }
+
+// 查询选修课
+export const SelectiveCourse = () => {
+    return service({
+        url: '/course/selective',
+        method: 'get'
+    })
+}
+
+// 查询所有课
+export const AllCourse = () => {
+    return service({
+        url: '/course/all',
+        method: 'get'
+    })
+}
+
+// 选修课程
+export const CourseSelect = (courseId) => {
+    const url = '/course/select?course_id=' + courseId
+    return service({
+        url: url,
+        method: 'post'
+    })
+}
+

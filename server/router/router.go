@@ -62,6 +62,12 @@ func InitRouters() *gin.Engine {
 		courseGroup.PUT("/update", middleware.JwtAuthMiddleware(), course_handler.UpdateHandler)
 		// 搜索课程
 		courseGroup.GET("/search", middleware.JwtAuthMiddleware(), course_handler.SearchHandler)
+		// 所有课程
+		courseGroup.GET("/all", middleware.JwtAuthMiddleware(), course_handler.AllHandler)
+		// 选修课程
+		courseGroup.GET("/selective", middleware.JwtAuthMiddleware(), course_handler.SelectiveHandler)
+		// 学生选择课程
+		courseGroup.POST("/select", middleware.JwtAuthMiddleware(), course_handler.SelectHandler)
 	}
 
 	// 导航路由

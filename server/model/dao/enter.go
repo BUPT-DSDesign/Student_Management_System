@@ -25,6 +25,10 @@ type CourseDao interface {
 	QueryCourseByClassroom(classroom string, courses **[]*system.CourseInfo) error
 	QuerySectionListById(courseId int64, sectionList *[]int) error
 	QueryWeekScheduleById(courseId int64, weekSchedule *[]int) error
+	QueryAllSelectiveCourse(courses **[]*system.CourseInfo) error
+	QueryAllCourse(courses **[]*system.CourseInfo) error
+	JudgeIsStudentSelectCourse(userId int64, courseId int64) bool
+	SelectCourse(userId int64, courseId int64) error
 }
 
 // ActivityDao 活动数据库操作对象

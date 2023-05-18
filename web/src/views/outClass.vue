@@ -424,11 +424,11 @@ export default {
             let submit = {};
             if (this.addEventData.activityType == 'personal') {
                 submit.activityType = 0;
-                submit.start_time=
+                // submit.start_time=
             }
             else if (this.addEventData.activityType == 'group') {
                 submit.activityType = 1;
-                submit.start_time=
+                // submit.start_time=
             }
             else if (this.addEventData.activityType == 'gtemp') {
                 submit.activityType = 2;
