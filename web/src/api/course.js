@@ -17,7 +17,6 @@ export const AddCourse = (data) => {
     })
 }
 
-<<<<<<< HEAD
 // 删除课程
 export const DeleteCourse = (data) => {
     return service({
@@ -44,7 +43,6 @@ export const inquiryCourse = (data) => {
         data: data
     })
 }
-=======
 // 查询选修课
 export const SelectiveCourse = () => {
     return service({
@@ -70,4 +68,3 @@ export const CourseSelect = (courseId) => {
     })
 }
 
->>>>>>> 90f1f0686213ab03738f971f3282d654557bb74c

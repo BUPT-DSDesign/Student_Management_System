@@ -27,12 +27,18 @@
                 <i class="el-icon-news"></i>
                 <span slot="title">日志信息</span>
             </el-menu-item>
-            <el-dialog title="闹钟提醒" :visible="showAlarm" :modal="false" :custom-class="'popup'" @close="showAlarm = false">
+            <el-dialog title="闹钟提醒" :visible="showClassAlarm" :modal="false" :custom-class="'popup'" @close="showClassAlarm = false">
                 <div>
-                    <p>{{ pollingCourse.courseName }}马上要上课了</p>
+                    <p>{{ pollingCourse.course_name }}课程马上开始了</p>
                     <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
                 </div>
             </el-dialog>
+            <el-dialog title="闹钟提醒" :visible="showEventAlarm" :modal="false" :custom-class="'popup'" @close="showEventAlarm = false">
+                    <div>
+                        <p>{{ pollingEvent.activity_name }}活动马上开始了</p>
+                        <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
+                    </div>
+                </el-dialog>
         </el-menu>
     </div>
 </template>
@@ -46,9 +52,11 @@ export default {
         return {
             speed: TimeStore.Tm, //倍速
             isCollapse: false,
+            is_arrive:false,
             pollingCourse: {},
             pollingEvent:{},
-            showAlarm: true
+            showClassAlarm: true,
+            showEventAlarm: true
         };
     },
     methods: {
@@ -80,12 +88,10 @@ export default {
         async getCoursePolling() {
             const fg = await PollingStore.IsCourseArrive();
             if (fg) {
-                
-                if (is_arrive == true) {
+                if (PollingStore.is_arrive == true) {
                     this.showAlarm = true
                     this.pollingCourse = PollingStore.pollingCourse;
                 }
-                
             } else {
                 console.log('error')
             }
@@ -93,7 +99,7 @@ export default {
         async getEventPolling() {
             const fg = await PollingStore.IsEventArrive();
             if (fg) {
-                if (is_arrive == true) {
+                 if (PollingStore.is_arrive == true) {
                     this.showAlarm = true
                     this.pollingEvent = PollingStore.pollingEvent;
                 }
@@ -104,7 +110,7 @@ export default {
         }
     },
     created() {
-         setCourseInterval(() => {
+        setCourseInterval(() => {
             this.getCoursePolling();
         }, this.speed),
         setEventInterval(() => {
