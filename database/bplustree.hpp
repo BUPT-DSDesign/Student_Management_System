@@ -7,7 +7,16 @@
 #define PAGE_SIZE 16*1024 //参考INNODB
 using namespace std;
 
-
+//设计思路:
+//B+树的每一个节点都是一个区块,区块的大小为16KB
+//其中,节点分为内部节点和叶子节点,内部节点存储的是键值和孩子的位置,叶子节点存储的是键值和数据的位置
+//每一个区块的头部都有一个头部信息,用于存储节点的信息,包括是否为叶子节点,是否为脏页,键的类型,孩子的最大数量,当前孩子数量,每个元素的大小,父节点的位置,区块偏移位置
+//如果为内部节点，则节点内部(除头部)数据存储结构如下
+//child0|key1|child1|key2|child2|...|keyn|childn|
+//如果为叶子结点，则节点内部(除头部)数据存储结构如下
+//front|key1|data1|key2|data2|...|keyn|datan|tail|
+//叶子节点为双向链表,front和tail为指向前后叶子节点的指针
+//同时假设单个表文件不会大于4GB,所以可以用uint32存储位置信息(100w+条数据是不是不大可能)
 struct BPNodeHead{
     bool is_leaf_;//判断是不是叶子结点
     bool is_dirty_;//判断是否为脏页(即该页数据是否已经被删除)
@@ -93,7 +102,7 @@ public:
     //读取下一个叶节点所对应区块
     void ReadNextChunk();
     //返回当前叶节点的所有元素
-    vector<vector<byte>> GetAllElem();
+    vector<vector<byte>> GetAllElemInChunk();
     //删除某个元素
     bool Remove(const uint64 &key);
     //插入元素
