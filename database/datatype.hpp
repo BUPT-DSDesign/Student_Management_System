@@ -74,8 +74,8 @@ const int SIZE_OF_T[]=
 #define OP_EQUAL 0x00
 #define OP_GREATER 0x01
 #define OP_GREATER_EQUAL 0x02
-#define OP_LESS 0x03
-#define OP_LESS_EQUAL 0x04
+#define OP_LESS_EQUAL 0x03
+#define OP_LESS 0x04
 #define OP_NOT_EQUAL 0x05
 #define OP_AND 0x06
 #define OP_OR 0x07
