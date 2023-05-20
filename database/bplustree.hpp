@@ -94,7 +94,7 @@ public:
     //用键值寻找单个元素,返回值为字节流
     vector<byte> Search(const uint64 &key);
     //利用键值,按范围寻找元素,返回值为字节流
-    vector<byte> SearchRange(const uint64& left,const uint64& right);
+    vector<vector<byte>> SearchRange(const uint64& left,const uint64& right);
     //读取最开头的叶节点所对应区块(当查找条件不为键值时)
     void ReadFirstChunk();
     //读取上一个叶节点所对应区块
@@ -103,6 +103,8 @@ public:
     void ReadNextChunk();
     //返回当前叶节点的所有元素
     vector<vector<byte>> GetAllElemInChunk();
+    //返回整个树的所有元素
+    vector<vector<byte>> GetAllElemInTree();
     //删除某个元素
     bool Remove(const uint64 &key);
     //插入元素

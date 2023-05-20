@@ -100,7 +100,7 @@ void BPNode::WriteChunk(){
 void BPNode::CreateChunk(bool is_leaf,int data_size)
 {
     //0.计算出头信息
-    head_.father_ = 0;
+    head_.father_ = -1;
     head_.is_dirty_ = false;
     head_.is_leaf_ = is_leaf;
     head_.data_size_ = data_size;
@@ -223,6 +223,27 @@ vector<byte> BPTree::Search(const uint64 &key){
     return elem;
     
 }
+vector<vector<byte>> BPTree::SearchRange(const uint64& left,const uint64& right){
+    //搜索
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(left);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,left);
+    if(bufnode_.getKey(pos) < left){
+        //如果找到的不是第一个,则需要向后移动一位
+        pos++;
+    }
+    //第三步,读取对应数据,返回字节流供解析
+    vector<vector<byte>> result;
+    while(bufnode_.getKey(pos) <= right){
+        result.push_back(bufnode_.getRawData(pos));
+        pos++;
+    }
+    return result;
+}
+
 bool BPTree::Insert(const uint64 &key,vector<byte> &data){
     cur_ = root_pos_;
     //先搜索这个叶子节点
@@ -245,7 +266,7 @@ bool BPTree::Insert(const uint64 &key,vector<byte> &data){
     }
 }
 void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &after){
-    if(cur_==0){
+    if(cur_==-1){
         //新建一个根节点
         BPNode root;
         //非叶子节点,节点单元素大小为键值大小
@@ -423,4 +444,53 @@ vector<vector<byte>> BPTree::GetAllElemInChunk(){
         }
     }
     return res;
+}
+
+vector<vector<byte>> BPTree::GetAllElemInTree(){
+    //获取整个树的所有元素
+    vector<vector<byte>> res;
+    //先读取第一个叶子节点
+    ReadFirstChunk();
+    //然后开始迭代
+    while(cur_!=-1){
+        //获取当前节点的所有元素
+        vector<vector<byte>> tmp = GetAllElemInChunk();
+        //将其插入到res中
+        res.insert(res.end(),tmp.begin(),tmp.end());
+        //读取下一个节点
+        ReadNextChunk();
+    }
+    return res;
+}
+
+bool BPTree::Update(const uint64 &key,vector<byte> &data){
+    //更新
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(key);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,key);
+    if(is_table_&&key != bufnode_.getKey(pos)){
+        //键值不重复,无法更新(表的主键不能重复)
+        return false;
+    }
+    //如果找到了,则更新
+    while(cur_!=-1&&bufnode_.getKey(pos) == key){
+        //更新数据
+        bufnode_.insertDataAtPos(pos,key,data);
+        //更新下一个
+        pos++;
+        //如果到了这个页的末尾,则需要读取下一个页
+        if(pos == bufnode_.getElemCount()){
+            //写入当前页
+            bufnode_.WriteChunk();
+            //读取下一个页
+            ReadNextChunk();
+            pos = 0;
+        }
+    }
+
+    bufnode_.WriteChunk();
+    return true;
 }
