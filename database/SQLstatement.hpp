@@ -1,12 +1,10 @@
 #pragma once
 #include "datatype.hpp"
 #include "SQLWhere.hpp"
-#include "table.hpp"
 #include <string>
 #include <vector>
 #include <stack>
 #include <map>
-#include <unordered_map>
 using namespace std;
 //创建数据库需要传入的参数
 //创建数据库
