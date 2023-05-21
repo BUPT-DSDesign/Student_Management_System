@@ -74,15 +74,15 @@ void DB_API::Use(SQLUse &statement){
 
 void DB_API::Insert(SQLInsert &statement){
     //利用SQLInsert中的tb_name_和col_name_插入一条记录
-    //需要将其加工为字节流,然后调用BPTree的插入函数
+    //需要将其加工为字节流,然后调用Table的插入函数
     //最后将其写入表文件
     //TODO
 }
 
 void DB_API::Select(SQLSelect &statement){
-    //利用SQLSelect中的tb_name_和col_name_查询一条记录
-    //需要将其加工为字节流,然后调用BPTree的查询函数
-    //最后将返回的json格式的数据输出到标准输入输出流中
+    //利用SQLSelect中的SQLWhere查询记录
+    //此处选择好对应查询应该采用的列,然后调用Table的查询函数
+    //还需将
     //TODO
 }
 

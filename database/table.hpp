@@ -7,6 +7,7 @@
 #include <map>
 #include "datatype.hpp"
 #include "bplustree.hpp"
+#include "SQLWhere.hpp"
 using namespace std;
 //表每一列的属性,最多有16列
 typedef struct 
@@ -45,7 +46,7 @@ private:
     vector<TableColAttribute> col_info_;//表每一行的信息,最多有16列
     vector<uint16> col_shift_;//列位置偏移量
     uint16 col_cnt_;//列的数量
-    size_t record_length_;//每一条记录的长度
+    uint16 record_length_;//每一条记录的长度
     uint16 index_cnt_;//索引的数量
     string table_name_;//表名
     string db_path_;//数据库路径
@@ -55,6 +56,7 @@ private:
     map<string,string> col2index_;//列名到索引名的映射
     map<string,int> col2id_;//列名到列id的映射
     string deserialize(vector<byte> &data);//反序列化数据为json
+    vector<byte> serialize(vector<pair<string,string>> &col_item);//序列化数据
     
 public:
     //默认构造函数
@@ -69,7 +71,15 @@ public:
     void DropTable();
     //新建索引
     void CreateIndex(const string& col_name,const string& index_name);
-
+    //下面为处理CRUD的相关函数定义
+    //插入记录
+    void InsertRecord(vector<pair<string,string>> &col_item);
+    //删除记录
+    void DeleteRecord(SQLWhere &where);
+    //修改记录,通过解析Where的数据,更改符合条件的记录
+    void UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where);
+    //查询记录,通过解析Where的数据返回符合条件的记录
+    void SelectRecord(SQLWhere &where);
     
     ~Table();
 };

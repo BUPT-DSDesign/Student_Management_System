@@ -1,7 +1,6 @@
 #pragma once
 
 #include "datatype.hpp"
-#include "table.hpp"
 
 #include <string>
 #include <vector>
@@ -9,14 +8,49 @@
 #include <map>
 #include <unordered_map>
 using namespace std;
+/*
+** 一条稍复杂的Where语句示例如下
+** WHERE (col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4) OR (col5 = 5 AND col6 = 6)
+** 其中,我们可以将 col1 = 1看成一个子结构,子结构由AND/OR运算符连接起来,形成一个从句
+** 从句之间也可以用AND和OR连接起来,形成一个复杂的Where语句
+*/
 
+//WhereTerm,用来存储一个子结构
+//子结构的形式为:列名 运算符 立即数
+class WhereTerm{
+public:
+    WhereTerm(uint16 col_id,uint8 eOperator,any eValue);
+private:
+    enum class op{
+        OP_EQ = 0,//=
+        OP_LT = 1,//<
+        OP_LE = 2,//<=
+        OP_GT = 3,//>
+        OP_GE = 4,//>=
+        OP_NE = 5,//<>
+    };
+    uint16 col_id_;//子结构的列id
+    op eOperator_;//子结构的运算符,包含=,>,<,>=,<=,<>
+    any eValue_;//子结构的立即数
+};
+
+//WhereClause,用来存储一个从句
+//从句的形式为:子结构1 AND/OR 子结构2 AND/OR 子结构3 AND/OR ...
+class WhereClause{
+public:
+    WhereClause();
+    void AddTerm(WhereTerm &term);
+private:
+    vector<WhereTerm> terms_;//从句中的子结构
+    uint8 eOperator_;//连接各个子结构的运算符,包含AND/OR
+    unique_ptr<WhereClause> outerClause_;//外层从句,如(col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4),其中(col1 = 1 AND col2 = 2)和(col3 = 3 AND col4 = 4)的外层从句为整个句子
+};
 //Where约束
 class SQLWhere
 {
 public:
     SQLWhere();
     void PraseSQLVector(vector<string> &sql_vector);
-    bool CalculateWhere(vector<byte> &data,vector<TableColAttribute> &col_attr);//计算某条数据是否满足where条件
 private:
     //WHERE运算符优先级表
     unordered_map<string,int> priority_ = {

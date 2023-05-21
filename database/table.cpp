@@ -406,3 +406,147 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     tb_index_[index_name] = make_unique<BPTree>(fileIndex);
     //TODO 利用表的数据文件,创建索引文件
 }
+
+vector<byte> Table::serialize(vector<pair<string,string>> &col_item){
+    //遍历,如果有列名不在表中,则抛出异常
+    for(auto &it:col_item){
+        if(col2id_.find(it.first)==col2id_.end()){
+            throw TableDataError("Data Serialize Error,Column "+it.first+" not exists");
+        }
+    }
+    // 随后根据列的顺序(即TableAttribute),将数据写入data中
+    vector<byte> data(record_length_,std::byte(0));
+    for(auto &it:col_item){
+        //先利用col2id_找到列的id
+        int id = col2id_[it.first];
+        //再利用col_shift_找到列的偏移量
+        uint16 shift = col_shift_[id];
+        //根据数据类型,将string转换为对应的数据类型
+        istringstream iss(it.second);
+        switch(col_info_[id].data_type_){
+            //1.数值类型:整型(符号型)
+            case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+                {
+                    int64 val_int64;
+                    iss>>val_int64;
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,can't convert to int64,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    std::copy(reinterpret_cast<std::byte*>(&val_int64),reinterpret_cast<std::byte*>(&val_int64)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            //2.数值类型:浮点型(单精度)
+            case T_FLOAT:
+                {
+                    float val_float;
+                    iss>>val_float;
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,can't convert to float,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    std::copy(reinterpret_cast<std::byte*>(&val_float),reinterpret_cast<std::byte*>(&val_float)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            //3.数值类型:浮点型(双精度)
+            case T_DOUBLE:
+                {
+                    double val_double;
+                    iss>>val_double;
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,can't convert to double,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    std::copy(reinterpret_cast<std::byte*>(&val_double),reinterpret_cast<std::byte*>(&val_double)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            //4.数值类型:无符号类型(日期和时间类型),需要将字符串转换为uint64
+            case T_DATE:
+                //格式为YYYY-MM-DD
+                //范围为1000-01-01到9999-12-31
+                {
+                    uint64 val_uint64;
+                    uint64 year,month,day;
+                    char c;
+                    iss>>year>>c>>month>>c>>day;
+                    //判断输入格式是否正确
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,Date format error,cannot convert to uint64,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    //判断是否在范围里,不在则抛出异常
+                    if(year<1000||year>9999||month<1||month>12||day<1||day>31){
+                        throw TableDataError("Data Serialize Error,Date out of range,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    val_uint64 = (year<<9ULL)|(month<<5ULL)|day;
+                    std::copy(reinterpret_cast<std::byte*>(&val_uint64),reinterpret_cast<std::byte*>(&val_uint64)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            case T_TIME:
+                //格式为HH:MM:SS
+                //范围为-838:59:59到838:59:59
+                {
+                    int32 val_int32;
+                    int32 hour,minute,second;
+                    char c;
+                    iss>>hour>>c>>minute>>c>>second;
+                    //判断输入格式是否正确
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,Time format error,cannot convert to int32,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    //判断是否在范围里,不在则抛出异常
+                    if(hour<-838||hour>838||minute<0||minute>59||second<0||second>59){
+                        throw TableDataError("Data Serialize Error,Time out of range,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    val_int32 = hour*3600+minute*60+second;
+                    std::copy(reinterpret_cast<std::byte*>(&val_int32),reinterpret_cast<std::byte*>(&val_int32)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            case T_YEAR:
+                //格式为YYYY
+                //范围为1901到2155
+                {
+                    uint8 val_uint8;
+                    int32 year;
+                    iss>>year;
+                    //判断输入格式是否正确
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,year format error,cannot convert to uint8,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    //判断是否在范围里,不在则抛出异常
+                    if(year<1901||year>2155){
+                        throw TableDataError("Data Serialize Error,year out of range,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    val_uint8 = year-1901;
+                    std::copy(reinterpret_cast<std::byte*>(&val_uint8),reinterpret_cast<std::byte*>(&val_uint8)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            case T_TIMESTAMP:
+                //格式为YYYY-MM-DD HH:MM:SS
+                //以1970-01-01 00:00:00为起始值
+                {
+                    std::tm timestamp = {};
+                    iss>> std::get_time(&timestamp,"%Y-%m-%d %H:%M:%S");
+                    if(iss.fail()){
+                        throw TableDataError("Data Serialize Error,timestamp out of range or format error,cannot convert to time_t,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    std::time_t val_int64;//存储时间戳,时间戳的数据类型为int64
+                    auto tp = std::chrono::system_clock::from_time_t(std::mktime(&timestamp));
+                    val_int64 = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
+                    std::copy(reinterpret_cast<std::byte*>(&val_int64),reinterpret_cast<std::byte*>(&val_int64)+col_info_[id].length_,data.begin()+shift);
+                }
+                break;
+            //5.字符类型
+            default:
+                {
+                    //如果是字符串类型,先判断长度是否超过
+                    if(it.second.length()>col_info_[id].length_){
+                        throw TableDataError("Data Serialize Error,varchar length out of range,COLUMN:"+it.first+" VALUE:"+it.second);
+                    }
+                    //如果没有超过,则直接拷贝
+                    std::copy(reinterpret_cast<std::byte*>(it.second.data()),reinterpret_cast<std::byte*>(it.second.data())+col_info_[id].length_,data.begin()+shift);
+                } 
+                break;
+        }
+    }
+    return data;
+}
+void Table::SelectRecord(SQLWhere &where){
+    
+}
