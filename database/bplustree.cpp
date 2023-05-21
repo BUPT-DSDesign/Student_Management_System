@@ -135,6 +135,7 @@ void BPNode::insertDataAtPos(int id,const uint64 &key,const vector<byte>& data){
     //随后开始把要改写的数据拷贝进入data
     std::copy(data.begin(),data.end(),dataLoc(pos));
 }
+
 //对于内部节点,data中存储的是key,child中存储的是孩子的位置
 //对于叶子节点,data中存储的是key和data,child中存储的是指向下一个叶子节点的指针
 std::vector<std::byte>::iterator BPNode::dataBegin(){
@@ -471,8 +472,8 @@ bool BPTree::Update(const uint64 &key,vector<byte> &data){
     //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
     //第二步,二分查找数据
     int pos = binarySearch(bufnode_,key);
-    if(is_table_&&key != bufnode_.getKey(pos)){
-        //键值不重复,无法更新(表的主键不能重复)
+    if(key != bufnode_.getKey(pos)){
+        //找不到这样的键值
         return false;
     }
     //如果找到了,则更新
@@ -491,6 +492,41 @@ bool BPTree::Update(const uint64 &key,vector<byte> &data){
         }
     }
 
+    bufnode_.WriteChunk();
+    return true;
+}
+
+bool BPTree::Remove(const uint64 &key){
+    //删除
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(key);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,key);
+    if(key != bufnode_.getKey(pos)){
+        //找不到这样的键值
+        return false;
+    }
+    //如果找到了,则删除
+    while(cur_!=-1&&bufnode_.getKey(pos) == key){
+        //删除数据
+        //先将后面的数据向前移动
+        std::copy(bufnode_.dataLoc(pos+1),bufnode_.dataEnd(),bufnode_.dataLoc(pos));
+        //然后减少busy
+        bufnode_.head_.busy_--;
+        //如果到了这个页的末尾,则需要读取下一个页
+        if(pos >= bufnode_.getElemCount()){
+            //写入当前页
+            bufnode_.WriteChunk();
+            //读取下一个页
+            ReadNextChunk();
+            pos = 0;
+        }
+        //更新下一个
+        pos++;
+        
+    }
     bufnode_.WriteChunk();
     return true;
 }
