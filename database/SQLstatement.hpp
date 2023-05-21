@@ -1,8 +1,9 @@
 #pragma once
 #include "datatype.hpp"
-#include "table.hpp"
+#include "SQLWhere.hpp"
 #include <string>
 #include <vector>
+#include <stack>
 #include <map>
 using namespace std;
 //创建数据库需要传入的参数
@@ -125,15 +126,7 @@ private:
     //vector<SQLInsertValue> values_;//待新增的数据
 };
 
-//Where约束
-//TODO 重构Where解析,写的太乱了
-typedef struct
-{
-    bool is_need_;//是需要该条件,还是不需要该条件
-	uint8 op_type_;//Where约束的运算符类型
-	string key_;//对应键值
-	string value_;//约束值
-}SQLWhere;
+
 
 //删除操作
 class SQLDelete: public SQLBase
@@ -142,12 +135,10 @@ public:
     SQLDelete(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
     string get_tb_name();
-    vector<SQLWhere>& get_condition();
-    vector<uint8>& get_relation();
+    SQLWhere& get_condition();
 private:
     string tb_name_;//表名
-    vector<SQLWhere> condition_;//查询条件
-    vector<uint8> relation_;//前后多个条件之间的关系
+    SQLWhere condition_;//查询条件
 };
 //SQL的更新操作
 class SQLUpdate: public SQLBase
@@ -158,14 +149,12 @@ public:
     string get_tb_name();
     vector<string>& get_col_name();
     vector<string>& get_values();
-    vector<SQLWhere>& get_condition();
-    vector<uint8>& get_relation();
+    SQLWhere& get_condition();
 private:
     string tb_name_;//表名
     vector<string> col_name_;//对应的列名
     vector<string> values_;//需要更新的数据
-    vector<SQLWhere> condition_;//查询条件
-    vector<uint8> relation_;//前后多个条件之间的关系
+    SQLWhere condition_;//查询条件
 };
 
 class SQLSelect: public SQLBase
@@ -175,13 +164,11 @@ public:
     void PraseSQLVector(vector<string> &sql_vector);
     string get_tb_name();
     vector<string>& get_col_name();
-    vector<SQLWhere>& get_condition();
-    vector<uint8>& get_relation();
+    SQLWhere& get_condition();
 private:
     string tb_name_;//表名
     vector<string> col_name_;//对应的列名
-    vector<SQLWhere> condition_;//查询条件
-    vector<uint8> relation_;//前后多个条件之间的关系
+    SQLWhere condition_;//查询条件
 };
 
 

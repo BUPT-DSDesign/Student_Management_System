@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <unordered_map>
 using namespace std;
 /*******************SQLCreateDatabase**********************************/
 // 创建数据库相关
@@ -592,14 +593,11 @@ string SQLDelete::get_tb_name()
 {
     return tb_name_;
 }
-vector<SQLWhere> &SQLDelete::get_condition()
+SQLWhere &SQLDelete::get_condition()
 {
     return condition_;
 }
-vector<uint8> &SQLDelete::get_relation()
-{
-    return relation_;
-}
+
 void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
 {
     // 将诸如下列的SQL语句解析到私有成员变量中
@@ -631,91 +629,15 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
             return;
         }
         it++;
-        bool is_attr = true;
-        while (is_attr)
+        //将WHERE条件解析到condition_中
+        //从it开始解析
+        vector<string> condition_vector;
+        while (it != sql_vector.end())
         {
-            is_attr = false;
-            // 对应列名
-            SQLWhere sq;
-            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            // 判断有没有NOT运算符
-            if (*it == "not")
-            {
-                sq.is_need_ = false;
-            }
-            else
-            {
-                sq.is_need_ = true;
-                it++;
-                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            }
-            sq.key_ = *it;
-            // 接下来是运算符处理
+            condition_vector.push_back(*it);
             it++;
-            if (*it == "=")
-            {
-                sq.op_type_ = OP_EQUAL;
-                it++;
-            }
-            else if (*it == ">")
-            {
-                it++;
-                if (*it == "=")
-                {
-                    sq.op_type_ = OP_GREATER_EQUAL;
-                    it++;
-                }
-                else
-                {
-                    sq.op_type_ = OP_GREATER;
-                }
-            }
-            else if (*it == "<")
-            {
-                it++;
-                if (*it == "=")
-                {
-                    sq.op_type_ = OP_LESS_EQUAL;
-                    it++;
-                }
-                else if (*it == ">")
-                {
-                    sq.op_type_ = OP_NOT_EQUAL;
-                    it++;
-                }
-                else
-                {
-                    sq.op_type_ = OP_LESS;
-                }
-            }
-            else
-            {
-                throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
-                return;
-            }
-            // 接下来是值
-            sq.value_ = *it;
-            condition_.push_back(sq);
-            it++;
-            if (it != sql_vector.end())
-            {
-                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                if (*it == "and")
-                {
-                    relation_.push_back(OP_AND);
-                }
-                else if (*it == "or")
-                {
-                    relation_.push_back(OP_OR);
-                }
-                else
-                {
-                    throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
-                    return;
-                }
-                is_attr = true;
-            }
         }
+        condition_.PraseSQLVector(condition_vector);
     }
 }
 
@@ -736,13 +658,9 @@ vector<string> &SQLUpdate::get_values()
 {
     return values_;
 }
-vector<SQLWhere> &SQLUpdate::get_condition()
+SQLWhere &SQLUpdate::get_condition()
 {
     return condition_;
-}
-vector<uint8> &SQLUpdate::get_relation()
-{
-    return relation_;
 }
 
 void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
@@ -817,91 +735,15 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
     if (*it == "where")
     {
         it++;
-        bool is_attr = true;
-        while (is_attr)
+        //将WHERE条件解析到condition_中
+        //从it开始解析
+        vector<string> condition_vector;
+        while (it != sql_vector.end())
         {
-            is_attr = false;
-            // 对应列名
-            SQLWhere sq;
-            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            // 判断有没有NOT运算符
-            if (*it == "not")
-            {
-                sq.is_need_ = false;
-            }
-            else
-            {
-                sq.is_need_ = true;
-                it++;
-                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            }
-            sq.key_ = *it;
-            // 接下来是运算符处理
+            condition_vector.push_back(*it);
             it++;
-            if (*it == "=")
-            {
-                sq.op_type_ = OP_EQUAL;
-                it++;
-            }
-            else if (*it == ">")
-            {
-                it++;
-                if (*it == "=")
-                {
-                    sq.op_type_ = OP_GREATER_EQUAL;
-                    it++;
-                }
-                else
-                {
-                    sq.op_type_ = OP_GREATER;
-                }
-            }
-            else if (*it == "<")
-            {
-                it++;
-                if (*it == "=")
-                {
-                    sq.op_type_ = OP_LESS_EQUAL;
-                    it++;
-                }
-                else if (*it == ">")
-                {
-                    sq.op_type_ = OP_NOT_EQUAL;
-                    it++;
-                }
-                else
-                {
-                    sq.op_type_ = OP_LESS;
-                }
-            }
-            else
-            {
-                throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
-                return;
-            }
-            // 接下来是值
-            sq.value_ = *it;
-            condition_.push_back(sq);
-            it++;
-            if (it != sql_vector.end())
-            {
-                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                if (*it == "and")
-                {
-                    relation_.push_back(OP_AND);
-                }
-                else if (*it == "or")
-                {
-                    relation_.push_back(OP_OR);
-                }
-                else
-                {
-                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
-                    return;
-                }
-                is_attr = true;
-            }
         }
+        condition_.PraseSQLVector(condition_vector);
     }
 }
 /*******************SQLSelect**********************************/
@@ -917,14 +759,11 @@ vector<string> &SQLSelect::get_col_name()
 {
     return col_name_;
 }
-vector<SQLWhere> &SQLSelect::get_condition()
+SQLWhere &SQLSelect::get_condition()
 {
     return condition_;
 }
-vector<uint8> &SQLSelect::get_relation()
-{
-    return relation_;
-}
+
 
 void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
 {
@@ -984,91 +823,15 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
             return;
         }
         it++;
-        bool is_attr = true;
-        while (is_attr)
+        //将WHERE条件解析到condition_中
+        //从it开始解析
+        vector<string> condition_vector;
+        while (it != sql_vector.end())
         {
-            is_attr = false;
-            // 对应列名
-            SQLWhere sq;
-            transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            // 判断有没有NOT运算符
-            if (*it == "not")
-            {
-                sq.is_need_ = false;
-            }
-            else
-            {
-                sq.is_need_ = true;
-                it++;
-                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-            }
-            sq.key_ = *it;
-            // 接下来是运算符处理
+            condition_vector.push_back(*it);
             it++;
-            if (*it == "=")
-            {
-                sq.op_type_ = OP_EQUAL;
-                it++;
-            }
-            else if (*it == ">")
-            {
-                it++;
-                if (*it == "=")
-                {
-                    sq.op_type_ = OP_GREATER_EQUAL;
-                    it++;
-                }
-                else
-                {
-                    sq.op_type_ = OP_GREATER;
-                }
-            }
-            else if (*it == "<")
-            {
-                it++;
-                if (*it == "=")
-                {
-                    sq.op_type_ = OP_LESS_EQUAL;
-                    it++;
-                }
-                else if (*it == ">")
-                {
-                    sq.op_type_ = OP_NOT_EQUAL;
-                    it++;
-                }
-                else
-                {
-                    sq.op_type_ = OP_LESS;
-                }
-            }
-            else
-            {
-                throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
-                return;
-            }
-            // 接下来是值
-            sq.value_ = *it;
-            condition_.push_back(sq);
-            it++;
-            if (it != sql_vector.end())
-            {
-                transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
-                if (*it == "and")
-                {
-                    relation_.push_back(OP_AND);
-                }
-                else if (*it == "or")
-                {
-                    relation_.push_back(OP_OR);
-                }
-                else
-                {
-                    throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT AN LEGAL OPERATOR, BUT GET OTHER:"+*it);
-                    return;
-                }
-                is_attr = true;
-            }
         }
+        condition_.PraseSQLVector(condition_vector);
     }
 }
 
@@ -1181,3 +944,4 @@ void SQLUse::PraseSQLVector(vector<string> &sql_vector)
     transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     db_name_ = *it;
 }
+

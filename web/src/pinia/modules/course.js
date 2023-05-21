@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
-import { CourseTable, AddCourse, SelectiveCourse, AllCourse, CourseSelect } from '@/api/course'
+import { CourseTable, AddCourse, SelectiveCourse, AllCourse, CourseSelect ,DeleteCourse, EditCourse, inquiryCourse } from '@/api/course'
 import { ref } from 'vue'
 
 export const useCourseStore = defineStore('course', () => {
     const courseList = ref([])
+    const searchCourseList = ref([])
     const selectiveCourseList = ref([])
     const GetCourseTable = async () => {
         try {
@@ -30,6 +31,7 @@ export const useCourseStore = defineStore('course', () => {
             return false
         }
     }
+   
 
     const GetSelectiveCourse = async () => {
         try {
@@ -55,6 +57,41 @@ export const useCourseStore = defineStore('course', () => {
             return false
         }
     }
+    const EditCourseInfo = async (data) => {
+        try {
+            const res = await EditCourse(data)
+            console.log(res.data)
+            if (res.data.status_code == 0) {
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+    const DeleteCourseInfo = async (data) => {
+        try {
+            const res = await DeleteCourse(data)
+            console.log(res.data)
+            if (res.data.status_code == 0) {
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+    const inquiryCourseInfo = async (data) => {
+        try {
+            const res = await inquiryCourse(data)
+            console.log(res.data)
+            if (res.data.status_code == 0) {
+                searchCourseList.value = res.data.course_list
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
+
 
     const SelectCourse = async (data) => {
         try {
@@ -71,9 +108,12 @@ export const useCourseStore = defineStore('course', () => {
 
     return {
         courseList,
+        searchCourseList,
         GetCourseTable,
         AddCourseInfo,
-        GetSelectiveCourse,
+        DeleteCourseInfo,
+        EditCourseInfo,
+        inquiryCourseInfo,
         GetAllCourse,
         selectiveCourseList,
         SelectCourse

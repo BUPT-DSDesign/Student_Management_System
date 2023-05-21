@@ -193,9 +193,6 @@ export default {
         }
     },
     created() {
-        //  this.curcourseList = [];
-        // this.outEventList = [];
-        // this.tempEventList = [];
         const getTable1 = async () => {
             const fg = await await CourseStore.GetCourseTable()
             if (fg) {

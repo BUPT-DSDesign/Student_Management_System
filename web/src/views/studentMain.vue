@@ -4,8 +4,6 @@
             <el-aside width="200px">
                 <!-- 侧边栏 -->
                <studentAside :routes="getRoutes"></studentAside>
-
-        
             </el-aside>
             <el-container>
                 <el-header>   
@@ -25,10 +23,6 @@ import studentAside from '../components/studentAside.vue'
 import Header from '../components/Header.vue'
  
 export default {
-    data() {
-        return {
-        }
-    },
     computed: {
         getRoutes() {
             return global.antRouter

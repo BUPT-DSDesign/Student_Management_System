@@ -100,7 +100,7 @@ void BPNode::WriteChunk(){
 void BPNode::CreateChunk(bool is_leaf,int data_size)
 {
     //0.计算出头信息
-    head_.father_ = 0;
+    head_.father_ = -1;
     head_.is_dirty_ = false;
     head_.is_leaf_ = is_leaf;
     head_.data_size_ = data_size;
@@ -129,12 +129,15 @@ void BPNode::insertDataAtPos(int id,const uint64 &key,const vector<byte>& data){
     //先拿到写入位置
     uint16 pos = getElemLocInData(id);
     //随后开始写入
-    //前四个字节为key
+    //前8个字节为key
     std::copy(reinterpret_cast<const std::byte*>(&key),reinterpret_cast<const std::byte*>(&key)+sizeof(key),dataLoc(pos));
     pos += sizeof(key);
     //随后开始把要改写的数据拷贝进入data
     std::copy(data.begin(),data.end(),dataLoc(pos));
 }
+
+//对于内部节点,data中存储的是key,child中存储的是孩子的位置
+//对于叶子节点,data中存储的是key和data,child中存储的是指向下一个叶子节点的指针
 std::vector<std::byte>::iterator BPNode::dataBegin(){
     return data_.begin();
 }
@@ -155,7 +158,7 @@ std::vector<std::streampos>::iterator BPNode::childBegin(){
     return child_.begin();
 }
 std::vector<std::streampos>::iterator BPNode::childEnd(){
-    return child_.begin()+head_.busy_+1;
+    return child_.begin()+head_.busy_;
 }
 std::vector<std::streampos>::iterator BPNode::childLoc(int id){
     if(id <= head_.busy_ && id >= 0){
@@ -165,8 +168,12 @@ std::vector<std::streampos>::iterator BPNode::childLoc(int id){
 }
 uint64 BPNode::getKey(int id){
     uint64 key;
-    //获取键值,键值存在位置不同,如果是叶子则为实际存储数据前的4个字节,如果是非叶节点则就是data
+    //获取键值,键值存在位置不同,如果是叶子则为实际存储数据的前8个字节,如果是非叶节点则就是data
+    std::copy(dataLoc(id*sizeof(uint64)),dataLoc(id*sizeof(uint64)+sizeof(uint64)),reinterpret_cast<std::byte*>(&key));
+    return key;
 }
+
+//下面是B+树的实现
 BPTree::BPTree(string path)
 {
     bufnode_.file_name_ = path;
@@ -175,7 +182,7 @@ BPTree::BPTree(string path)
 BPTree::~BPTree(){
     
 }
-
+//核心算法1:二分查找
 int BPTree::binarySearch(BPNode &node,const uint64 &key){
     int l=-1,r=node.getElemCount() - 1;
     while(l + 1 < r){
@@ -187,7 +194,7 @@ int BPTree::binarySearch(BPNode &node,const uint64 &key){
             l = mid;
         }
     }
-    return r;
+    return l;
 }
 void BPTree::searchLeaf(const uint64 &key){
     while(cur_!=-1){
@@ -199,12 +206,13 @@ void BPTree::searchLeaf(const uint64 &key){
         }
         //否则开始迭代叶子结点
         //每个区块里的元素都是从小到大排列
+        //child_id是最靠左且小于等于key的孩子的id
         int child_id = binarySearch(bufnode_,key);
         cur_ = bufnode_.getChild(child_id);
     }
 }
 vector<byte> BPTree::Search(const uint64 &key){
-    //搜索(有索引的)
+    //搜索
     cur_ = root_pos_;
     //第一步,定位到叶子节点
     searchLeaf(key);
@@ -216,6 +224,27 @@ vector<byte> BPTree::Search(const uint64 &key){
     return elem;
     
 }
+vector<vector<byte>> BPTree::SearchRange(const uint64& left,const uint64& right){
+    //搜索
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(left);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,left);
+    if(bufnode_.getKey(pos) < left){
+        //如果找到的不是第一个,则需要向后移动一位
+        pos++;
+    }
+    //第三步,读取对应数据,返回字节流供解析
+    vector<vector<byte>> result;
+    while(bufnode_.getKey(pos) <= right){
+        result.push_back(bufnode_.getRawData(pos));
+        pos++;
+    }
+    return result;
+}
+
 bool BPTree::Insert(const uint64 &key,vector<byte> &data){
     cur_ = root_pos_;
     //先搜索这个叶子节点
@@ -228,6 +257,7 @@ bool BPTree::Insert(const uint64 &key,vector<byte> &data){
     }
     if(bufnode_.head_.busy_==bufnode_.head_.degree_){
         //如果节点满了,需要分裂
+        //TODO 利用延时写入来优化分裂,即不立即写入,而是等到需要的时候再写入,或等到缓存满了再写入
         splitTreeNode(key,data);
         //把旧的根节点作为新的根节点的孩子
     }else{
@@ -237,7 +267,7 @@ bool BPTree::Insert(const uint64 &key,vector<byte> &data){
     }
 }
 void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &after){
-    if(cur_==0){
+    if(cur_==-1){
         //新建一个根节点
         BPNode root;
         //非叶子节点,节点单元素大小为键值大小
@@ -271,28 +301,38 @@ void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &a
         if(place_right){
             ++pos;
         }
-        //源代码这里有个Prevent,不知道啥意思
+        //此处主要避免一种神奇的情况
+        //比如说,阶数为3,原始数据分别为18 19 30,需要插入的数据为20
+        //此时pos为1,place_right为true,但是此时应该插入到左边
+        //所以需要判断一下,如果place_right为true,且key小于pos的值,则pos--
         if(place_right&& key < inner_node.getKey(pos))pos--;
         //开始分裂吧
         //先分裂数据
         std::copy(inner_node.dataLoc(pos+1),inner_node.dataEnd(),new_node.dataBegin());
-        //TODO 然后分裂孩子节点
-        //std::copy();
+        //然后分裂孩子节点
+        //如 child0|key0|child1|key1|child2|key2|child3
+        //分裂为 child0|key0|child1 = child2|key2|child3
+        std::copy(inner_node.childLoc(pos+1),inner_node.childEnd(),new_node.childBegin());
+        //然后修改两个节点的busy
         new_node.head_.busy_ = inner_node.head_.busy_ - pos - 1;
         inner_node.head_.busy_ = pos + 1;
         //然后选一个位置放下吧
         if(place_right){
-            insertNoSplit(new_node,key,{});
+            insertNoSplit(new_node,key,vector<byte>{});
         }else{
-            insertNoSplit(inner_node,key,{});
+            insertNoSplit(inner_node,key,vector<byte>{});
         }
         //保存修改过的两个区块
         new_node.WriteChunk();
         inner_node.WriteChunk();
+        new_node.head_.father_ = inner_node.head_.father_;
         resetIndexChildrenParent(new_node);
+        //然后把键值向上插入
+        cur_ = inner_node.head_.father_;
+        insertKey(new_node.getKey(0),new_node.head_.chunk_pos_,new_node.head_.chunk_pos_);
     }else{
         //不需要拓,直接插入
-        insertNoSplit(inner_node,key,{});
+        insertNoSplit(inner_node,key,vector<byte>{});
         inner_node.WriteChunk();
     }
 }
@@ -318,7 +358,6 @@ void BPTree::splitTreeNode(const uint64 &key,vector<byte> &data){
     new_node.head_.busy_ = bufnode_.head_.busy_ - pos;
     new_node.data_.resize(new_node.head_.busy_*new_node.head_.data_size_);
     std::copy(bufnode_.dataLoc(pos),bufnode_.dataEnd(),new_node.data_.begin());
-    new_node.head_.busy_ = bufnode_.head_.busy_ - pos;
     //然后减小左节点规模
     bufnode_.head_.busy_ = pos;
     bufnode_.data_.resize(pos*new_node.head_.data_size_);
@@ -336,11 +375,14 @@ void BPTree::splitTreeNode(const uint64 &key,vector<byte> &data){
     //保存修改后的两个节点
     new_node.WriteChunk();
     bufnode_.WriteChunk();
+    //更新父亲节点
+    new_node.head_.father_ = bufnode_.head_.father_;
     //随后把键值向上插入
     cur_ = bufnode_.head_.father_;
     bufnode_ = new_node;
     insertKey(new_node.getKey(0),bufnode_.head_.chunk_pos_,bufnode_.child_[1]);
 }
+
 void BPTree::insertNoSplit(BPNode &node,const uint64 &key,vector<byte> &data){
     //先用二分查找定位
     int pos = binarySearch(node,key);
@@ -360,4 +402,131 @@ void BPTree::resetIndexChildrenParent(BPNode &node){
         tmpNode.head_.father_ = node.head_.chunk_pos_;
         tmpNode.WriteChunk();
     }
+}
+
+void BPTree::ReadFirstChunk(){
+    //即读取最小的那个叶子节点
+    cur_ = root_pos_;
+    while(cur_!=-1){
+        bufnode_.ReadChunk(cur_);
+        if(bufnode_.isLeaf()){
+            //如果是叶子节点了,就开始找值
+            break;
+        }
+        //否则开始迭代叶子结点
+        //每个区块里的元素都是从小到大排列
+        //child_id是最靠左且小于等于key的孩子的id
+        cur_ = bufnode_.getChild(0);
+    }
+}
+
+void BPTree::ReadPrevChunk(){
+    //此时必须为叶子节点
+    if(bufnode_.isLeaf()){
+        cur_ = bufnode_.child_[0];
+        bufnode_.ReadChunk(cur_);
+    }
+}
+void BPTree::ReadNextChunk(){
+    //此时必须为叶子节点
+    if(bufnode_.isLeaf()){
+        cur_ = bufnode_.child_[1];
+        bufnode_.ReadChunk(cur_);
+    }
+}
+
+vector<vector<byte>> BPTree::GetAllElemInChunk(){
+    //获取当前节点的所有元素
+    vector<vector<byte>> res;
+    if(bufnode_.isLeaf()){
+        for(auto it=bufnode_.dataBegin();it!=bufnode_.dataEnd();it+=bufnode_.head_.data_size_){
+            vector<byte> elem(it,it+bufnode_.head_.data_size_);
+            res.push_back(elem);
+        }
+    }
+    return res;
+}
+
+vector<vector<byte>> BPTree::GetAllElemInTree(){
+    //获取整个树的所有元素
+    vector<vector<byte>> res;
+    //先读取第一个叶子节点
+    ReadFirstChunk();
+    //然后开始迭代
+    while(cur_!=-1){
+        //获取当前节点的所有元素
+        vector<vector<byte>> tmp = GetAllElemInChunk();
+        //将其插入到res中
+        res.insert(res.end(),tmp.begin(),tmp.end());
+        //读取下一个节点
+        ReadNextChunk();
+    }
+    return res;
+}
+
+bool BPTree::Update(const uint64 &key,vector<byte> &data){
+    //更新
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(key);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,key);
+    if(key != bufnode_.getKey(pos)){
+        //找不到这样的键值
+        return false;
+    }
+    //如果找到了,则更新
+    while(cur_!=-1&&bufnode_.getKey(pos) == key){
+        //更新数据
+        bufnode_.insertDataAtPos(pos,key,data);
+        //更新下一个
+        pos++;
+        //如果到了这个页的末尾,则需要读取下一个页
+        if(pos == bufnode_.getElemCount()){
+            //写入当前页
+            bufnode_.WriteChunk();
+            //读取下一个页
+            ReadNextChunk();
+            pos = 0;
+        }
+    }
+
+    bufnode_.WriteChunk();
+    return true;
+}
+
+bool BPTree::Remove(const uint64 &key){
+    //删除
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(key);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,key);
+    if(key != bufnode_.getKey(pos)){
+        //找不到这样的键值
+        return false;
+    }
+    //如果找到了,则删除
+    while(cur_!=-1&&bufnode_.getKey(pos) == key){
+        //删除数据
+        //先将后面的数据向前移动
+        std::copy(bufnode_.dataLoc(pos+1),bufnode_.dataEnd(),bufnode_.dataLoc(pos));
+        //然后减少busy
+        bufnode_.head_.busy_--;
+        //如果到了这个页的末尾,则需要读取下一个页
+        if(pos >= bufnode_.getElemCount()){
+            //写入当前页
+            bufnode_.WriteChunk();
+            //读取下一个页
+            ReadNextChunk();
+            pos = 0;
+        }
+        //更新下一个
+        pos++;
+        
+    }
+    bufnode_.WriteChunk();
+    return true;
 }

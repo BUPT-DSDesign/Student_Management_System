@@ -27,26 +27,36 @@
                 <i class="el-icon-news"></i>
                 <span slot="title">日志信息</span>
             </el-menu-item>
-            <el-dialog title="闹钟提醒" :visible="popupVisible" :modal="false" :custom-class="'popup'" @close="popupVisible = false">
+            <el-dialog title="闹钟提醒" :visible="showClassAlarm" :modal="false" :custom-class="'popup'" @close="showClassAlarm = false">
                 <div>
-                    <p>{{ courseName }}马上要上课了</p>
-                    <p>课程开始时间：{{ startTime }}</p>
+                    <p>{{ pollingCourse.course_name }}课程马上开始了</p>
                     <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
                 </div>
             </el-dialog>
+            <el-dialog title="闹钟提醒" :visible="showEventAlarm" :modal="false" :custom-class="'popup'" @close="showEventAlarm = false">
+                    <div>
+                        <p>{{ pollingEvent.activity_name }}活动马上开始了</p>
+                        <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
+                    </div>
+                </el-dialog>
         </el-menu>
     </div>
 </template>
 
 <script>
+import { TimeStore } from "@/store/time"
+import { PollingStore } from "@/store/polling"
 
 export default {
     data() {
         return {
+            speed: TimeStore.Tm, //倍速
             isCollapse: false,
-            courseName: '计算机组成原理',
-            startTime: '08:00',
-            popupVisible: true
+            is_arrive:false,
+            pollingCourse: {},
+            pollingEvent:{},
+            showClassAlarm: true,
+            showEventAlarm: true
         };
     },
     methods: {
@@ -74,7 +84,38 @@ export default {
         },
         goToNavigation() {
             this.$router.push('/studentMain/CourseNav');
+        },
+        async getCoursePolling() {
+            const fg = await PollingStore.IsCourseArrive();
+            if (fg) {
+                if (PollingStore.is_arrive == true) {
+                    this.showAlarm = true
+                    this.pollingCourse = PollingStore.pollingCourse;
+                }
+            } else {
+                console.log('error')
+            }
+        },
+        async getEventPolling() {
+            const fg = await PollingStore.IsEventArrive();
+            if (fg) {
+                 if (PollingStore.is_arrive == true) {
+                    this.showAlarm = true
+                    this.pollingEvent = PollingStore.pollingEvent;
+                }
+                
+            } else {
+                console.log('error')
+            }
         }
+    },
+    created() {
+        setCourseInterval(() => {
+            this.getCoursePolling();
+        }, this.speed),
+        setEventInterval(() => {
+            this.getEventPolling();
+        }, this.speed)
     }
 }
 </script>
@@ -109,13 +150,15 @@ h3 {
     text-align: center;
     color: #fff;
 }
+
 .popup {
-  position: fixed;
-  width:195px;
-  bottom:2px;
-  left: 1px;
+    position: fixed;
+    width: 195px;
+    bottom: 2px;
+    left: 1px;
 }
+
 .popup .el-dialog__body {
-    padding:5px;
+    padding: 5px;
 }
 </style>

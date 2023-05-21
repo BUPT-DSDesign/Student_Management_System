@@ -13,15 +13,15 @@
                     <el-table-column prop="tag" label="标签" :filters="tagFilters" :filter-method="filterTag"
                         :formatter="formatTag"></el-table-column>
                     <el-table-column align="right">
-                            <template slot="header" slot-scope="scope">
-                                <el-input v-model="searchText" placeholder="请输入名称关键词" ></el-input>
-                            </template>
-                            <template slot-scope="scope">
-                                <el-button type="primary" size="mini" @click="handleClick(scope.row)">查看详情</el-button>
-                                <el-button type="danger" size="mini"
-                                    @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                            </template>
-                        </el-table-column>
+                        <template slot="header" slot-scope="scope">
+                            <el-input v-model="searchText" placeholder="请输入名称关键词"></el-input>
+                        </template>
+                        <template slot-scope="scope">
+                            <el-button type="primary" size="mini" @click="handleClick(scope.row)">查看详情</el-button>
+                            <el-button type="danger" size="mini"
+                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                        </template>
+                    </el-table-column>
                 </el-table>
             </div>
         </div>
@@ -44,7 +44,7 @@
                     </el-form-item>
                     <el-form-item label="活动时间">
                         <el-cascader v-model="addEventData.section_list" :options="options" :props="{ multiple: true }"
-                            filterable @change="section_list_change"></el-cascader>
+                            filterable ></el-cascader>
                     </el-form-item>
                     <el-form-item label="活动周次">
                         <el-select v-model="addEventData.week_schedule" placeholder="请选择" multiple>
@@ -53,8 +53,15 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="活动频次">
+                        <el-checkbox-group v-model="frequency">
+                            <el-checkbox label="单次"></el-checkbox>
+                            <el-checkbox label="每天一次"></el-checkbox>
+                            <el-checkbox label="每周一次"></el-checkbox>
+                        </el-checkbox-group>
+                    </el-form-item>
                     <el-form-item label="活动地点">
-                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
+                        <el-autocomplete v-model="addEventData.location" 
                             placeholder="请输入活动地点" :trigger-on-focus="false" class="el-auto">
                         </el-autocomplete>
                     </el-form-item>
@@ -65,7 +72,7 @@
                     </el-form-item>
                     <el-form-item label="活动时间">
                         <el-cascader v-model="addEventData.section_list" :options="options" :props="{ multiple: true }"
-                            filterable @change="section_list_change"></el-cascader>
+                            filterable ></el-cascader>
                     </el-form-item>
                     <el-form-item label="活动周次">
                         <el-select v-model="addEventData.week_schedule" placeholder="请选择" multiple>
@@ -74,8 +81,15 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="活动频次">
+                            <el-checkbox-group v-model="frequency">
+                                <el-checkbox label="1">单次</el-checkbox>
+                                <el-checkbox label="2">每天一次</el-checkbox>
+                                <el-checkbox label="3">每周一次</el-checkbox>
+                            </el-checkbox-group>
+                        </el-form-item>
                     <el-form-item label="活动地点">
-                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
+                        <el-autocomplete v-model="addEventData.location" 
                             placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                         </el-autocomplete>
                     </el-form-item>
@@ -99,7 +113,7 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="活动地点">
-                        <el-autocomplete v-model="addEventData.address" :fetch-suggestions="querySearch"
+                        <el-autocomplete v-model="addEventData.address" 
                             placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                         </el-autocomplete>
                     </el-form-item>
@@ -154,6 +168,7 @@ const sectionMap = [{
 export default {
     data() {
         return {
+            frequency:0,
             selected: {},//选择查看详情的活动对象
             dialogDetailVisible: false,
             dialogAddVisible: false, //添加活动的弹窗是否可见
@@ -170,7 +185,7 @@ export default {
             addEventData: {
                 activityType: 'group',
             },
-            deleteEventData:{},
+            deleteEventData: {},
             radio: '',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
             searchText: '',
@@ -420,7 +435,7 @@ export default {
         },
         submitAddForm() {
             this.dialogAddVisible = false;
-            
+
             let submit = {};
             if (this.addEventData.activityType == 'personal') {
                 submit.activityType = 0;
@@ -465,14 +480,14 @@ export default {
         },
     },
     computed: {
-       filteredData() {
+        filteredData() {
             if (!this.searchText) {
                 return this.eventList
             }
             const searchText = this.searchText.toLowerCase()
             return this.eventList.filter(item => item.activity_name.toLowerCase().includes(searchText))
         }
-    
+
     },
     components: {
         eventDialog,
@@ -512,4 +527,5 @@ h2 {
 .weekinput {
     width: 30px;
     margin: 0 5px;
-}</style>
+}
+</style>
