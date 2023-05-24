@@ -121,6 +121,19 @@ void BPNode::CreateChunk(bool is_leaf,int data_size)
     //3.关闭读写流
     fp.close();
 }
+streampos BPNode::releaseChunk(){
+    //从磁盘中卸载当前块
+    //1.打开文件读写流
+    fstream fp(file_name_.data(),ios::binary|ios::in|ios::out);
+    fp.seekp(head_.chunk_pos_,ios::beg);
+    //2.将其标记为脏页
+    head_.is_dirty_ = true;
+    //3.写入
+    fp.write((char*)&head_,sizeof(head_));
+    //4.关闭文件读写流
+    fp.close();
+    return node_pos;
+}
 uint16 BPNode::getElemLocInData(int id){
     return id*head_.data_size_;
 }
@@ -317,6 +330,7 @@ void BPTree::insertKey(const uint64 &key,const streampos &old,const streampos &a
         new_node.head_.busy_ = inner_node.head_.busy_ - pos - 1;
         inner_node.head_.busy_ = pos + 1;
         //然后选一个位置放下吧
+
         if(place_right){
             insertNoSplit(new_node,key,vector<byte>{});
         }else{
@@ -383,7 +397,7 @@ void BPTree::splitTreeNode(const uint64 &key,vector<byte> &data){
     insertKey(new_node.getKey(0),bufnode_.head_.chunk_pos_,bufnode_.child_[1]);
 }
 
-void BPTree::insertNoSplit(BPNode &node,const uint64 &key,vector<byte> &data){
+void BPTree::insertNoSplit(BPNode &node,const uint64 &key,const vector<byte> &data){
     //先用二分查找定位
     int pos = binarySearch(node,key);
     //O(n)的插入操作
@@ -496,7 +510,7 @@ bool BPTree::Update(const uint64 &key,vector<byte> &data){
     return true;
 }
 
-bool BPTree::Remove(const uint64 &key){
+vector<byte> BPTree::Remove(const uint64 &key){
     //删除
     cur_ = root_pos_;
     //第一步,定位到叶子节点
@@ -506,27 +520,69 @@ bool BPTree::Remove(const uint64 &key){
     int pos = binarySearch(bufnode_,key);
     if(key != bufnode_.getKey(pos)){
         //找不到这样的键值
-        return false;
+        return vector<byte>();
     }
     //如果找到了,则删除
-    while(cur_!=-1&&bufnode_.getKey(pos) == key){
-        //删除数据
-        //先将后面的数据向前移动
-        std::copy(bufnode_.dataLoc(pos+1),bufnode_.dataEnd(),bufnode_.dataLoc(pos));
-        //然后减少busy
-        bufnode_.head_.busy_--;
-        //如果到了这个页的末尾,则需要读取下一个页
-        if(pos >= bufnode_.getElemCount()){
-            //写入当前页
+    //先获取数据
+    vector<byte> res = bufnode_.getRawData(pos);
+    
+    if(bufnode_.head_.father_ == -1){
+        //当前节点为根节点
+        if(bufnode_.head_.busy_ == 1){
+            //就剩下一个了,删除就润
+            bufnode_.releaseChunk();
+        }else{
+            //正常删除就行
+            simpleRemove(bufnode_,pos);
             bufnode_.WriteChunk();
-            //读取下一个页
-            ReadNextChunk();
-            pos = 0;
         }
-        //更新下一个
-        pos++;
-        
+    }else if(bufnode_.head_.busy_ <= (bufnode_.head_.degree_ + 1)/2){
+        //如果删除之后,节点的元素个数小于等于阶数的一半,则需要进行调整操作
+        BPNode parent,lSibling,rSibling;
+        parent.ReadChunk(bufnode_.head_.father_);
+        lSibling.ReadChunk(parent.getChild(0));
+        rSibling.ReadChunk(parent.getChild(1));
+        //查找父节点中,当前页对应的孩子的位置
+        int parent_pos = binarySearch(parent,bufnode_.getKey(0));
+        //下面决定是从左边借还是从右边借,新建一个Lambda函数实现
+        enum class BorrowFrom{
+            LEFT,
+            RIGHT
+        };
+        //判断逻辑:如果当前节点是父节点的第一个孩子,则从右边借;
+        //如果当前节点是最后一个孩子,则从左边借;
+        //如果都不是,哪边更多就从哪边借
+        BorrowFrom borrow_from;
+        if(parent_pos == 0){
+            //从右边借
+            borrow_from = BorrowFrom::RIGHT;
+        }else if(parent_pos == parent.head_.busy_ - 1){
+            //从左边借
+            borrow_from = BorrowFrom::LEFT;
+        }else{
+            //从左边借还是从右边借呢?
+            if(lSibling.head_.busy_ > rSibling.head_.busy_){
+                //从左边借
+                borrow_from = BorrowFrom::LEFT;
+            }else{
+                //从右边借
+                borrow_from = BorrowFrom::RIGHT;
+            }
+        }
+        //TODO 开借
+        if(borrow_from == BorrowFrom::LEFT){
+
+        }else{
+
+        }
+    }else{
+        //正常删除就行
+        simpleRemove(bufnode_,pos);
+        bufnode_.WriteChunk();
     }
-    bufnode_.WriteChunk();
-    return true;
+    return res;
+}
+void BPTree::simpleRemove(BPNode &node,int pos){
+    node.data_.erase(node.dataLoc(pos),node.dataLoc(pos)+node.head_.data_size_);
+    node.head_.busy_--;
 }

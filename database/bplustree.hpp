@@ -56,6 +56,7 @@ public:
     streampos getChild(int id);//获取第k个孩子
     vector<byte> getRawData(int id);//TODO 获取第k个元素的字节流数据
     void WriteChunk();//将节点写入
+    streampos releaseChunk();//释放节点
     //streampos getElemLocation(int id);//获取节点的真实位置
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
     
@@ -78,11 +79,14 @@ private:
     //叶子结点满了之后分裂
     void splitTreeNode(const uint64 &key,vector<byte> &data);
     //无分裂的插入
-    void insertNoSplit(BPNode &node,const uint64 &key,vector<byte> &data);
+    void insertNoSplit(BPNode &node,const uint64 &key,const vector<byte> &data);
     //分裂后将节点向上传递
     void insertKey(const uint64 &key,const streampos &old,const streampos &after);
     //将节点的父亲全部更新
     void resetIndexChildrenParent(BPNode &node);
+    //简单将一个叶子结点的数据删除
+    void simpleRemove(BPNode &node,int pos);
+    
 public:
     //以下为打开
     //打开一个已有的B+树文件
@@ -105,8 +109,8 @@ public:
     vector<vector<byte>> GetAllElemInChunk();
     //返回整个树的所有元素
     vector<vector<byte>> GetAllElemInTree();
-    //删除某个元素
-    bool Remove(const uint64 &key);
+    //删除单个元素,并输出删除的对应元素
+    vector<byte> Remove(const uint64 &key);
     //插入元素
     bool Insert(const uint64 &key,vector<byte> &data);
     //更新元素
