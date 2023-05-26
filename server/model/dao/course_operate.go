@@ -129,6 +129,22 @@ func (s *courseDao) QueryAllCourse(courses **[]*system.CourseInfo) error {
 	return nil
 }
 
+func (s *courseDao) QueryCourseByUserId(userId int64, courses *[]*system.CourseInfo) error {
+	// 查询学生选课表
+	// 方法是先查询必修课，再查询选修课
+	// 必修课
+	var compulsoryCourse *[]*system.CourseInfo
+	if err := s.QueryCompulsoryCourse(&compulsoryCourse); err != nil {
+		return err
+	}
+	var electiveCourse *[]*system.CourseInfo
+	if err := s.QueryElectiveCourse(userId, &electiveCourse); err != nil {
+		return err
+	}
+	*courses = append(*compulsoryCourse, *electiveCourse...)
+	return nil
+}
+
 func (s *courseDao) QueryCompulsoryCourse(courses **[]*system.CourseInfo) error {
 	/*
 		查询必修课
@@ -253,7 +269,7 @@ func (s *courseDao) QueryWeekScheduleById(courseId int64, weekSchedule *[]int) e
 	/*
 		根据课程id查询周次
 	*/
-	sqlStr := fmt.Sprintf("SELECT week_id FROM course_week_schedule WHERE course_id = '%v'", courseId)
+	sqlStr := fmt.Sprintf("SELECT week_id FROM course_week WHERE course_id = '%v'", courseId)
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
@@ -304,6 +320,66 @@ func (s *courseDao) QueryCourseByClassroom(classroom string, courses **[]*system
 		return err
 	}
 	if err = json.Unmarshal(result, *courses); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// QueryCourseBySection 根据节次查询课程
+func (s *courseDao) QueryCourseBySection(section int, courseIds *[]int64) error {
+	/*
+		根据节次查询课程
+	*/
+	sqlStr := fmt.Sprintf("SELECT course_id FROM course_section WHERE section_id = %d", section)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, courseIds); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *courseDao) QueryCourseByWeek(week int, courseIds *[]int64) error {
+	/*
+		根据周次查询课程
+	*/
+	sqlStr := fmt.Sprintf("SELECT course_id FROM course_week WHERE week_id = %d", week)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+	if err = json.Unmarshal(result, courseIds); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// QueryCourseById 根据课程id查询课程信息
+func (s *courseDao) QueryCourseById(courseId int64, course *system.CourseInfo) error {
+	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id = '%v'", courseId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	result, err := ReadLine()
+	if err != nil {
+		return err
+	}
+
+	if err = json.Unmarshal(result, course); err != nil {
 		return err
 	}
 

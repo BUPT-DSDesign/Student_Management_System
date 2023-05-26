@@ -1,6 +1,9 @@
 package activity_service
 
 import (
+	"errors"
+	"fmt"
+	"server/algorithm/check_conflict"
 	"server/model/dao"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -58,9 +61,23 @@ func (f *addFlow) run() error {
 		IsMention:    f.addActivityRequest.IsMention,
 	}
 
-	// 将activityInfo插入数据库
-	if err := dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
-		return err
+	// 这里需要检测冲突, 就是得根据这个活动的频率
+	// 如果是一次性活动, 就先根据周筛选
+	// 如果是每天活动, 就先把一周对应的节次筛选出来
+	// 如果是每周活动, 就先根据节次筛选
+	isConflict, validTime := check_conflict.ActivityAndCoursesIsExistConflict(f.userId, activityInfo)
+
+	// 只有不冲突的时候才插入数据库数据
+	if !isConflict {
+		// 将activityInfo插入数据库
+		if err := dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
+			return err
+		}
+	} else {
+		if validTime == nil {
+			return errors.New("该活动与课程时间冲突, 并且没有合适的时间段")
+		}
+		return errors.New(fmt.Sprintf("该活动与课程时间冲突, 以下是合适的时间段为: %v", validTime))
 	}
 
 	return nil
