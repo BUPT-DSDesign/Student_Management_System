@@ -548,5 +548,63 @@ vector<byte> Table::serialize(vector<pair<string,string>> &col_item){
     return data;
 }
 void Table::SelectRecord(SQLWhere &where){
-    
+    //用Where类的成员函数获取最应该使用的索引
+    string indexName = where.GetBestIndex(index_col_name_);
+    //随后根据索引的类型,调用不同的函数
+    //先判断有没有这样的索引
+    //TODO 还有主键别忘了
+    vector<vector<byte>> result;
+    if(tb_index_.find(indexName)==tb_index_.end()){
+        //如果没有,顺序查找过滤
+        vector<vector<byte>> record;
+        tb_data_->ReadFirstChunk();
+        while(tb_data_->isBufLeaf()){
+            record = tb_data_->GetAllElemInChunk();
+            for(auto &it:record){
+                if(where.Filter(getValue(it,col2id_[indexName]),indexName)){
+                    result.push_back(it);
+                }
+            }
+            tb_data_->ReadNextChunk();
+        }
+    }else{
+        //如果有,则调用索引的查找函数
+        //先将Where类中的条件转换为索引的键值
+        //先检测查询类型,判断是范围查询还是等值查询
+        if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
+            //如果是等值查询,则直接调用索引的查找函数
+            result.push_back(tb_index_[indexName]->Search(where.GetQueryKey(indexName)));
+        }else{
+            //如果是范围查询,则调用索引的范围查找函数
+            result = tb_index_[indexName]->SearchRange(where.GetQueryLeftKey(indexName),where.GetQueryRightKey(indexName));
+        }
+    }
+    //最后将结果转换为字符串输出
+    bool status = true;
+    output(result);
 }
+
+void Table::output(vector<vector<byte>> &data){
+    //返回的JSON示例如下
+    /**
+     * {
+     *  "status_code":0,
+     *  "status_msg":"OK",
+     *  "data":[]
+     * }
+     * 
+     */
+    //其中,data为多条deserialized后的记录
+
+    //先构造status_code和status_msg
+    cout<<"{\"status_code\":0,\"status_msg\":\"OK\",\"data\":[";
+    //遍历data,将每条记录转换为JSON格式
+    for(auto it=data.begin();it!=data.end();++it){
+        cout<<deserialize(*it);
+        if(it!=data.end()-1){
+            cout<<",";
+        }
+    }
+    cout<<"]}"<<endl;
+}
+
