@@ -36,6 +36,10 @@ streampos BPNode::getChild(int id){
     return -1;
 }
 void BPNode::ReadChunk(streampos pos){
+    if(pos == INVALID_OFFSET){
+        //如果是无效的偏移量,则不读取
+        return;
+    }
     //TODO 将一个区块读取到字节流中
     //1.打开文件读写流
     fstream fp(file_name_.data(),ios::binary|ios::in);
@@ -195,6 +199,9 @@ BPTree::BPTree(string path)
 
 BPTree::~BPTree(){
     
+}
+bool BPTree::isBufLeaf(){
+    return bufnode_.isLeaf();
 }
 //核心算法1:二分查找
 int BPTree::binarySearch(BPNode &node,const uint64 &key){

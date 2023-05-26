@@ -126,6 +126,8 @@ public:
     void ReadPrevChunk();
     //读取下一个叶节点所对应区块
     void ReadNextChunk();
+    //判断当前节点是否为叶节点/是否读取成功
+    bool isBufLeaf();
     //返回当前叶节点的所有元素
     vector<vector<byte>> GetAllElemInChunk();
     //返回整个树的所有元素
