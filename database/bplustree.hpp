@@ -97,13 +97,13 @@ private:
     void innerShiftFromLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int parent_pos);
     //把当前叶子结点和左兄弟合并
     void leafMergeToLeft(BPNode &leaf,BPNode &left_sibling,int remove_pos);
-    void innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,int remove_pos);
+    void innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int remove_pos);
     //从右兄弟借一个元素
     void leafShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
     void innerShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
     //把右兄弟合并到当前叶子结点
     void leafMergeFromRight(BPNode &leaf,BPNode &right_sibling);
-    void innerMergeFromRight(BPNode &leaf,BPNode &right_sibling);
+    void innerMergeFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
     //删除叶子节点
     void deleteLeafNode(BPNode &leaf,BPNode &left_sibling,BPNode &right_sibling);
     //删除内部节点

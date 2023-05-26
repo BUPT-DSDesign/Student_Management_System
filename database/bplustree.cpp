@@ -617,7 +617,7 @@ vector<byte> BPTree::Remove(const uint64 &key){
     return res;
 }
 void BPTree::simpleLeafRemove(BPNode &node,int pos){
-    node.data_.erase(node.dataLoc(pos),node.dataLoc(pos)+node.head_.data_size_);
+    node.data_.erase(node.dataLoc(pos),node.dataLoc(pos+1));
     node.head_.busy_--;
 }
 
@@ -761,7 +761,7 @@ void BPTree::innerNodeRemove(BPNode &node,int pos){
                 parent.WriteChunk();
             }else{
                 //左边元素不够,把当前节点向左边合并
-                innerMergeToLeft(node,left_sibling,parent_pos);
+                innerMergeToLeft(node,left_sibling,parent,parent_pos);
                 //然后把相关节点刷写一遍
                 node.releaseChunk();
                 left_sibling.WriteChunk();
@@ -775,14 +775,14 @@ void BPTree::innerNodeRemove(BPNode &node,int pos){
             //和右边的借
             if(right_sibling.head_.busy_ >= (right_sibling.head_.degree_ + 1)/2){
                 //右边元素多,借一个过来
-                innerShiftFromRight(node,right_sibling,parent,parent_pos);
+                innerShiftFromRight(node,right_sibling,parent,parent_pos + 1);
                 //然后把相关节点刷写一遍
                 node.WriteChunk();
                 right_sibling.WriteChunk();
                 parent.WriteChunk();
             }else{
                 //右边元素不够,把右边节点向当前节点合并
-                innerMergeFromRight(node,right_sibling);
+                innerMergeFromRight(node,right_sibling,parent,parent_pos + 1);
                 //然后把相关节点刷写一遍
                 node.WriteChunk();
                 right_sibling.releaseChunk();
@@ -796,4 +796,44 @@ void BPTree::innerNodeRemove(BPNode &node,int pos){
         simpleInnerRemove(node,pos);
         node.WriteChunk();
     }
+}
+
+void BPTree::simpleInnerRemove(BPNode &node,int pos){
+    //简单的删除内部节点的值
+    //首先把pos后面的元素都往前移动一位
+    node.data_.erase(node.dataLoc(pos),node.dataLoc(pos + 1));
+    node.child_.erase(node.childLoc(pos + 1),node.childLoc(pos + 2));
+    node.head_.busy_--;
+}
+
+void BPTree::innerShiftFromLeft(BPNode &node,BPNode &left_sibling,BPNode &parent,int parent_pos){
+    //从左边借一个元素过来
+    //首先把父节点的值插入到当前节点的最前面
+    node.data_.insert(node.dataBegin(),parent.dataLoc(parent_pos),parent.dataLoc(parent_pos + 1));
+    node.head_.busy_++;
+    //然后把左边节点的最后一个元素插入到父节点的位置
+    parent.data_.erase(parent.dataLoc(parent_pos),parent.dataLoc(parent_pos + 1));
+    parent.data_.insert(parent.dataLoc(parent_pos),left_sibling.dataLoc(left_sibling.head_.busy_ - 1),left_sibling.dataLoc(left_sibling.head_.busy_));
+    //然后把左边节点的最后一个孩子节点删掉
+    left_sibling.child_.erase(left_sibling.childLoc(left_sibling.head_.busy_),left_sibling.childLoc(left_sibling.head_.busy_ + 1));
+    left_sibling.head_.busy_--;
+}
+
+void BPTree::innerShiftFromRight(BPNode &node,BPNode &right_sibling,BPNode &parent,int parent_pos){
+    //从右边借一个元素过来
+    //首先把父节点的值插入到当前节点的最后面
+    node.data_.insert(node.dataLoc(node.head_.busy_),parent.dataLoc(parent_pos),parent.dataLoc(parent_pos + 1));
+    node.head_.busy_++;
+    //然后把右边节点的第一个元素插入到父节点的位置
+    parent.data_.erase(parent.dataLoc(parent_pos),parent.dataLoc(parent_pos + 1));
+    parent.data_.insert(parent.dataLoc(parent_pos),right_sibling.dataLoc(0),right_sibling.dataLoc(1));
+    //然后把右边节点的第一个孩子节点删掉
+    right_sibling.child_.erase(right_sibling.childLoc(0),right_sibling.childLoc(1));
+    right_sibling.head_.busy_--;
+}
+
+void BPTree::innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int remove_pos){
+    //把当前节点和左边节点合并
+    //首先把父节点的值插入到左边节点的最后面
+
 }
