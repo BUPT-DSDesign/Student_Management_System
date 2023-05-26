@@ -2,6 +2,7 @@ package dao
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"server/model/entity/system"
 	"server/utils"
@@ -25,9 +26,18 @@ func (s *activityDao) AddActivity(activityInfo *system.ActivityInfo) error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	return nil
@@ -39,9 +49,18 @@ func (s *activityDao) DeleteActivity(activityId int64) error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	return nil
@@ -53,13 +72,22 @@ func (s *activityDao) QueryNeedMentionActivity(userId int64, activities **[]*sys
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *activities); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.ActivityInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *activities)
 
 	return nil
 }

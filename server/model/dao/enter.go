@@ -12,6 +12,7 @@ type UserDao interface {
 	QueryUserByName(username string, userInfo **system.UserInfo) error
 	UpdateUserAvatar(userId int64, avatarUrl string) error
 	UpdateSignature(userId int64, signature string) error
+	QueryAllUser(userInfos **[]*system.UserInfo) error
 }
 
 // CourseDao 课程数据库操作对象

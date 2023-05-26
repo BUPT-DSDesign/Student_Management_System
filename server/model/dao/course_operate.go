@@ -2,6 +2,7 @@ package dao
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -27,9 +28,18 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	// 添加到课程-节次表
@@ -39,9 +49,18 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		if err = db.ExecSql(sqlStr); err != nil {
 			return err
 		}
-		_, err = ReadLine()
+		jsonStr, err := ReadLine()
 		if err != nil {
 			return err
+		}
+
+		// 用一个map来接收返回的json
+		var result map[string]interface{}
+		_ = json.Unmarshal(jsonStr, &result)
+
+		// 判断result.status_code是否为0
+		if result["status_code"].(int) != 0 {
+			return errors.New(result["status_msg"].(string))
 		}
 	}
 
@@ -52,9 +71,18 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		if err = db.ExecSql(sqlStr); err != nil {
 			return err
 		}
-		_, err = ReadLine()
+		jsonStr, err := ReadLine()
 		if err != nil {
 			return err
+		}
+
+		// 用一个map来接收返回的json
+		var result map[string]interface{}
+		_ = json.Unmarshal(jsonStr, &result)
+
+		// 判断result.status_code是否为0
+		if result["status_code"].(int) != 0 {
+			return errors.New(result["status_msg"].(string))
 		}
 	}
 
@@ -67,9 +95,19 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
-	_, err := ReadLine()
+
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	// 再删除学生选课表中的内容
@@ -77,10 +115,20 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 	if err = db.ExecSql(sqlStr); err != nil {
 		return err
 	}
-	_, err = ReadLine()
+
+	jsonStr, err = ReadLine()
 	if err != nil {
 		return err
 	}
+
+	// 用一个map来接收返回的json
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
+	}
+
 	return nil
 }
 
@@ -104,9 +152,18 @@ func (s *courseDao) UpdateCourse(courseId int64, newCourseInfo *common.AddCourse
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	return nil
@@ -118,13 +175,22 @@ func (s *courseDao) QueryAllCourse(courses **[]*system.CourseInfo) error {
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *courses); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.CourseInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
 	return nil
 }
@@ -137,6 +203,8 @@ func (s *courseDao) QueryCourseByUserId(userId int64, courses *[]*system.CourseI
 	if err := s.QueryCompulsoryCourse(&compulsoryCourse); err != nil {
 		return err
 	}
+
+	// 选修课
 	var electiveCourse *[]*system.CourseInfo
 	if err := s.QueryElectiveCourse(userId, &electiveCourse); err != nil {
 		return err
@@ -154,13 +222,22 @@ func (s *courseDao) QueryCompulsoryCourse(courses **[]*system.CourseInfo) error 
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *courses); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.CourseInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
 	return nil
 }
@@ -174,13 +251,22 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *courses); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.CourseInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
 	return nil
 }
@@ -192,17 +278,28 @@ func (s *courseDao) JudgeIsStudentSelectCourse(userId int64, courseId int64) boo
 		return false
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return false
 	}
-	var studentCourse system.StudentCourse
-	_ = json.Unmarshal(result, &studentCourse)
 
-	if studentCourse.StudentId == 0 {
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
 		return false
 	}
-	return true
+
+	// 将result.data转换为[]system.StudentCourse
+	var studentCourse []system.StudentCourse
+	_ = json.Unmarshal([]byte(result["data"].(string)), &studentCourse)
+
+	if studentCourse != nil {
+		return true
+	}
+	return false
 
 }
 
@@ -215,13 +312,22 @@ func (s *courseDao) QueryAllSelectiveCourse(courses **[]*system.CourseInfo) erro
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *courses); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.CourseInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
 	return nil
 }
@@ -237,9 +343,18 @@ func (s *courseDao) SelectCourse(userId int64, courseId int64) error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	return nil
@@ -254,13 +369,22 @@ func (s *courseDao) QuerySectionListById(courseId int64, sectionList *[]int) err
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, sectionList); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]int
+	_ = json.Unmarshal([]byte(result["data"].(string)), sectionList)
 
 	return nil
 }
@@ -274,13 +398,22 @@ func (s *courseDao) QueryWeekScheduleById(courseId int64, weekSchedule *[]int) e
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, weekSchedule); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]int
+	_ = json.Unmarshal([]byte(result["data"].(string)), weekSchedule)
 
 	return nil
 
@@ -295,13 +428,22 @@ func (s *courseDao) QueryCourseByName(courseName string, courses **[]*system.Cou
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *courses); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.CourseInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
 	return nil
 }
@@ -315,13 +457,22 @@ func (s *courseDao) QueryCourseByClassroom(classroom string, courses **[]*system
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *courses); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]*system.CourseInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
 	return nil
 }
@@ -336,13 +487,22 @@ func (s *courseDao) QueryCourseBySection(section int, courseIds *[]int64) error 
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, courseIds); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]int64
+	_ = json.Unmarshal([]byte(result["data"].(string)), courseIds)
 
 	return nil
 }
@@ -356,13 +516,22 @@ func (s *courseDao) QueryCourseByWeek(week int, courseIds *[]int64) error {
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, courseIds); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]int64
+	_ = json.Unmarshal([]byte(result["data"].(string)), courseIds)
 
 	return nil
 }
@@ -374,14 +543,22 @@ func (s *courseDao) QueryCourseById(courseId int64, course *system.CourseInfo) e
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
 
-	if err = json.Unmarshal(result, course); err != nil {
-		return err
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]int64
+	_ = json.Unmarshal([]byte(result["data"].(string)), course)
 
 	return nil
 }
