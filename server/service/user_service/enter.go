@@ -14,6 +14,7 @@ type UserServer interface {
 	DoInfo(userId int64) (*system.UserInfo, error)
 	DoUploadAvatar(userId int64, file *multipart.FileHeader, c *gin.Context) (*string, error)
 	DoEditSignature(userId int64, signature string) error
+	DoAllInfo(userId int64) (*[]*system.UserInfo, error)
 }
 
 type server struct {

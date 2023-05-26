@@ -2,6 +2,7 @@ package dao
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"server/model/entity/system"
 )
@@ -17,13 +18,22 @@ func (s *logDao) QueryLogsByUserId(UserId int64, logs **[]*system.LogInfo) error
 		return err
 	}
 
-	result, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-	if err = json.Unmarshal(result, *logs); err != nil {
-		return err
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
+
+	// 将result.data转换为[]int64
+	_ = json.Unmarshal([]byte(result["data"].(string)), *logs)
 
 	return nil
 }
@@ -40,6 +50,20 @@ func (s *logDao) AddLog(logInfo *system.LogInfo) error {
 		return err
 	}
 
+	jsonStr, err := ReadLine()
+	if err != nil {
+		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
+	}
+
 	return nil
 }
 
@@ -51,6 +75,20 @@ func (s *logDao) DeleteLogById(logId int64) error {
 	sqlStr := fmt.Sprintf("DELETE FROM log_info WHERE log_id = '%v'", logId)
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
+	}
+
+	jsonStr, err := ReadLine()
+	if err != nil {
+		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	return nil

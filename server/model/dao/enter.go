@@ -12,6 +12,7 @@ type UserDao interface {
 	QueryUserByName(username string, userInfo **system.UserInfo) error
 	UpdateUserAvatar(userId int64, avatarUrl string) error
 	UpdateSignature(userId int64, signature string) error
+	QueryAllUser(userInfos **[]*system.UserInfo) error
 }
 
 // CourseDao 课程数据库操作对象
@@ -19,6 +20,7 @@ type CourseDao interface {
 	AddCourse(courseInfo *system.CourseInfo) error
 	DeleteCourse(courseId int64) error
 	UpdateCourse(courseId int64, newCourseInfo *common.AddCourseRequest) error
+	QueryCourseByUserId(userId int64, courses *[]*system.CourseInfo) error
 	QueryCompulsoryCourse(courses **[]*system.CourseInfo) error
 	QueryElectiveCourse(userId int64, courses **[]*system.CourseInfo) error
 	QueryCourseByName(courseName string, courses **[]*system.CourseInfo) error
@@ -29,6 +31,9 @@ type CourseDao interface {
 	QueryAllCourse(courses **[]*system.CourseInfo) error
 	JudgeIsStudentSelectCourse(userId int64, courseId int64) bool
 	SelectCourse(userId int64, courseId int64) error
+	QueryCourseByWeek(week int, courseIds *[]int64) error
+	QueryCourseById(courseId int64, course *system.CourseInfo) error
+	QueryCourseBySection(section int, courseIds *[]int64) error
 }
 
 // ActivityDao 活动数据库操作对象

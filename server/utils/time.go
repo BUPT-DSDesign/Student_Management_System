@@ -1,5 +1,9 @@
 package utils
 
+import (
+	"strconv"
+)
+
 /*
 	时间工具包, 用于处理时间相关的操作
 */
@@ -87,7 +91,7 @@ func IsSatisfied(time1 TimeUnion, time2 TimeUnion, duration int) bool {
 	return true
 }
 
-// SplitSectionList 将课程节次列表分割为时间段列表
+// SplitSectionList 将课程节次列表分割为时间段列表, 这个时间段是一天中的时间段
 func SplitSectionList(sectionList []int) [][2]int {
 	var timeList [][2]int
 	l := 0
@@ -123,4 +127,38 @@ func SplitSectionList(sectionList []int) [][2]int {
 
 	}
 	return timeList
+}
+
+// GetDayBySection 根据课程节次获取星期几
+func GetDayBySection(section int) int {
+	return (section-1)/9 + 1
+}
+
+// GetFormatTimeByTranVal  根据一个值获取几点几分,格式为480 -> 8:00
+func GetFormatTimeByTranVal(transVal int) string {
+	hour := transVal / 60
+	minute := transVal % 60
+	// 将hour和minute转换为字符串，格式为 08:00, 08:30， 需要补充前导0
+	var hourStr string
+	var minuteStr string
+	if hour < 10 {
+		hourStr = "0" + strconv.Itoa(hour)
+	} else {
+		hourStr = strconv.Itoa(hour)
+	}
+	if minute < 10 {
+		minuteStr = "0" + strconv.Itoa(minute)
+	} else {
+		minuteStr = strconv.Itoa(minute)
+	}
+	return hourStr + ":" + minuteStr
+}
+
+// GetSectionListByDay 根据星期几获取课程节次列表
+func GetSectionListByDay(day int) []int {
+	var sectionList []int
+	for i := 1; i <= 9; i++ {
+		sectionList = append(sectionList, (day-1)*9+i)
+	}
+	return sectionList
 }
