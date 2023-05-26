@@ -8,6 +8,7 @@
 #include <vector>
 #include <sstream>
 using namespace std;
+const uint32 INVALID_OFFSET = -1;
 BPNode::BPNode(){
     //初始化vector大小
     int max_space = PAGE_SIZE - sizeof(BPNodeHead);//最大的空闲空间
@@ -100,7 +101,7 @@ void BPNode::WriteChunk(){
 void BPNode::CreateChunk(bool is_leaf,int data_size)
 {
     //0.计算出头信息
-    head_.father_ = -1;
+    head_.father_ = INVALID_OFFSET;
     head_.is_dirty_ = false;
     head_.is_leaf_ = is_leaf;
     head_.data_size_ = data_size;
@@ -182,7 +183,7 @@ std::vector<std::streampos>::iterator BPNode::childLoc(int id){
 uint64 BPNode::getKey(int id){
     uint64 key;
     //获取键值,键值存在位置不同,如果是叶子则为实际存储数据的前8个字节,如果是非叶节点则就是data
-    std::copy(dataLoc(id*sizeof(uint64)),dataLoc(id*sizeof(uint64)+sizeof(uint64)),reinterpret_cast<std::byte*>(&key));
+    std::copy(dataLoc(id),dataLoc(id)+sizeof(uint64),reinterpret_cast<std::byte*>(&key));
     return key;
 }
 
@@ -533,18 +534,19 @@ vector<byte> BPTree::Remove(const uint64 &key){
             bufnode_.releaseChunk();
         }else{
             //正常删除就行
-            simpleRemove(bufnode_,pos);
+            simpleLeafRemove(bufnode_,pos);
             bufnode_.WriteChunk();
         }
-    }else if(bufnode_.head_.busy_ <= (bufnode_.head_.degree_ + 1)/2){
+    }else if(bufnode_.head_.busy_ < (bufnode_.head_.degree_ + 1)/2){
         //如果删除之后,节点的元素个数小于等于阶数的一半,则需要进行调整操作
         BPNode parent,lSibling,rSibling;
         parent.ReadChunk(bufnode_.head_.father_);
+        //TODO 此处空该怎么办？
         lSibling.ReadChunk(parent.getChild(0));
         rSibling.ReadChunk(parent.getChild(1));
         //查找父节点中,当前页对应的孩子的位置
         int parent_pos = binarySearch(parent,bufnode_.getKey(0));
-        //下面决定是从左边借还是从右边借,新建一个Lambda函数实现
+        //下面决定是从左边借还是从右边借
         enum class BorrowFrom{
             LEFT,
             RIGHT
@@ -553,7 +555,7 @@ vector<byte> BPTree::Remove(const uint64 &key){
         //如果当前节点是最后一个孩子,则从左边借;
         //如果都不是,哪边更多就从哪边借
         BorrowFrom borrow_from;
-        if(parent_pos == 0){
+        if(parent_pos == -1){
             //从右边借
             borrow_from = BorrowFrom::RIGHT;
         }else if(parent_pos == parent.head_.busy_ - 1){
@@ -571,18 +573,227 @@ vector<byte> BPTree::Remove(const uint64 &key){
         }
         //TODO 开借
         if(borrow_from == BorrowFrom::LEFT){
-
+            if(lSibling.head_.busy_ >= (lSibling.head_.degree_ + 1)/2){
+                //左边的邻居大过m/2,把左边的邻居的最后一个元素借过来
+                leafShiftFromLeft(bufnode_,lSibling,parent,parent_pos);
+                //更新叶子信息
+                bufnode_.WriteChunk();
+                rSibling.WriteChunk();
+                lSibling.WriteChunk();
+                parent.WriteChunk();
+            }else{
+                //左边的邻居小于等于m/2,把当前节点合并到左邻居去
+                leafMergeToLeft(bufnode_,lSibling,pos);
+                //然后删除这个叶子结点
+                deleteLeafNode(bufnode_,lSibling,rSibling);
+                //随后向上更新
+                innerNodeRemove(parent,parent_pos);
+                //TODO 等会看看这里要不要把节点给写磁盘里
+            }
         }else{
-
+            //TODO 先删除,免得合并时溢出
+            simpleLeafRemove(bufnode_,pos);
+            if(rSibling.head_.busy_ >= (rSibling.head_.degree_ + 1)/2){
+                //右边的孩子大过m/2,把右边元素的第一个元素借过来
+                leafShiftFromRight(bufnode_,rSibling,parent,parent_pos);
+                //更新叶子信息
+                bufnode_.WriteChunk();
+                rSibling.WriteChunk();
+                lSibling.WriteChunk();
+                parent.WriteChunk();
+            }else{
+                //把右边的节点合并过来
+                leafMergeFromRight(bufnode_,rSibling);
+                //随后向上更新
+                int right_key_pos = parent_pos + 1;
+                innerNodeRemove(parent,right_key_pos);
+            }
         }
     }else{
         //正常删除就行
-        simpleRemove(bufnode_,pos);
+        simpleLeafRemove(bufnode_,pos);
         bufnode_.WriteChunk();
     }
     return res;
 }
-void BPTree::simpleRemove(BPNode &node,int pos){
+void BPTree::simpleLeafRemove(BPNode &node,int pos){
     node.data_.erase(node.dataLoc(pos),node.dataLoc(pos)+node.head_.data_size_);
     node.head_.busy_--;
+}
+
+void BPTree::leafShiftFromLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int parent_pos){
+    //把leaf中的节点整体向后移动一个单位,把left_sibling的最后一个元素移动到leaf的第一个元素
+    std::copy_backward(leaf.dataLoc(0),leaf.dataLoc(leaf.head_.busy_),leaf.dataLoc(1));
+    //把left_sibling的最后一个元素移动到leaf的第一个元素
+    std::copy(left_sibling.dataLoc(left_sibling.head_.busy_-1),left_sibling.dataLoc(left_sibling.head_.busy_),leaf.dataLoc(0));
+    left_sibling.head_.busy_--;
+    //把parent中的parent_pos的元素的key值更新为leaf的第一个元素的key值
+    parent.setKey(parent_pos,leaf.getKey(0));
+}
+
+
+void BPTree::leafShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos){
+    //从右边借,把right_sibling的第一个元素移动到leaf的最后一个元素
+    std::copy(right_sibling.dataLoc(0),right_sibling.dataLoc(1),leaf.dataLoc(leaf.head_.busy_));
+    leaf.head_.busy_++;
+    //把右边的第一个元素删除
+    std::copy(right_sibling.dataLoc(1),right_sibling.dataLoc(right_sibling.head_.busy_),right_sibling.dataLoc(0));
+    right_sibling.head_.busy_--;
+    //把parent中的parent_pos的元素的key值更新为right_sibling的第一个元素的key值
+    parent.setKey(parent_pos,right_sibling.getKey(0));
+}
+
+void BPTree::leafMergeToLeft(BPNode &leaf,BPNode &left_sibling,int remove_pos){
+    //将leaf节点合并到left_sibling中
+    std::copy(leaf.dataBegin(),leaf.dataLoc(remove_pos),left_sibling.dataEnd());
+    left_sibling.head_.busy_ += remove_pos;
+    if(leaf.dataLoc(remove_pos) != leaf.dataEnd()){
+        std::copy(leaf.dataLoc(remove_pos + 1),leaf.dataEnd(),left_sibling.dataEnd());
+        left_sibling.head_.busy_ += leaf.head_.busy_ - remove_pos;
+    }
+}
+
+void BPTree::leafMergeFromRight(BPNode &leaf,BPNode &right_sibling){
+    //将right_sibling合并到leaf中
+    std::copy(right_sibling.dataBegin(),right_sibling.dataEnd(),leaf.dataEnd());
+    leaf.head_.busy_ += right_sibling.head_.busy_;
+    //然后把right_sibling删除
+    //先获取right_sibling的下一个
+    BPNode r_next;
+    r_next.ReadChunk(right_sibling.child_[1]);
+    //然后把right_sibling的下一个节点的前一个节点指向leaf
+    r_next.child_[0] = leaf.head_.chunk_pos_;
+    leaf.child_[1] = r_next.head_.chunk_pos_;
+    right_sibling.releaseChunk();
+    leaf.WriteChunk();
+    r_next.WriteChunk();
+}
+
+
+void BPTree::deleteLeafNode(BPNode &leaf,BPNode &left_sibling,BPNode &right_sibling){
+    //把这个叶子节点删除掉
+    //如果有左边的节点和右边的节点,就让左边的节点指向右边的节点
+    if(left_sibling.head_.busy_ != 0){
+        if(right_sibling.head_.busy_ != 0){
+            left_sibling.child_[1] = leaf.child_[1];
+            right_sibling.child_[0] = leaf.child_[0];
+            leaf.releaseChunk();
+        }else{
+            //如果没有右边的节点,就让左边的节点指向leaf的下一个节点(应该是个非法值)
+            left_sibling.child_[1] = leaf.child_[1];
+            leaf.releaseChunk();
+        }
+    }else{
+        if(right_sibling.head_.busy_ != 0){
+            //如果没有左边的节点,就让右边的节点指向leaf的上一个节点(应该是个非法值)
+            right_sibling.child_[0] = leaf.child_[0];
+            leaf.releaseChunk();
+        }
+        //TODO 可以考虑如何将这个脏页重新利用
+    }
+}
+
+void BPTree::innerNodeRemove(BPNode &node,int pos){
+    //内部节点的值删除,此处可参考B树
+    if(node.head_.father_ == INVALID_OFFSET){
+        //这是个根节点
+        if(node.head_.busy_ == 1){
+            //如果只有一个元素,就用左孩子来当新的根节点
+            BPNode new_root;
+            new_root.ReadChunk(node.child_[0]);
+            new_root.head_.father_ = INVALID_OFFSET;
+            //让new_root覆盖掉原来的根节点
+            new_root.head_.chunk_pos_ = root_pos_;
+            new_root.WriteChunk();
+        }else{
+            //如果不止一个元素,就直接删除
+            simpleInnerRemove(node,pos);
+            node.WriteChunk();
+        }
+    }else if(node.head_.busy_ < (node.head_.degree_ + 1)/2){
+        //孩子节点的数量小于一半,需要进行调整
+        //首先找到父节点
+        BPNode parent;
+        parent.ReadChunk(node.head_.father_);
+        //找到左右兄弟节点
+        BPNode left_sibling,right_sibling;
+        int parent_pos = binarySearch(parent,node.getKey(0));
+        
+        
+        //下面决定是从左边借还是从右边借
+        enum class BorrowFrom{
+            LEFT,
+            RIGHT
+        };
+        //判断逻辑:如果当前节点是父节点的第一个孩子,则从右边借;
+        //如果当前节点是最后一个孩子,则从左边借;
+        //如果都不是,哪边更多就从哪边借
+        BorrowFrom borrow_from;
+        if(parent_pos == -1){
+            //从右边借
+            borrow_from = BorrowFrom::RIGHT;
+            right_sibling.ReadChunk(parent.child_[parent_pos + 1]);
+        }else if(parent_pos == parent.head_.busy_ - 1){
+            //从左边借
+            borrow_from = BorrowFrom::LEFT;
+            left_sibling.ReadChunk(parent.child_[parent_pos - 1]);
+        }else{
+            left_sibling.ReadChunk(parent.child_[parent_pos - 1]);
+            right_sibling.ReadChunk(parent.child_[parent_pos + 1]);
+            //从左边借还是从右边借呢?
+            if(left_sibling.head_.busy_ > right_sibling.head_.busy_){
+                //从左边借
+                borrow_from = BorrowFrom::LEFT;
+            }else{
+                //从右边借
+                borrow_from = BorrowFrom::RIGHT;
+            }
+        }
+        //下面开始借
+        if(borrow_from == BorrowFrom::LEFT){
+            //和左边的借
+            if(left_sibling.head_.busy_ >= (left_sibling.head_.degree_ + 1)/2){
+                //左边元素多,借一个过来
+                innerShiftFromLeft(node,left_sibling,parent,parent_pos);
+                //然后把相关节点刷写一遍
+                node.WriteChunk();
+                left_sibling.WriteChunk();
+                parent.WriteChunk();
+            }else{
+                //左边元素不够,把当前节点向左边合并
+                innerMergeToLeft(node,left_sibling,parent_pos);
+                //然后把相关节点刷写一遍
+                node.releaseChunk();
+                left_sibling.WriteChunk();
+                parent.WriteChunk();
+                //向上递归
+                innerNodeRemove(parent,parent_pos);
+            }
+        }else{
+            //先删除元素,腾出空间
+            simpleInnerRemove(node,pos);
+            //和右边的借
+            if(right_sibling.head_.busy_ >= (right_sibling.head_.degree_ + 1)/2){
+                //右边元素多,借一个过来
+                innerShiftFromRight(node,right_sibling,parent,parent_pos);
+                //然后把相关节点刷写一遍
+                node.WriteChunk();
+                right_sibling.WriteChunk();
+                parent.WriteChunk();
+            }else{
+                //右边元素不够,把右边节点向当前节点合并
+                innerMergeFromRight(node,right_sibling);
+                //然后把相关节点刷写一遍
+                node.WriteChunk();
+                right_sibling.releaseChunk();
+                parent.WriteChunk();
+                //向上递归
+                innerNodeRemove(parent,parent_pos + 1);
+            }    
+        }
+    }else{
+        //借啥借,直接删
+        simpleInnerRemove(node,pos);
+        node.WriteChunk();
+    }
 }
