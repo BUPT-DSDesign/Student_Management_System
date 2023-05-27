@@ -76,26 +76,22 @@ void DB_API::Insert(SQLInsert &statement){
     //利用SQLInsert中的tb_name_和col_name_插入一条记录
     //需要将其加工为字节流,然后调用Table的插入函数
     //最后将其写入表文件
-    //TODO
+    vector<pair<string,string>> col_info_ = statement.get_values();
+    db_manager_->InsertData(statement.get_tb_name(),col_info_);
 }
 
 void DB_API::Select(SQLSelect &statement){
     //利用SQLSelect中的SQLWhere查询记录
-    //此处选择好对应查询应该采用的列,然后调用Table的查询函数
-    //还需将
-    //TODO
+    db_manager_->SelectData(statement.get_tb_name(),statement.get_col_name(),statement.get_condition());
 }
 
 void DB_API::Delete(SQLDelete &statement){
     //利用SQLDelete中的tb_name_和col_name_删除一条记录
-    //需要将其加工为字节流,然后调用BPTree的删除函数
-    //最后将其写入表文件
-    //TODO
+    db_manager_->DeleteData(statement.get_tb_name(),statement.get_condition());
 }
 
 void DB_API::Update(SQLUpdate &statement){
     //利用SQLUpdate中的tb_name_和col_name_更新一条记录
-    //需要将其加工为字节流,然后调用BPTree的更新函数
-    //最后将其写入表文件
-    //TODO
+    vector<pair<string,string>> col_info_ = statement.get_values();
+    db_manager_->UpdateData(statement.get_tb_name(),col_info_,statement.get_condition());
 }

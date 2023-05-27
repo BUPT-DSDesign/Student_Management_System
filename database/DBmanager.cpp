@@ -114,3 +114,44 @@ void DBmanager::DropIndex(const string& index_name)
     filesystem::remove(index_path);
     //索引信息的删除由Table类完成,这里不做处理
 }
+void DBmanager::InsertData(string table_name, vector<pair<string,string>> &col_item)
+{
+    //插入数据
+    //先检查表是否存在,若不存在则抛出异常
+    if(tb_list_.find(table_name) == tb_list_.end()){
+        throw DBManagerError("Table " + table_name + " does not exist!");
+    }
+    //调用Table的插入数据函数
+    tb_list_[table_name]->InsertRecord(col_item);
+}
+void DBmanager::DeleteData(string table_name, SQLWhere &where)
+{
+    //删除数据
+    //先检查表是否存在,若不存在则抛出异常
+    if(tb_list_.find(table_name) == tb_list_.end()){
+        throw DBManagerError("Table " + table_name + " does not exist!");
+    }
+    //调用Table的删除数据函数
+    tb_list_[table_name]->DeleteRecord(where);
+}
+void DBmanager::SelectData(string table_name, vector<string> &col_name, SQLWhere &where)
+{
+    //查询数据
+    //先检查表是否存在,若不存在则抛出异常
+    if(tb_list_.find(table_name) == tb_list_.end()){
+        throw DBManagerError("Table " + table_name + " does not exist!");
+    }
+    //调用Table的查询数据函数
+    //TODO 除了SELECT * 还有其它的方式,后续有空支持下
+    tb_list_[table_name]->SelectRecord(where);
+}
+void DBmanager::UpdateData(string table_name, vector<pair<string,string>> &col_item, SQLWhere &where)
+{
+    //更新数据
+    //先检查表是否存在,若不存在则抛出异常
+    if(tb_list_.find(table_name) == tb_list_.end()){
+        throw DBManagerError("Table " + table_name + " does not exist!");
+    }
+    //调用Table的更新数据函数
+    tb_list_[table_name]->UpdateRecord(col_item,where);
+}

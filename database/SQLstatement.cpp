@@ -428,14 +428,16 @@ string SQLInsert::get_tb_name()
 {
     return tb_name_;
 }
-vector<string> &SQLInsert::get_col_name()
+vector<pair<string,string>> SQLInsert::get_values()
 {
-    return col_name_;
+    //将col_name_和values_组合成一个pair
+    vector<pair<string,string>> values;
+    for(int i=0;i<col_name_.size();i++){
+        values.push_back(make_pair(col_name_[i],values_[i]));
+    }
+    return values;
 }
-vector<string> &SQLInsert::get_values()
-{
-    return values_;
-}
+
 
 void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
 {
@@ -650,13 +652,13 @@ string SQLUpdate::get_tb_name()
 {
     return tb_name_;
 }
-vector<string> &SQLUpdate::get_col_name()
+vector<pair<string,string>> SQLUpdate::get_values()
 {
-    return col_name_;
-}
-vector<string> &SQLUpdate::get_values()
-{
-    return values_;
+    vector<pair<string,string>> res;
+    for(int i=0;i<col_name_.size();i++){
+        res.push_back(make_pair(col_name_[i],values_[i]));
+    }
+    return res;
 }
 SQLWhere &SQLUpdate::get_condition()
 {
