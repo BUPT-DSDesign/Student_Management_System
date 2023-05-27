@@ -26,20 +26,20 @@ export const GetInfo = () => {
     })
 }
 
+//获取所有学生信息
+export const GetAllInfo = () => {
+    return service({
+        url: "/user/info/all",
+        method: 'get',
+    })
+}
+
 // 编辑个性签名
 export const EditSignature = (signature) => {
     const url = '/user/edit_signature?' + 'signature=' + signature
     return service({
         url: url,
         method: 'put'
-    })
-}
-//获取所有学生信息
-export const GetAllInfo = () => {
-    return service({
-        url: "/user/info/all",
-        method: 'get',
-        data: data
     })
 }
 
