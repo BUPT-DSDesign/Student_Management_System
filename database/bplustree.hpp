@@ -127,6 +127,8 @@ public:
     vector<byte> Search(const uint64 &key);
     //利用键值,按范围寻找元素,返回值为字节流
     vector<vector<byte>> SearchRange(const uint64& left,const uint64& right);
+    //读取指定的块到bufnode中
+    void ReadChunk(streampos pos);
     //读取最开头的叶节点所对应区块(当查找条件不为键值时)
     void ReadFirstChunk();
     //读取上一个叶节点所对应区块

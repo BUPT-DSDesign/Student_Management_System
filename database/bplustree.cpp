@@ -454,7 +454,14 @@ void BPTree::resetIndexChildrenParent(BPNode &node){
         tmpNode.WriteChunk();
     }
 }
-
+void BPTree::ReadChunk(streampos pos){
+    if(pos == cur_){
+        //如果已经读取过了,就不用再读了
+        return;
+    }
+    bufnode_.ReadChunk(pos);
+    cur_ = pos;
+}
 void BPTree::ReadFirstChunk(){
     //即读取最小的那个叶子节点
     cur_ = root_pos_;
