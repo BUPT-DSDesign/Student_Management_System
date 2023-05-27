@@ -100,6 +100,9 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				sectionList = append(sectionList, rawSectionList...)
 			}
 
+			// 将sectionList重复元素去除
+			sectionList = utils.RemoveRepeatedElement(sectionList)
+
 			// 将sectionList按照时间顺序排序
 			sort.Slice(sectionList, func(i, j int) bool {
 				return sectionList[i] < sectionList[j]
@@ -157,6 +160,9 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 					sectionList = append(sectionList, rawSectionList...)
 				}
 			}
+
+			// 将sectionList重复元素去除
+			sectionList = utils.RemoveRepeatedElement(sectionList)
 
 			// 将sectionList按照时间顺序排序
 			sort.Slice(sectionList, func(i, j int) bool {
