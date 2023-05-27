@@ -43,6 +43,7 @@ class Table
 private:
     friend class BPTree;//BPTree需要访问Table的私有成员,完成字节流解析和写入
     /* data */
+    string primary_key_;//主键
     vector<TableColAttribute> col_info_;//表每一行的信息,最多有16列
     vector<uint16> col_shift_;//列位置偏移量
     uint16 col_cnt_;//列的数量
@@ -58,8 +59,10 @@ private:
     map<string,int> col2id_;//列名到列id的映射
     string deserialize(vector<byte> &data);//反序列化单条数据为json
     vector<byte> serialize(vector<pair<string,string>> &col_item);//序列化数据
-    void output(vector<vector<byte>> &data);//输出结果到标准输入输出流
+    void output(string msg,vector<vector<byte>> &data);//输出结果到标准输入输出流
+    void saySuccess();//输出成功信息
     any getValue(vector<byte> &data,uint16 col_id);//获取某一列的值
+    vector<byte> getValueInBytes(vector<byte> &data,uint16 col_id);//获取某一列的值
 public:
     //默认构造函数
     Table();

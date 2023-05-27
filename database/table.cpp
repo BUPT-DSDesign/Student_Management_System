@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <sstream>
 #include <filesystem>
+#include <set>
 using namespace std;
 //默认构造函数
 Table::Table():col_cnt_(0),index_cnt_(0),record_length_(0){}
@@ -551,11 +552,20 @@ void Table::SelectRecord(SQLWhere &where){
     //用Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_);
     //随后根据索引的类型,调用不同的函数
-    //先判断有没有这样的索引
-    //TODO 还有主键别忘了
+    //先判断这玩意是不是主键,再判断有没有这样的索引
     vector<vector<byte>> result;
-    if(tb_index_.find(indexName)==tb_index_.end()){
-        //如果没有,顺序查找过滤
+    if(indexName == primary_key_){
+        //如果是主键,则直接调用主键查找函数
+        if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
+            //如果是等值查询,则调用主键查找函数
+            result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
+
+        }else{
+            //如果是范围查询,则调用主键范围查找函数
+            result = tb_data_->SearchRange(where.GetQueryLeftKey(indexName),where.GetQueryRightKey(indexName));
+        }
+    }else if(col2index_.find(indexName)==col2index_.end()){
+        //如果没有索引且不为主键,顺序查找过滤
         vector<vector<byte>> record;
         tb_data_->ReadFirstChunk();
         while(tb_data_->isBufLeaf()){
@@ -573,18 +583,144 @@ void Table::SelectRecord(SQLWhere &where){
         //先检测查询类型,判断是范围查询还是等值查询
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则直接调用索引的查找函数
-            result.push_back(tb_index_[indexName]->Search(where.GetQueryKey(indexName)));
+            //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
+            vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName));
+            //将这个字节流转换为streampos类型
+            streampos pos;
+            std::copy(reinterpret_cast<char*>(addr.data()),reinterpret_cast<char*>(addr.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
+            //将这个块读取出来
+            tb_data_->ReadChunk(pos);
+            //将这个块中的所有元素读取出来,并过滤
+            vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+            for(auto &it:record){
+                if(where.Filter(getValue(it,col2id_[indexName]),indexName)){
+                    result.push_back(it);
+                }
+            }
         }else{
             //如果是范围查询,则调用索引的范围查找函数
-            result = tb_index_[indexName]->SearchRange(where.GetQueryLeftKey(indexName),where.GetQueryRightKey(indexName));
+            //当然,返回值为块地址,需要把块读出来,再进行过滤
+            vector<vector<byte>> addr_list = tb_index_[indexName]->SearchRange(where.GetQueryLeftKey(indexName),where.GetQueryRightKey(indexName));
+            //接下来转换成streampos并去重
+            set<streampos> pos_set;
+            for(auto &it:addr_list){
+                streampos pos;
+                std::copy(reinterpret_cast<char*>(it.data()),reinterpret_cast<char*>(it.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
+                pos_set.insert(pos);
+            }
+            //随后将这些块读取出来,并过滤
+            for(auto &it:pos_set){
+                tb_data_->ReadChunk(it);
+                vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+                for(auto &it:record){
+                    if(where.Filter(getValue(it,col2id_[indexName]),indexName)){
+                        result.push_back(it);
+                    }
+                }
+            }
         }
     }
     //最后将结果转换为字符串输出
-    bool status = true;
-    output(result);
+    output("Result Found",result);
 }
 
-void Table::output(vector<vector<byte>> &data){
+void Table::InsertRecord(vector<pair<string,string>> &col_item){
+    //一条一条插入记录,先将记录解析为字节流
+    vector<byte> data = serialize(col_item);
+    //获取主键的值
+    any primary_key = getValue(data,col2id_[primary_key_]);
+    //随后调用Table的插入函数
+    tb_data_->Insert(std::any_cast<uint64>(primary_key),data);
+    //最后调用索引的插入函数
+    for(auto &it:col2index_){
+        //先获取索引的键值
+        any index_key = getValue(data,col2id_[it.first]);
+        //随后调用索引的插入函数
+        vector<byte> index_data = getValueInBytes(data,col2id_[it.first]);
+        tb_index_[it.first]->Insert(std::any_cast<uint64>(index_key),index_data);
+    }
+    saySuccess();
+}
+void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
+
+}
+void Table::DeleteRecord(SQLWhere &where){
+    //用Where类的成员函数获取最应该使用的索引
+    string indexName = where.GetBestIndex(index_col_name_);
+    //随后根据索引的类型,调用不同的函数
+    //如果这个家伙是主键,则调用主键删除函数,然后同步更新索引(目前均是唯一索引)
+    //如果这个家伙不是主键,则调用索引删除函数,同时拿到块地址,再调用删除块中某条记录的函数
+    //目前只支持等值删除,所以不用考虑范围删除,范围删除直接丢异常
+    //同时,删除函数会返回删除的记录,这些记录需要同步删除索引,同时也需要返回给用户
+    vector<vector<byte>> result;
+    if(where.GetQueryType(indexName) != QueryType::QUERY_EQ){
+        throw TableDeleteError("Range Delete is not supported now!");
+    }
+    if(indexName == primary_key_){
+        //调用主键删除函数
+        //先获取主键的值
+        any primary_key = where.GetQueryKey(indexName);
+        //随后调用Table的删除函数
+        vector<byte> remove = tb_data_->Remove(std::any_cast<uint64>(primary_key));
+        //最后遍历索引,删除索引中的记录
+        for(auto &it:tb_index_){
+            //先获取索引的键值
+            any index_key = getValue(remove,col2id_[it.first]);
+            //随后调用索引的删除函数
+            tb_index_[it.first]->Remove(std::any_cast<uint64>(index_key));
+        }
+        result.push_back(remove);
+    }else if(col2index_.find(indexName)!=col2index_.end()){
+        //在索引中有这个值,则调用索引删除函数
+        //先获取索引的键值
+        any index_key = where.GetQueryKey(indexName);
+        //随后调用索引的删除函数
+        vector<byte> remove = tb_index_[indexName]->Remove(std::any_cast<uint64>(index_key));
+        //最后调用Table的删除函数
+        any primary_key = getValue(remove,col2id_[primary_key_]);
+        result.push_back(tb_data_->Remove(std::any_cast<uint64>(primary_key)));
+        //最后遍历索引,删除索引中的记录
+        for(auto &it:tb_index_){
+            if(it.first == indexName){
+                //删除过了,继续
+                continue;
+            }
+            //先获取索引的键值
+            any index_key = getValue(remove,col2id_[it.first]);
+            //随后调用索引的删除函数
+            tb_index_[it.first]->Remove(std::any_cast<uint64>(index_key));
+        }
+    }else{
+        //既不是主键,也不是索引,则全表扫描过滤删除
+        //让Table顺序读取叶子节点,然后过滤
+        tb_data_->ReadFirstChunk();
+        while(tb_data_->isBufLeaf()){
+            vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+            for(auto &it:record){
+                if(where.Filter(getValue(it,col2id_[indexName]),indexName)){
+                    //如果满足条件,则删除
+                    result.push_back(it);
+                    any primary_key = getValue(it,col2id_[primary_key_]);
+                    tb_data_->Remove(std::any_cast<uint64>(primary_key));
+                    //最后遍历索引,删除索引中的记录
+                    for(auto &it_:tb_index_){
+                        //先获取索引的键值
+                        any index_key = getValue(it,col2id_[it_.first]);
+                        //随后调用索引的删除函数
+                        tb_index_[it_.first]->Remove(std::any_cast<uint64>(index_key));
+                    }
+                }
+            }
+            tb_data_->ReadNextChunk();
+        }
+    }
+    //最后输出结果
+    output("Delete Success!",result);
+}
+void Table::saySuccess(){
+    cout<<"{\"status_code\":0,\"status_msg\":\"OK\",\"data\":[]}"<<endl;
+}
+void Table::output(string msg,vector<vector<byte>> &data){
     //返回的JSON示例如下
     /**
      * {
@@ -597,7 +733,7 @@ void Table::output(vector<vector<byte>> &data){
     //其中,data为多条deserialized后的记录
 
     //先构造status_code和status_msg
-    cout<<"{\"status_code\":0,\"status_msg\":\"OK\",\"data\":[";
+    cout<<"{\"status_code\":0,\"status_msg\":\""<<msg<<"\",\"data\":[";
     //遍历data,将每条记录转换为JSON格式
     for(auto it=data.begin();it!=data.end();++it){
         cout<<deserialize(*it);

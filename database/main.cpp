@@ -6,7 +6,22 @@
 #include "MyException.hpp"
 
 using namespace std;
-
+void sayFailure(const char* msg){
+    //返回的JSON示例如下
+    /**
+     * {
+     *  "status_code":1,
+     *  "status_msg":"wrong msg",
+     *  "data":[]
+     * }
+     * 
+     */
+    cout<<"{";
+    cout<<"\"status_code\":1,";
+    cout<<"\"status_msg\":\""<<msg<<"\",";
+    cout<<"\"data\":[]";
+    cout<<"}";
+}
 int main(int argc,char* argv[]){
     //不断从标准输入读取SQL语句
     string buf;
@@ -29,9 +44,11 @@ int main(int argc,char* argv[]){
             }catch(const SQLSyntaxError& e){
                 cerr<<e.what()<<"\n";
                 cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
+                sayFailure(e.what());
             }catch(const SQLTypeError& e){
                 cerr<<e.what()<<"\n";
                 cerr<<"Statement Type Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
             }
             statement.str("");
         }

@@ -95,3 +95,13 @@ public:
 private:
     std::string msg_;
 };
+class TableDeleteError: public std::exception
+{
+public:
+    TableDeleteError(const std::string& msg):msg_(msg){}
+    const char* what() const noexcept override{
+        return ("TableDeleteError:"+msg_).c_str();
+    }
+private:
+    std::string msg_;
+};
