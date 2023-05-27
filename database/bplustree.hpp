@@ -34,9 +34,16 @@ class BPNode
 {
 private:
     string_view file_name_;//文件名
-    //streampos chunk_pos_;//当前节点位置
+    bool is_leaf_;//判断是不是叶子结点
+    bool is_dirty_;//判断是否为脏页(即该页数据是否已经被删除)
+    uint8 key_type_;//键的类型
+    uint16 degree_;//阶数/孩子的最大数量
+    uint16 busy_;// 当前的元素数量
+    uint16 child_cnt_;//当前孩子数量
+    uint16 data_size_;//每个元素的大小
+    streampos father_;//父节点的位置
     //shared_ptr<fstream> file_head_;//文件读写头
-    BPNodeHead head_;//节点头
+    //BPNodeHead head_;//节点头
     vector<streampos> child_;//孩子的位置
     vector<byte> data_;//数据
     streampos node_pos;//当前节点的位置
@@ -97,7 +104,7 @@ private:
     void innerShiftFromLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int parent_pos);
     //把当前叶子结点和左兄弟合并
     void leafMergeToLeft(BPNode &leaf,BPNode &left_sibling,int remove_pos);
-    void innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int remove_pos);
+    void innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int parent_pos,int remove_pos);
     //从右兄弟借一个元素
     void leafShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
     void innerShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
