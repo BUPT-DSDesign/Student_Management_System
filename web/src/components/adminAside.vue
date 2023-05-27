@@ -7,6 +7,10 @@
                 <i class="el-icon-user-solid"></i>
                 <span slot="title">课程管理</span>
             </el-menu-item>
+             <el-menu-item index="2" @click="clickStuManage">
+                    <i class="el-icon-user-solid"></i>
+                    <span slot="title">学生管理</span>
+                </el-menu-item>
         </el-menu>
     </div>
 </template>
@@ -24,6 +28,9 @@ export default {
         clickClassManage() {
             this.$router.push('/adminMain/classmanage');
         },
+        clickStuManage() {
+            this.$router.push('/adminMain/stumanage');
+        }
     }
 }
 </script>

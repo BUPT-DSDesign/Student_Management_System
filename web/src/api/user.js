@@ -34,4 +34,12 @@ export const EditSignature = (signature) => {
         method: 'put'
     })
 }
+//获取所有学生信息
+export const GetAllInfo = () => {
+    return service({
+        url: "/user/info/all",
+        method: 'get',
+        data: data
+    })
+}
 

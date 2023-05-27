@@ -71,7 +71,6 @@ export default {
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
             if (fg) {
-                // console.log(UserStore)
                 this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')

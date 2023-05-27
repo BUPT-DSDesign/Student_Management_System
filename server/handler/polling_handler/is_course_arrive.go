@@ -1,11 +1,12 @@
 package polling_handler
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"server/model/entity/common"
 	"server/model/entity/system"
 	"server/service/polling_service"
+
+	"github.com/gin-gonic/gin"
 )
 
 type isCourseArriveResponse struct {
@@ -38,6 +39,7 @@ func IsCourseArriveHandler(c *gin.Context) {
 
 	// 获取curTime参数
 	curTime := c.Query("cur_time")
+	println(curTime)
 
 	// 调用服务
 	courseInfo, err := polling_service.Server.DoIsCourseArrive(userId, curTime)
