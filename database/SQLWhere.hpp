@@ -46,11 +46,26 @@ private:
     unique_ptr<WhereClause> outerClause_;//外层从句,如(col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4),其中(col1 = 1 AND col2 = 2)和(col3 = 3 AND col4 = 4)的外层从句为整个句子
 };
 //Where约束
+enum class QueryType{
+    QUERY_EQ = 0,//=
+    QUERY_LT = 1,//<
+    QUERY_LE = 2,//<=
+    QUERY_GT = 3,//>
+    QUERY_GE = 4,//>=
+    QUERY_NE = 5,//<>
+    QUERY_BETWEEN = 6//BETWEEN
+};
 class SQLWhere
 {
 public:
     SQLWhere();
+    string GetBestIndex(vector<string> &col_name_list);
     void PraseSQLVector(vector<string> &sql_vector);
+    uint64 GetQueryKey(string index_name);
+    uint64 GetQueryLeftKey(string index_name);
+    uint64 GetQueryRightKey(string index_name);
+    QueryType GetQueryType(string index_name);
+    bool Filter(any value,string index_name);
 private:
     //WHERE运算符优先级表
     unordered_map<string,int> priority_ = {

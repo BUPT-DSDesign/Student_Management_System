@@ -3,6 +3,7 @@
 #include <string>
 #include <string_view>
 #include <memory>
+#include <vector>
 #include "datatype.hpp"
 #define PAGE_SIZE 16*1024 //参考INNODB
 using namespace std;
@@ -55,7 +56,10 @@ public:
     uint64 getKey(int id);//TODO 获取第k个元素的key
     streampos getChild(int id);//获取第k个孩子
     vector<byte> getRawData(int id);//TODO 获取第k个元素的字节流数据
+    void setKey(int id,const uint64 &key);//TODO 设置第k个元素的key
+    void setElem(int id,const vector<byte> &data);//TODO 设置第k个元素的data
     void WriteChunk();//将节点写入
+    streampos releaseChunk();//释放节点
     //streampos getElemLocation(int id);//获取节点的真实位置
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
     
@@ -78,11 +82,32 @@ private:
     //叶子结点满了之后分裂
     void splitTreeNode(const uint64 &key,vector<byte> &data);
     //无分裂的插入
-    void insertNoSplit(BPNode &node,const uint64 &key,vector<byte> &data);
+    void insertNoSplit(BPNode &node,const uint64 &key,const vector<byte> &data);
     //分裂后将节点向上传递
     void insertKey(const uint64 &key,const streampos &old,const streampos &after);
     //将节点的父亲全部更新
     void resetIndexChildrenParent(BPNode &node);
+    //删除相关
+    //简单将一个叶子结点的数据删除
+    void simpleLeafRemove(BPNode &node,int pos);
+    //将一个内部节点的数据删除
+    void simpleInnerRemove(BPNode &node,int pos);
+    //从左兄弟借一个元素
+    void leafShiftFromLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int parent_pos);
+    void innerShiftFromLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int parent_pos);
+    //把当前叶子结点和左兄弟合并
+    void leafMergeToLeft(BPNode &leaf,BPNode &left_sibling,int remove_pos);
+    void innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,int remove_pos);
+    //从右兄弟借一个元素
+    void leafShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
+    void innerShiftFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
+    //把右兄弟合并到当前叶子结点
+    void leafMergeFromRight(BPNode &leaf,BPNode &right_sibling);
+    void innerMergeFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos);
+    //删除叶子节点
+    void deleteLeafNode(BPNode &leaf,BPNode &left_sibling,BPNode &right_sibling);
+    //删除内部节点
+    void innerNodeRemove(BPNode &node,int pos);
 public:
     //以下为打开
     //打开一个已有的B+树文件
@@ -101,12 +126,14 @@ public:
     void ReadPrevChunk();
     //读取下一个叶节点所对应区块
     void ReadNextChunk();
+    //判断当前节点是否为叶节点/是否读取成功
+    bool isBufLeaf();
     //返回当前叶节点的所有元素
     vector<vector<byte>> GetAllElemInChunk();
     //返回整个树的所有元素
     vector<vector<byte>> GetAllElemInTree();
-    //删除某个元素
-    bool Remove(const uint64 &key);
+    //删除单个元素,并输出删除的对应元素
+    vector<byte> Remove(const uint64 &key);
     //插入元素
     bool Insert(const uint64 &key,vector<byte> &data);
     //更新元素
