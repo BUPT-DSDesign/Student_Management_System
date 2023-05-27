@@ -8,7 +8,7 @@ export const IsCourseArrive = (curTime) => {
     })
 }
 export const IsEventArrive = (curTime) => {
-    const url = '/polling/is_event_arrive?cur_time=' + curTime
+    const url = '/polling/is_activity_arrive?cur_time=' + curTime
     return service({
         url: url,
         method: 'get',
