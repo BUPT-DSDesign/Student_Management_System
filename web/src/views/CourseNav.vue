@@ -206,7 +206,6 @@ export default {
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
                         if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
-                            console.log(this.courseList[i].section_list[j] / 9)
                             this.curcourseList.push({
                                 name: this.courseList[i].course_name,
                                 place: this.courseList[i].classroom,
