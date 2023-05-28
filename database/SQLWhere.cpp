@@ -2,13 +2,224 @@
 #include "MyException.hpp"
 #include <algorithm>
 #include <sstream>
+#include <ctime>
+#include <iomanip>
+ColValue::ColValue(const string& col_name,const string& value,uint8 data_type)
+:col_name_(col_name),data_type_(data_type)
+{
+    //根据数据类型,将value转换为对应的类型
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+        case T_TIME:
+            value_int_ = stoi(value);
+            break;
+        case T_FLOAT:case T_DOUBLE:
+            value_double_ = stod(value);
+            break;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            value_uint_ = stoul(value);
+        default:
+            value_str_ = value;
+    }
+}
+ColValue::ColValue(const string& col_name,double value):col_name_(col_name),value_double_(value),data_type_(T_DOUBLE){}
+ColValue::ColValue(const string& col_name,int64 value):col_name_(col_name),value_int_(value),data_type_(T_BIG_INT){}
+ColValue::ColValue(const string& col_name,const string& value):col_name_(col_name),value_str_(value),data_type_(T_CHAR){}
+ColValue::ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator begin,int len)
+:col_name_(col_name),data_type_(data_type)
+{
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+        case T_TIME:
+            value_int_ = *(int64*)&(*begin);
+            break;
+        case T_FLOAT:case T_DOUBLE:
+            value_double_ = *(double*)&(*begin);
+            break;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            value_uint_ = *(uint64*)&(*begin);
+        default:
+            value_str_ = string(begin,begin+len);
+    }
+}
+vector<byte> ColValue::getBytes() const{
+    vector<byte> bytes;
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+        case T_TIME:
+            bytes.resize(sizeof(int64));
+            *(int64*)&bytes[0] = value_int_;
+            break;
+        case T_FLOAT:case T_DOUBLE:
+            bytes.resize(sizeof(double));
+            *(double*)&bytes[0] = value_double_;
+            break;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            bytes.resize(sizeof(uint64));
+            *(uint64*)&bytes[0] = value_uint_;
+        default:
+            bytes.resize(value_str_.size());
+            copy(value_str_.begin(),value_str_.end(),bytes.begin());
+    }
+    return bytes;
+}
+string ColValue::getColName() const{
+    return col_name_;
+}
+string ColValue::getValue() const{
+    //根据数据类型,将value转换为对应的类型
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return to_string(value_int_);
+        case T_FLOAT:case T_DOUBLE:
+            return to_string(value_double_);
+        case T_DATE:
+            //格式为YYYY-MM-DD
+            //范围为1000-01-01到9999-12-31
+            {
+                int64 year = value_int_/10000;
+                int64 month = (value_int_%10000)/100;
+                int64 day = value_int_%100;
+                return to_string(year)+"-"+to_string(month)+"-"+to_string(day);
+            }
+        case T_TIME:
+            //格式为HH:MM:SS
+            //范围为-838:59:59到838:59:59
+            {
+                int64 hour = value_int_/3600;
+                int64 minute = (value_int_%3600)/60;
+                int64 second = value_int_%60;
+                return to_string(hour)+":"+to_string(minute)+":"+to_string(second);
+            }
+        case T_YEAR:
+            //格式为YYYY
+            //范围为1901到2155
+            return to_string(value_uint_);
+        case T_TIMESTAMP:
+            //格式为YYYY-MM-DD HH:MM:SS
+            //以1970-01-01 00:00:00为起始值
+            {
+                std::time_t val_time_t = value_uint_;
+                std::tm timestamp = *std::localtime(&val_time_t);
+                stringstream ss;
+                ss << std::put_time(&timestamp,"%Y-%m-%d %H:%M:%S");
+                return ss.str();
+            }
+        default:
+            return value_str_;
+    }
+}
+uint8 ColValue::getDataType() const{
+    return data_type_;
+}
+pair<string,string> ColValue::getColValue() const{
+    //根据数据类型,将value转换为对应的类型
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return make_pair(col_name_,to_string(value_int_));
+        case T_FLOAT:case T_DOUBLE:
+            return make_pair(col_name_,to_string(value_double_));
+        case T_DATE:
+            //格式为YYYY-MM-DD
+            //范围为1000-01-01到9999-12-31
+            {
+                int64 year = value_int_/10000;
+                int64 month = (value_int_%10000)/100;
+                int64 day = value_int_%100;
+                return make_pair(col_name_,to_string(year)+"-"+to_string(month)+"-"+to_string(day));
+            }
+        case T_TIME:
+            //格式为HH:MM:SS
+            //范围为-838:59:59到838:59:59
+            {
+                int64 hour = value_int_/3600;
+                int64 minute = (value_int_%3600)/60;
+                int64 second = value_int_%60;
+                return make_pair(col_name_,to_string(hour)+":"+to_string(minute)+":"+to_string(second));
+            }
+        case T_YEAR:
+            //格式为YYYY
+            //范围为1901到2155
+            return make_pair(col_name_,to_string(value_uint_));
+        case T_TIMESTAMP:
+            //格式为YYYY-MM-DD HH:MM:SS
+            //以1970-01-01 00:00:00为起始值
+            {
+                std::time_t val_time_t = value_uint_;
+                std::tm timestamp = *std::localtime(&val_time_t);
+                stringstream ss;
+                ss << std::put_time(&timestamp,"%Y-%m-%d %H:%M:%S");
+                return make_pair(col_name_,ss.str());
+            }
+        default:
+            return make_pair(col_name_,value_str_);
+    }
+}
+bool ColValue::isSameType(const ColValue& other) const{
+    return data_type_ == other.data_type_;
+}
+bool ColValue::operator==(const ColValue& other) const{
+    if(data_type_ != other.data_type_){
+        return false;
+    }
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return value_int_ == other.value_int_;
+        case T_FLOAT:case T_DOUBLE:
+            return value_double_ == other.value_double_;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            return value_uint_ == other.value_uint_;
+        default:
+            return value_str_ == other.value_str_;
+    }
+}
+bool ColValue::operator!=(const ColValue& other) const{
+    return !(*this == other);
+}
+bool ColValue::operator<(const ColValue& other) const{
+    if(data_type_ != other.data_type_){
+        throw ColValueError("ColValue::operator<:类型不匹配");
+    }
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return value_int_ < other.value_int_;
+        case T_FLOAT:case T_DOUBLE:
+            return value_double_ < other.value_double_;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            return value_uint_ < other.value_uint_;
+        default:
+            return value_str_ < other.value_str_;
+    }
+}
+bool ColValue::operator<=(const ColValue& other) const{
+    if(data_type_ != other.data_type_){
+        throw ColValueError("ColValue::operator<=:类型不匹配");
+    }
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return value_int_ <= other.value_int_;
+        case T_FLOAT:case T_DOUBLE:
+            return value_double_ <= other.value_double_;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            return value_uint_ <= other.value_uint_;
+        default:
+            return value_str_ <= other.value_str_;
+    }
+}
+bool ColValue::operator>(const ColValue& other) const{
+    return !(*this <= other);
+}
+bool ColValue::operator>=(const ColValue& other) const{
+    return !(*this < other);
+}
 SQLWhere::SQLWhere(){
 
 }
-void SQLWhere::PraseSQLVector(vector<string>::iterator &it){
-    if(*it=="WHERE"){
+void SQLWhere::PraseSQLVector(vector<string> tokens){
+    auto it = tokens.begin();
+    if(*it=="where"){
         ++it;
-        rootClause_ = PraseWhereClause(it);
+        rootClause_ = PraseWhereClause(it,tokens.end()); 
     }
     //随后通过rootClause_来读取涉及到的列名
     vector<WhereTerm> terms = rootClause_->getTerms();
@@ -253,7 +464,7 @@ uint64 SQLWhere::GetQueryRightKey(string index_name){
     //如果连接符为OR
     return (value>value2)?value:value2;
 }
-shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator &it,shared_ptr<WhereClause> parent=nullptr){
+shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end,shared_ptr<WhereClause> parent=nullptr){
     //解析一个Where子句
     //子句被简化,仅会有两个子句和一个算式,不会有括号,算式为AND或OR
     //TODO 此处随后可以加解析括号和NOT
@@ -267,6 +478,7 @@ shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator &it,
         //解析WhereTerm
         WhereTerm term = PraseWhereTerm(it);
         //解析运算符
+        transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         if(*it == "and"&&(op==ClauseOperator::NOP||op==ClauseOperator::AND)){
             op = ClauseOperator::AND;
             ++it;
@@ -280,15 +492,15 @@ shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator &it,
         }else if(*it == "and" || *it == "or"){
             //抛出异常,目前不支持切换
             throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,SWITCH CONDITION OPERATOR NOT SUPPORT:"+*it);
-        }else if(*it != ";"){
-            //抛出异常
+        }else if(it != end){
+            //应该到结尾了,没结尾就抛出异常
             throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+*it);
         }
     }
     shared_ptr<WhereClause> clause = make_shared<WhereClause>(terms_,op,parent);
     return clause;
 }
-WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator &it){
+WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator it){
     //解析一个Where算式
     //Where算式由一个列名、一个运算符和一个值组成
     //列名
@@ -303,7 +515,7 @@ WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator &it){
     ++it;
     return WhereTerm(col_name,op,value);
 }
-bool SQLWhere::Filter(any value,string index_name){
+bool SQLWhere::Filter(ColValue val) const{
     
 }
 WhereTerm::WhereTerm(const string& col_name,const string& eOperator,const string& value)
@@ -334,6 +546,8 @@ void WhereClause::setOuterClause(shared_ptr<WhereClause> outerClause){
     outerClause_ = outerClause;
 }
 void WhereClause::setOperator(const string& op){
+    string tmp = op;
+    transform(tmp.begin(), tmp.end(), tmp.begin(), (int (*)(int))toupper);
     if(op=="AND"){
         op_ = ClauseOperator::AND;
     }else if(op=="OR"){
@@ -384,4 +598,7 @@ ClauseOperator WhereClause::getOperator() const{
 }
 vector<WhereTerm> WhereClause::getTerms() const{
     return terms_;
+}
+ClauseOperator SQLWhere::getOperator() const{
+    return rootClause_->getOperator();
 }

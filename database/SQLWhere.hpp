@@ -11,6 +11,34 @@
 #include <memory>
 #include <any>
 using namespace std;
+//每行由多个列值组成
+class ColValue{
+public:
+    ColValue(const string& col_name,const string& value,uint8 data_type);//从字符串构造
+    ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator begin,int len);//从字节流构造
+    ColValue(const string& col_name,double value);//从浮点数构造
+    ColValue(const string& col_name,int64 value);//从整数构造
+    ColValue(const string& col_name,const string& value);//从字符串构造
+    string getColName() const;//获取列名
+    string getValue() const;//获取列值的字符串形式
+    pair<string,string> getColValue() const;
+    vector<byte> getBytes() const;//获取列值的字节流形式
+    uint8 getDataType() const;
+    bool isSameType(const ColValue& other) const;
+    bool operator==(const ColValue& other) const;
+    bool operator!=(const ColValue& other) const;
+    bool operator<(const ColValue& other) const;
+    bool operator<=(const ColValue& other) const;
+    bool operator>(const ColValue& other) const;
+    bool operator>=(const ColValue& other) const;
+private:
+    string col_name_;//名
+    string value_str_;//为字符类型时的存储值
+    double value_double_;//为浮点类型时的存储值
+    int64 value_int_;//为整型时的存储值
+    uint64 value_uint_;//为无符号整型时的存储值
+    uint8 data_type_;//数据类型
+};
 //下面代码为将Where语句解析到AST的代码
 //表达式节点
 class ExpressionNode{
@@ -84,15 +112,15 @@ class SQLWhere
 public:
     SQLWhere();
     string GetBestIndex(vector<string> &col_name_list,const string primary);
-    void PraseSQLVector(vector<string>::iterator & it);
-    shared_ptr<WhereClause> PraseWhereClause(vector<string>::iterator &it,shared_ptr<WhereClause> parent=nullptr);
-    WhereTerm PraseWhereTerm(vector<string>::iterator &it);
+    void PraseSQLVector(vector<string> tokens);
+    shared_ptr<WhereClause> PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end,shared_ptr<WhereClause> parent=nullptr);
+    WhereTerm PraseWhereTerm(vector<string>::iterator it);
     uint64 GetQueryKey(string index_name);
     uint64 GetQueryLeftKey(string index_name);
     uint64 GetQueryRightKey(string index_name);
     QueryType GetQueryType(string index_name);
-    bool Filter(any value,string index_name);
-    
+    bool Filter(ColValue val) const;
+    ClauseOperator getOperator() const;
 private:
     //最顶层的表达式
     shared_ptr<WhereClause> rootClause_;

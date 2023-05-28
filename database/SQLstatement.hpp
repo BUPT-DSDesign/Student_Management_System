@@ -1,6 +1,7 @@
 #pragma once
 #include "datatype.hpp"
 #include "SQLWhere.hpp"
+#include "table.hpp"
 #include <string>
 #include <vector>
 #include <stack>
