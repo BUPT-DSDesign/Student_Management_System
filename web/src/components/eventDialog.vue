@@ -1,5 +1,5 @@
 <template>
-    <el-dialog title="课程详情" :visible.sync="dialogDetailVisible" width="30%" :before-close="handleClose">
+    <el-dialog title="课程详情" :visible.sync="dialogDetailVisible" width="30%" >
         <el-card class="box-card">
             <div>活动名称：{{ selected.activity_name }}</div>
             <div>活动周次：第{{ selected.start_week }}周</div>

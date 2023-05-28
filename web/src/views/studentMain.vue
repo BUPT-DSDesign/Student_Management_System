@@ -13,7 +13,7 @@
                 <el-main>
                     <!-- 子路由的路由出口 -->
                     <router-view></router-view>
-                    <el-dialog title="明天要上的课程" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
+                    <el-dialog title="明天要上的课程" :visible.sync="dialogVisible" width="30%" >
                         <el-timeline>
                             <el-timeline-item v-for="(activity, index) in curcourseList" :key="index" :type="activity.type"
                                 :color="activity.color" :size="activity.size" :timestamp="activity.timestamp">
