@@ -419,7 +419,7 @@ export default {
                     this.$message({
                         showClose: true,
                         center: true,
-                        message: '删除课程成功',
+                        message: '删除活动成功',
                         type: 'success'
                     });
                     this.deleteEventData = {}
@@ -427,7 +427,7 @@ export default {
                     this.$message({
                         showClose: true,
                         center: true,
-                        message: '删除课程失败',
+                        message: '删除活动失败',
                         type: 'error'
                     });
                     this.deleteEventData = {}
@@ -472,13 +472,7 @@ export default {
                         type: 'success'
                     });
                 } else {
-                    this.$message({
-                        showClose: true,
-                        center: true,
-                        message: '添加活动失败',
-                        type: 'error'
-                    });
-
+                    console.log('error')
                 }
             }
             addEvent(this.submit)

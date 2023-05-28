@@ -33,6 +33,7 @@ export const useEventStore = defineStore('event', () => {
                     type: 'error'
                 });
             }
+            return false
         } catch (err) {
             return false
         }

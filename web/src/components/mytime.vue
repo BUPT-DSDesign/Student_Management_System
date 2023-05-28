@@ -1,8 +1,12 @@
 <template>
   <div>
-    <h2 class="weektitle">第 {{ mytime.week }} 周 — 星期 {{ mytime.day }} — {{ hourmap() }}:{{ minutemap() }}</h2>
-      <el-slider v-model="mytime.Tm" show-input input-size="mini" :max=100>
-      </el-slider>
+    <h2 class="system-time">系统时间：第 {{week }} 周 — 星期 {{day }} — {{ hourmap() }}:{{ minutemap() }}:{{ secondmap() }}</h2>
+    
+    
+    <el-slider v-model="speed" show-input input-size="mini" :max=100></el-slider>
+
+    <el-input-number class="base-time-num" v-model="baseTimeRun" controls-position="right" :min="1" :max="60" size="small" placeholder="时间基数"></el-input-number>
+
   </div>
 </template>
 <script>
@@ -20,27 +24,40 @@ const map = {
   8: '08',
   9: '09',
 }
-var timer1 = setInterval(function () {
-  TimeStore.minute+= TimeStore.Tm;  
-    if (TimeStore.minute >= 60) {
-      TimeStore.minute %= 60;
-      TimeStore.hour += 1;
-      if (TimeStore.hour >= 24) {
-        TimeStore.hour %= 24;
-        TimeStore.day += 1;
-        if (TimeStore.day >= 7) {
-          TimeStore.day %= 7;
-          TimeStore.week += 1;
-        }
-      }
-    }
-}, 1000);
 
 export default {
   data() {
     return {
-      mytime: TimeStore
+      baseTimeRun: 1, // 时间行走基数
+      speed: 1,
+      week: 1,
+      day: 1,
+      hour: 0,
+      minute: 0,
+      second: 0
     }
+  },
+  mounted() {
+    this.week = TimeStore.week
+    this.day = TimeStore.day
+    this.hour = TimeStore.hour
+    this.minute = TimeStore.minute
+    this.second = TimeStore.second
+
+    setInterval(() => {
+      // 根据speed和baseTimeRun计算时间
+      TimeStore.runTime(this.speed, this.baseTimeRun)
+      this.second = this.second + this.speed * this.baseTimeRun
+      this.minute = this.minute + Math.floor(this.second / 60)
+      this.second = this.second % 60
+      this.hour = this.hour + Math.floor(this.minute / 60)
+      this.minute = this.minute % 60
+      this.day = this.day + Math.floor(this.hour / 24)
+      this.hour = this.hour % 24
+      this.week = this.week + Math.floor(this.day / 7)
+      this.day = this.day % 7
+  
+    }, 1000)
   },
   methods: {
 
@@ -48,22 +65,32 @@ export default {
   computed: {
     hourmap() {
       return function () {
-        if (TimeStore.hour < 10) {
-          return map[TimeStore.hour];
+        if (this.hour < 10) {
+          return map[this.hour];
         }
         else
-          return TimeStore.hour;
+          return this.hour;
       }
     },
     minutemap() {
       return function () {
-        if (TimeStore.minute < 10) {
-          return map[TimeStore.minute];
+        if (this.minute < 10) {
+          return map[this.minute];
         }
         else
-          return TimeStore.minute;
+          return this.minute;
       }
     },
+    secondmap() {
+      return function() {
+        if (this.second < 10) {
+          return map[this.second];
+        }
+        else {
+          return this.second;
+        }
+      }
+    }
   }
 }
 
@@ -74,17 +101,22 @@ export default {
   src: url(@/assets/font/LcdD.ttf);
 }
 
-.weektitle {
+.system-time {
   margin-left: 20px;
-  margin-top: 10px;
   color: #eee;
   float: left;
   font-family: mFont;
-  width: 300px;
+  width: 350px;
 }
 .el-slider{
   margin-top:10px;
   width:200px;
   float: left;
+}
+.base-time-num {
+  margin-left: 20px;
+  float: left;
+  margin-top: 12px;
+  width : 80px;
 }
 </style>
