@@ -230,6 +230,7 @@ const sectionMap = [{
     label: '第九节'
 },
 ];
+import { NavigateStore } from "@/store/navigate"
 
 
 
