@@ -35,6 +35,40 @@ typedef struct{
     uint16 col_id_;//索引所对应的列
     char index_name_[30];//索引文件名,最长为30个字符
 }IndexAttribute;
+//每行由多个列值组成
+class ColValue{
+public:
+    ColValue(const string& col_name,const string& value,uint8 data_type);//从字符串构造
+    ColValue(const string& col_name,double value);//从浮点数构造
+    ColValue(const string& col_name,int64 value);//从整数构造
+    ColValue(const string& col_name,const string& value);//从字符串构造
+    string getColName() const;
+    string getValue() const;
+    pair<string,string> getColValue() const;
+    uint8 getDataType() const;
+    bool isSameType(const ColValue& other) const;
+    bool operator==(const ColValue& other) const;
+    bool operator!=(const ColValue& other) const;
+    bool operator<(const ColValue& other) const;
+    bool operator<=(const ColValue& other) const;
+    bool operator>(const ColValue& other) const;
+    bool operator>=(const ColValue& other) const;
+private:
+    string col_name_;//名
+    string value_str_;//为字符类型时的存储值
+    double value_double_;//为浮点类型时的存储值
+    int64 value_int_;//为整型时的存储值
+    uint64 value_uint_;//为无符号整型时的存储值
+    uint8 data_type_;//数据类型
+};
+//行,表示一条记录
+class Row{
+public:
+    Row(vector<TableColAttribute>& col_info,vector<byte>& data);//用于构造一条记录
+    Row(vector<TableColAttribute>& col_info);//用于构造一条空记录
+};
+
+
 //表
 //这个类用于操作表,包括新建表,删除表,插入记录,删除记录,修改记录,查询记录
 //同时还包括索引的操作,包括新建索引,删除索引,查询索引

@@ -33,57 +33,7 @@ export default {
     },
     data() {
         return {
-            students: [
-                {
-                    student_id: '001',
-                    username: '张三',
-                    signature: '人生苦短，我用Vue',
-                    courses: [
-                        {
-                            course_name: '数学',
-                            is_compulsory: true
-                        },
-                        {
-                            course_name: '英语',
-                            is_compulsory: true
-                        },
-                        {
-                            course_name: '编程',
-                            is_compulsory: false
-                        }
-                    ]
-                },
-                {
-                    student_id: '002',
-                    username: '李四',
-                    signature: '前端大法好',
-                    courses: [
-                        {
-                            course_name: '数学',
-                            is_compulsory: true
-                        },
-                        {
-                            course_name: '音乐',
-                            is_compulsory: false
-                        }
-                    ]
-                },
-                {
-                    student_id: '003',
-                    username: '王五',
-                    signature: '学习使我快乐',
-                    courses: [
-                        {
-                            course_name: '物理',
-                            is_compulsory: true
-                        },
-                        {
-                            course_name: '编程',
-                            is_compulsory: false
-                        }
-                    ]
-                }
-            ]
+            students: []
         }
     }
 }

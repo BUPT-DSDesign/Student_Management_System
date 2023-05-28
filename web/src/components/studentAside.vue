@@ -110,7 +110,7 @@ export default {
                     this.pollingCourse = PollingStore.pollingCourse;
                 }
             } else {
-                console.log('error')
+                // console.log('error')
             }
         }, 5000);
         setInterval(async () => {
@@ -119,10 +119,9 @@ export default {
                 if (PollingStore.is_arrive == true) {
                     this.showAlarm = true
                     this.pollingEvent = PollingStore.pollingEvent;
-                    console.log(this.pollingEvent)
                 }
             } else {
-                console.log('error')
+                // console.log('error')
             }
         }, 5000);
 

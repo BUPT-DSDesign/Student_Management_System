@@ -206,7 +206,6 @@ export default {
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
                         if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
-                            console.log(this.courseList[i].section_list[j] / 9)
                             this.curcourseList.push({
                                 name: this.courseList[i].course_name,
                                 place: this.courseList[i].classroom,
@@ -418,19 +417,6 @@ export default {
                     this.lineArr = NavigateStore.rdata.node_list
                     console.log(this.lineArr);
                     this.firstArr = this.lineArr[0];
-                    // // 添加起点maker
-                    // let startMarker = new AMap.Marker({
-                    //     map: this.map,
-                    //     position: this.lineArr[0],
-                    //     icon: 'https://i.328888.xyz/2023/04/11/ipck5v.png',
-                    //     offset: new AMap.Pixel(-60, -60), // 调整图片偏移
-                    // });
-                    // let endMarker = new AMap.Marker({
-                    //     map: this.map,
-                    //     position: this.lineArr.slice(-1),
-                    //     icon: 'https://i.328888.xyz/2023/04/11/ipcW3U.png',
-                    //     offset: new AMap.Pixel(-60, -60), // 调整图片偏移
-                    // })
                     this.initMap();
                     // 将执行导航的信息添加到日志中
                     const log = {

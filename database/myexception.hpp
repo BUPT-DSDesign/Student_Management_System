@@ -105,3 +105,14 @@ public:
 private:
     std::string msg_;
 };
+
+class ColValueError: public std::exception
+{
+public:
+    ColValueError(const std::string& msg):msg_(msg){}
+    const char* what() const noexcept override{
+        return ("ColValueError:"+msg_).c_str();
+    }
+private:
+    std::string msg_;
+};
