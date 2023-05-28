@@ -38,8 +38,7 @@ export const EditSignature = (signature) => {
 export const GetAllInfo = () => {
     return service({
         url: "/user/info/all",
-        method: 'get',
-        data: data
+        method: 'get'
     })
 }
 

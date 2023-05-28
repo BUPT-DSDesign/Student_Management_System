@@ -1,6 +1,7 @@
 package activity_service
 
 import (
+	"server/model/dao"
 	"server/model/entity/system"
 )
 
@@ -41,6 +42,10 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 		在数据库中根据f.userId查询活动
 		调用dao层的CRUD操作
 	*/
+
+	if err := dao.Group.ActivityDao.QueryAllActivityByUserId(f.userId, activities); err != nil {
+		return err
+	}
 
 	return nil
 }

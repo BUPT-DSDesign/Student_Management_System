@@ -91,3 +91,29 @@ func (s *activityDao) QueryNeedMentionActivity(userId int64, activities **[]*sys
 
 	return nil
 }
+
+func (s *activityDao) QueryAllActivityByUserId(userId int64, activities **[]*system.ActivityInfo) error {
+	sqlStr := fmt.Sprintf("SELECT * FROM activity_info WHERE user_id = '%v'", userId)
+	if err := db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+
+	jsonStr, err := ReadLine()
+	if err != nil {
+		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
+	}
+
+	// 将result.data转换为[]*system.ActivityInfo
+	_ = json.Unmarshal([]byte(result["data"].(string)), *activities)
+
+	return nil
+}
