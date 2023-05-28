@@ -1,5 +1,10 @@
 package dao
 
+import (
+	"encoding/json"
+	"errors"
+)
+
 func createUserTable() error {
 	// 创建用户表
 	sql := "CREATE TABLE user_info (" +
@@ -18,9 +23,18 @@ func createUserTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 	return nil
 }
@@ -45,9 +59,18 @@ func createCourseTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 	return nil
 }
@@ -64,9 +87,18 @@ func createStudentCourseTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 	return nil
 }
@@ -84,9 +116,18 @@ func createLogTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 	return nil
 }
@@ -111,9 +152,18 @@ func createActivityTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 
 	return nil
@@ -131,9 +181,18 @@ func createCourseSectionTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 	return nil
 }
@@ -150,9 +209,18 @@ func createCourseWeekTable() error {
 		return err
 	}
 
-	_, err := ReadLine()
+	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
+	}
+
+	// 用一个map来接收返回的json
+	var result map[string]interface{}
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(int) != 0 {
+		return errors.New(result["status_msg"].(string))
 	}
 	return nil
 }

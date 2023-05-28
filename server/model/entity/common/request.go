@@ -29,13 +29,14 @@ type AddCourseRequest struct {
 
 // AddActivityRequest 添加活动请求
 type AddActivityRequest struct {
-	ActivityName string `json:"activity_name" form:"activity_name"`
-	StartTime    string `json:"start_time" form:"start_time"`
-	Type         int    `json:"type" form:"type"`
-	Location     string `json:"location" form:"location"`
-	Tag          string `json:"tag" form:"tag"`
-	Frequency    int    `json:"frequency" form:"frequency"`
-	IsMention    bool   `json:"is_mention" form:"is_mention"` // 是否需要提醒
+	ActivityName       string `json:"activity_name" form:"activity_name"`
+	StartTime          string `json:"start_time" form:"start_time"`
+	Type               int    `json:"type" form:"type"`
+	Location           string `json:"location" form:"location"`
+	Tag                string `json:"tag" form:"tag"`
+	Frequency          int    `json:"frequency" form:"frequency"`
+	IsMention          bool   `json:"is_mention" form:"is_mention"` // 是否需要提醒
+	AdvanceMentionTime int    `json:"advance_mention_time"`         // 提前提醒时间, 单位是分钟
 }
 
 // NavigateRequest 导航请求

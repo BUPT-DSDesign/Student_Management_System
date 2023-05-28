@@ -50,34 +50,38 @@ func (f *addFlow) run() error {
 
 	// 将addActivityRequest转换为activityInfo
 	activityInfo := &system.ActivityInfo{
-		ActivityId:   activityId,
-		ActivityName: f.addActivityRequest.ActivityName,
-		UserId:       f.userId,
-		StartTime:    f.addActivityRequest.StartTime,
-		Type:         f.addActivityRequest.Type,
-		Location:     f.addActivityRequest.Location,
-		Tag:          f.addActivityRequest.Tag,
-		Frequency:    f.addActivityRequest.Frequency,
-		IsMention:    f.addActivityRequest.IsMention,
+		ActivityId:         activityId,
+		ActivityName:       f.addActivityRequest.ActivityName,
+		UserId:             f.userId,
+		StartTime:          f.addActivityRequest.StartTime,
+		Type:               f.addActivityRequest.Type,
+		Location:           f.addActivityRequest.Location,
+		Tag:                f.addActivityRequest.Tag,
+		Frequency:          f.addActivityRequest.Frequency,
+		IsMention:          f.addActivityRequest.IsMention,
+		AdvanceMentionTime: f.addActivityRequest.AdvanceMentionTime,
 	}
 
-	// 这里需要检测冲突, 就是得根据这个活动的频率
-	// 如果是一次性活动, 就先根据周筛选
-	// 如果是每天活动, 就先把一周对应的节次筛选出来
-	// 如果是每周活动, 就先根据节次筛选
+	// 检查活动与课程是否冲突
 	isConflict, validTime := check_conflict.ActivityAndCoursesIsExistConflict(f.userId, activityInfo)
 
+	isConflict1 := false
+	// 如果是临时事务, 还需要检测它与其他活动是否冲突
+	if activityInfo.Type == 1 {
+		isConflict1 = check_conflict.TransactionAndActivityIsExistConflict(f.userId, activityInfo)
+	}
+
 	// 只有不冲突的时候才插入数据库数据
-	if !isConflict {
+	if !isConflict && !isConflict1 {
 		// 将activityInfo插入数据库
 		if err := dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
 			return err
 		}
 	} else {
 		if validTime == nil {
-			return errors.New("该活动与课程时间冲突, 并且没有合适的时间段")
+			return errors.New("该活动(或临时事务)与课程时间冲突, 并且没有合适的时间段")
 		}
-		return errors.New(fmt.Sprintf("该活动与课程时间冲突, 以下是合适的时间段为: %v", validTime))
+		return errors.New(fmt.Sprintf("该活动(或临时事务)与课程时间冲突, 以下是合适的时间段为: %v", validTime))
 	}
 
 	return nil

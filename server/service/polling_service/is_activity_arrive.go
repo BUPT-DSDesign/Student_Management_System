@@ -70,22 +70,30 @@ func (f *isActivityArriveFlow) run(activityInfo **system.ActivityInfo) error {
 				Hour:   hour,
 				Minute: minute,
 			}
-			if utils.IsSatisfied(f.timeUnion, timeUnion, 60) {
+			if utils.IsSatisfied(f.timeUnion, timeUnion, activity.AdvanceMentionTime) {
 				*activityInfo = activity
 				return nil
 			}
 		} else if activity.Frequency == 1 {
 			// 如果是每天则只需要判断时间是否相等
-			if (f.timeUnion.Hour*60 + f.timeUnion.Minute) == (hour*60 + minute) {
+			if f.timeUnion.Week < week {
+				continue
+			}
+			if f.timeUnion.Week == week && f.timeUnion.Day < day {
+				continue
+			}
+
+			if (f.timeUnion.Hour*60 + f.timeUnion.Minute) == (hour*60 + minute - activity.AdvanceMentionTime) {
 				*activityInfo = activity
 				return nil
 			}
 		} else {
 			// 如果是每周则需要判断周几和时间是否相等
-			if f.timeUnion.Week > week {
+			if f.timeUnion.Week < week {
 				continue
 			}
-			if f.timeUnion.Day == day && (f.timeUnion.Hour*60+f.timeUnion.Minute) == (hour*60+minute) {
+
+			if f.timeUnion.Day == day && (f.timeUnion.Hour*60+f.timeUnion.Minute) == (hour*60+minute-activity.AdvanceMentionTime) {
 				*activityInfo = activity
 				return nil
 			}

@@ -13,3 +13,13 @@ func RemoveRepeatedElement(nums []int) []int {
 	}
 	return nums[:j+1]
 }
+
+func QueryMaxNum(nums []int) int {
+	maxNum := 0
+	for _, num := range nums {
+		if num > maxNum {
+			maxNum = num
+		}
+	}
+	return maxNum
+}

@@ -162,3 +162,86 @@ func GetSectionListByDay(day int) []int {
 	}
 	return sectionList
 }
+
+// GetTimeByWeekDayHourMinute 根据第几周，星期几，几点几分获取时间, 时间格式为第几周-星期几-几点几分
+func GetTimeByWeekDayHourMinute(week int, day int, hour int, minute int) string {
+	weekStr := "第" + strconv.Itoa(week) + "周"
+	dayStr := "星期" + strconv.Itoa(day)
+	hourStr := ""
+	if hour < 10 {
+		hourStr = "0" + strconv.Itoa(hour)
+	} else {
+		hourStr = strconv.Itoa(hour)
+	}
+	minuteStr := ""
+	if minute < 10 {
+		minuteStr = "0" + strconv.Itoa(minute)
+	} else {
+		minuteStr = strconv.Itoa(minute)
+	}
+	return weekStr + "-" + dayStr + "-" + hourStr + ":" + minuteStr
+}
+
+// AddByDuration 根据一个时间和一个持续时间，获取一个新的时间
+func AddByDuration(time string, duration int) string {
+	week := GetWeek(time)
+	day := GetDay(time)
+	hour, minute := GetHourAndMinute(time)
+	minute += duration
+	hour += minute / 60
+	minute %= 60
+	if hour > 23 {
+		day++
+		hour %= 24
+	}
+	if day > 7 {
+		week++
+		day %= 7
+	}
+	return GetTimeByWeekDayHourMinute(week, day, hour, minute)
+}
+
+// IsLessThan 判断一个时间是否小于等于另一个时间
+func IsLessThan(a string, b string) bool {
+	// 先比较周
+	weekA := GetWeek(a)
+	weekB := GetWeek(b)
+	if weekA < weekB {
+		return true
+	} else if weekA > weekB {
+		return false
+	}
+
+	// 再比较天
+	dayA := GetDay(a)
+	dayB := GetDay(b)
+	if dayA < dayB {
+		return true
+	} else if dayA > dayB {
+		return false
+	}
+
+	// 再比较小时
+	hourA, minuteA := GetHourAndMinute(a)
+	hourB, minuteB := GetHourAndMinute(b)
+	if hourA < hourB {
+		return true
+	} else if hourA > hourB {
+		return false
+	}
+
+	if minuteA <= minuteB {
+		return true
+	}
+
+	return false
+
+}
+
+// IsBetween 判断一个时间是否在两个时间之间
+func IsBetween(a string, b string, c string) bool {
+	if IsLessThan(a, b) && IsLessThan(b, c) {
+		return true
+	}
+	return false
+}

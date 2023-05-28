@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { EventTable } from '@/api/event'
+import { EventTable, AddEvent, DeleteEvent } from '@/api/event'
 import { ref } from 'vue'
 
 export const useEventStore = defineStore('event', () => {
@@ -18,9 +18,9 @@ export const useEventStore = defineStore('event', () => {
         }
     }
     //添加活动
-    const AddEventeInfo = async (data) => {
+    const AddEventInfo = async (data) => {
         try {
-            const res = await AddEvente(data)
+            const res = await AddEvent(data)
             console.log(res.data)
             if (res.data.status_code == 0) {
                 return true
@@ -33,6 +33,7 @@ export const useEventStore = defineStore('event', () => {
                     type: 'error'
                 });
             }
+            return false
         } catch (err) {
             return false
         }
@@ -54,7 +55,7 @@ export const useEventStore = defineStore('event', () => {
     return {
         eventList,
         GetEventTable,
-        AddEventeInfo,
+        AddEventInfo,
         DeleteEventInfo
     }
 })
