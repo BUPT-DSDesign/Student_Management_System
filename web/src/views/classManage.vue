@@ -202,8 +202,6 @@ export default {
                     let start = 0;
                     let end = 0;
                     for (let j = 0; j < this.classData[i].section_list.length - 1; j++) {
-                        console.log(this.classData[i].section_list[j]);
-                        console.log(this.classData[i].section_list[j + 1])
                         if (this.classData[i].section_list[j] + 1 == this.classData[i].section_list[j + 1]) {
                             end++;
                         }

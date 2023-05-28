@@ -57,7 +57,7 @@ func (f *allInfoFlow) run(userInfo **[]*system.UserInfo) error {
 		StudentId: "32131",
 		IsAdmin:   false,
 		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
-		Signature: "开心每一天",
+		Signature: "",
 	}, {
 		Username:  "admin",
 		Password:  "213213",

@@ -11,7 +11,8 @@ func createUserTable() error {
 		"is_admin TINYINT NOT NULL," +
 		"avatar_url VARCHAR(100) NOT NULL," +
 		"signature VARCHAR(100) NOT NULL," +
-		"PRIMARY KEY (user_id)" +
+		"PRIMARY KEY (user_id)," +
+		"UNIQUE KEY `username` (`username`)" +
 		");"
 	if err := db.ExecSql(sql); err != nil {
 		return err
@@ -37,7 +38,8 @@ func createCourseTable() error {
 		"exam_location VARCHAR(20) NOT NULL," +
 		"exam_option VARCHAR(20) NOT NULL," +
 		"is_compulsory TINYINT NOT NULL," +
-		"PRIMARY KEY (course_id)" +
+		"PRIMARY KEY (course_id)," +
+		"UNIQUE KEY `course_name` (`course_name`)" +
 		");"
 	if err := db.ExecSql(sql); err != nil {
 		return err
@@ -101,7 +103,8 @@ func createActivityTable() error {
 		"tag VARCHAR(20) NOT NULL," +
 		"frequency INT NOT NULL," +
 		"is_mention TINYINT NOT NULL," +
-		"PRIMARY KEY (activity_id)" +
+		"PRIMARY KEY (activity_id)," +
+		"UNIQUE KEY `activity_name` (`activity_name`)" +
 		");"
 
 	if err := db.ExecSql(sql); err != nil {

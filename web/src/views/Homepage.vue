@@ -55,6 +55,7 @@
 import uploadAvatar from '@/components/Homepage/uploadAvatar.vue';
 import signature from '@/components/Homepage/signature.vue';
 import { CourseStore } from '@/store/course';
+import { EventStore } from '@/store/event';
 import { UserStore } from '@/store/user'
 import { TimeStore } from '@/store/time';
 export default {
@@ -62,6 +63,7 @@ export default {
         return {
             eventNumber_remaining: 0,
             userInfo: {},
+            eventInfo:{},
             courseList: [],
             curcourseList: []
         }
@@ -71,14 +73,51 @@ export default {
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
             if (fg) {
-                // console.log(UserStore)
                 this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')
             }
         }
         getUserInfo()
-        
+        // 在个人主页渲染的时候, 应该向后端请求个人信息
+        const getEventInfo = async () => {
+            const fg = await EventStore.GetEventTable()
+            if (fg) {
+                this.eventInfo = EventStore.eventList;
+                console.log(EventStore)
+                //  //根据当前周，查找在本周的活动
+                // this.eventInfo = this.eventInfo.filter((item) => {
+                //     return item.week_schedule.indexOf(TimeStore.week) != -1;
+                // });
+                // //查找本天的课程，然后将他们按照顺序排列。
+                // for (let i = 0; i < this.courseList.length; i++) {
+                //     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
+                //         if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
+                //             this.curcourseList.push({
+                //                 content: this.courseList[i].course_name,
+                //                 timestamp: this.courseList[i].section_list[j] % 9,
+                //                 size: 'large',
+                //                 type: 'primary',
+                //                 color: '#8ce99a',
+                //             })
+                //         }
+                //         if (this.courseList[i].section_list[j] / 9 == 1) {
+                //             this.curcourseList.push({
+                //                 content: this.courseList[i].course_name,
+                //                 timestamp: 9,
+                //                 size: 'large',
+                //                 type: 'primary',
+                //                 color: '#8ce99a',
+                //             })
+                //         }
+                //     }
+                // }
+            } else {
+                console.log('获取课程信息失败')
+            }
+        }
+        getEventInfo();
+
         const getTable = async () => {
             const fg = await CourseStore.GetCourseTable();
             if (fg) {

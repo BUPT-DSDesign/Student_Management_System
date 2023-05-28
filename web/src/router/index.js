@@ -11,6 +11,7 @@ import outClass from '../views/outClass.vue'
 import studentMain from '../views/studentMain.vue'
 import adminMain from '../views/adminMain.vue'
 import classManage from '../views/classManage.vue'
+import stuManage from '../views/stuManage.vue'
 import Register from '../views/Register.vue'
 import Login from '../views/Login.vue'
 import logMessage from '../views/logMessage.vue'
@@ -41,6 +42,7 @@ const routes = [
         //嵌套路由
         children: [
             { path: 'classManage', component: classManage, meta: { roles: ['admin'] } },
+            { path: 'stuManage', component: stuManage, meta: { roles: ['admin'] } },
         ]
     },
     { path: '/', component: Login, meta: { roles: ['student','admin'] } },

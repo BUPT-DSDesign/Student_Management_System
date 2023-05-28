@@ -27,18 +27,20 @@
                 <i class="el-icon-news"></i>
                 <span slot="title">日志信息</span>
             </el-menu-item>
-            <el-dialog title="闹钟提醒" :visible="showClassAlarm" :modal="false" :custom-class="'popup'" @close="showClassAlarm = false">
+            <el-dialog title="闹钟提醒" :visible="showClassAlarm" :modal="false" :custom-class="'popup'"
+                @close="showClassAlarm = false">
                 <div>
                     <p>{{ pollingCourse.course_name }}课程马上开始了</p>
                     <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
                 </div>
             </el-dialog>
-            <el-dialog title="闹钟提醒" :visible="showEventAlarm" :modal="false" :custom-class="'popup'" @close="showEventAlarm = false">
-                    <div>
-                        <p>{{ pollingEvent.activity_name }}活动马上开始了</p>
-                        <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
-                    </div>
-                </el-dialog>
+            <el-dialog title="闹钟提醒" :visible="showEventAlarm" :modal="false" :custom-class="'popup'"
+                @close="showEventAlarm = false">
+                <div>
+                    <p>{{ pollingEvent.activity_name }}活动马上开始了</p>
+                    <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
+                </div>
+            </el-dialog>
         </el-menu>
     </div>
 </template>
@@ -52,9 +54,9 @@ export default {
         return {
             speed: TimeStore.Tm, //倍速
             isCollapse: false,
-            is_arrive:false,
+            is_arrive: false,
             pollingCourse: {},
-            pollingEvent:{},
+            pollingEvent: {},
             showClassAlarm: true,
             showEventAlarm: true
         };
@@ -85,8 +87,23 @@ export default {
         goToNavigation() {
             this.$router.push('/studentMain/CourseNav');
         },
-        async getCoursePolling() {
-            const fg = await PollingStore.IsCourseArrive();
+
+        async getEventPolling() {
+            const fg = await PollingStore.IsEventArrive();
+            if (fg) {
+                if (PollingStore.is_arrive == true) {
+                    this.showAlarm = true
+                    this.pollingEvent = PollingStore.pollingEvent;
+                }
+
+            } else {
+                console.log('error')
+            }
+        }
+    },
+    mounted() {
+        setInterval(async () => {
+            const fg = await PollingStore.GetArrivedCourse(TimeStore.getTime());
             if (fg) {
                 if (PollingStore.is_arrive == true) {
                     this.showAlarm = true
@@ -95,27 +112,20 @@ export default {
             } else {
                 console.log('error')
             }
-        },
-        async getEventPolling() {
-            const fg = await PollingStore.IsEventArrive();
+        }, 5000);
+        setInterval(async () => {
+            const fg = await PollingStore.GetArrivedEvent(TimeStore.getTime());
             if (fg) {
-                 if (PollingStore.is_arrive == true) {
+                if (PollingStore.is_arrive == true) {
                     this.showAlarm = true
                     this.pollingEvent = PollingStore.pollingEvent;
+                    console.log(this.pollingEvent)
                 }
-                
             } else {
                 console.log('error')
             }
-        }
-    },
-    created() {
-        setCourseInterval(() => {
-            this.getCoursePolling();
-        }, this.speed),
-        setEventInterval(() => {
-            this.getEventPolling();
-        }, this.speed)
+        }, 5000);
+
     }
 }
 </script>

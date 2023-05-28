@@ -1,4 +1,4 @@
-import { Register, Login, GetInfo, EditSignature } from '@/api/user'
+import { Register, Login, GetInfo, EditSignature, GetAllInfo } from '@/api/user'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { Loading } from 'element-ui'
@@ -82,6 +82,19 @@ export const useUserStore = defineStore('user', () => {
             return false
         }
     }
+    //获取所有学生信息
+    const allStuInfo = ref({});
+    const GetAllStuInfo = async () => {
+        try {
+            const res = await GetAllInfo()
+            if (res.data.status_code == 0) {
+                allStuInfo.value = res.data.user_infos
+                return true
+            }
+        } catch (err) {
+            return false
+        }
+    }
 
     // 编辑个性签名
     const EditUserSignature = async (signature) => {
@@ -101,7 +114,9 @@ export const useUserStore = defineStore('user', () => {
         RegisterIn,
         LoginIn,
         userInfo,
+        allStuInfo,
         GetUserInfo,
+        GetAllStuInfo,
         EditUserSignature
     }
 })

@@ -25,6 +25,14 @@ export const useEventStore = defineStore('event', () => {
             if (res.data.status_code == 0) {
                 return true
             }
+            else {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: res.data.status_msg,
+                    type: 'error'
+                });
+            }
         } catch (err) {
             return false
         }

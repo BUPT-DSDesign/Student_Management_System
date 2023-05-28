@@ -390,6 +390,8 @@ h2 {
 }
 
 .class-table {
+    justify-content: center;
+  align-items: center;
     .table-wrapper {
         width: 600px;
         height: 500px;
