@@ -70,6 +70,63 @@ pair<string,string> ColValue::getColValue() const{
             return make_pair(col_name_,value_str_);
     }
 }
+bool ColValue::isSameType(const ColValue& other) const{
+    return data_type_ == other.data_type_;
+}
+bool ColValue::operator==(const ColValue& other) const{
+    if(data_type_ != other.data_type_){
+        return false;
+    }
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return value_int_ == other.value_int_;
+        case T_FLOAT:case T_DOUBLE:
+            return value_double_ == other.value_double_;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            return value_uint_ == other.value_uint_;
+        default:
+            return value_str_ == other.value_str_;
+    }
+}
+bool ColValue::operator!=(const ColValue& other) const{
+    return !(*this == other);
+}
+bool ColValue::operator<(const ColValue& other) const{
+    if(data_type_ != other.data_type_){
+        throw ColValueError("ColValue::operator<:类型不匹配");
+    }
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return value_int_ < other.value_int_;
+        case T_FLOAT:case T_DOUBLE:
+            return value_double_ < other.value_double_;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            return value_uint_ < other.value_uint_;
+        default:
+            return value_str_ < other.value_str_;
+    }
+}
+bool ColValue::operator<=(const ColValue& other) const{
+    if(data_type_ != other.data_type_){
+        throw ColValueError("ColValue::operator<=:类型不匹配");
+    }
+    switch(data_type_){
+        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
+            return value_int_ <= other.value_int_;
+        case T_FLOAT:case T_DOUBLE:
+            return value_double_ <= other.value_double_;
+        case T_DATE:case T_YEAR:case T_TIMESTAMP:
+            return value_uint_ <= other.value_uint_;
+        default:
+            return value_str_ <= other.value_str_;
+    }
+}
+bool ColValue::operator>(const ColValue& other) const{
+    return !(*this <= other);
+}
+bool ColValue::operator>=(const ColValue& other) const{
+    return !(*this < other);
+}
 //默认构造函数
 Table::Table():col_cnt_(0),index_cnt_(0),record_length_(0){}
 //拷贝构造函数
