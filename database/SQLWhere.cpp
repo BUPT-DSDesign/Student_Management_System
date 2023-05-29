@@ -2,217 +2,8 @@
 #include "MyException.hpp"
 #include <algorithm>
 #include <sstream>
-#include <ctime>
-#include <iomanip>
-ColValue::ColValue(const string& col_name,const string& value,uint8 data_type)
-:col_name_(col_name),data_type_(data_type)
-{
-    //根据数据类型,将value转换为对应的类型
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-        case T_TIME:
-            value_int_ = stoi(value);
-            break;
-        case T_FLOAT:case T_DOUBLE:
-            value_double_ = stod(value);
-            break;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = stoul(value);
-        default:
-            value_str_ = value;
-    }
-}
-ColValue::ColValue(const string& col_name,double value):col_name_(col_name),value_double_(value),data_type_(T_DOUBLE){}
-ColValue::ColValue(const string& col_name,int64 value):col_name_(col_name),value_int_(value),data_type_(T_BIG_INT){}
-ColValue::ColValue(const string& col_name,const string& value):col_name_(col_name),value_str_(value),data_type_(T_CHAR){}
-ColValue::ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator begin,int len)
-:col_name_(col_name),data_type_(data_type)
-{
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-        case T_TIME:
-            value_int_ = *(int64*)&(*begin);
-            break;
-        case T_FLOAT:case T_DOUBLE:
-            value_double_ = *(double*)&(*begin);
-            break;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = *(uint64*)&(*begin);
-        default:
-            value_str_ = string(begin,begin+len);
-    }
-}
-vector<byte> ColValue::getBytes() const{
-    vector<byte> bytes;
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-        case T_TIME:
-            //根据SIZE_OF_T[data_type_]来确定bytes的大小
-            bytes.resize(SIZE_OF_T[data_type_]);
-            std::copy((byte*)&value_int_,(byte*)&value_int_+SIZE_OF_T[data_type_],bytes.begin());
-            break;
-        case T_FLOAT:case T_DOUBLE:
-            bytes.resize(SIZE_OF_T[data_type_]);
-            std::copy((byte*)&value_double_,(byte*)&value_double_+SIZE_OF_T[data_type_],bytes.begin());
-            break;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            bytes.resize(SIZE_OF_T[data_type_]);
-            std::copy((byte*)&value_uint_,(byte*)&value_uint_+SIZE_OF_T[data_type_],bytes.begin());
-        default:
-            bytes.resize(value_str_.size());
-            copy(value_str_.begin(),value_str_.end(),bytes.begin());
-    }
-    return bytes;
-}
-string ColValue::getColName() const{
-    return col_name_;
-}
-string ColValue::getValue() const{
-    //根据数据类型,将value转换为对应的类型
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-            return to_string(value_int_);
-        case T_FLOAT:case T_DOUBLE:
-            return to_string(value_double_);
-        case T_DATE:
-            //格式为YYYY-MM-DD
-            //范围为1000-01-01到9999-12-31
-            {
-                int64 year = value_int_/10000;
-                int64 month = (value_int_%10000)/100;
-                int64 day = value_int_%100;
-                return to_string(year)+"-"+to_string(month)+"-"+to_string(day);
-            }
-        case T_TIME:
-            //格式为HH:MM:SS
-            //范围为-838:59:59到838:59:59
-            {
-                int64 hour = value_int_/3600;
-                int64 minute = (value_int_%3600)/60;
-                int64 second = value_int_%60;
-                return to_string(hour)+":"+to_string(minute)+":"+to_string(second);
-            }
-        case T_YEAR:
-            //格式为YYYY
-            //范围为1901到2155
-            return to_string(value_uint_);
-        case T_TIMESTAMP:
-            //格式为YYYY-MM-DD HH:MM:SS
-            //以1970-01-01 00:00:00为起始值
-            {
-                std::time_t val_time_t = value_uint_;
-                std::tm timestamp = *std::localtime(&val_time_t);
-                stringstream ss;
-                ss << std::put_time(&timestamp,"%Y-%m-%d %H:%M:%S");
-                return ss.str();
-            }
-        default:
-            return value_str_;
-    }
-}
-uint8 ColValue::getDataType() const{
-    return data_type_;
-}
-pair<string,string> ColValue::getColValue() const{
-    //根据数据类型,将value转换为对应的类型
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-            return make_pair(col_name_,to_string(value_int_));
-        case T_FLOAT:case T_DOUBLE:
-            return make_pair(col_name_,to_string(value_double_));
-        case T_DATE:
-            //格式为YYYY-MM-DD
-            //范围为1000-01-01到9999-12-31
-            {
-                int64 year = value_int_/10000;
-                int64 month = (value_int_%10000)/100;
-                int64 day = value_int_%100;
-                return make_pair(col_name_,to_string(year)+"-"+to_string(month)+"-"+to_string(day));
-            }
-        case T_TIME:
-            //格式为HH:MM:SS
-            //范围为-838:59:59到838:59:59
-            {
-                int64 hour = value_int_/3600;
-                int64 minute = (value_int_%3600)/60;
-                int64 second = value_int_%60;
-                return make_pair(col_name_,to_string(hour)+":"+to_string(minute)+":"+to_string(second));
-            }
-        case T_YEAR:
-            //格式为YYYY
-            //范围为1901到2155
-            return make_pair(col_name_,to_string(value_uint_));
-        case T_TIMESTAMP:
-            //格式为YYYY-MM-DD HH:MM:SS
-            //以1970-01-01 00:00:00为起始值
-            {
-                std::time_t val_time_t = value_uint_;
-                std::tm timestamp = *std::localtime(&val_time_t);
-                stringstream ss;
-                ss << std::put_time(&timestamp,"%Y-%m-%d %H:%M:%S");
-                return make_pair(col_name_,ss.str());
-            }
-        default:
-            return make_pair(col_name_,value_str_);
-    }
-}
-bool ColValue::isSameType(const ColValue& other) const{
-    return data_type_ == other.data_type_;
-}
-bool ColValue::operator==(const ColValue& other) const{
-    if(data_type_ != other.data_type_){
-        return false;
-    }
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-            return value_int_ == other.value_int_;
-        case T_FLOAT:case T_DOUBLE:
-            return value_double_ == other.value_double_;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            return value_uint_ == other.value_uint_;
-        default:
-            return value_str_ == other.value_str_;
-    }
-}
-bool ColValue::operator!=(const ColValue& other) const{
-    return !(*this == other);
-}
-bool ColValue::operator<(const ColValue& other) const{
-    if(data_type_ != other.data_type_){
-        throw ColValueError("ColValue::operator<:类型不匹配");
-    }
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-            return value_int_ < other.value_int_;
-        case T_FLOAT:case T_DOUBLE:
-            return value_double_ < other.value_double_;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            return value_uint_ < other.value_uint_;
-        default:
-            return value_str_ < other.value_str_;
-    }
-}
-bool ColValue::operator<=(const ColValue& other) const{
-    if(data_type_ != other.data_type_){
-        throw ColValueError("ColValue::operator<=:类型不匹配");
-    }
-    switch(data_type_){
-        case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
-            return value_int_ <= other.value_int_;
-        case T_FLOAT:case T_DOUBLE:
-            return value_double_ <= other.value_double_;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            return value_uint_ <= other.value_uint_;
-        default:
-            return value_str_ <= other.value_str_;
-    }
-}
-bool ColValue::operator>(const ColValue& other) const{
-    return !(*this <= other);
-}
-bool ColValue::operator>=(const ColValue& other) const{
-    return !(*this < other);
-}
+
+
 SQLWhere::SQLWhere(){
 
 }
@@ -257,20 +48,17 @@ QueryType SQLWhere::GetQueryType(string index_name){
     }
     return QueryType::NOP;
 }
-uint64 SQLWhere::GetQueryKey(string index_name){
+Key SQLWhere::GetQueryKey(string index_name,uint8 data_type){
     //根据索引列名返回查询值,此处判断为等值查询,直接去找对应的值
     vector<WhereTerm> terms = rootClause_->getTerms();
     for(auto &term:terms){
         if(term.getColName()==index_name){
-            uint64 value = 0;
-            stringstream ss;
-            ss<<term.getValue();
-            ss>>value;
+            Key value(term.getValue(),data_type);
             return value;
         }
     }
 }
-uint64 SQLWhere::GetQueryLeftKey(string index_name){
+Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
     //根据索引列名返回查询值,此处判断为范围查询,去找对应的值
     vector<WhereTerm> terms = rootClause_->getTerms();
     //此处查询为左值,即查询范围的左边界
@@ -365,7 +153,7 @@ uint64 SQLWhere::GetQueryLeftKey(string index_name){
     //如果连接符为OR,则返回满足两个条件中最小的值
     return (value>value2)?value2:value;
 }
-uint64 SQLWhere::GetQueryRightKey(string index_name){
+Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
     //根据索引列名返回查询值,此处判断为范围查询,去找对应的值
     vector<WhereTerm> terms = rootClause_->getTerms();
     //此处查询为右值,即查询范围的右边界

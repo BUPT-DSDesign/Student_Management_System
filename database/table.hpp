@@ -8,6 +8,7 @@
 #include "datatype.hpp"
 #include "bplustree.hpp"
 #include "SQLWhere.hpp"
+#include "value.hpp"
 using namespace std;
 //表每一列的属性,最多有16列
 typedef struct 
@@ -40,9 +41,11 @@ typedef struct{
 class Row{
 public:
     Row(vector<TableColAttribute>& col_info,vector<byte> data);//用于构造一条记录
+    void Update(vector<pair<string,string>> &col_item);//更新一条记录
     bool isSatisfied(const SQLWhere& where) const;//判断是否满足where条件
+    vector<byte> toByte() const;//将一条记录转换为字节流
     string getRowJSON() const;//获取一条记录的JSON格式
-    ColValue getValue(string col_name) const;//获取一条记录的某一列的值
+    ColValue getValue(const string& col_name) const;//获取一条记录的某一列的值
 private:
     vector<ColValue> col_value_;//记录的每一列的值
 };
@@ -74,7 +77,7 @@ private:
     vector<byte> serialize(vector<pair<string,string>> &col_item);//序列化数据
     void PrintToStream(string msg,vector<Row> result);//输出结果到标准输入输出流
     void saySuccess();//输出成功信息
-    any getValue(vector<byte> &data,uint16 col_id);//获取某一列的值
+    Key getValue(vector<byte> &data,uint16 col_id);//获取某一列的值
     vector<byte> getValueInBytes(vector<byte> &data,uint16 col_id);//获取某一列的值
 public:
     //默认构造函数

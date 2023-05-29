@@ -105,7 +105,7 @@ public:
 private:
     std::string msg_;
 };
-
+//ColValue相关的错误
 class ColValueError: public std::exception
 {
 public:
