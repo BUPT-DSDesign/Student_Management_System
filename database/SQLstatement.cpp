@@ -630,16 +630,8 @@ void SQLDelete::PraseSQLVector(vector<string> &sql_vector)
             throw SQLSyntaxError("SQL DELETE SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER:"+*it);
             return;
         }
-        it++;
-        //将WHERE条件解析到condition_中
-        //从it开始解析
-        vector<string> condition_vector;
-        while (it != sql_vector.end())
-        {
-            condition_vector.push_back(*it);
-            it++;
-        }
-        condition_.PraseSQLVector(condition_vector);
+        // 将WHERE条件解析到condition_中
+        condition_.PraseSQLVector(vector<string>(it, sql_vector.end()));
     }
 }
 
@@ -824,16 +816,8 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
             throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER:"+*it);
             return;
         }
-        it++;
-        //将WHERE条件解析到condition_中
-        //从it开始解析
-        vector<string> condition_vector;
-        while (it != sql_vector.end())
-        {
-            condition_vector.push_back(*it);
-            it++;
-        }
-        condition_.PraseSQLVector(condition_vector);
+        // 将WHERE条件解析到condition_中
+        condition_.PraseSQLVector(vector<string>(it, sql_vector.end()));
     }
 }
 
