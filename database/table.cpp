@@ -444,7 +444,18 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     }
     //确认没有同名索引后,创建索引
     tb_index_[index_name] = make_unique<BPTree>(fileIndex);
-    //TODO 利用表的数据文件,创建索引文件
+    //遍历表的数据文件,将数据文件中的数据插入到索引中
+    //直接按顺序读取数据文件,然后插入到索引中
+    tb_data_->ReadFirstChunk();
+    while(tb_data_->isBufLeaf()){
+        //读取这一页的数据
+        auto data = tb_data_->GetAllElemInChunk();
+        for(auto &it:data){
+            //将数据插入到索引中
+            Row row(col_info_,it);
+            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),it);
+        }
+    }
 }
 
 vector<byte> Table::serialize(vector<pair<string,string>> &col_item){

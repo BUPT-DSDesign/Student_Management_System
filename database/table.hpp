@@ -42,6 +42,7 @@ public:
     Row(vector<TableColAttribute>& col_info,vector<byte> data);//用于构造一条记录
     bool isSatisfied(const SQLWhere& where) const;//判断是否满足where条件
     string getRowJSON() const;//获取一条记录的JSON格式
+    ColValue getValue(string col_name) const;//获取一条记录的某一列的值
 private:
     vector<ColValue> col_value_;//记录的每一列的值
 };

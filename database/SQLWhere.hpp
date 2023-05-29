@@ -76,6 +76,7 @@ public:
     string getValue() const;
     bool isNegated() const;
     void setNegated(bool negated);
+    bool Filter(ColValue val) const;//判断对应列值是否满足此结构
 private:
     string col_name_;//子结构的列名
     TermOperator eOperator_;//子结构的运算符,包含=,>,<,>=,<=,<>
@@ -92,6 +93,7 @@ public:
     shared_ptr<WhereClause> getOuterClause() const;
     ClauseOperator getOperator() const;
     vector<WhereTerm> getTerms() const;
+    bool Filter(ColValue val) const;//判断对应列值是否满足从句
     int getTermNum() const;
     void setOuterClause(shared_ptr<WhereClause> outerClause);
     void setOperator(const string& op);

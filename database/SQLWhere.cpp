@@ -47,16 +47,17 @@ vector<byte> ColValue::getBytes() const{
     switch(data_type_){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
-            bytes.resize(sizeof(int64));
-            *(int64*)&bytes[0] = value_int_;
+            //根据SIZE_OF_T[data_type_]来确定bytes的大小
+            bytes.resize(SIZE_OF_T[data_type_]);
+            std::copy((byte*)&value_int_,(byte*)&value_int_+SIZE_OF_T[data_type_],bytes.begin());
             break;
         case T_FLOAT:case T_DOUBLE:
-            bytes.resize(sizeof(double));
-            *(double*)&bytes[0] = value_double_;
+            bytes.resize(SIZE_OF_T[data_type_]);
+            std::copy((byte*)&value_double_,(byte*)&value_double_+SIZE_OF_T[data_type_],bytes.begin());
             break;
         case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            bytes.resize(sizeof(uint64));
-            *(uint64*)&bytes[0] = value_uint_;
+            bytes.resize(SIZE_OF_T[data_type_]);
+            std::copy((byte*)&value_uint_,(byte*)&value_uint_+SIZE_OF_T[data_type_],bytes.begin());
         default:
             bytes.resize(value_str_.size());
             copy(value_str_.begin(),value_str_.end(),bytes.begin());
@@ -519,27 +520,12 @@ int SQLWhere::getTermNum() const{
     return rootClause_->getTermNum();
 }
 bool SQLWhere::Filter(ColValue val) const{
-    
+    //看看val能不能满足逻辑
+    return rootClause_->Filter(val);
 }
-WhereTerm::WhereTerm(const string& col_name,const string& eOperator,const string& value)
-:col_name_(col_name),eValue_(value)
-{
-    if(eOperator=="="){
-        eOperator_ = TermOperator::EQUAL;
-    }else if(eOperator=="<>"){
-        eOperator_ = TermOperator::NOT_EQUAL;
-    }else if(eOperator==">"){
-        eOperator_ = TermOperator::GREATER;
-    }else if(eOperator=="<"){
-        eOperator_ = TermOperator::LESS;
-    }else if(eOperator==">="){
-        eOperator_ = TermOperator::GREATER_EQUAL;
-    }else if(eOperator=="<="){
-        eOperator_ = TermOperator::LESS_EQUAL;
-    }else{
-        throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+eOperator);
-    }
-}
+
+
+
 WhereClause::WhereClause(){
     outerClause_ = nullptr;
     op_ = ClauseOperator::NOP;
@@ -565,6 +551,42 @@ void WhereClause::addTerm(const WhereTerm& term){
 void WhereClause::setNegated(bool is_negated){
     negated_ = is_negated;
 }
+bool WhereClause::Filter(ColValue val) const{
+    bool result = true;
+    for(auto term:terms_){
+        //找到对应的列
+        if(term.getColName() == val.getColName()){
+            //是同一列,看看能不能满足条件
+            bool now_result = term.Filter(val);
+            if(op_==ClauseOperator::AND){
+                result = result && now_result;
+            }else{
+                result = result || now_result;
+            }
+        }
+    }
+    return result;
+}
+
+WhereTerm::WhereTerm(const string& col_name,const string& eOperator,const string& value)
+:col_name_(col_name),eValue_(value)
+{
+    if(eOperator=="="){
+        eOperator_ = TermOperator::EQUAL;
+    }else if(eOperator=="<>"){
+        eOperator_ = TermOperator::NOT_EQUAL;
+    }else if(eOperator==">"){
+        eOperator_ = TermOperator::GREATER;
+    }else if(eOperator=="<"){
+        eOperator_ = TermOperator::LESS;
+    }else if(eOperator==">="){
+        eOperator_ = TermOperator::GREATER_EQUAL;
+    }else if(eOperator=="<="){
+        eOperator_ = TermOperator::LESS_EQUAL;
+    }else{
+        throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+eOperator);
+    }
+}
 string WhereTerm::getColName() const{
     return col_name_;
 }
@@ -583,7 +605,27 @@ bool WhereTerm::isNegated() const{
 void WhereTerm::setNegated(bool is_negated){
     negated_ = is_negated;
 }
-
+bool WhereTerm::Filter(ColValue val) const{
+    ColValue tmp(val.getColName(),eValue_,val.getDataType());
+    switch (eOperator_)
+    {
+    case TermOperator::EQUAL:
+        return tmp == val;
+    case TermOperator::NOT_EQUAL:
+        return tmp != val;
+    case TermOperator::GREATER:
+        return tmp > val;
+    case TermOperator::LESS:
+        return tmp < val;
+    case TermOperator::GREATER_EQUAL:
+        return tmp >= val;
+    case TermOperator::LESS_EQUAL: 
+        return tmp <= val;
+    default:
+        break;
+    }
+    return true;
+}
 WhereClause::WhereClause(vector<WhereTerm> term,const string& op,shared_ptr<WhereClause> outerClause)
 :terms_(term),outerClause_(outerClause)
 {
