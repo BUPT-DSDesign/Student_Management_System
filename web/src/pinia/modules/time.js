@@ -23,22 +23,14 @@ export const useTimeStore = defineStore('time', () => {
     const runTime = (baseTimeRun, speed) => {
         // 根据时间的和速度计算当前时间
         second.value += baseTimeRun * speed
-        if (second.value >= 60) {
-            second.value = 0
-            minute.value += 1
-        }
-        if (minute.value >= 60) {
-            minute.value = 0
-            hour.value += 1
-        }
-        if (hour.value >= 24) {
-            hour.value = 0
-            day.value += 1
-        }
-        if (day.value >= 8) {
-            day.value = 1
-            week.value += 1
-        }
+        minute.value += Math.floor(second.value / 60)
+        second.value = second.value % 60
+        hour.value += Math.floor(minute.value / 60)
+        minute.value = minute.value % 60
+        day.value += Math.floor(hour.value / 24)
+        hour.value = hour.value % 24
+        week.value += Math.floor(day.value / 7)
+        day.value = day.value % 7
     }
 
     return {

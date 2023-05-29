@@ -99,7 +99,7 @@
                         <el-button size="small" type="primary" @click="seeCourseInfo(scope.row)">查看课程详情</el-button>
                          <!-- 点击弹窗 -->
                         
-                        <el-button size="small" type="success" :disabled="scope.row.is_selected" @click="openConfirmFrame(scope.row.course_id)">{{scope.row.is_selected == true ? '已选': '选课'}}</el-button>
+                        <el-button size="small" type="success" :disabled="scope.row.is_selected" @click="openConfirmFrame(scope.row)">{{scope.row.is_selected == true ? '已选': '选课'}}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -128,6 +128,8 @@
 <script>
 import { Message } from 'element-ui'
 import { CourseStore } from '@/store/course';
+import { LogStore } from '@/store/log';
+import { TimeStore } from '@/store/time';
 export default {
     data() {
         return {
@@ -199,18 +201,25 @@ export default {
             this.selectedCourseInfo = data
             this.courseInfoVis = true
         },
-        openConfirmFrame(courseId) {
+        openConfirmFrame(course) {
             this.$confirm('确定选修该课程吗？', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(async () => {
-                const fg = await CourseStore.SelectCourse(courseId)
+                const fg = await CourseStore.SelectCourse(course.course_id)
                 if (fg) {
                     this.$message({
                         type: 'success',
                         message: '选修课程成功!'
                     });
+                    // 创建一个日志对象
+                    const log = {
+                        "create_time":  TimeStore.getTime(),
+                        "content": "选修课程成功, 课程名为：" + course.course_name,
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)  
                     
                 } else {
                     this.$message({

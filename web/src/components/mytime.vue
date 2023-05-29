@@ -6,7 +6,7 @@
     <el-slider v-model="speed" show-input input-size="mini" :max=100></el-slider>
 
     <el-input-number class="base-time-num" v-model="baseTimeRun" controls-position="right" :min="1" :max="60" size="small" placeholder="时间基数"></el-input-number>
-
+    <span style="float: left;margin-top: 18px;margin-left:1px;color:white">(时间行走基数)</span>
   </div>
 </template>
 <script>
@@ -116,7 +116,7 @@ export default {
 .base-time-num {
   margin-left: 20px;
   float: left;
-  margin-top: 12px;
+  margin-top: 13px;
   width : 80px;
 }
 </style>

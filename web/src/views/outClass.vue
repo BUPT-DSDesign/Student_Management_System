@@ -231,8 +231,8 @@ const sectionMap = [{
 },
 ];
 import { NavigateStore } from "@/store/navigate"
-
-
+import { LogStore } from '@/store/log';
+import { TimeStore } from '@/store/time';
 
 export default {
     data() {
@@ -412,7 +412,7 @@ export default {
         //删除活动按钮,row即为活动对象
         handleDelete(index, row) {
             console.log(row);
-            this.deleteEventData = row.event_id;
+            this.deleteEventData = row.activity_id;
             const deleteEvent = async (data) => {
                 const fg = await EventStore.DeleteEventInfo(data);
                 if (fg) {
@@ -422,6 +422,13 @@ export default {
                         message: '删除活动成功',
                         type: 'success'
                     });
+                    // 创建一个日志对象
+                    const log = {
+                        "create_time":  TimeStore.getTime(),
+                        "content": "删除活动成功, 活动名为：" + row.activity_name,
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)  
                     this.deleteEventData = {}
                 } else {
                     this.$message({
@@ -471,6 +478,14 @@ export default {
                         message: '添加活动成功',
                         type: 'success'
                     });
+                    // 创建一个日志对象
+                    const log = {
+                        "create_time":  TimeStore.getTime(),
+                        "content": "添加活动成功, 活动名为：" + data.activity_name,
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)  
+                    
                 } else {
                     console.log('error')
                 }
