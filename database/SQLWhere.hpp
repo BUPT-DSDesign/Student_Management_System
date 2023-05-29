@@ -92,6 +92,7 @@ public:
     shared_ptr<WhereClause> getOuterClause() const;
     ClauseOperator getOperator() const;
     vector<WhereTerm> getTerms() const;
+    int getTermNum() const;
     void setOuterClause(shared_ptr<WhereClause> outerClause);
     void setOperator(const string& op);
     void addTerm(const WhereTerm& term);
@@ -121,6 +122,7 @@ public:
     QueryType GetQueryType(string index_name);
     bool Filter(ColValue val) const;
     ClauseOperator getOperator() const;
+    int getTermNum() const;
 private:
     //最顶层的表达式
     shared_ptr<WhereClause> rootClause_;

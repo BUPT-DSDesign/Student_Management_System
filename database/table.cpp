@@ -34,7 +34,16 @@ bool Row::isSatisfied(const SQLWhere& where) const{
         return false;
     }
 }
-
+string Row::getRowJSON() const{
+    //获取一条记录的JSON格式
+    string res = "{";
+    for(auto &i:col_value_){
+        res += "\""+i.getColName()+"\":"+i.getValue()+",";
+    }
+    res.pop_back();
+    res += "}";
+    return res;
+}
 
 //默认构造函数
 Table::Table():col_cnt_(0),index_cnt_(0),record_length_(0){}
@@ -583,17 +592,24 @@ void Table::SelectRecord(SQLWhere &where){
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
     //随后根据索引的类型,调用不同的函数
     //先判断这玩意是不是主键,再判断有没有这样的索引
-    vector<vector<byte>> result;
+    vector<Row> rows_result;
     if(indexName == primary_key_){
         //如果是主键,则直接调用主键查找函数
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则调用主键查找函数
-            //Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName)));
-            result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
-
+            Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName)));
+            rows_result.push_back(row);
+            //result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
+        
         }else{
             //如果是范围查询,则调用主键范围查找函数
-            result = tb_data_->SearchRange(where.GetQueryLeftKey(indexName),where.GetQueryRightKey(indexName));
+            vector<vector<byte>> record = tb_data_->SearchRange(where.GetQueryLeftKey(indexName),where.GetQueryRightKey(indexName));
+            for(auto &it:record){
+                Row row(col_info_,it);
+                if(where.getTermNum() == 1||row.isSatisfied(where)){
+                    rows_result.push_back(row);
+                }
+            }
         }
     }else if(col2index_.find(indexName)==col2index_.end()){
         //如果没有索引且不为主键,顺序查找过滤
@@ -604,7 +620,8 @@ void Table::SelectRecord(SQLWhere &where){
             for(auto &it:record){
                 Row row(col_info_,it);
                 if(row.isSatisfied(where)){
-                    result.push_back(it);
+                    //result.push_back(it);
+                    rows_result.push_back(row);
                 }
             }
             tb_data_->ReadNextChunk();
@@ -627,7 +644,7 @@ void Table::SelectRecord(SQLWhere &where){
             for(auto &it:record){
                 Row row(col_info_,it);
                 if(row.isSatisfied(where)){
-                    result.push_back(it);
+                    rows_result.push_back(row);
                 }
             }
         }else{
@@ -648,14 +665,14 @@ void Table::SelectRecord(SQLWhere &where){
                 for(auto &it:record){
                     Row row(col_info_,it);
                     if(row.isSatisfied(where)){
-                        result.push_back(it);
+                        rows_result.push_back(row);
                     }
                 }
             }
         }
     }
     //最后将结果转换为字符串输出
-    output("Result Found",result);
+    PrintToStream("Result Found",rows_result);
 }
 
 void Table::InsertRecord(vector<pair<string,string>> &col_item){
@@ -686,7 +703,7 @@ void Table::DeleteRecord(SQLWhere &where){
     //如果这个家伙不是主键,则调用索引删除函数,同时拿到块地址,再调用删除块中某条记录的函数
     //目前只支持等值删除,所以不用考虑范围删除,范围删除直接丢异常
     //同时,删除函数会返回删除的记录,这些记录需要同步删除索引,同时也需要返回给用户
-    vector<vector<byte>> result;
+    vector<Row> rows_result;
     if(where.GetQueryType(indexName) != QueryType::QUERY_EQ){
         throw TableDeleteError("Range Delete is not supported now!");
     }
@@ -703,7 +720,8 @@ void Table::DeleteRecord(SQLWhere &where){
             //随后调用索引的删除函数
             tb_index_[it.first]->Remove(std::any_cast<uint64>(index_key));
         }
-        result.push_back(remove);
+        Row row(col_info_,remove);
+        rows_result.push_back(row);
     }else if(col2index_.find(indexName)!=col2index_.end()){
         //在索引中有这个值,则调用索引删除函数
         //先获取索引的键值
@@ -712,7 +730,8 @@ void Table::DeleteRecord(SQLWhere &where){
         vector<byte> remove = tb_index_[indexName]->Remove(std::any_cast<uint64>(index_key));
         //最后调用Table的删除函数
         any primary_key = getValue(remove,col2id_[primary_key_]);
-        result.push_back(tb_data_->Remove(std::any_cast<uint64>(primary_key)));
+        Row row(col_info_,tb_data_->Remove(std::any_cast<uint64>(primary_key)));
+        //result.push_back(tb_data_->Remove(std::any_cast<uint64>(primary_key)));
         //最后遍历索引,删除索引中的记录
         for(auto &it:tb_index_){
             if(it.first == indexName){
@@ -734,7 +753,8 @@ void Table::DeleteRecord(SQLWhere &where){
                 Row row(col_info_,it);
                 if(row.isSatisfied(where)){
                     //如果满足条件,则删除
-                    result.push_back(it);
+                    rows_result.push_back(row);
+                    //先获取主键的值
                     any primary_key = getValue(it,col2id_[primary_key_]);
                     tb_data_->Remove(std::any_cast<uint64>(primary_key));
                     //最后遍历索引,删除索引中的记录
@@ -750,12 +770,12 @@ void Table::DeleteRecord(SQLWhere &where){
         }
     }
     //最后输出结果
-    output("Delete Success!",result);
+    PrintToStream("Delete Success!",rows_result);
 }
 void Table::saySuccess(){
     cout<<"{\"status_code\":0,\"status_msg\":\"OK\",\"data\":[]}"<<endl;
 }
-void Table::output(string msg,vector<vector<byte>> &data){
+void Table::PrintToStream(string msg,vector<Row> result){
     //返回的JSON示例如下
     /**
      * {
@@ -769,13 +789,14 @@ void Table::output(string msg,vector<vector<byte>> &data){
 
     //先构造status_code和status_msg
     cout<<"{\"status_code\":0,\"status_msg\":\""<<msg<<"\",\"data\":[";
-    //遍历data,将每条记录转换为JSON格式
-    for(auto it=data.begin();it!=data.end();++it){
-        cout<<deserialize(*it);
-        if(it!=data.end()-1){
+    //遍历输出result
+    for(auto it=result.begin();it!=result.end();it++){
+        cout<<it->getRowJSON();
+        if(it+1!=result.end()){
             cout<<",";
         }
     }
+
     cout<<"]}"<<endl;
 }
 
