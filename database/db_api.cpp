@@ -23,6 +23,11 @@ void DB_API::CreateDatabase(SQLCreateDatabase &statement){
 void DB_API::CreateTable(SQLCreateTable &statement){
     //利用SQLCreateTable中的tb_name_创建一个表文件
     db_manager_->CreateTable(statement.get_tb_name(),statement.get_attr());
+    //然后创建索引
+    vector<pair<string,string>> index_sequence = statement.get_index();
+    for(auto &index : index_sequence){
+        db_manager_->CreateIndex(statement.get_tb_name(),index.first,index.second);
+    }
 }
 
 void DB_API::CreateIndex(SQLCreateIndex &statement){
