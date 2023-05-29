@@ -36,6 +36,10 @@ SQLCreateTable::SQLCreateTable(vector<string> &sql_vector)
     set_type2uint(); // 设置映射表
     PraseSQLVector(sql_vector);
 }
+vector<pair<string, string>> &SQLCreateTable::get_index()
+{
+    return indexs_;
+}
 void SQLCreateTable::set_type2uint()
 {
     // 字符串转标记符
@@ -74,6 +78,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
     create_time DATETIME NULL DEFAULT NULL COMMENT '创建时间',
     update_time DATETIME NULL DEFAULT NULL COMMENT '更新时间',
     PRIMARY KEY (id)
+    UNIQUE KEY (name)
     );
     */
     uint16 pos = 2;
@@ -142,9 +147,40 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                 return;
             }
         }
+        else if(keyword == "unique")
+        {
+            //TODO 第二种情况,增加唯一索引
+            pos++;
+            //格式UNIQUE KEY `username` (`username`)
+            transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
+            if(sql_vector[pos] != "key")
+            {
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO KEYWORD 'KEY'");
+                return;
+            }
+            pos++;
+            //索引名
+            string index_name = sql_vector[pos];
+            pos++;
+            if(sql_vector[pos] != "(")
+            {
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO (");
+                return;
+            }
+            pos++;
+            //索引列名
+            string col_name = sql_vector[pos];
+            pos++;
+            if(sql_vector[pos] != ")")
+            {
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,BRACKET NOT MATCH");
+                return;
+            }
+            indexs_.push_back({index_name,col_name});
+        }
         else
         {
-            // 第二种情况,新增列
+            // 第三种情况,新增列
             TableColAttribute attr;
             attr.is_primary_ = false;
             attr.is_not_null = false;

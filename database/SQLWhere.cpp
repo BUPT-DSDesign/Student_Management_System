@@ -515,6 +515,9 @@ WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator it){
     ++it;
     return WhereTerm(col_name,op,value);
 }
+int SQLWhere::getTermNum() const{
+    return rootClause_->getTermNum();
+}
 bool SQLWhere::Filter(ColValue val) const{
     
 }
@@ -564,6 +567,9 @@ void WhereClause::setNegated(bool is_negated){
 }
 string WhereTerm::getColName() const{
     return col_name_;
+}
+int WhereClause::getTermNum() const{
+    return terms_.size();
 }
 TermOperator WhereTerm::getOperator() const{
     return eOperator_;

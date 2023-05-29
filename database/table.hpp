@@ -41,6 +41,7 @@ class Row{
 public:
     Row(vector<TableColAttribute>& col_info,vector<byte> data);//用于构造一条记录
     bool isSatisfied(const SQLWhere& where) const;//判断是否满足where条件
+    string getRowJSON() const;//获取一条记录的JSON格式
 private:
     vector<ColValue> col_value_;//记录的每一列的值
 };
@@ -70,7 +71,7 @@ private:
     map<string,int> col2id_;//列名到列id的映射
     string deserialize(vector<byte> &data);//反序列化单条数据为json
     vector<byte> serialize(vector<pair<string,string>> &col_item);//序列化数据
-    void output(string msg,vector<vector<byte>> &data);//输出结果到标准输入输出流
+    void PrintToStream(string msg,vector<Row> result);//输出结果到标准输入输出流
     void saySuccess();//输出成功信息
     any getValue(vector<byte> &data,uint16 col_id);//获取某一列的值
     vector<byte> getValueInBytes(vector<byte> &data,uint16 col_id);//获取某一列的值

@@ -30,6 +30,7 @@ public:
     SQLCreateTable(vector<string> &sql_vector);
     string get_tb_name();
     vector<TableColAttribute>& get_attr();
+    vector<pair<string,string>>& get_index();
     void set_type2uint();
     ~SQLCreateTable(){}
     void PraseSQLVector(vector<string> &sql_vector);
@@ -37,6 +38,7 @@ private:
     string tb_name_;//表的名字
     vector<TableColAttribute> attrs_;//表的属性(即每一列的属性)
     map<string_view,uint8> type2uint;//从数据类型到uint标记的映射
+    vector<pair<string,string>> indexs_;//索引的属性
 };
 
 //创建索引需要的参数
