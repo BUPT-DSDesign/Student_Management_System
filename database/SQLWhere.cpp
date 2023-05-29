@@ -83,7 +83,7 @@ Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
         //如果不是,则进一步处理,如果为小于等于,则返回最小值,如果为大于等于,则返回当前值
         //即若 id < 5,左边界为最小值
         if(related_terms[0].getOperator()==TermOperator::LESS_EQUAL || related_terms[0].getOperator()==TermOperator::LESS){
-            return 0;
+            return Key(false);
         }
         //若 id > 5,左边界为当前值+1
         if(related_terms[0].getOperator()==TermOperator::GREATER){

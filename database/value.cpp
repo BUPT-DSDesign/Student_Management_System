@@ -84,6 +84,11 @@ vector<byte> Key::getBytes() const{
     return bytes;
 }
 bool Key::operator<(const Key& key) const{
+    //看看有没有最小/最大
+    if(is_minimun_ || key.IsMaximun())
+        return true;
+    if(is_maximun_ || key.IsMinimun())
+        return false;
     switch(data_type_){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
@@ -94,7 +99,11 @@ bool Key::operator<(const Key& key) const{
             return value_uint_ < key.value_uint_;
         default:
             return value_str_ < key.value_str_;
+            
     }
+    //如果是字符串,先比较长度,再比较字典序
+    
+    
 }
 bool Key::operator==(const Key& key) const{
     switch(data_type_){
@@ -121,7 +130,12 @@ bool Key::operator<=(const Key& key) const{
 bool Key::operator>=(const Key& key) const{
     return !(*this < key);
 }
-
+bool Key::IsMinimun() const{
+    return is_minimun_;
+}
+bool Key::IsMaximun() const{
+    return is_maximun_;
+}
 
 ColValue::ColValue(const string& col_name,const string& value,uint8 data_type)
 :col_name_(col_name),data_type_(data_type)

@@ -6,6 +6,7 @@ using namespace std;
 //键值,用于B+树
 class Key{
 public:
+    Key(bool is_maximun);//设置其为最大值,否为最小值,用于B+树
     Key(const string& key,uint8 data_type);//从字符串构造
     Key(vector<byte>::iterator begin,int len,uint8 data_type);//从字节流构造
     string getKey() const;//获取键值的字符串形式
@@ -17,8 +18,11 @@ public:
     bool operator<=(const Key& other) const;
     bool operator>(const Key& other) const;
     bool operator>=(const Key& other) const;
-    
+    bool IsMaximun() const;//判断是否为最大值
+    bool IsMinimun() const;//判断是否为最小值
 private:
+    bool is_maximun_;//设置其为最大值
+    bool is_minimun_;//设置其为最小值
     union {
         int64 value_int_;
         float64 value_float64_;
