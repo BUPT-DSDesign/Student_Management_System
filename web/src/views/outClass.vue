@@ -1,25 +1,48 @@
 <template>
     <div class="container">
         <div class="schedule-container">
-            <h2>日程安排表</h2>
+            <h2 style="text-align: center; padding-right: 105px;">日程安排表</h2>
             <div class="table-container">
 
                 <el-table :data="filteredData" :default-sort="{ prop: 'start_day', order: 'ascending' }" :filters="filters"
-                    filter-method="filterTable" max-height="350px" height="350px" :fixed="true">
-                    <el-table-column prop="start_day" label="日期" :formatter="formatDay" sortable
-                        :sort-method="sortDay"></el-table-column>
-                    <el-table-column prop="start_time" label="时间" sortable></el-table-column>
-                    <el-table-column prop="activity_name" label="活动名称"></el-table-column>
-                    <el-table-column prop="tag" label="标签" :filters="tagFilters" :filter-method="filterTag"
-                        :formatter="formatTag"></el-table-column>
+                    filter-method="filterTable" max-height="370px" height="370px" :fixed="true">
+
+                    <el-table-column label="开始日期" :formatter="formatDay" sortable :sort-method="sortDay" align="center">
+                        <template slot-scope="scope">
+                            <span style="color:">{{ scope.row.date }}</span>
+                        </template>
+                    </el-table-column>
+
+
+                    <el-table-column label="时间" sortable align="center">
+                        <template slot-scope="scope">
+                            <i class="el-icon-time"></i> &nbsp
+                            <span>{{ scope.row.type == 0 ? scope.row.time: scope.row.start_time }}</span>
+                        </template>
+                    </el-table-column>
+
+
+                    <el-table-column label="活动名称及频率" align="center">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.activity_name }} {{ scope.row.frequency }}</span>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="标签" :filters="tagFilters" :filter-method="filterTag" :formatter="formatTag" align="center">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.tag }}</span>
+                        </template>
+                    </el-table-column>
+
+                
                     <el-table-column align="right">
                         <template slot="header" slot-scope="scope">
-                            <el-input v-model="searchText" placeholder="请输入名称关键词"></el-input>
+                            <el-input v-model="searchText" placeholder="请输入名称关键词" prefix-icon="el-icon-search"></el-input>
                         </template>
                         <template slot-scope="scope">
                             <el-button type="primary" size="mini" @click="handleClick(scope.row)">查看详情</el-button>
                             <el-button type="danger" size="mini"
-                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                                @click="handleDelete(scope.$index, scope.row)">删除活动</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
@@ -193,7 +216,7 @@
                 </div>
             </el-dialog>
             <!-- 闹钟提醒 -->
-            <el-button class="OperationButton" type="primary" icon="el-icon-alarm-clock">闹钟提醒</el-button>
+            <el-button class="OperationButton" type="success" icon="el-icon-alarm-clock">闹钟提醒</el-button>
         </div>
     </div>
 </template>
@@ -245,9 +268,9 @@ export default {
             eventList: [
             ],
             tagFilters: [
-                { text: '个人活动', value: 0 },
-                { text: '集体活动', value: 1 },
-                { text: '临时活动', value: 2 }
+                { text: '个人活动', value: '个人活动' },
+                { text: '集体活动', value: '集体活动' },
+                { text: '临时活动', value: '临时活动' }
             ],
             filters: {
                 tag: []
@@ -336,20 +359,52 @@ export default {
             times: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
         }
     },
-    created() {
+    async created() {
         const getActivityTable = async () => {
             const fg = await EventStore.GetEventTable()
             if (fg) {
                 this.eventList = EventStore.eventList
-                console.log(this.eventList);
+                // 将this.eventList.start_time的后五位去掉
+                for (let i = 0; i < this.eventList.length; i++) {
+                    this.eventList[i].date = this.eventList[i].start_time.slice(0, -6)
+                }
+                for (let i = 0; i < this.eventList.length; i++) {
+                    if (this.eventList[i].frequency == 0) {
+                        this.eventList[i].frequency = '(单次)'
+                    } else {
+                        if (this.eventList[i].frequency == 1) {
+                            this.eventList[i].frequency = '(每天)'
+                        } else {
+                            this.eventList[i].frequency = '(每周)'
+                        }
+                    }
+                }
+                console.log(this.eventList)
+                for (let i = 0; i < this.eventList.length; i++) {
+                    // 将this.eventList.start_time的后五位取出
+                    this.eventList[i].start_time = this.eventList[i].start_time.slice(-5)
+                    // 提取this.eventList.start_time的前两个字符
+                    let x = Number(this.eventList[i].start_time.slice(0, 2))
+                    console.log(x)
+                    x = x + 1;
+                    if (x < 10) {
+                        x = '0' + x
+                    }
+                    // 将this.eventList.start_time的前两个字符替换为x
+                    this.eventList[i].end_time = x + this.eventList[i].start_time.slice(-3)
+                    
+
+                    this.eventList[i].time = this.eventList[i].start_time + ' ~ ' + this.eventList[i].end_time
+                }  
+                
             } else {
                 console.log('error')
             }
         }
-        getActivityTable()
+        await getActivityTable()
     },
     methods: {
-          //搜索框智能加载
+        // 搜索框智能加载
         querySearch(queryString, cb) {
             var placelist = this.placelist;
             var ret = queryString ? placelist.filter(this.createFilter(queryString)) : placelist;
@@ -400,6 +455,7 @@ export default {
                 '1': '集体活动',
                 '2': '临时活动'
             }
+            console.log(row.tag)
             return tagMap[row.tag]
         },
         filterTable(value, row, column) {
@@ -407,7 +463,7 @@ export default {
             return row[property] === value
         },
         filterTag(value, row) {
-            return row.tag === value
+            return row.tag == value
         },
         //删除活动按钮,row即为活动对象
         handleDelete(index, row) {
@@ -494,6 +550,13 @@ export default {
         },
     },
     computed: {
+        transFormToDate() {
+            return (startTime) => {
+                // 去掉startTime的后6位
+                const date = startTime.substring(0, startTime.length - 6)
+                return date
+            }
+        },
         filteredData() {
             if (!this.searchText) {
                 return this.eventList
@@ -510,12 +573,12 @@ export default {
 </script>
 <style>
 .table-container {
-    height: 350px;
+    height: 370px;
     overflow-y: auto;
 }
 
 .schedule-container {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .el-input__inner {
@@ -530,12 +593,11 @@ h2 {
 }
 
 .button-container {
-    margin-top: 20px;
-    margin-left: 130px;
+    margin-top: 4px;
 }
 
 .OperationButton {
-    margin: 20px
+    margin-right: 1px;
 }
 
 .weekinput {

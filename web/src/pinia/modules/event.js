@@ -9,6 +9,7 @@ export const useEventStore = defineStore('event', () => {
             const res = await EventTable()
 
             if (res.data.status_code == 0) {
+                console.log(res.data.activities)
                 eventList.value = res.data.activities
                 return true
             }

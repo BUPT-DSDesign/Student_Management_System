@@ -74,6 +74,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			}
 
 			// 如果冲突, 由于这是单次活动, 所以需要找出找出可行的时间段
+
 			if isConflict {
 				var validTime []string
 				newTimeList := append([][2]int{{360, 360}}, timeList...)
