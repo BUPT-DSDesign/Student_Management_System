@@ -30,7 +30,7 @@
 
                     <el-table-column label="标签" :filters="tagFilters" :filter-method="filterTag" :formatter="formatTag" align="center">
                         <template slot-scope="scope">
-                            <span>{{ scope.row.tag }}</span>
+                            <el-tag :type="scope.row.tag === '集体活动' ? 'primary' : (scope.row.tag === '临时活动' ? 'success' : 'warning')">{{ scope.row.tag }}</el-tag>
                         </template>
                     </el-table-column>
 
