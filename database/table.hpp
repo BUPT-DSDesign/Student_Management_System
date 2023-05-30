@@ -78,7 +78,7 @@ private:
     void PrintToStream(string msg,vector<Row> result);//输出结果到标准输入输出流
     void saySuccess();//输出成功信息
     Key getValue(vector<byte> &data,uint16 col_id);//获取某一列的值
-    vector<byte> getValueInBytes(vector<byte> &data,uint16 col_id);//获取某一列的值
+    //vector<byte> getValueInBytes(vector<byte> &data,uint16 col_id);//获取某一列的值
 public:
     //默认构造函数
     Table();

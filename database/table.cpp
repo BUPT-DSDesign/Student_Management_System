@@ -629,6 +629,18 @@ vector<byte> Table::serialize(vector<pair<string,string>> &col_item){
     }
     return data;
 }
+Key Table::getValue(vector<byte> &data,uint16 col_id){
+    //根据col_id获取列的类型
+    uint8 type = col_info_[col_id].data_type_;
+    //获取偏移量
+    uint16 shift = col_shift_[col_id];
+    //获取大小
+    uint16 size = col_info_[col_id].length_;
+    //获取对应字节流
+    vector<byte> value(data.begin()+shift,data.begin()+shift+size);
+    //根据类型,将data中的数据转换为Key
+    return Key(value.begin(),size,type);
+}
 void Table::SelectRecord(SQLWhere &where){
     //用Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
@@ -724,12 +736,16 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
     Key primary_key = getValue(data,col2id_[primary_key_]);
     //随后调用Table的插入函数
     tb_data_->Insert(primary_key,data);
+    //然后查询插入的位置
+    streampos pos = tb_data_->SearchPos(primary_key);
     //最后调用索引的插入函数
     for(auto &it:col2index_){
         //先获取索引的键值
         Key index_key = getValue(data,col2id_[it.first]);
         //随后调用索引的插入函数
-        vector<byte> index_data = getValueInBytes(data,col2id_[it.first]);
+        //将pos转换为字节流
+        vector<byte> index_data(sizeof(streampos));
+        std::copy(reinterpret_cast<char*>(&pos),reinterpret_cast<char*>(&pos)+sizeof(streampos),reinterpret_cast<char*>(index_data.data()));
         tb_index_[it.first]->Insert(index_key,index_data);
     }
     saySuccess();
@@ -822,21 +838,47 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
     }
     //随后,检查更新的列是否有索引或主键,如果有索引或主键,则需要先删除索引或主键,再更新
     vector<string> update_index;
+    bool remove_primary = false;
     for(auto &it:col_item){
         if(it.first == primary_key_){
             //如果有主键,则需要删除主键和索引,再插入
             Key key(it.first,tb_data_->getKeyType());
             tb_data_->Remove(key);
-            for
+            remove_primary = true;
         }else if(col2index_.find(it.first)!=col2index_.end()){
             //如果有索引,则需要先删除索引
-            tb_index_[it.first]->Remove(it.first.getValue().toKey());
+            Key index(it.first,tb_index_[it.first]->getKeyType());
+            tb_index_[it.first]->Remove(index);
+            update_index.push_back(it.first);
         }
     }
-    //随后,将这些记录写回
+    //然后更新这些记录
     for(auto &it:rows_result){
-        vector<byte> record = it.toByte();
-        tb_data_->Update(it.getValue(primary_key_).toKey(),record);
+        it.Update(col_item);
+    }
+    //随后,将这些记录写回
+    vector<streampos> pos_list;
+    if(remove_primary){
+        for(auto &it:rows_result){
+            vector<byte> record = it.toByte();
+            tb_data_->Insert(it.getValue(primary_key_).toKey(),record);
+            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey()));
+        }
+    }else{
+        for(auto &it:rows_result){
+            vector<byte> record = it.toByte();
+            tb_data_->Update(it.getValue(primary_key_).toKey(),record);
+            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey()));
+        }
+    }
+    //TODO 这里应该找到对应记录的pos,然后更新
+    for(auto &it:update_index){
+        for(int i=0;i<rows_result.size();i++){
+            //将streampos转换为字节流
+            vector<byte> pos_byte(sizeof(streampos));
+            std::copy(reinterpret_cast<char*>(&pos_list[i]),reinterpret_cast<char*>(&pos_list[i])+sizeof(streampos),reinterpret_cast<char*>(pos_byte.data()));
+            tb_index_[it]->Insert(rows_result[i].getValue(it).toKey(),pos_byte);
+        }
     }
 }
 void Table::DeleteRecord(SQLWhere &where){
