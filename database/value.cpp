@@ -3,7 +3,20 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
-Key::Key(const string& key,uint8 data_type){
+Key::Key(bool is_maximun){
+    is_maximun_ = is_maximun;
+    is_minimun_ = !is_maximun;
+    data_type_ = T_INT;
+    value_int_ = -2147483648;
+}
+Key::Key(uint64 value)
+:is_maximun_(false),is_minimun_(false),data_type_(T_BIG_INT),value_int_(value)
+{
+}
+
+Key::Key(const string& key,uint8 data_type)
+:is_maximun_(false),is_minimun_(false)
+{
     //根据数据类型,将key转换为对应的类型
     switch(data_type){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
@@ -103,10 +116,7 @@ bool Key::operator<(const Key& key) const{
             return value_uint_ < key.value_uint_;
         default:
             return value_str_ < key.value_str_;
-            
     }
-    //如果是字符串,先比较长度,再比较字典序
-    
     
 }
 bool Key::operator==(const Key& key) const{

@@ -7,6 +7,7 @@ using namespace std;
 class Key{
 public:
     Key(bool is_maximun);//设置其为最大值,否为最小值,用于B+树
+    Key(uint64 value);//从整数构造
     Key(const string& key,uint8 data_type);//从字符串构造
     Key(vector<byte>::iterator begin,int len,uint8 data_type);//从字节流构造
     string getKey() const;//获取键值的字符串形式

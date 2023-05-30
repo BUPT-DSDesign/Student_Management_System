@@ -5,7 +5,7 @@
 
 
 SQLWhere::SQLWhere(){
-
+    rootClause_ = nullptr;
 }
 void SQLWhere::PraseSQLVector(vector<string> tokens){
     auto it = tokens.begin();
@@ -57,8 +57,13 @@ Key SQLWhere::GetQueryKey(string index_name,uint8 data_type){
             return value;
         }
     }
+    return Key(false);
 }
 Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
+    //如果为空,则返回最小值
+    if(rootClause_==nullptr){
+        return Key(false);
+    }
     //根据索引列名返回查询值,此处判断为范围查询,去找对应的值
     vector<WhereTerm> terms = rootClause_->getTerms();
     //此处查询为左值,即查询范围的左边界
@@ -74,11 +79,7 @@ Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
     if(related_terms.size()==1){
         //看看这个WhereTerm是不是等值查询,如果是,则返回
         if(related_terms[0].getOperator()==TermOperator::EQUAL){
-            uint64 value = 0;
-            stringstream ss;
-            ss<<related_terms[0].getValue();
-            ss>>value;
-            return value;
+            return Key(related_terms[0].getValue(),data_type);
         }
         //如果不是,则进一步处理,如果为小于等于,则返回最小值,如果为大于等于,则返回当前值
         //即若 id < 5,左边界为最小值
@@ -91,14 +92,14 @@ Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
-            return value+1;
+            return Key(value+1);
         }
         //若 id >= 5,左边界为当前值
         uint64 value = 0;
         stringstream ss;
         ss<<related_terms[0].getValue();
         ss>>value;
-        return value;
+        return Key(value);
     }
     //如果有两个WhereTerm,则需要进一步处理
     //两个WhereTerm的下标分别是0和1
@@ -144,16 +145,22 @@ Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
             ss<<related_terms[1].getValue();
             ss>>value2;
         }
+    Key key1(value);
+    Key key2(value2);
     //如果连接符为AND
     if(rootClause_->getOperator()==ClauseOperator::AND){
         //AND条件,则返回满足两个条件中最大的值
-        return (value>value2)?value:value2;
+        return (key1>key2)?key1:key2;
 
     }
     //如果连接符为OR,则返回满足两个条件中最小的值
-    return (value>value2)?value2:value;
+    return (key1<key2)?key1:key2;
 }
 Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
+    //如果为空,则返回最大值
+    if(rootClause_==nullptr){
+        return Key(true);
+    }
     //根据索引列名返回查询值,此处判断为范围查询,去找对应的值
     vector<WhereTerm> terms = rootClause_->getTerms();
     //此处查询为右值,即查询范围的右边界
@@ -169,11 +176,7 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
     if(related_terms.size()==1){
         //看看这个WhereTerm是不是等值查询,如果是,则返回
         if(related_terms[0].getOperator()==TermOperator::EQUAL){
-            uint64 value = 0;
-            stringstream ss;
-            ss<<related_terms[0].getValue();
-            ss>>value;
-            return value;
+            return Key(related_terms[0].getValue(),data_type);
         }
         //如果不是,则进一步处理,如果为小于等于,则返回当前值,如果为大于等于,则返回最大值
         //即若 id < 5,右边界为当前值-1
@@ -182,7 +185,7 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
-            return value-1;
+            return Key(value-1);
         }
         //若 id <= 5,右边界为当前值
         if(related_terms[0].getOperator()==TermOperator::LESS_EQUAL){
@@ -194,7 +197,7 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
         }
         //若 id > 5或id >= 5,右边界为最大值
         if(related_terms[0].getOperator()==TermOperator::GREATER_EQUAL || related_terms[0].getOperator()==TermOperator::GREATER){
-            return UINT64_MAX;
+            return Key(true);
         }
     }
     //如果有两个WhereTerm,则需要进一步处理
@@ -245,15 +248,18 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
             ss>>value2;
         }   
     
-
+    Key key1(value);
+    Key key2(value2);
     if(rootClause_->getOperator()==ClauseOperator::AND){
         //如果连接符为AND
-        return (value>value2)?value2:value;
+        
+        return (key1<key2)?key1:key2;
+        
     }
     //如果连接符为OR
-    return (value>value2)?value:value2;
+    return (key1<key2)?key2:key1;
 }
-shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end,shared_ptr<WhereClause> parent=nullptr){
+shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end){
     //解析一个Where子句
     //子句被简化,仅会有两个子句和一个算式,不会有括号,算式为AND或OR
     //TODO 此处随后可以加解析括号和NOT
@@ -286,7 +292,7 @@ shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,v
             throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+*it);
         }
     }
-    shared_ptr<WhereClause> clause = make_shared<WhereClause>(terms_,op,parent);
+    shared_ptr<WhereClause> clause = make_shared<WhereClause>(terms_,op);
     return clause;
 }
 WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator it){
@@ -315,13 +321,15 @@ bool SQLWhere::Filter(ColValue val) const{
 
 
 WhereClause::WhereClause(){
-    outerClause_ = nullptr;
+    //outerClause_ = nullptr;
     op_ = ClauseOperator::NOP;
     negated_ = false;
 }
+/*
 void WhereClause::setOuterClause(shared_ptr<WhereClause> outerClause){
     outerClause_ = outerClause;
 }
+*/
 void WhereClause::setOperator(const string& op){
     string tmp = op;
     transform(tmp.begin(), tmp.end(), tmp.begin(), (int (*)(int))toupper);
@@ -414,20 +422,14 @@ bool WhereTerm::Filter(ColValue val) const{
     }
     return true;
 }
-WhereClause::WhereClause(vector<WhereTerm> term,const string& op,shared_ptr<WhereClause> outerClause)
-:terms_(term),outerClause_(outerClause)
+WhereClause::WhereClause(vector<WhereTerm> term,ClauseOperator op)
+:terms_(term),op_(op)
 {
-    if(op=="AND"){
-        op_ = ClauseOperator::AND;
-    }else if(op=="OR"){
-        op_ = ClauseOperator::OR;
-    }else{
-        throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+op);
-    }
+    negated_ = false;
 }
-shared_ptr<WhereClause> WhereClause::getOuterClause() const{
+/*shared_ptr<WhereClause> WhereClause::getOuterClause() const{
     return outerClause_;
-}
+}*/
 
 ClauseOperator WhereClause::getOperator() const{
     return op_;

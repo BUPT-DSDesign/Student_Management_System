@@ -63,13 +63,13 @@ private:
 class WhereClause{
 public:
     WhereClause();//默认构造函数
-    WhereClause(vector<WhereTerm> term,const string& op,shared_ptr<WhereClause> outerClause = nullptr);
-    shared_ptr<WhereClause> getOuterClause() const;
+    WhereClause(vector<WhereTerm> term,ClauseOperator op);
+    //shared_ptr<WhereClause> getOuterClause() const;
     ClauseOperator getOperator() const;
     vector<WhereTerm> getTerms() const;
     bool Filter(ColValue val) const;//判断对应列值是否满足从句
     int getTermNum() const;
-    void setOuterClause(shared_ptr<WhereClause> outerClause);
+    //void setOuterClause(shared_ptr<WhereClause> outerClause);
     void setOperator(const string& op);
     void addTerm(const WhereTerm& term);
     void setNegated(bool negated);
@@ -77,7 +77,7 @@ private:
     bool negated_;//看是不是取反
     vector<WhereTerm> terms_;//从句中的子结构
     ClauseOperator op_;//连接各个子结构的运算符,包含AND/OR
-    shared_ptr<WhereClause> outerClause_;//外层从句,如(col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4),其中(col1 = 1 AND col2 = 2)和(col3 = 3 AND col4 = 4)的外层从句为整个句子
+    //shared_ptr<WhereClause> outerClause_;//外层从句,如(col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4),其中(col1 = 1 AND col2 = 2)和(col3 = 3 AND col4 = 4)的外层从句为整个句子
 };
 //Where约束
 enum class QueryType{
@@ -90,7 +90,7 @@ public:
     SQLWhere();
     string GetBestIndex(vector<string> &col_name_list,const string primary);
     void PraseSQLVector(vector<string> tokens);
-    shared_ptr<WhereClause> PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end,shared_ptr<WhereClause> parent=nullptr);
+    shared_ptr<WhereClause> PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end);
     WhereTerm PraseWhereTerm(vector<string>::iterator it);
     Key GetQueryKey(string index_name,uint8 data_type);
     Key GetQueryLeftKey(string index_name,uint8 data_type);
@@ -100,6 +100,8 @@ public:
     ClauseOperator getOperator() const;
     int getTermNum() const;
 private:
+    //记录是否为空
+    bool isEmpty_;
     //最顶层的表达式
     shared_ptr<WhereClause> rootClause_;
     //存储表达式中的列名
