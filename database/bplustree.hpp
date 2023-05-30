@@ -128,6 +128,8 @@ public:
     //默认键值可以由unsigned long long存储
     //用键值寻找单个元素,返回值为字节流
     vector<byte> Search(const Key &key);
+    //用键值寻找单个元素,返回值为数据的位置
+    streampos SearchPos(const Key &key);
     //利用键值,按范围寻找元素,返回值为字节流
     vector<vector<byte>> SearchRange(const Key& left,const Key& right);
     //读取指定的块到bufnode中

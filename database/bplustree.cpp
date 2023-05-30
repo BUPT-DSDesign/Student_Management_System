@@ -277,6 +277,17 @@ vector<byte> BPTree::Search(const Key &key){
     return elem;
     
 }
+streampos BPTree::SearchPos(const Key &key){
+    //搜索
+    cur_ = root_pos_;
+    //第一步,定位到叶子节点
+    searchLeaf(key);
+    //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
+    //第二步,二分查找数据
+    int pos = binarySearch(bufnode_,key);
+    //第三步,返回对应位置
+    return cur_;
+}
 vector<vector<byte>> BPTree::SearchRange(const Key& left,const Key& right){
     //搜索
     cur_ = root_pos_;
