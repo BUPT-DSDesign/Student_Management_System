@@ -1,5 +1,6 @@
 #include "SQLstatement.hpp"
 #include "MyException.hpp"
+#include <iostream>
 #include <cstring>
 #include <vector>
 #include <string>
@@ -102,6 +103,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         is_attr = false;
         string keyword = sql_vector[pos];
         transform(keyword.begin(), keyword.end(), keyword.begin(), (int (*)(int))tolower);
+        cerr << "Get Keyword:" << keyword << endl;
         // 第一种情况,这是在设置主键
         if (keyword == "primary")
         {
@@ -146,9 +148,11 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                 throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,BRACKET NOT MATCH");
                 return;
             }
+            pos++;
         }
         else if(keyword == "unique")
         {
+            cerr << "Create Table has INDEX!"<<endl;
             //TODO 第二种情况,增加唯一索引
             pos++;
             //格式UNIQUE KEY `username` (`username`)
@@ -160,8 +164,25 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             pos++;
             //索引名
+            //第一个可能是`
+            bool has_quote = false;
+            if(sql_vector[pos] == "`")
+            {
+                has_quote = true;
+                pos++;
+            }
             string index_name = sql_vector[pos];
             pos++;
+            if(has_quote)
+            {
+                if(sql_vector[pos] != "`")
+                {
+                    throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO `");
+                    return;
+                }
+                pos++;
+                has_quote = false;
+            }
             if(sql_vector[pos] != "(")
             {
                 throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO (");
@@ -169,14 +190,31 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             pos++;
             //索引列名
+            if(sql_vector[pos] == "`")
+            {
+                has_quote = true;
+                pos++;
+            }
             string col_name = sql_vector[pos];
             pos++;
+            if(has_quote)
+            {
+                if(sql_vector[pos] != "`")
+                {
+                    throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO `");
+                    return;
+                }
+                pos++;
+                has_quote = false;
+            }
+            
             if(sql_vector[pos] != ")")
             {
                 throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,BRACKET NOT MATCH");
                 return;
             }
             indexs_.push_back({index_name,col_name});
+            cerr<<"index_name:"<<index_name<<" col_name:"<<col_name<<endl;
         }
         else
         {
@@ -520,9 +558,11 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
             if (*it == ",")
             {
                 is_attr = true;
+                it++;
             }
             else if (*it == ")")
             {
+                it++;
                 break;
             }
             else
@@ -550,56 +590,59 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
     while (is_attr)
     {
         is_attr = false;
-        if (*it == "\'")
-        {
+        //看看是不是字符串
+        if(*it == "\'"){
             it++;
-            if (*it == "\'")
-            {
-                // 数据为空
-                values_.push_back("");
-            }
-            else
-            {
-                values_.push_back(*it);
+            string value = "";
+            while(*it != "\'"){
+                if(value != ""){
+                    value += " ";
+                }
+                value += *it;
                 it++;
+                if(it == sql_vector.end()){
+                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT \', BUT GET NOTHING");
+                    return;
+                }
             }
-            if (*it != "\'")
-            {
-                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
-                return;
-            }
-        }
-        else if (*it == "\"")
-        {
+            values_.push_back(value);
+
+        }else if(*it == "\""){
             it++;
-            if (*it == "\"")
-            {
-                // 数据为空
-                values_.push_back("");
-            }
-            else
-            {
-                values_.push_back(*it);
+            string value = "";
+            while(*it != "\""){
+                if(value != ""){
+                    value += " ";
+                }
+                value += *it;
                 it++;
+                if(it == sql_vector.end()){
+                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT \", BUT GET NOTHING");
+                    return;
+                }
             }
-            if (*it != "\"")
-            {
-                throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,QUOTATION MARK NOT MATCH");
-                return;
-            }
-        }
-        else
-        {
+            values_.push_back(value);
+            
+        }else{
             //只有数字类型不需要用单引号或者双引号括起来
-            values_.push_back(*it);
-            it++;
+            //判断一下是不是NULL,如果是NULL,就传空字符串
+            string tmp = *it;
+            transform(tmp.begin(), tmp.end(), tmp.begin(), (int (*)(int))tolower);
+            if(tmp == "null")
+                values_.push_back("");
+            else
+                values_.push_back(*it);
+            
         }
+        it++;
         if (*it == ",")
         {
             is_attr = true;
+            it++;
         }
         else if (*it == ")")
         {
+            it++;
             break;
         }
         else
@@ -610,8 +653,17 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
     }
     if (col_name_.size() != 0 && col_name_.size() != values_.size())
     {
-        // 设置的行和值不配对，报错
+        // 设置的行和值不配对，报错.
+        for(auto i:col_name_){
+            cerr<<i<<" ";
+        }
+        cerr<<endl;
+        for(auto i:values_){
+            cerr<<i<<" ";
+        }
+        cerr<<endl;
         throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,NUMBER OF COLUMNS AND VALUES NOT MATCH");
+        
         return;
     }
     return;
@@ -742,7 +794,47 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
         }
         // 接下来是值
         it++;
-        values_.push_back(*it);
+        //看看是不是字符串
+        if(*it == "\'"){
+            it++;
+            string value = "";
+            while(*it != "\'"){
+                if(value != ""){
+                    value += " ";
+                }
+                value += *it;
+                it++;
+                if(it == sql_vector.end()){
+                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT \', BUT GET NOTHING");
+                    return;
+                }
+            }
+            values_.push_back(value);
+        }else if(*it == "\""){
+            it++;
+            string value = "";
+            while(*it != "\""){
+                if(value != ""){
+                    value += " ";
+                }
+                value += *it;
+                it++;
+                if(it == sql_vector.end()){
+                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT \", BUT GET NOTHING");
+                    return;
+                }
+            }
+            values_.push_back(value);
+        }else{
+            //不是字符串
+            //判断一下是不是NULL,如果是NULL,就传空字符串
+            string tmp = *it;
+            transform(tmp.begin(), tmp.end(), tmp.begin(), (int (*)(int))tolower);
+            if(tmp == "null")
+                values_.push_back("");
+            else
+                values_.push_back(*it);
+        }
         it++;
         if (it != sql_vector.end())
         {
@@ -750,6 +842,7 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
             if (*it == ",")
             {
                 is_attr = true;
+                it++;
             }
             else if (*it == "where")
             {
@@ -808,7 +901,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
     // value可以是数字或者字符串
     // 如果value是字符串,则需要用单引号或者双引号括起来
     // 如果value是数字,则不需要用单引号或者双引号括起来
-
+    //cerr << "SQLSelect:PraseSQLVector" << endl;
     if (sql_vector.size() < 4)
     {
         throw SQLSyntaxError("SQL SELECT SYNTAX ERROR,TOO SHORT");
@@ -860,6 +953,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
         // 将WHERE条件解析到condition_中
         condition_.PraseSQLVector(vector<string>(it, sql_vector.end()));
     }
+    
 }
 
 /***************SQLDropDatabase**********/

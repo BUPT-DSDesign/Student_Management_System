@@ -23,6 +23,8 @@ void DBmanager::UseDatabase(const string& db_name)
     {
         if(p.path().extension() == ".table"){
             string tb_name = p.path().filename().string();
+            //去掉后缀名
+            tb_name = tb_name.substr(0,tb_name.length()-6);
             tb_name_list_.push_back(tb_name);
             tb_list_[tb_name] = make_unique<Table>(Table(db_path.string(),tb_name));
         }

@@ -20,6 +20,10 @@ void SQLWhere::PraseSQLVector(vector<string> tokens){
     }
 }
 string SQLWhere::GetBestIndex(vector<string> &col_name_list,const string primary){
+    if(rootClause_==nullptr){
+        //根本就没有where从句
+        return "";
+    }
     //读取WhereClause,返回最佳索引
     //如果主键在条件中,则直接返回主键
     if(col_name_set_.find(primary)!=col_name_set_.end()){
@@ -438,5 +442,8 @@ vector<WhereTerm> WhereClause::getTerms() const{
     return terms_;
 }
 ClauseOperator SQLWhere::getOperator() const{
+    if(rootClause_==nullptr){
+        return ClauseOperator::NOP;
+    }
     return rootClause_->getOperator();
 }

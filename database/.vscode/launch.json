@@ -5,7 +5,7 @@
       "name": "g++.exe - 生成和调试活动文件",
       "type": "cppdbg",
       "request": "launch",
-      "program": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+      "program": "${fileDirname}\\database.exe",
       "args": [],
       "stopAtEntry": false,
       "cwd": "${workspaceFolder}",
