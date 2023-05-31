@@ -74,8 +74,33 @@ func (f *addFlow) run() error {
 	// 只有不冲突的时候才插入数据库数据
 	if !isConflict && !isConflict1 {
 		// 将activityInfo插入数据库
-		if err := dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
+		if err = dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
 			return err
+		}
+
+		// 遍历f.addActivityRequest.Members, 如果是集体活动, 则其成员也需要加入该活动
+		for _, memberId := range f.addActivityRequest.Members {
+			// 生成一个活动id
+			activityId, err = utils.GenerateId()
+			if err != nil {
+				return err
+			}
+			newActivityInfo := &system.ActivityInfo{
+				ActivityId:         activityId,
+				ActivityName:       f.addActivityRequest.ActivityName,
+				UserId:             memberId,
+				StartTime:          f.addActivityRequest.StartTime,
+				Type:               f.addActivityRequest.Type,
+				Location:           f.addActivityRequest.Location,
+				Tag:                f.addActivityRequest.Tag,
+				Frequency:          f.addActivityRequest.Frequency,
+				IsMention:          f.addActivityRequest.IsMention,
+				AdvanceMentionTime: f.addActivityRequest.AdvanceMentionTime,
+			}
+			// 将newActivityInfo插入数据库
+			if err = dao.Group.ActivityDao.AddActivity(newActivityInfo); err != nil {
+				return err
+			}
 		}
 	} else {
 		if validTime == nil {

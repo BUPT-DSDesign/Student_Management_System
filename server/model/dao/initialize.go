@@ -8,7 +8,7 @@ import (
 )
 
 // 届时需要打开的数据库后端可执行文件相对路径
-const filename string = "E:\\DSDesign\\Student_Management_System\\server\\test_sql.exe"
+const filename string = "./test_sql"
 
 type DB struct {
 	stdinWriter  *bufio.Writer

@@ -21,9 +21,9 @@ func main() {
 	}
 	defer db.Close()
 
-	reader := bufio.NewReader(os.Stdin)
-	for {
-		sqlStr, err := reader.ReadString('\n')
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		sqlStr := scanner.Text()
 		rows, err := db.Query(sqlStr)
 		if err != nil {
 			log.Fatal(err)

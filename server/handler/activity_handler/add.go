@@ -47,7 +47,7 @@ func AddHandler(c *gin.Context) {
 		return
 	}
 
-	// 添加活动成功
+	// 添加活动成功go
 	c.JSON(http.StatusOK, addResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,

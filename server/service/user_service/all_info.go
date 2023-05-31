@@ -50,24 +50,34 @@ func (f *allInfoFlow) run(userInfo **[]*system.UserInfo) error {
 	//}
 
 	*userInfo = &[]*system.UserInfo{{
-		Username:  "admin",
+		Username:  "江浩诚",
 		Password:  "213213",
 		Salt:      "3213",
-		UserId:    0,
+		UserId:    321312312321,
 		StudentId: "32131",
 		IsAdmin:   false,
 		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
 		Signature: "",
 	}, {
-		Username:  "admin",
+		Username:  "黄秋汛",
 		Password:  "213213",
 		Salt:      "3213",
-		UserId:    0,
+		UserId:    321312312312,
 		StudentId: "32131",
 		IsAdmin:   false,
 		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
 		Signature: "开心每一天",
 	},
+		{
+			Username:  "张靳生",
+			Password:  "213213",
+			Salt:      "3213",
+			UserId:    122131231,
+			StudentId: "32131",
+			IsAdmin:   false,
+			AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
+			Signature: "开心每一天",
+		},
 	}
 
 	return nil
