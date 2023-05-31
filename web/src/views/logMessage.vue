@@ -151,6 +151,7 @@ export default {
             this.dialogVisible = true
         },
         exportToFile() {
+            // 导出日志文件
             let data = ''
             for (let i = 0; i < this.logs.length; i++) {
                 const time = this.logs[i].crneate_time
@@ -167,12 +168,11 @@ export default {
                 text: '导出文件中，请稍候.....',
                 background: 'rgba(0, 0, 0, 0.7)'
             })
+            link.addEventListener('click', () => {
+                this.loadingInstance.close()
+            })
             link.click()
             window.URL.revokeObjectURL(downloadUrl)
-            setTimeout(() => {
-                console.log('error')
-                this.loadingInstance.close()
-            }, 2500);
         }
     }
 }

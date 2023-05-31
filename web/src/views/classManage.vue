@@ -380,6 +380,13 @@ export default {
                         message: '删除课程成功',
                         type: 'success'
                     });
+                    // 将添加课程的信息添加到日志中
+                    const log = {
+                        "create_time": TimeStore.getTime(),
+                        "content": "删除课程成功, 课程名：" + name
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)
                     this.deleteClassData = {}
                 } else {
                     this.$message({
@@ -422,6 +429,13 @@ export default {
                         message: '修改课程成功',
                         type: 'success'
                     });
+                    // 将添加课程的信息添加到日志中
+                    const log = {
+                        "create_time": TimeStore.getTime(),
+                        "content": "修改课程信息成功, 课程名：" + data.course_name
+                    }
+                    console.log(log)
+                    LogStore.AddLog(log)
                     this.clickedClassData = {}
                 } else {
                     this.$message({
@@ -468,7 +482,7 @@ export default {
                     // 将添加课程的信息添加到日志中
                     const log = {
                         "create_time": TimeStore.getTime(),
-                        "log_content": "添加课程---" + this.addClassData.course_name
+                        "content": "添加课程---" + this.addClassData.course_name
                     }
                     console.log(log)
                     LogStore.AddLog(log)

@@ -92,6 +92,8 @@ func InitRouters() *gin.Engine {
 		activityGroup.POST("/add", middleware.JwtAuthMiddleware(), activity_handler.AddHandler)
 		// 删除课外活动
 		activityGroup.DELETE("/delete", middleware.JwtAuthMiddleware(), activity_handler.DeleteHandler)
+		// 查询课外活动
+		activityGroup.GET("/query", middleware.JwtAuthMiddleware(), activity_handler.QueryHandler)
 	}
 
 	// 日志路由

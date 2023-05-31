@@ -2,6 +2,7 @@ package user_service
 
 import (
 	"errors"
+	"fmt"
 	"server/model/dao"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -85,6 +86,9 @@ func (f *registerFlow) run(access **common.AccessResponse) error {
 		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
 		Signature: "",
 	}
+
+	// 打印userInfo的值
+	fmt.Println(userInfo)
 
 	err = dao.Group.UserDao.AddUser(userInfo)
 	if err != nil {

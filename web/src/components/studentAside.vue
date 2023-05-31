@@ -27,20 +27,23 @@
                 <i class="el-icon-news"></i>
                 <span slot="title">日志信息</span>
             </el-menu-item>
-            <el-dialog title="闹钟提醒" :visible="showClassAlarm" :modal="false" :custom-class="'popup'"
+
+
+            <!-- <el-dialog title="闹钟提醒" :visible="showClassAlarm" :modal="false" :custom-class="'popup'"
                 @close="showClassAlarm = false">
                 <div>
                     <p>{{ pollingCourse.course_name }}课程马上开始了</p>
                     <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
                 </div>
             </el-dialog>
+            
             <el-dialog title="闹钟提醒" :visible="showEventAlarm" :modal="false" :custom-class="'popup'"
                 @close="showEventAlarm = false">
                 <div>
                     <p>{{ pollingEvent.activity_name }}活动马上开始了</p>
                     <el-button type="primary" icon="el-icon-location" @click="goToNavigation">开始导航</el-button>
                 </div>
-            </el-dialog>
+            </el-dialog> -->
         </el-menu>
     </div>
 </template>
@@ -48,6 +51,7 @@
 <script>
 import { TimeStore } from "@/store/time"
 import { PollingStore } from "@/store/polling"
+import { Notification } from 'element-ui';
 
 export default {
     data() {
@@ -57,9 +61,11 @@ export default {
             is_arrive: false,
             pollingCourse: {},
             pollingEvent: {},
-            showClassAlarm: true,
-            showEventAlarm: true
-        };
+            courseAlarm: {},
+            eventAlarm: {},
+            isCourseAlarmClosed: false,
+            isEventAlarmClosed: false,
+        }
     },
     methods: {
         handleOpen(key, keyPath) {
@@ -87,41 +93,70 @@ export default {
         goToNavigation() {
             this.$router.push('/studentMain/CourseNav');
         },
-
-        async getEventPolling() {
-            const fg = await PollingStore.IsEventArrive();
-            if (fg) {
-                if (PollingStore.is_arrive == true) {
-                    this.showAlarm = true
-                    this.pollingEvent = PollingStore.pollingEvent;
-                }
-
-            } else {
-                console.log('error')
-            }
-        }
     },
     mounted() {
+        // 轮询课程是否来临
         setInterval(async () => {
             const fg = await PollingStore.GetArrivedCourse(TimeStore.getTime());
             if (fg) {
-                if (PollingStore.is_arrive == true) {
-                    this.showAlarm = true
+                if (PollingStore.is_course_arrive == true) {
+                    // this.showClassAlarm = true
                     this.pollingCourse = PollingStore.pollingCourse;
+                    const alarmContent = '<div style="font-size: 17px">' + `<strong>${this.pollingCourse.course_name}</strong>` + '课程马上开始了!' + '</div>';
+                    if (!this.isCourseAlarmClosed) {
+                        this.courseAlarm = Notification({
+                            title: '课程闹钟！！！',
+                            iconClass: 'el-icon-bell',
+                            dangerouslyUseHTMLString: true,
+                            message: alarmContent + '<br/><button style="display: inline-block; margin-top: 10px; margin-left: 55px; padding: 5px 5px; font-size: 14px; font-weight: bold; text-align: center; text-transform: uppercase; color: #fff; background-color: #007bff; border: none; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); cursor: pointer; transition: background-color 0.3s ease;">跳转至导航页面</button>',
+                            onClick: () => {
+                                // 点击后跳转到导航页面
+                                this.$router.push('/studentMain/CourseNav');
+                                console.log('Notification Clicked!')
+                            },
+                            onClose: () => {
+                                this.isCourseAlarmClosed = true
+                            },
+                            duration: 0
+                        })
+                    }
+                } else {
+                    this.courseAlarm.close()
+                    this.isCourseAlarmClosed = false
+                    
                 }
             } else {
-                // console.log('error')
+                console.log('error')
             }
         }, 5000);
         setInterval(async () => {
             const fg = await PollingStore.GetArrivedEvent(TimeStore.getTime());
             if (fg) {
-                if (PollingStore.is_arrive == true) {
-                    this.showAlarm = true
+                if (PollingStore.is_event_arrive == true) {
+                    // this.showEventAlarm = true
                     this.pollingEvent = PollingStore.pollingEvent;
+                    const alarmContent = '<div style="font-size: 17px">' + "距离" + `<strong>${this.pollingEvent.activity_name}</strong>` + '活动开始' + '只剩' + `<strong style="color: red">${this.pollingEvent.advance_mention_time}</strong>` + '分钟!' + '</div>';
+                    this.eventAlarm = Notification({
+                        title: '活动闹钟！！！',
+                        iconClass: 'el-icon-bell',
+                        dangerouslyUseHTMLString: true,
+                        message: alarmContent + '<br/><button style="display: inline-block; margin-top: 10px; margin-left: 55px; padding: 5px 5px; font-size: 14px; font-weight: bold; text-align: center; text-transform: uppercase; color: #fff; background-color: #007bff; border: none; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); cursor: pointer; transition: background-color 0.3s ease;">跳转至导航页面</button>',
+                        onClick: () => {
+                            // 点击后跳转到导航页面
+                            this.$router.push('/studentMain/CourseNav');
+                            console.log('Notification Clicked!')
+                        },
+                        onClose: () => {
+                            this.isEventAlarmClosed = true
+                        },
+                        duration: 0
+                    })
+                } else {
+                    this.eventAlarm.close()
+                    this.isEventAlarmClosed = false
                 }
             } else {
-                // console.log('error')
+                console.log('error')
             }
         }, 5000);
 

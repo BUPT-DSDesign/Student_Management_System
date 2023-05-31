@@ -1,52 +1,88 @@
 <template>
     <div class="container">
         <div class="schedule-container">
-            <h2>日程安排表</h2>
+            <h2 style="text-align: center; padding-right: 105px;">日程安排表</h2>
             <div class="table-container">
 
                 <el-table :data="filteredData" :default-sort="{ prop: 'start_day', order: 'ascending' }" :filters="filters"
-                    filter-method="filterTable" max-height="350px" height="350px" :fixed="true">
-                    <el-table-column prop="start_day" label="日期" :formatter="formatDay" sortable
-                        :sort-method="sortDay"></el-table-column>
-                    <el-table-column prop="start_time" label="时间" sortable></el-table-column>
-                    <el-table-column prop="activity_name" label="活动名称"></el-table-column>
-                    <el-table-column prop="tag" label="标签" :filters="tagFilters" :filter-method="filterTag"
-                        :formatter="formatTag"></el-table-column>
+                    filter-method="filterTable" max-height="370px" height="370px" :fixed="true">
+
+                    <el-table-column label="开始日期" :formatter="formatDay" sortable :sort-method="sortDay" align="center">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.date }}</span>
+                        </template>
+                    </el-table-column>
+
+
+                    <el-table-column label="时间" sortable align="center">
+                        <template slot-scope="scope">
+                            <i class="el-icon-time"></i> &nbsp
+                            <span>{{ scope.row.type == 0 ? scope.row.time : scope.row.start_time }}</span>
+                        </template>
+                    </el-table-column>
+
+
+                    <el-table-column label="活动名称及频率" align="center">
+                        <template slot-scope="scope">
+                            <span>{{ scope.row.activity_name }} {{ scope.row.frequency }}</span>
+                        </template>
+                    </el-table-column>
+
+                    <el-table-column label="标签" :filters="tagFilters" :filter-method="filterTag" :formatter="formatTag"
+                        align="center">
+                        <template slot-scope="scope">
+                            <el-tag
+                                :type="scope.row.tag === '集体活动' ? 'primary' : (scope.row.tag === '临时活动' ? 'success' : 'warning')">{{
+                                    scope.row.tag }}</el-tag>
+                        </template>
+                    </el-table-column>
+
+
                     <el-table-column align="right">
                         <template slot="header" slot-scope="scope">
-                            <el-input v-model="searchText" placeholder="请输入名称关键词"></el-input>
+                            <el-input v-model="searchText" placeholder="请输入名称关键词" prefix-icon="el-icon-search"></el-input>
                         </template>
                         <template slot-scope="scope">
                             <el-button type="primary" size="mini" @click="handleClick(scope.row)">查看详情</el-button>
                             <el-button type="danger" size="mini"
-                                @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                                @click="handleDelete(scope.$index, scope.row)">删除活动</el-button>
                         </template>
                     </el-table-column>
                 </el-table>
             </div>
         </div>
         <eventDialog :selected="selected" :dialogDetailVisible="dialogDetailVisible"></eventDialog>
-        <!-- 按键部分 -->
-        <div class="button-container">
-            <!-- 添加活动按钮和弹窗 -->
-            <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
-                @click="dialogAddVisible = true">添加活动</el-button>
-            <el-dialog title="添加活动" :visible="dialogAddVisible">
-                <el-radio-group v-model="addEventData.activityType">
-                    <el-radio-button label="group">集体活动</el-radio-button>
-                    <el-radio-button label="personal">个人活动</el-radio-button>
-                    <el-radio-button label="temp">临时活动</el-radio-button>
-                </el-radio-group>
 
-                <el-form v-if="addEventData.activityType === 'group'">
-                    <el-form-item label="活动名称">
-                        <el-input v-model="addEventData.name"></el-input>
-                    </el-form-item>
-                    <el-form-item label="请选择周次">
-                        <el-form-item>
-                            <el-select v-model="addEventData.week">
-                                <el-option v-for="n in 16" :key="n" :label="`第 ${n} 周`" :value="n"></el-option>
-                            </el-select>
+        <div style="display: flex;justify-content:space-between">
+            <div class="activity-proportion">
+                <h4 style="text-align: center; color:#409eff; margin-left: 160px;">活动占比</h4>
+                <el-progress :percentage="singleActivityRate" color="#e6a23c" style="margin: 0px"></el-progress>
+                <el-progress :percentage="groupActivityRate" color="#409eff" style="margin: 3px 0px"></el-progress>
+                <el-progress :percentage="tempRate" color="#67c23a" style="margin: 0px"></el-progress>
+            </div>
+            <!-- 按键部分 -->
+            <div class="button-container">
+                <!-- 添加活动按钮和弹窗 -->
+                <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
+                    @click="dialogAddVisible = true">添加活动</el-button>
+                <el-button class="OperationButton" type="success" icon="el-icon-alarm-clock">闹钟提醒</el-button>
+                <el-dialog title="添加活动" :visible="dialogAddVisible">
+                    <el-radio-group v-model="addEventData.activityType">
+                        <el-radio-button label="group">集体活动</el-radio-button>
+                        <el-radio-button label="personal">个人活动</el-radio-button>
+                        <el-radio-button label="temp">临时活动</el-radio-button>
+                    </el-radio-group>
+
+                    <el-form v-if="addEventData.activityType === 'group'">
+                        <el-form-item label="活动名称">
+                            <el-input v-model="addEventData.name"></el-input>
+                        </el-form-item>
+                        <el-form-item label="请选择周次">
+                            <el-form-item>
+                                <el-select v-model="addEventData.week">
+                                    <el-option v-for="n in 16" :key="n" :label="`第 ${n} 周`" :value="n"></el-option>
+                                </el-select>
+                            </el-form-item>
                         </el-form-item>
                     </el-form-item>
                     <el-form-item label="请选择星期">
@@ -73,9 +109,9 @@
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item label="活动地点">
-                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch" placeholder="请输入您当前的位置"
-                        @select="getInput" :trigger-on-focus="false" class="el-auto">
-                    </el-autocomplete>
+                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
+                            placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                        </el-autocomplete>
                     </el-form-item>
                     <el-form-item label="是否添加提醒">
                         <el-radio-group v-model="addEventData.ismention">
@@ -128,9 +164,9 @@
                         </el-radio-group>
                     </el-form-item>
                     <el-form-item label="活动地点">
-                       <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch" placeholder="请输入您当前的位置"
-                    @select="getInput" :trigger-on-focus="false" class="el-auto">
-                </el-autocomplete>
+                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
+                            placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                        </el-autocomplete>
                     </el-form-item>
                     <el-form-item label="是否添加提醒">
                         <el-radio-group v-model="addEventData.ismention">
@@ -138,15 +174,15 @@
                             <el-radio label="false">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                     <el-form-item label="提前提醒时间" v-if="addEventData.ismention === 'true'">
-                            <el-select v-model="addEventData.advance_mention_time" placeholder="请选择">
-                                <el-option label="5分钟" value="5"></el-option>
-                                <el-option label="15分钟" value="15"></el-option>
-                                <el-option label="30分钟" value="30"></el-option>
-                                <el-option label="45分钟" value="45"></el-option>
-                                <el-option label="60分钟" value="60"></el-option>
-                            </el-select>
-                        </el-form-item>
+                    <el-form-item label="提前提醒时间" v-if="addEventData.ismention === 'true'">
+                        <el-select v-model="addEventData.advance_mention_time" placeholder="请选择">
+                            <el-option label="5分钟" value="5"></el-option>
+                            <el-option label="15分钟" value="15"></el-option>
+                            <el-option label="30分钟" value="30"></el-option>
+                            <el-option label="45分钟" value="45"></el-option>
+                            <el-option label="60分钟" value="60"></el-option>
+                        </el-select>
+                    </el-form-item>
                 </el-form>
                 <el-form v-else-if="addEventData.activityType === 'temp'">
                     <el-form-item label="活动名称">
@@ -167,9 +203,9 @@
                         </el-select>
                     </el-form-item>
                     <el-form-item label="活动地点">
-                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch" placeholder="请输入您当前的位置"
-                        @select="getInput" :trigger-on-focus="false" class="el-auto">
-                    </el-autocomplete>
+                        <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
+                            placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                        </el-autocomplete>
                     </el-form-item>
                     <el-form-item label="是否添加提醒">
                         <el-radio-group v-model="addEventData.ismention">
@@ -177,15 +213,15 @@
                             <el-radio label="false">否</el-radio>
                         </el-radio-group>
                     </el-form-item>
-                     <el-form-item label="提前提醒时间" v-if="addEventData.ismention === 'true'">
-                            <el-select v-model="addEventData.advance_mention_time" placeholder="请选择">
-                                <el-option label="5分钟" value="5"></el-option>
-                                <el-option label="15分钟" value="15"></el-option>
-                                <el-option label="30分钟" value="30"></el-option>
-                                <el-option label="45分钟" value="45"></el-option>
-                                <el-option label="60分钟" value="60"></el-option>
-                            </el-select>
-                        </el-form-item>
+                    <el-form-item label="提前提醒时间" v-if="addEventData.ismention === 'true'">
+                        <el-select v-model="addEventData.advance_mention_time" placeholder="请选择">
+                            <el-option label="5分钟" value="5"></el-option>
+                            <el-option label="15分钟" value="15"></el-option>
+                            <el-option label="30分钟" value="30"></el-option>
+                            <el-option label="45分钟" value="45"></el-option>
+                            <el-option label="60分钟" value="60"></el-option>
+                        </el-select>
+                    </el-form-item>
                 </el-form>
                 <div slot="footer">
                     <el-button @click.native="dialogAddVisible = false">取消</el-button>
@@ -193,7 +229,49 @@
                 </div>
             </el-dialog>
             <!-- 闹钟提醒 -->
-            <el-button class="OperationButton" type="primary" icon="el-icon-alarm-clock">闹钟提醒</el-button>
+            <el-button class="OperationButton" type="success" icon="el-icon-alarm-clock">闹钟提醒</el-button>
+            <el-button type="primary" @click="showDialog">查询活动</el-button>
+            <el-dialog title="查询活动" :visible.sync="showDialogVisible">
+                <el-form :model="queryForm" label-width="140px">
+                    <el-row>
+                        <el-col :span="12">
+                            <el-form-item label="起始时间">
+                                <el-select v-model="queryForm.startTime.week" placeholder="请选择周数">
+                                    <el-option v-for="week in weekOptions" :key="week" :label="week"
+                                        :value="week"></el-option>
+                                </el-select>
+                                <el-select v-model="queryForm.endTime.day" placeholder="请选择星期">
+                    <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label" :value="day.value"></el-option>
+                  </el-select>
+                                <el-select v-model="queryForm.startTime.time" placeholder="请选择时间">
+                                    <el-option v-for="time in timeOptions" :key="time" :label="time"
+                                        :value="time"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                        <el-col :span="12">
+                            <el-form-item label="终止时间">
+                                <el-select v-model="queryForm.endTime.week" placeholder="请选择周数">
+                                    <el-option v-for="week in weekOptions" :key="week" :label="week"
+                                        :value="week"></el-option>
+                                </el-select>
+                               <el-select v-model="queryForm.startTime.day" placeholder="请选择星期">
+                    <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label" :value="day.value"></el-option>
+                  </el-select>
+                                <el-select v-model="queryForm.endTime.time" placeholder="请选择时间">
+                                    <el-option v-for="time in timeOptions" :key="time" :label="time"
+                                        :value="time"></el-option>
+                                </el-select>
+                            </el-form-item>
+                        </el-col>
+                    </el-row>
+                </el-form>
+                <div slot="footer">
+                    <el-button @click="showDialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="query">确认</el-button>
+                </div>
+            </el-dialog>
+
         </div>
     </div>
 </template>
@@ -233,10 +311,12 @@ const sectionMap = [{
 import { NavigateStore } from "@/store/navigate"
 import { LogStore } from '@/store/log';
 import { TimeStore } from '@/store/time';
-
 export default {
     data() {
         return {
+            singleActivityRate: 0,
+            groupActivityRate: 0,
+            tempActivityRate: 0,
             frequency: '',
             selected: {},//选择查看详情的活动对象
             dialogDetailVisible: false,
@@ -245,9 +325,9 @@ export default {
             eventList: [
             ],
             tagFilters: [
-                { text: '个人活动', value: 0 },
-                { text: '集体活动', value: 1 },
-                { text: '临时活动', value: 2 }
+                { text: '个人活动', value: '个人活动' },
+                { text: '集体活动', value: '集体活动' },
+                { text: '临时活动', value: '临时活动' }
             ],
             filters: {
                 tag: []
@@ -333,7 +413,32 @@ export default {
             ],
             weekday: '',
             hour: '',
-            times: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00']
+            times: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+            showDialogVisible: false,
+            queryForm: {
+                startTime: {
+                    week: '',
+                    day: '',
+                    time: ''
+                },
+                endTime: {
+                    week: '',
+                    day: '',
+                    time: ''
+                }
+            },
+            weekOptions: Array.from({ length: 16 }, (v, i) => `第${i + 1}周`),
+            dayOptions: [
+                { label: '周一', value: '周一' },
+                { label: '周二', value: '周二' },
+                { label: '周三', value: '周三' },
+                { label: '周四', value: '周四' },
+                { label: '周五', value: '周五' },
+                { label: '周六', value: '周六' },
+                { label: '周日', value: '周七' }
+            ],
+            timeOptions: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+            searchEventlist: [],
         }
     },
     created() {
@@ -341,7 +446,54 @@ export default {
             const fg = await EventStore.GetEventTable()
             if (fg) {
                 this.eventList = EventStore.eventList
-                console.log(this.eventList);
+                // 将this.eventList.start_time的后五位去掉
+                let num0 = 0
+                let num1 = 0
+                let num2 = 0
+                for (let i = 0; i < this.eventList.length; i++) {
+                    console.log(this.eventList[i].tag)
+                    if (this.eventList[i].tag == "个人活动") {
+                        num0++
+                    } else if (this.eventList[i].tag == "集体活动"){
+                        num1++
+                    } else {
+                        num2++
+                    }
+                    this.eventList[i].date = this.eventList[i].start_time.slice(0, -6)
+                }
+                console.log(num0, num1, num2)
+                this.singleActivityRate = (num0 / this.eventList.length) * 100
+                this.groupActivityRate = (num1 / this.eventList.length) * 100
+                this.tempRate = (num2 / this.eventList.length) * 100
+                for (let i = 0; i < this.eventList.length; i++) {
+                    if (this.eventList[i].frequency == 0) {
+                        this.eventList[i].frequency = '(单次)'
+                    } else {
+                        if (this.eventList[i].frequency == 1) {
+                            this.eventList[i].frequency = '(每天)'
+                        } else {
+                            this.eventList[i].frequency = '(每周)'
+                        }
+                    }
+                }
+                console.log(this.eventList)
+                for (let i = 0; i < this.eventList.length; i++) {
+                    // 将this.eventList.start_time的后五位取出
+                    this.eventList[i].start_time = this.eventList[i].start_time.slice(-5)
+                    // 提取this.eventList.start_time的前两个字符
+                    let x = Number(this.eventList[i].start_time.slice(0, 2))
+                    console.log(x)
+                    x = x + 1;
+                    if (x < 10) {
+                        x = '0' + x
+                    }
+                    // 将this.eventList.start_time的前两个字符替换为x
+                    this.eventList[i].end_time = x + this.eventList[i].start_time.slice(-3)
+
+
+                    this.eventList[i].time = this.eventList[i].start_time + ' ~ ' + this.eventList[i].end_time
+                }
+
             } else {
                 console.log('error')
             }
@@ -349,7 +501,29 @@ export default {
         getActivityTable()
     },
     methods: {
-          //搜索框智能加载
+        showDialog() {
+            this.showDialogVisible = true
+        },
+        query() {
+            // 发送查询请求
+            console.log(this.queryForm.startTime);
+            console.log(this.queryForm.endTime);
+
+            let start_time = this.queryForm.startTime;
+            let end_time = this.queryForm.endTime;
+            const searchEvent = async (start_time, end_time) => {
+                const fg = await EventStore.SearchEventInfo(start_time, end_time);
+                if (fg) {
+                    this.searchEventlist = CourseStore.searchlist;
+
+                } else {
+                    console.log('error')
+                }
+            }
+            searchEvent(start_time, end_time)
+            this.showDialogVisible = false
+        },
+        // 搜索框智能加载
         querySearch(queryString, cb) {
             var placelist = this.placelist;
             var ret = queryString ? placelist.filter(this.createFilter(queryString)) : placelist;
@@ -400,6 +574,7 @@ export default {
                 '1': '集体活动',
                 '2': '临时活动'
             }
+            console.log(row.tag)
             return tagMap[row.tag]
         },
         filterTable(value, row, column) {
@@ -407,7 +582,7 @@ export default {
             return row[property] === value
         },
         filterTag(value, row) {
-            return row.tag === value
+            return row.tag == value
         },
         //删除活动按钮,row即为活动对象
         handleDelete(index, row) {
@@ -424,11 +599,11 @@ export default {
                     });
                     // 创建一个日志对象
                     const log = {
-                        "create_time":  TimeStore.getTime(),
+                        "create_time": TimeStore.getTime(),
                         "content": "删除活动成功, 活动名为：" + row.activity_name,
                     }
                     console.log(log)
-                    LogStore.AddLog(log)  
+                    LogStore.AddLog(log)
                     this.deleteEventData = {}
                 } else {
                     this.$message({
@@ -480,12 +655,12 @@ export default {
                     });
                     // 创建一个日志对象
                     const log = {
-                        "create_time":  TimeStore.getTime(),
+                        "create_time": TimeStore.getTime(),
                         "content": "添加活动成功, 活动名为：" + data.activity_name,
                     }
                     console.log(log)
-                    LogStore.AddLog(log)  
-                    
+                    LogStore.AddLog(log)
+
                 } else {
                     console.log('error')
                 }
@@ -494,6 +669,13 @@ export default {
         },
     },
     computed: {
+        transFormToDate() {
+            return (startTime) => {
+                // 去掉startTime的后6位
+                const date = startTime.substring(0, startTime.length - 6)
+                return date
+            }
+        },
         filteredData() {
             if (!this.searchText) {
                 return this.eventList
@@ -509,13 +691,17 @@ export default {
 }
 </script>
 <style>
+.activity-proportion {
+    width: 400px;
+   
+}
 .table-container {
-    height: 350px;
+    height: 370px;
     overflow-y: auto;
 }
 
 .schedule-container {
-    margin-top: 40px;
+    margin-top: 20px;
 }
 
 .el-input__inner {
@@ -530,12 +716,13 @@ h2 {
 }
 
 .button-container {
-    margin-top: 20px;
-    margin-left: 130px;
+    float: left;
+    margin-top: 4px;
 }
 
 .OperationButton {
-    margin: 20px
+    margin-top: 20px;
+    margin-right: 1px;
 }
 
 .weekinput {

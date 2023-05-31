@@ -2,11 +2,11 @@
     <div class="container">
         <div class="register">
             <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="150px" class="demo-ruleForm">
-                 <el-form-item label="学号" prop="studentId">
-                    <el-input v-model="ruleForm.studentId"></el-input>
+                 <el-form-item label="学号" prop="student_id">
+                    <el-input v-model="ruleForm.student_id"></el-input>
                 </el-form-item>
-                <el-form-item label="用户名" prop="usename">
-                    <el-input v-model="ruleForm.usename"></el-input>
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="ruleForm.username"></el-input>
                 </el-form-item>
                 <el-form-item label="密码" prop="password">
                     <el-input type="password" v-model="ruleForm.password" autocomplete="off"></el-input>
@@ -64,17 +64,17 @@ export default {
         };
         return {
             ruleForm: {
-                studentId: '',
+                student_id: '',
                 password: '',
                 checkPass: '',
-                usename: ''
+                username: ''
             },
             rules: {
-                studentId: [
+                student_id: [
                     {validator: checkStudentId, trigger: 'blur'}
                 ],
 
-                usename: [
+                username: [
                     { validator: checkName, trigger: 'blur' }
                 ],
                 pass: [

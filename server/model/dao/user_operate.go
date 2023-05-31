@@ -82,6 +82,7 @@ func (s *userDao) QueryUserByName(username string, userInfo **system.UserInfo) e
 	}
 
 	jsonStr, err := ReadLine()
+
 	if err != nil {
 		return err
 	}
@@ -96,6 +97,7 @@ func (s *userDao) QueryUserByName(username string, userInfo **system.UserInfo) e
 	}
 
 	// 将result.data转换为[]int64
+
 	_ = json.Unmarshal([]byte(result["data"].(string)), *userInfo)
 
 	return nil

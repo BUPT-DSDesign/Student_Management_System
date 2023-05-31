@@ -31,7 +31,7 @@
             <el-button type="primary" @click="toNextweek()">下一周<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
-        <el-button type="primary" @click="openSelectCourseSystem">进入选课系统</el-button>
+        
         <!-- 点击弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
                 <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
@@ -58,21 +58,28 @@
         <el-row :gutter="12">
             <el-col :span="100">
                 <el-card shadow="always" class="searchbox">
-                    <h2>关键字选择</h2>
-                    <el-radio-group v-model="radio">
+                    <h2 style="text-align: center;">关键字选择</h2>
+                    <el-radio-group v-model="radio" style="padding-left: 70px;">
                         <el-radio :label="1">课程名称</el-radio>
                         <el-radio :label="2">课程地点</el-radio>
                     </el-radio-group>
-                    <h2>查询课程</h2>
-                        <el-form>
-                            <el-input v-model="keyWord" placeholder="请输入查询关键词"></el-input>
-                        </el-form>
-                        <ul class="list-group">
-                            <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)" style="font-size:10px;">
-                                {{ radio == 1 ? p.course_name : p.classroom }}
-                            </li>
-                        </ul>
-                            <el-button type="primary" class="searchBtn" @click="onSubmit">查询</el-button>
+                    <h2 style="text-align: center; padding-top: 20px;">查询课程</h2>
+                    <el-form>
+                        <el-input size="small" v-model="keyWord" placeholder="请输入查询关键词" prefix-icon="el-icon-search"></el-input>
+                    </el-form>
+                    <ul class="list-group">
+                        <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)" style="font-size:10px;">
+                            {{ radio == 1 ? p.course_name : p.classroom }}
+                        </li>
+                    </ul>
+                    <div class="buttons-combine">
+                        <el-button type="info" class="searchBtn" @click="clearInput">清空</el-button>
+                        <el-button type="primary" class="searchBtn" @click="onSubmit">查询</el-button>
+                    </div>
+
+                    <div class="select-class" style="color: red">
+                        -------------<el-button type="danger" @click="openSelectCourseSystem">进入选课系统</el-button>-------------
+                    </div>
                 </el-card>
             </el-col>
         </el-row>
@@ -197,6 +204,9 @@ export default {
         },
     },
     methods: {
+        clearInput() {
+            this.keyWord = ''
+        },
         seeCourseInfo(data) {
             this.selectedCourseInfo = data
             this.courseInfoVis = true
@@ -355,7 +365,15 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.select-class {
+    text-align: center;
+    margin-top: 80px;
 
+}
+.buttons-combine {
+    display: flex;
+    justify-content: space-evenly;
+}
 .list-group{
     color: #adb5bd;
     margin-left:10px;
@@ -366,7 +384,7 @@ ul {
 }
 
 .searchBtn {
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 h2 {
