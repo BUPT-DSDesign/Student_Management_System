@@ -6,6 +6,9 @@
 #include <sstream>
 #include <filesystem>
 #include <set>
+#include <string>
+#include <cstring>
+
 using namespace std;
 Row::Row(vector<TableColAttribute>& col_info,vector<byte> data){
     //根据表头信息和数据,构造一行数据
@@ -79,7 +82,7 @@ ColValue Row::getValue(const string& col_name) const{
 //默认构造函数
 Table::Table():col_cnt_(0),index_cnt_(0),record_length_(0){}
 //拷贝构造函数
-Table::Table(const Table& tb):col_cnt_(tb.col_cnt_),index_cnt_(tb.index_cnt_),record_length_(tb.record_length_),table_name_(tb.table_name_),db_path_(tb.db_path_),col_info_(tb.col_info_),col_shift_(tb.col_shift_),index_name_(tb.index_name_),col2index_(tb.col2index_),col2id_(tb.col2id_){
+Table::Table(const Table& tb):col_cnt_(tb.col_cnt_),index_cnt_(tb.index_cnt_),record_length_(tb.record_length_),table_name_(tb.table_name_),db_path_(tb.db_path_),col_info_(tb.col_info_),col_shift_(tb.col_shift_),index_name_(tb.index_name_),col2index_(tb.col2index_),col2id_(tb.col2id_),index_info_pos_(tb.index_info_pos_){
     //重新打开表的数据文件
     string fileData = db_path_+"/"+table_name_+".table";
     tb_data_ = make_unique<BPTree>(fileData);
@@ -127,6 +130,7 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     //计算每一条记录的长度
     record_length_ = shift;
     //随后读取索引的数量
+    index_info_pos_ = table_info_->tellg();//记录索引信息的起始位置
     table_info_->read(reinterpret_cast<char*>(&index_cnt_),sizeof(uint16));
     //读取索引信息,格式同IndexAttribute
     for(int i = 0;i < index_cnt_;i++){
@@ -164,7 +168,15 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
     col_cnt_ = col_info.size();
     table_info_->write(reinterpret_cast<char*>(&col_cnt_),sizeof(uint16));
     //写入列的信息
+    bool has_primary_key = false;
+    uint16 primary_key_size = 8;
+    uint8 primary_key_type = T_BIG_INT;
     for(auto &it:col_info){
+        if(it.is_primary_){
+            has_primary_key = true;
+            primary_key_size = it.length_;
+            primary_key_type = it.data_type_;
+        }
         //写入除了default_和comment_的部分
         table_info_->write(reinterpret_cast<char*>(&it),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
         //写入default_和comment_
@@ -283,25 +295,41 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
             table_info_->write(it.comment_.data(),it.comment_length_);
         }
     }
+    //如果没有主键,新增主键,并标注为隐藏列
+    if(!has_primary_key){
+        TableColAttribute primary_key;
+        memset(&primary_key,0,sizeof(TableColAttribute));
+        primary_key.data_type_ = T_BIG_INT;
+        primary_key.is_primary_ = true;
+        primary_key.is_hidden_ = true;
+        primary_key.length_ = 8;
+        string primary_key_name = "HIDDEN_PRIMARY_KEY_";
+        std::copy(primary_key_name.begin(),primary_key_name.end(),primary_key.col_name_);
+        primary_key.default_length_ = 0;
+        primary_key.comment_length_ = 0;
+        col_cnt_++;
+        col_info_.push_back(primary_key);
+        //col_shift_.push_back(shift);
+        //shift += primary_key.length_;
+        
+    }
     //计算每一列的偏移量
+    
     uint16 shift = 0;
     for(int i = 0;i < col_cnt_;i++){
         col_shift_.push_back(shift);
         shift += col_info[i].length_;
     }
+    
     //计算每一条记录的长度
     record_length_ = shift;
     //写入索引的数量
+    index_info_pos_ = table_info_->tellp();
     index_cnt_ = 0;
     table_info_->write(reinterpret_cast<char*>(&index_cnt_),sizeof(uint16));
     //最后打开表的数据文件,其文件路径为db_path/table_name.tb,
     string fileData = db_path_+"/"+table_name_+".table";
-    tb_data_ = make_unique<BPTree>(fileData);
-    //如果有索引文件,一并将其加载入内存
-    for(auto &it:index_name_){
-        string fileIndex = db_path_+"/"+it+".idx";
-        tb_index_[it] = make_unique<BPTree>(fileIndex);
-    }
+    tb_data_ = make_unique<BPTree>(fileData,true,record_length_,primary_key_size,primary_key_type);
 }
 Table::~Table(){}
 void Table::DropTable(){
@@ -477,7 +505,8 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
         throw TableIndexError("Index "+index_name+" already exists");
     }
     //确认没有同名索引后,创建索引
-    tb_index_[index_name] = make_unique<BPTree>(fileIndex);
+    uint16 col_id = col2id_[col_name];
+    tb_index_[index_name] = make_unique<BPTree>(fileIndex,false,sizeof(streampos),col_info_[col_id].length_,col_info_[col_id].data_type_);
     //遍历表的数据文件,将数据文件中的数据插入到索引中
     //直接按顺序读取数据文件,然后插入到索引中
     tb_data_->ReadFirstChunk();
@@ -490,6 +519,28 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
             tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),it);
         }
     }
+    //将索引信息写到tbinfo中
+    IndexAttribute index_attr;
+    memset(&index_attr,0,sizeof(index_attr));
+    index_attr.col_id_ = col_id;
+    std::copy(index_name.begin(),index_name.end(),index_attr.index_name_);
+    string fileInfo = db_path_+"/"+table_name_+".tbinfo";
+    fstream file(fileInfo,ios::in|ios::out|ios::binary);
+    //将文件指针挪到索引信息的位置
+    file.seekg(index_info_pos_);
+    file.seekp(index_info_pos_);
+    //读取索引数
+    uint16 index_num;
+    file.read(reinterpret_cast<char*>(&index_num),sizeof(index_num));
+    //将索引数加一
+    index_num++;
+    //将索引数写回去
+    file.write(reinterpret_cast<char*>(&index_num),sizeof(index_num));
+    //写入索引信息到文件尾
+    file.seekg(0,ios::end);
+    file.seekp(0,ios::end);
+    file.write(reinterpret_cast<char*>(&index_attr),sizeof(index_attr));
+    cerr<<"Create Index "<<index_name<<" on "<<col_name<<" success"<<endl;
 }
 
 vector<byte> Table::serialize(vector<pair<string,string>> &col_item){

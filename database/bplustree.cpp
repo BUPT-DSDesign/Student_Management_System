@@ -1,5 +1,6 @@
 #include "datatype.hpp"
 #include "bplustree.hpp"
+#include "MyException.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -7,6 +8,7 @@
 #include <memory>
 #include <vector>
 #include <sstream>
+#include <filesystem>
 using namespace std;
 const int32 INVALID_OFFSET = -1;
 BPNode::BPNode(){
@@ -245,8 +247,25 @@ Key BPNode::getKey(int id){
 BPTree::BPTree(string path)
 {
     bufnode_.file_name_ = path;
+    //如果没有文件,则创建一个文件
+    
+    if(!std::filesystem::exists(bufnode_.file_name_)){
+        throw BPTreeException("File Do not Exist!");
+    }
 }
+BPTree::BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type)
+:is_table_(is_table),size_of_item_(data_size),key_type_(key_type)
+{
+    bufnode_.file_name_ = path;
+    //如果已经新建过了,就报错
+    if(std::filesystem::exists(bufnode_.file_name_)){
+        throw BPTreeException("File Exist!");
+    }
+    //如果是表,则需要初始化一些属性
+    bufnode_.CreateChunk(true,data_size,key_size,key_type);
+    //初始化BPTree类
 
+}
 BPTree::~BPTree(){
     
 }
@@ -425,7 +444,7 @@ void BPTree::splitTreeNode(const Key &key,vector<byte> &data){
     //首先需要一分为二,故先创建一个邻居
     BPNode new_node;
     //此处新建的为叶子节点
-    new_node.CreateChunk(true,size_of_item,bufnode_.key_size_,bufnode_.key_type_);
+    new_node.CreateChunk(true,size_of_item_,bufnode_.key_size_,bufnode_.key_type_);
     //找到二分点
     //在分裂为两个叶子结点之后，左节点包含前m/2个记录，右节点包含剩下的记录
     //将第m/2+1个记录的关键字进位到父节点中(下标m/2)

@@ -31,7 +31,7 @@ private:
 class DBManagerError: public std::exception
 {
 public:
-    DBManagerError(const std::string& msg):msg_("DBManagerError:"+msg_){}
+    DBManagerError(const std::string& msg):msg_("DBManagerError:"+msg){}
     const char* what() const noexcept override{
         return (msg_).c_str();
     }
@@ -110,6 +110,17 @@ class ColValueError: public std::exception
 {
 public:
     ColValueError(const std::string& msg):msg_("ColValueError:"+msg){}
+    const char* what() const noexcept override{
+        return (msg_).c_str();
+    }
+private:
+    std::string msg_;
+};
+//BPTree相关的错误
+class BPTreeException: public std::exception
+{
+public:
+    BPTreeException(const std::string& msg):msg_("BPTreeException:"+msg){}
     const char* what() const noexcept override{
         return (msg_).c_str();
     }

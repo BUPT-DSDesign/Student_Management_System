@@ -16,6 +16,7 @@ typedef struct
     uint8 data_type_;//数据类型
     bool is_primary_;//是否为主键
     bool is_not_null;//是否必须存在
+    bool is_hidden_;//是否为隐藏自增主键
     uint16 length_;//该数据类型长度(字节),最大为65535
     char col_name_[27];//列名,最长为27个字符
     //char comment_[256];//注释,最长为256个字符
@@ -60,6 +61,7 @@ private:
     friend class BPTree;//BPTree需要访问Table的私有成员,完成字节流解析和写入
     /* data */
     string primary_key_;//主键
+    streampos index_info_pos_;//索引信息的位置
     vector<TableColAttribute> col_info_;//表每一行的信息,最多有16列
     vector<uint16> col_shift_;//列位置偏移量
     uint16 col_cnt_;//列的数量

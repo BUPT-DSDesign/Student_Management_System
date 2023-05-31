@@ -82,7 +82,7 @@ private:
     bool is_table_;//是table还是索引
     streampos root_pos_;//根节点位置
     streampos cur_;//当前读取的位置
-    uint16 size_of_item;//每一个元素的大小
+    uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
     //找到叶子节点,并将数据载入节点
@@ -124,6 +124,8 @@ public:
     //以下为打开
     //打开一个已有的B+树文件
     BPTree(string path);
+    //新建一个B+树文件
+    BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type);
     //析构函数
     ~BPTree();
     //以下为BPlusTree的操作
