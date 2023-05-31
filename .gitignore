@@ -1,6 +1,7 @@
 # Database related
 *.tbinfo
 *.table
+*.index
 # Binaries for programs and plugins
 *.exe
 *.exe~
