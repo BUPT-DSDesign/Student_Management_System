@@ -146,15 +146,18 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
 }
 
 //新建一张表,将表头信息写入文件
-Table::Table(const string& db_path,const string& table_name,vector<TableColAttribute> &col_info){
+Table::Table(const string& db_path,const string& table_name,vector<TableColAttribute> &col_info)
+:db_path_(db_path),table_name_(table_name),col_info_(col_info)
+{
     //先确认有没有同名文件
-    string fileInfo = db_path_+"/"+table_name+".tbinfo";
+    string fileInfo = db_path+"/"+table_name+".tbinfo";
     if(filesystem::exists(fileInfo)){
         throw TableCreateError("Table "+table_name+" already exists");
     }
     //确认没有同名文件后,创建文件
     unique_ptr<fstream> table_info_ = make_unique<fstream>(fstream(fileInfo.data(),ios::in|ios::out|ios::binary|ios::trunc));
     if(!table_info_->is_open()){
+        //cerr<<"DB_PATH:"<<db_path_<<" TABLE_NAME:"<<table_name<<endl;
         throw TableCreateError("Can't create table info:"+fileInfo);
     }
     //写入列的数量

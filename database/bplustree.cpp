@@ -8,7 +8,7 @@
 #include <vector>
 #include <sstream>
 using namespace std;
-const uint32 INVALID_OFFSET = -1;
+const int32 INVALID_OFFSET = -1;
 BPNode::BPNode(){
     //初始化vector大小
     int max_space = PAGE_SIZE - sizeof(BPNodeHead);//最大的空闲空间
@@ -22,8 +22,13 @@ BPNode::BPNode(){
     //node_pos设置为INVALID_OFFSET,表示没有新建
     node_pos = INVALID_OFFSET;
 }
-
-
+void BPNode::setElem(int id,const vector<byte> &data){
+    //设置第id个元素的值
+    //先找出第id个元素的位置
+    uint16 pos = getElemLocInData(id);
+    //将data复制到data_中
+    std::copy(data.begin(),data.end(),data_.begin()+pos);
+}
 bool BPNode::isLeaf(){
     return is_leaf_;
 }
@@ -31,6 +36,9 @@ uint16 BPNode::getElemCount(){
     return busy_;
 }
 streampos BPNode::getChild(int id){
+    if(id < 0){
+        return -1;
+    }
     if(id < child_.size())
         return child_[id];
     return -1;
@@ -164,6 +172,18 @@ streampos BPNode::releaseChunk(){
     fp.close();
     return node_pos;
 }
+vector<byte> BPNode::getRawData(int id){
+    //获取第id个元素的原始数据
+    vector<byte> tmp(data_size_);
+    uint16 pos = getElemLocInData(id);
+    std::copy(data_.begin()+pos,data_.begin()+pos+data_size_,tmp.begin());
+    return tmp;
+}
+void BPNode::setKey(int id,const Key &key){
+    //设置第id个元素的key
+    uint16 pos = getElemLocInData(id);
+    std::copy(key.getBytes().begin(),key.getBytes().end(),data_.begin()+pos);
+}
 uint16 BPNode::getElemLocInData(int id){
     return id*data_size_;
 }
@@ -188,8 +208,6 @@ std::vector<std::byte>::iterator BPNode::dataBegin(){
     return data_.begin();
 }
 std::vector<std::byte>::iterator BPNode::dataEnd(){
-    //得判断是不是叶子节点,叶子节点需要另外一套操作
-    uint16 key_shift = (is_leaf_)?key_size_:0;
     return data_.end();
 }
 std::vector<std::byte>::iterator BPNode::dataLoc(int id){
@@ -284,7 +302,7 @@ streampos BPTree::SearchPos(const Key &key){
     searchLeaf(key);
     //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
     //第二步,二分查找数据
-    int pos = binarySearch(bufnode_,key);
+    binarySearch(bufnode_,key);
     //第三步,返回对应位置
     return cur_;
 }
@@ -329,6 +347,7 @@ bool BPTree::Insert(const Key &key,vector<byte> &data){
         insertNoSplit(bufnode_,key,data);
         bufnode_.WriteChunk();
     }
+    return true;
 }
 void BPTree::insertKey(const Key &key,const streampos &old,const streampos &after){
     if(cur_==-1){
@@ -900,8 +919,13 @@ void BPTree::innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,i
     left_sibling.data_.insert(left_sibling.dataEnd(),leaf.dataLoc(remove_pos + 1),leaf.dataLoc(leaf.busy_));
     left_sibling.child_.insert(left_sibling.childEnd(),leaf.childLoc(remove_pos + 2),leaf.childLoc(leaf.busy_ + 1));
     left_sibling.busy_ += (leaf.busy_ - remove_pos - 1);
-    //TODO 将孩子节点的父亲给更改了
-    
+    //将孩子节点的父亲给更改了(刚被合并过来的部分)
+    for(auto it = left_sibling.childLoc(left_sibling.busy_ - (leaf.busy_ - remove_pos - 1));it != left_sibling.childLoc(left_sibling.busy_);it++){
+        BPNode child;
+        child.ReadChunk(*it);
+        child.father_ = left_sibling.node_pos;
+        child.WriteChunk();
+    }
 }
 
 void BPTree::innerMergeFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &parent,int parent_pos){
@@ -913,9 +937,19 @@ void BPTree::innerMergeFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &pare
     leaf.data_.insert(leaf.dataEnd(),right_sibling.dataLoc(0),right_sibling.dataLoc(right_sibling.busy_));
     leaf.child_.insert(leaf.childEnd(),right_sibling.childLoc(0),right_sibling.childLoc(right_sibling.busy_ + 1));
     leaf.busy_ += right_sibling.busy_;
-    //TODO 将孩子节点的父亲给更改了
+    //将孩子节点的父亲给更改了
+    for(auto it = leaf.childLoc(leaf.busy_ - right_sibling.busy_);it != leaf.childLoc(leaf.busy_);it++){
+        BPNode child;
+        child.ReadChunk(*it);
+        child.father_ = leaf.node_pos;
+        child.WriteChunk();
+    }
+
 }
 
+void BPTree::subNodeUpdateParent(BPNode &node,streampos parent_pos){
+    node.father_ = parent_pos;
+}
 uint8 BPTree::getKeyType(){
     return key_type_;
 }

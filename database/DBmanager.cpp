@@ -66,7 +66,10 @@ void DBmanager::ShowTables()
     cout << "{ \"tables\": [ ";
     for (auto &p : tb_name_list_)
     {
-        cout << "\"" << p << "\", ";
+        cout << "\"" << p << "\"";
+        if(p != tb_name_list_.back()){
+            cout << ", ";
+        }
     }
     cout << "] }" << endl;
 }
@@ -78,7 +81,9 @@ void DBmanager::CreateTable(const string& tb_name,vector<TableColAttribute> &col
         throw DBManagerError("Table " + tb_name + " already exists!");
     }
     tb_name_list_.push_back(tb_name);
-    tb_list_[tb_name] = make_unique<Table>(Table(path_ + "/" + db_name_,tb_name,col_info));
+    cerr<<"PATH:"<<path_ + "/" + db_name_<<endl;
+    string full = path_ + "/" + db_name_;
+    tb_list_[tb_name] = make_unique<Table>(Table(full,tb_name,col_info));
 }
 void DBmanager::DropTable(const string& tb_name)
 {

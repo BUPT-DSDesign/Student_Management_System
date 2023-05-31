@@ -184,6 +184,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             TableColAttribute attr;
             attr.is_primary_ = false;
             attr.is_not_null = false;
+            attr.default_length_ = 0;
             // 第一个元素是列名称
             transform(sql_vector[pos].begin(), sql_vector[pos].end(), sql_vector[pos].begin(), (int (*)(int))tolower);
             memset(attr.col_name_, 0, 27);
@@ -207,7 +208,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
             }
             else
             {
-                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO SUCH DATA TYPE:"+sql_vector[pos]);
+                throw SQLSyntaxError("SQL CREATE TABLE SYNTAX ERROR,NO SUCH DATA TYPE:"+sql_vector[pos]+" Col Name:"+sql_vector[pos-1]);
                 return;
             }
             keyword = sql_vector[pos];

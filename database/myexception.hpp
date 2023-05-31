@@ -8,9 +8,9 @@
 class SQLTypeError: public std::exception
 {
 public:
-    SQLTypeError(const std::string& msg):msg_(msg){}
+    SQLTypeError(const std::string& msg):msg_("SQLTypeError:"+msg){}
     const char* what() const noexcept override{
-        return ("SQLTypeError:"+msg_).c_str();
+        return msg_.c_str();
     }
 private:
     std::string msg_;
@@ -20,9 +20,9 @@ private:
 class SQLSyntaxError: public std::exception
 {
 public:
-    SQLSyntaxError(const std::string& msg):msg_(msg){}
+    SQLSyntaxError(const std::string& msg):msg_("SQLSyntaxError:"+msg){}
     const char* what() const noexcept override{
-        return ("SQLSyntaxError:"+msg_).c_str();
+        return msg_.c_str();
     }
 private:
     std::string msg_;
@@ -31,9 +31,9 @@ private:
 class DBManagerError: public std::exception
 {
 public:
-    DBManagerError(const std::string& msg):msg_(msg){}
+    DBManagerError(const std::string& msg):msg_("DBManagerError:"+msg_){}
     const char* what() const noexcept override{
-        return ("DBManagerError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;
@@ -44,9 +44,9 @@ private:
 class TableOpenError: public std::exception
 {
 public:
-    TableOpenError(const std::string& msg):msg_(msg){}
+    TableOpenError(const std::string& msg):msg_("TableOpenError:"+msg){}
     const char* what() const noexcept override{
-        return ("TableOpenError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;
@@ -55,9 +55,9 @@ private:
 class TableDataError: public std::exception
 {
 public:
-    TableDataError(const std::string& msg):msg_(msg){}
+    TableDataError(const std::string& msg):msg_("TableDataError:"+msg){}
     const char* what() const noexcept override{
-        return ("TableDataError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;
@@ -66,9 +66,9 @@ private:
 class TableIndexError: public std::exception
 {
 public:
-    TableIndexError(const std::string& msg):msg_(msg){}
+    TableIndexError(const std::string& msg):msg_("TableIndexError:"+msg){}
     const char* what() const noexcept override{
-        return ("TableIndexError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;
@@ -77,9 +77,9 @@ private:
 class TableIndexExist: public std::exception
 {
 public:
-    TableIndexExist(const std::string& msg):msg_(msg){}
+    TableIndexExist(const std::string& msg):msg_("TableIndexExist:"+msg){}
     const char* what() const noexcept override{
-        return ("TableIndexExist:"+msg_).c_str();
+        return (msg_).c_str();
     }   
 private:
     std::string msg_;
@@ -88,9 +88,9 @@ private:
 class TableCreateError: public std::exception
 {
 public:
-    TableCreateError(const std::string& msg):msg_(msg){}
+    TableCreateError(const std::string& msg):msg_("TableCreateError:"+msg){}
     const char* what() const noexcept override{
-        return ("TableCreateError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;
@@ -98,9 +98,9 @@ private:
 class TableDeleteError: public std::exception
 {
 public:
-    TableDeleteError(const std::string& msg):msg_(msg){}
+    TableDeleteError(const std::string& msg):msg_("TableDeleteError:"+msg){}
     const char* what() const noexcept override{
-        return ("TableDeleteError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;
@@ -109,9 +109,9 @@ private:
 class ColValueError: public std::exception
 {
 public:
-    ColValueError(const std::string& msg):msg_(msg){}
+    ColValueError(const std::string& msg):msg_("ColValueError:"+msg){}
     const char* what() const noexcept override{
-        return ("ColValueError:"+msg_).c_str();
+        return (msg_).c_str();
     }
 private:
     std::string msg_;

@@ -20,7 +20,7 @@ void sayFailure(const char* msg){
     cout<<"\"status_code\":1,";
     cout<<"\"status_msg\":\""<<msg<<"\",";
     cout<<"\"data\":[]";
-    cout<<"}";
+    cout<<"}"<<endl;
 }
 int main(int argc,char* argv[]){
     //不断从标准输入读取SQL语句
@@ -49,8 +49,45 @@ int main(int argc,char* argv[]){
                 cerr<<e.what()<<"\n";
                 cerr<<"Statement Type Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
+            }catch(const DBManagerError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Database Manager Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const TableOpenError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Table Open Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const TableDataError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Table Data Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const TableIndexError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Table Index Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const TableIndexExist& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Table Index Exist Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const TableCreateError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Table Create Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const TableDeleteError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Table Delete Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const ColValueError& e){
+                cerr<<e.what()<<"\n";
+                cerr<<"Col Value Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
             }
+            //将分号以及之前的语句清空
             statement.str("");
+            statement.clear();
+            //将buf第一个分号后的语句重新写入statement,不是分号之前的
+            statement<<buf.substr(buf.find(';')+1);
+            //cout<<statement.str()<<"\n";
         }
     }
     return 0;
