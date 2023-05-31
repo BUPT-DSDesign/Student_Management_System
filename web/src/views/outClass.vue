@@ -124,6 +124,7 @@
                                 <el-option label="60分钟" value="60"></el-option>
                             </el-select>
                         </el-form-item>
+                        
                     </el-form>
                     <el-form v-else-if="addEventData.activityType === 'personal'">
                         <el-form-item label="活动名称">

@@ -41,7 +41,7 @@ func QueryHandler(c *gin.Context) {
 	// 调用service服务
 	activities, err := activity_service.Server.DoQueryByTime(userId, fromTime, toTime)
 	if err != nil {
-		c.JSON(http.StatusOK, getInfoResponse{
+		c.JSON(http.StatusOK, queryResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,
 				StatusMsg:  err.Error(),
@@ -51,7 +51,7 @@ func QueryHandler(c *gin.Context) {
 	}
 
 	// 活动返回成功
-	c.JSON(http.StatusOK, getInfoResponse{
+	c.JSON(http.StatusOK, queryResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
 			StatusMsg:  "活动返回成功",

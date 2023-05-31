@@ -12,7 +12,6 @@ var routeMatrix [][]bestRoute
 // InitRouteMatrix 得到距离矩阵
 func InitRouteMatrix(nodeCnt int) {
 	// 创建路线矩阵
-	println(nodeCnt)
 	routeMatrix = make([][]bestRoute, nodeCnt)
 	for i := 0; i < nodeCnt; i++ {
 		routeMatrix[i] = make([]bestRoute, nodeCnt)

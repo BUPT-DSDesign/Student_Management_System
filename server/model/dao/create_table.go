@@ -8,10 +8,10 @@ import (
 func createUserTable() error {
 	// 创建用户表
 	sql := "CREATE TABLE user_info (" +
-		"user_id BIGINT NOT NULL," +
 		"username VARCHAR(20) NOT NULL," +
 		"password VARCHAR(100) NOT NULL," +
 		"salt VARCHAR(20) NOT NULL," +
+		"user_id BIGINT NOT NULL," +
 		"student_id VARCHAR(20) NOT NULL," +
 		"is_admin TINYINT NOT NULL," +
 		"avatar_url VARCHAR(100) NOT NULL," +
@@ -24,6 +24,7 @@ func createUserTable() error {
 	}
 
 	jsonStr, err := ReadLine()
+
 	if err != nil {
 		return err
 	}
@@ -55,6 +56,7 @@ func createCourseTable() error {
 		"PRIMARY KEY (course_id)," +
 		"UNIQUE KEY `course_name` (`course_name`)" +
 		");"
+	println(sql)
 	if err := db.ExecSql(sql); err != nil {
 		return err
 	}
@@ -83,6 +85,7 @@ func createStudentCourseTable() error {
 		"course_id BIGINT NOT NULL," +
 		"PRIMARY KEY (id)" +
 		");"
+	println(sql)
 	if err := db.ExecSql(sql); err != nil {
 		return err
 	}
@@ -112,6 +115,7 @@ func createLogTable() error {
 		"user_id BIGINT  NOT NULL," +
 		"PRIMARY KEY (log_id)" +
 		");"
+	println(sql)
 	if err := db.ExecSql(sql); err != nil {
 		return err
 	}
@@ -147,7 +151,7 @@ func createActivityTable() error {
 		"PRIMARY KEY (activity_id)," +
 		"UNIQUE KEY `activity_name` (`activity_name`)" +
 		");"
-
+	println(sql)
 	if err := db.ExecSql(sql); err != nil {
 		return err
 	}
@@ -174,9 +178,10 @@ func createCourseSectionTable() error {
 	sql := "CREATE TABLE course_section (" +
 		"id BIGINT NOT NULL," +
 		"course_id BIGINT NOT NULL," +
-		"section_id INT NOT NULL" +
+		"section_id INT NOT NULL," +
 		"PRIMARY KEY (id)" +
 		");"
+	println(sql)
 	if err := db.ExecSql(sql); err != nil {
 		return err
 	}
@@ -202,9 +207,10 @@ func createCourseWeekTable() error {
 	sql := "CREATE TABLE course_week (" +
 		"id BIGINT NOT NULL," +
 		"course_id BIGINT NOT NULL," +
-		"week_id INT NOT NULL" +
+		"week_id INT NOT NULL," +
 		"PRIMARY KEY (id)" +
 		");"
+	println(sql)
 	if err := db.ExecSql(sql); err != nil {
 		return err
 	}
