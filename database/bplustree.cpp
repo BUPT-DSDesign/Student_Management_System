@@ -149,15 +149,17 @@ void BPNode::CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_ty
     busy_ = 0;
     //去系统中要一块新内存写入
     //1.获取新页位置
-    //TODO 此处可改为获取一块脏页
-    char buffer[PAGE_SIZE];
+    //此处可改为获取一块脏页
+    char buffer[PAGE_SIZE] = {0};
     fstream fp(file_name_.data(),ios::out|ios::binary);
     fp.seekp(0,ios::end);
     node_pos = fp.tellp();
-    //2.填充空数据
-    //TODO 如果是脏数据则忽略
+    BPNodeHead head = {is_dirty_,is_leaf_,key_type_,key_size_,degree_,busy_,data_size_,father_,node_pos};
+    //2.将头信息写入
+    std::copy((char*)&head,(char*)&head+sizeof(head),buffer);
+    //3.填充空数据
     fp.write(buffer,sizeof(buffer));
-    //3.关闭读写流
+    //4.关闭读写流
     fp.close();
 }
 streampos BPNode::releaseChunk(){
