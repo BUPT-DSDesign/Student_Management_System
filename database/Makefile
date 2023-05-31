@@ -1,6 +1,6 @@
 #编译器和选项
 CC = g++
-CFLAGS = -O2 -Wall -Wextra -W -Wpedantic
+CFLAGS = -Wall -Wextra -W -Wpedantic
 #宏定义
 DEBUG = -DMY_MACRO -D TEST_SQL
 

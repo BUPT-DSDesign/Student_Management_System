@@ -59,15 +59,15 @@ public:
     std::vector<std::byte>::iterator dataBegin();//返回data开始位置的迭代器
     std::vector<std::byte>::iterator dataEnd();//返回data的真实结束位置的迭代器
     std::vector<std::byte>::iterator dataLoc(int id);//返回指向id的迭代器
-    void ReadChunk(streampos pos);//TODO 读取节点,将区块信息写入
+    void ReadChunk(streampos pos);//读取节点,将区块信息写入
     void CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type);//TODO 新建节点
     bool isLeaf();//判断是否为叶子结点
     uint16 getElemCount();//获取节点的元素个数
-    Key getKey(int id);//TODO 获取第k个元素的key
+    Key getKey(int id);//获取第k个元素的key
     streampos getChild(int id);//获取第k个孩子
-    vector<byte> getRawData(int id);//TODO 获取第k个元素的字节流数据
-    void setKey(int id,const Key &key);//TODO 设置第k个元素的key
-    void setElem(int id,const vector<byte> &data);//TODO 设置第k个元素的data
+    vector<byte> getRawData(int id);//获取第k个元素的字节流数据
+    void setKey(int id,const Key &key);//设置第k个元素的key
+    void setElem(int id,const vector<byte> &data);//设置第k个元素的data
     void WriteChunk();//将节点写入
     streampos releaseChunk();//释放节点
     //streampos getElemLocation(int id);//获取节点的真实位置
@@ -82,7 +82,7 @@ private:
     bool is_table_;//是table还是索引
     streampos root_pos_;//根节点位置
     streampos cur_;//当前读取的位置
-    uint16 size_of_item;//每一个元素的大小
+    uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
     //找到叶子节点,并将数据载入节点
@@ -118,10 +118,14 @@ private:
     void deleteLeafNode(BPNode &leaf,BPNode &left_sibling,BPNode &right_sibling);
     //删除内部节点
     void innerNodeRemove(BPNode &node,int pos);
+    //更新子节点的父亲
+    void subNodeUpdateParent(BPNode &node,streampos parent_pos);
 public:
     //以下为打开
     //打开一个已有的B+树文件
     BPTree(string path);
+    //新建一个B+树文件
+    BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type);
     //析构函数
     ~BPTree();
     //以下为BPlusTree的操作
