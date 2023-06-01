@@ -223,6 +223,7 @@ export default {
                         type: 'success',
                         message: '选修课程成功!'
                     });
+                    location.reload();
                     // 创建一个日志对象
                     const log = {
                         "create_time":  TimeStore.getTime(),

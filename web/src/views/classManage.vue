@@ -4,13 +4,13 @@
 
         <el-table :data="classData" height="380px" border>
             <el-table-column type="index" width="10px" align="center"></el-table-column>
-            <el-table-column prop="course_name" label="课程名称" width="120" align="center">
+            <el-table-column prop="course_name" label="课程名称" width="140" align="center">
             </el-table-column>
             <el-table-column prop="teacher" label="上课老师" width="120" align="center">
             </el-table-column>
             <el-table-column prop="teacher" label="上课地点" width="120" align="center">
             </el-table-column>
-            <el-table-column prop="classTime" label="课程时间" width="280" align="center">
+            <el-table-column prop="classTime" label="课程时间" width="260" align="center">
             </el-table-column>
             <el-table-column prop="exam_option" label="考核方式" width="100" align="center">
 
@@ -492,8 +492,8 @@ export default {
             })
             section_list.sort();
             this.addClassData.section_list = section_list;
-            this.addClassData.is_course_online = '1' ? true : false;
-            this.addClassData.is_compulsory = '1' ? true : false;
+            this.addClassData.is_course_online = this.addClassData.is_course_online == 1 ? true : false;
+            this.addClassData.is_compulsory = this.addClassData.is_compulsory == 1 ? true : false;
 
             const addCourse = async (data) => {
                 console.log(data)
@@ -512,7 +512,8 @@ export default {
                     }
                     console.log(log)
                     LogStore.AddLog(log)
-                    // this.addClassData = {}
+                    location.reload();
+                    this.addClassData = {}
                                        
                 } else {
                     this.$message({
@@ -521,7 +522,7 @@ export default {
                         message: '添加课程失败',
                         type: 'error'
                     });
-                    // this.addClassData = {}
+                    this.addClassData = {}
                 }
             }
             addCourse(this.addClassData) 
