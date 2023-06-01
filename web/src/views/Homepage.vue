@@ -228,10 +228,6 @@ h4 {
     box-shadow: 0 0;
 }
 
-.el-card__body {
-    padding: 5px;
-}
-
 .box-card {
     width: 100%;
     position: absolute;
