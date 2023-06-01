@@ -256,20 +256,25 @@ std::vector<std::streampos>::iterator BPNode::childLoc(int id){
 Key BPNode::getKey(int id){
     //TODO id可能为-1
     if(id < 0)
-        return Key(false);
+        return Key(true);
     Key key(dataLoc(id),key_size_,key_type_);
     return key;
 }
 
 //下面是B+树的实现
-BPTree::BPTree(string path)
+BPTree::BPTree(string path,bool is_table)
 {
     bufnode_.file_name_ = path;
     //如果没有文件,则创建一个文件
-    
     if(!std::filesystem::exists(bufnode_.file_name_)){
         throw BPTreeException("File Do not Exist!");
     }
+    //加载根节点
+    bufnode_.ReadChunk(0);
+    cur_ = 0;
+    root_pos_ = 0;
+    size_of_item_ = bufnode_.data_size_;
+    key_type_ = bufnode_.key_type_;
 }
 BPTree::BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type)
 :is_table_(is_table),size_of_item_(data_size),key_type_(key_type)
@@ -374,17 +379,16 @@ bool BPTree::Insert(const Key &key,vector<byte> &data){
     //先搜索这个叶子节点
     searchLeaf(key);
     //接着判断键值是否重复
-    int pos = binarySearch(bufnode_,key);
+    if(is_table_){
+        int pos = binarySearch(bufnode_,key);
+        if(pos >= 0 &&key == bufnode_.getKey(pos)){
+            //键值重复,无法插入(表的主键不能重复)
+            throw BPTreeException("Key Duplicate!");
+            return false;
+        }
+    }
     
-    if(pos >= 0 && is_table_&&key == bufnode_.getKey(pos)){
-        //键值重复,无法插入(表的主键不能重复)
-        throw BPTreeException("Key Duplicate!");
-        return false;
-    }
-    if(pos == -1 && bufnode_.busy_ == 0){
-        //第一个元素
-        pos = 0;
-    }
+    
     if(bufnode_.busy_==bufnode_.degree_){
         //如果节点满了,需要分裂
         //TODO 利用延时写入来优化分裂,即不立即写入,而是等到需要的时候再写入,或等到缓存满了再写入
@@ -518,6 +522,10 @@ void BPTree::splitTreeNode(const Key &key,vector<byte> &data){
 void BPTree::insertNoSplit(BPNode &node,const Key &key,const vector<byte> &data){
     //先用二分查找定位
     int pos = binarySearch(node,key);
+    while(pos == -1 || (pos < node.busy_ && node.getKey(pos) < key)){
+        //如果没找到,或者找到了一个比key小的值,则继续向后找
+        pos++;
+    }
     //插入的位置应该是pos+1
     node.busy_++;
     node.insertDataAtPos(pos,key,data);
@@ -648,7 +656,7 @@ vector<byte> BPTree::Remove(const Key &key){
     //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
     //第二步,二分查找数据
     int pos = binarySearch(bufnode_,key);
-    if(key != bufnode_.getKey(pos)){
+    if(pos == -1 || key != bufnode_.getKey(pos)){
         //找不到这样的键值
         return vector<byte>();
     }

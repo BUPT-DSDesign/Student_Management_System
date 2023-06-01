@@ -91,7 +91,11 @@ Table::Table():col_cnt_(0),index_cnt_(0),record_length_(0){}
 Table::Table(const Table& tb):col_cnt_(tb.col_cnt_),index_cnt_(tb.index_cnt_),record_length_(tb.record_length_),table_name_(tb.table_name_),db_path_(tb.db_path_),col_info_(tb.col_info_),col_shift_(tb.col_shift_),index_name_(tb.index_name_),col2index_(tb.col2index_),col2id_(tb.col2id_),index_info_pos_(tb.index_info_pos_){
     //重新打开表的数据文件
     string fileData = db_path_+"/"+table_name_+".table";
-    tb_data_ = make_unique<BPTree>(fileData);
+    tb_data_ = make_unique<BPTree>(fileData,true);
+    for(auto &it:tb.index_name_){
+        string fileIndex = db_path_+"/"+it+".idx";
+        tb_index_[it] = make_unique<BPTree>(fileIndex,false);
+    }
 }
 //打开一张已有的表,将表头信息读入内存
 Table::Table(const string& db_path,const string& table_name):table_name_(table_name),db_path_(db_path){
@@ -151,11 +155,11 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     }
     //最后打开表的数据文件,其文件路径为db_path/table_name.table,
     string fileData = db_path_+"/"+table_name_+".table";
-    tb_data_ = make_unique<BPTree>(fileData);
+    tb_data_ = make_unique<BPTree>(fileData,true);
     //如果有索引文件,一并将其加载入内存
     for(auto &it:index_name_){
         string fileIndex = db_path_+"/"+it+".idx";
-        tb_index_[it] = make_unique<BPTree>(fileIndex);
+        tb_index_[it] = make_unique<BPTree>(fileIndex,false);
     }
 }
 

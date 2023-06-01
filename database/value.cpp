@@ -37,7 +37,9 @@ Key::Key(const string& key,uint8 data_type)
     data_type_ = data_type;
 
 }
-Key::Key(vector<byte>::iterator begin,int len,uint8 data_type){
+Key::Key(vector<byte>::iterator begin,int len,uint8 data_type)
+:is_maximun_(false),is_minimun_(false),data_type_(data_type)
+{
     switch(data_type){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
@@ -58,7 +60,6 @@ Key::Key(vector<byte>::iterator begin,int len,uint8 data_type){
             value_str_.assign((char*)&(*begin),len);
             //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
     }
-    data_type_ = data_type;
 }
 string Key::getKey() const{
     switch(data_type_){
