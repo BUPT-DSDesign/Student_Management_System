@@ -144,11 +144,7 @@
         </el-dialog>
         <!-- 查看课程详情 -->
         <el-dialog :visible.sync="seeCourseInfoVis" title="课程详细信息" :style="{ 'max-height': '80%' }">
-        <el-card shadow="hover">
-          <div slot="header" class="clearfix">
             <span>{{ courseInfo.course_name }}</span>
-            <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-close" @click="seeCourseInfoVis = false"></el-button>
-          </div>
           <div style="padding: 20px">
             <p><strong>上课地点：</strong>{{ courseInfo.classroom }}</p>
             <p><strong>授课老师：</strong>{{ courseInfo.teacher }}</p>
@@ -157,7 +153,6 @@
             <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
             <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
           </div>
-        </el-card>
       </el-dialog>
     </div>
 </template>
