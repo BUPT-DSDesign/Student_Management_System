@@ -6,6 +6,7 @@
 
 SQLWhere::SQLWhere(){
     rootClause_ = nullptr;
+    
 }
 void SQLWhere::PraseSQLVector(vector<string> tokens){
     auto it = tokens.begin();
@@ -324,6 +325,9 @@ int SQLWhere::getTermNum() const{
 }
 bool SQLWhere::Filter(ColValue val) const{
     //看看val能不能满足逻辑
+    if(rootClause_ == nullptr){
+        return true;
+    }
     return rootClause_->Filter(val);
 }
 
@@ -363,7 +367,7 @@ bool WhereClause::Filter(ColValue val) const{
         if(term.getColName() == val.getColName()){
             //是同一列,看看能不能满足条件
             bool now_result = term.Filter(val);
-            if(op_==ClauseOperator::AND){
+            if(op_!=ClauseOperator::OR){
                 result = result && now_result;
             }else{
                 result = result || now_result;

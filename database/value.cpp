@@ -57,7 +57,7 @@ Key::Key(vector<byte>::iterator begin,int len,uint8 data_type)
             std::copy(begin,begin+len,(byte*)&value_uint_);
             break;
         default:
-            value_str_.assign((char*)&(*begin),len);
+            value_str_.assign((char*)&(*begin));
             //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
     }
 }
@@ -200,7 +200,7 @@ ColValue::ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator
             break;
         default:
             //注意截断
-            value_str_.assign((char*)&(*begin),len);
+            value_str_.assign((char*)&(*begin));
             //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
             //cerr << "Get value_str_"<< value_str_ << endl;
     }

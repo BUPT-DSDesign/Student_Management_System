@@ -32,6 +32,11 @@ void Row::Update(vector<pair<string,string>> &col_item){
 }
 bool Row::isSatisfied(const SQLWhere& where) const{
     if(where.getOperator() == ClauseOperator::NOP){
+        for(auto &i:col_value_){
+            if(!where.Filter(i)){
+                return false;
+            }
+        }
         return true;
     }
     //先判断Where语句顶层是AND还是OR,如果是AND则需要都满足,如果是OR则只需要有一个满足
