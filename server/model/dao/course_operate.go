@@ -274,6 +274,7 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 	_ = json.Unmarshal([]byte(result["data"].(string)), &studentCourse)
 
 	realCourses := new([]*system.CourseInfo)
+
 	// 再查询课程信息
 	for _, v := range studentCourse {
 		var courseInfo []*system.CourseInfo
@@ -281,8 +282,13 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 		if err := db.ExecSql(sqlStr); err != nil {
 			return err
 		}
+
+		jsonStr, err := ReadLine()
+		if err != nil {
+			return err
+		}
 		var result1 map[string]interface{}
-		_ = json.Unmarshal(sonJsonStr, &result1)
+		_ = json.Unmarshal(jsonStr, &result1)
 		if result1["status_code"].(float64) != 0 {
 			return errors.New(result1["status_msg"].(string))
 		}
