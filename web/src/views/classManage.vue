@@ -240,8 +240,8 @@ export default {
                         }
 
                     }
-                    let startTime = startTimeMap[this.classData[i].section_list[start] % 9];
-                    let endTime = endTimeMap[this.classData[i].section_list[end] % 9];
+                    let startTime = startTimeMap[(this.classData[i].section_list[start] - 1) % 9 + 1];
+                    let endTime = endTimeMap[(this.classData[i].section_list[end] - 1) % 9 + 1];
                     if (this.classData[i].hasOwnProperty('classTime')) {
                         this.classData[i]['classTime'] = this.classData[i]['classTime'] + ',' + startTime + '-' + endTime;
                     }
