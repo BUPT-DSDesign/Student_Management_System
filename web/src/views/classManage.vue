@@ -20,7 +20,7 @@
                     <el-input v-model="search" size="mini" placeholder="输入关键字搜索" prefix-icon="el-icon-search" />
                 </template>
                 <template slot-scope="scope">
-                    <el-button size="mini" type="success" @click="seeCourseInfo(scope.row.course_id)">查看详情</el-button>
+                    <el-button size="mini" type="success" @click="seeCourseInfo(scope.row)">查看详情</el-button>
                     <el-button size="mini" type="primary" @click="editClass(scope.$index, scope.row)">修改课程</el-button>
                     <el-button size="mini" type="danger" @click="deleteClass(scope.$index, scope.row)">删除课程</el-button>
                 </template>
@@ -143,9 +143,22 @@
             </div>
         </el-dialog>
         <!-- 查看课程详情 -->
-        <el-dialog title="查看课程详情" :visible.sync="seeCourseInfoVis" width="600px">
-            -- 选中的课程是 selectedCourse
-        </el-dialog>
+        <el-dialog :visible.sync="seeCourseInfoVis" title="课程详细信息" :style="{ 'max-height': '80%' }">
+        <el-card shadow="hover">
+          <div slot="header" class="clearfix">
+            <span>{{ courseInfo.course_name }}</span>
+            <el-button style="float: right; padding: 3px 0" type="text" icon="el-icon-close" @click="seeCourseInfoVis = false"></el-button>
+          </div>
+          <div style="padding: 20px">
+            <p><strong>上课地点：</strong>{{ courseInfo.classroom }}</p>
+            <p><strong>授课老师：</strong>{{ courseInfo.teacher }}</p>
+            <p><strong>上课时间：</strong>{{ courseInfo.class_time }}</p>
+            <p><strong>上课周次：</strong>{{ courseInfo.week_schedule }}</p>
+            <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
+            <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
+          </div>
+        </el-card>
+      </el-dialog>
     </div>
 </template>
 
@@ -359,13 +372,54 @@ export default {
                 },
             ],
             selectedCourse: {},
+            courseInfo: {},
             seeCourseInfoVis: false
         }
     },
     methods: {
+        getClassTime(sectionList) {
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const classTime = sectionList.map(section => {
+                const day = Math.floor((section - 1) / 9); // 获取星期几
+                const sectionIndex = (section - 1) % 9; // 获取第几节课
+                return days[day] + sections[sectionIndex];
+            });
+            return classTime.join('，');
+        },
+        getWeekSchedule(weekSchedule) {
+            const weeks = [];
+            for (let i = 0; i < weekSchedule.length; i++) {
+                if (weekSchedule[i] === 1) {
+                    weeks.push(i + 1);
+                }
+            }
+            return weeks.join('，') + '周';
+        },
         seeCourseInfo(course) {
             this.selectedCourse = course;
+            this.courseInfo = this.processCourseInfo(course);
             this.seeCourseInfoVis = true;
+            
+        },
+         processCourseInfo(course) {
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const classTime = course.section_list.map(section => {
+                const day = Math.floor((section - 1) / 9); // 获取星期几
+                const sectionIndex = (section - 1) % 9; // 获取第几节课
+                return days[day] + sections[sectionIndex];
+            }).join('，');
+            const weekSchedule = course.week_schedule.map((week, index) => week === 1 ? index + 1 : null).filter(week => week !== null).join('，') + '周';
+            return {
+                course_name: course.course_name,
+                classroom: course.classroom,
+                teacher: course.teacher,
+                class_time: classTime,
+                week_schedule: weekSchedule,
+                exam_time: course.exam_time,
+                exam_location: course.exam_location
+            };
         },
         addClass() {
             this.dialogVisible4 = true;
@@ -389,8 +443,7 @@ export default {
         },
         //编辑课程
         editClass(index, row) {
-            let name = row.classname;
-            this.clickedClassData= this.classData.find(obj => obj.course_name == name);
+            this.clickedClassData = row;
             //点击弹窗打开
             this.dialogVisible2 = true;
         },

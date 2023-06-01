@@ -124,7 +124,7 @@
               </el-table>
             </el-scrollbar>
             <span slot="footer" class="dialog-footer">
-              <el-button @click="dialogVisible = false">关闭</el-button>
+              <el-button @click="searchdialogVisible = false">关闭</el-button>
             </span>
           </el-dialog>
                 <!-- 添加活动按钮和弹窗 -->
