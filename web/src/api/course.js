@@ -37,9 +37,8 @@ export const EditCourse = (data) => {
 // 查询课程
 export const inquiryCourse = (data) => {
     return service({
-        url: '/course/inquiry',
-        method: 'post',
-        data: data
+        url: '/course/search?is_course_name=' + data.is_course_name + '&' + 'key_word=' + data.key_word,
+        method: 'get',
     })
 }
 // 查询选修课

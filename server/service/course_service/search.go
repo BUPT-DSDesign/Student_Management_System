@@ -21,7 +21,7 @@ func (s *server) DoSearch(userId int64, isByCourseName uint8, keyWord string) (*
 }
 
 func (f *searchFlow) do() (*[]*system.CourseInfo, error) {
-	var courses *[]*system.CourseInfo
+	courses := new([]*system.CourseInfo)
 
 	if err := f.checkNum(); err != nil {
 		return nil, err
@@ -45,11 +45,39 @@ func (f *searchFlow) run(courses **[]*system.CourseInfo) error {
 		if err := dao.Group.CourseDao.QueryCourseByName(f.keyWord, courses); err != nil {
 			return err
 		}
+		// 添加课程的周次和节次
+		for _, course := range **courses {
+			// 课程的周次和节次
+			var weekSchedule []int
+			var sectionList []int
+			if err := dao.Group.CourseDao.QueryWeekScheduleById(course.CourseId, &weekSchedule); err != nil {
+				return err
+			}
+			if err := dao.Group.CourseDao.QuerySectionListById(course.CourseId, &sectionList); err != nil {
+				return err
+			}
+			course.WeekSchedule = weekSchedule
+			course.SectionList = sectionList
+		}
 		return nil
 	}
 
 	if err := dao.Group.CourseDao.QueryCourseByClassroom(f.keyWord, courses); err != nil {
 		return err
+	}
+	// 添加课程的周次和节次
+	for _, course := range **courses {
+		// 课程的周次和节次
+		var weekSchedule []int
+		var sectionList []int
+		if err := dao.Group.CourseDao.QueryWeekScheduleById(course.CourseId, &weekSchedule); err != nil {
+			return err
+		}
+		if err := dao.Group.CourseDao.QuerySectionListById(course.CourseId, &sectionList); err != nil {
+			return err
+		}
+		course.WeekSchedule = weekSchedule
+		course.SectionList = sectionList
 	}
 
 	return nil

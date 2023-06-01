@@ -321,9 +321,10 @@ func (s *courseDao) JudgeIsStudentSelectCourse(userId int64, courseId int64) boo
 	var studentCourse []system.StudentCourse
 	_ = json.Unmarshal([]byte(result["data"].(string)), &studentCourse)
 
-	if studentCourse != nil {
+	if len(studentCourse) != 0 {
 		return true
 	}
+
 	return false
 
 }
