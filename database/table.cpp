@@ -55,13 +55,13 @@ string Row::getRowJSON() const{
     //获取一条记录的JSON格式
     string res = "{";
     for(auto &i:col_value_){
-        cerr << "\""+i.getColName()+"\":"+i.getValue()+"," << endl;
+        //cerr << "\""+i.getColName()+"\":"+i.getValue()+"," << endl;
         res += "\""+i.getColName()+"\":"+i.getValue()+",";
     }
     if(col_value_.size() > 0)res.pop_back();
     res += "}";
-    cerr<<"We have res:";
-    cerr<<res<<endl;
+    //cerr<<"We have res:";
+    //cerr<<res<<endl;
     return res;
 }
 vector<byte> Row::toByte() const{
@@ -199,7 +199,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                 //1.数值类型:整型(符号型)
                 case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
                     {
-                        int64 val_int64;
+                        int64 val_int64 = 0;
                         val_int64 = any_cast<int64>(it.default_);
                         table_info_->write(reinterpret_cast<char*>(&val_int64),it.default_length_);
                     }
@@ -207,7 +207,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                 //2.数值类型:浮点型(单精度)
                 case T_FLOAT:
                     {
-                        float val_float;
+                        float val_float = 0;
                         val_float = any_cast<float>(it.default_);
                         table_info_->write(reinterpret_cast<char*>(&val_float),it.default_length_);
                     }
@@ -215,7 +215,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                 //3.数值类型:浮点型(双精度)
                 case T_DOUBLE:
                     {
-                        double val_double;
+                        double val_double = 0;
                         val_double = any_cast<double>(it.default_);
                         table_info_->write(reinterpret_cast<char*>(&val_double),it.default_length_);
                     }
@@ -225,7 +225,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                     //格式为YYYY-MM-DD
                     //范围为1000-01-01到9999-12-31
                     {
-                        uint64 val_uint64;
+                        uint64 val_uint64 = 0;
                         uint64 year,month,day;
                         char c;
                         iss>>year>>c>>month>>c>>day;
@@ -245,7 +245,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                     //格式为HH:MM:SS
                     //范围为-838:59:59到838:59:59,可表示一段时间或当天的某一时刻
                     {
-                        int32 val_int32;
+                        int32 val_int32 = 0;
                         int32 hour,minute,second;
                         char c;
                         iss>>hour>>c>>minute>>c>>second;
@@ -265,7 +265,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                     //格式为YYYY
                     //范围为1901到2155
                     {
-                        uint8 val_uint8;
+                        uint8 val_uint8 = 0;
                         int32 year;
                         iss>>year;
                         //判断输入格式是否正确
@@ -720,31 +720,32 @@ void Table::SelectRecord(SQLWhere &where){
     //随后根据索引的类型,调用不同的函数
     //先判断这玩意是不是主键,再判断有没有这样的索引
     vector<Row> rows_result;
-    if(indexName == ""){
+    if(indexName == "*"){
         //根本就没有Where条件,直接查
-        cerr << "no index search" << endl;
+        //cerr << "no index search" << endl;
         vector<vector<byte>> record;
         tb_data_->ReadFirstChunk();
         while(tb_data_->isBufLeaf()){
-            cerr << "isBufLeaf" << endl;
+            //cerr << "isBufLeaf" << endl;
             record = tb_data_->GetAllElemInChunk();
             for(auto &it:record){
                 Row row(col_info_,it);
                 rows_result.push_back(row);
-                
             }
             tb_data_->ReadNextChunk();
         }
     }else if(indexName == primary_key_){
         //如果是主键,则直接调用主键查找函数
-        cerr << "primary key search" << endl;
+        //cerr << "primary key search" << endl;
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则调用主键查找函数
-            cerr << "EQ search" << endl;
-            Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType())));
-            rows_result.push_back(row);
-            //result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
-        
+            //cerr << "EQ search" << endl;
+            vector<byte> record = tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
+            if(record.size() != 0){
+                //找到了
+                Row row(col_info_,record);
+                rows_result.push_back(row);
+            } 
         }else{
             //如果是范围查询,则调用主键范围查找函数
             vector<vector<byte>> record = tb_data_->SearchRange(where.GetQueryLeftKey(indexName,tb_data_->getKeyType()),where.GetQueryRightKey(indexName,tb_data_->getKeyType()));
@@ -816,7 +817,7 @@ void Table::SelectRecord(SQLWhere &where){
         }
     }
     //最后将结果转换为字符串输出
-    PrintToStream("ResulUSEt Found",rows_result);
+    PrintToStream("Result Found",rows_result);
 }
 
 void Table::InsertRecord(vector<pair<string,string>> &col_item){

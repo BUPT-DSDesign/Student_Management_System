@@ -54,7 +54,7 @@ void BPNode::ReadChunk(streampos pos){
     //TODO 将一个区块读取到字节流中
     //1.打开文件读写流
     fstream fp(file_name_,ios::binary|ios::in);
-    cerr << "Reading Chunk,file_name_:" << file_name_ <<" "<<pos<< endl;
+    //cerr << "Reading Chunk,file_name_:" << file_name_ <<" "<<pos<< endl;
     fp.seekg(pos,ios::beg);
     if(!fp.eof()){
         //如果没有读写到文件末尾
@@ -186,7 +186,7 @@ vector<byte> BPNode::getRawData(int id){
     //获取第id个元素的原始数据
     vector<byte> tmp(data_size_);
     uint16 pos = getElemLocInData(id);
-    std::copy(data_.begin()+pos,data_.begin()+pos+data_size_,tmp.begin());
+    std::copy(data_.begin()+pos+key_size_,data_.begin()+pos+data_size_+key_size_,tmp.begin());
     return tmp;
 }
 void BPNode::setKey(int id,const Key &key){
@@ -254,6 +254,9 @@ std::vector<std::streampos>::iterator BPNode::childLoc(int id){
     return childEnd();
 }
 Key BPNode::getKey(int id){
+    //TODO id可能为-1
+    if(id < 0)
+        return Key(false);
     Key key(dataLoc(id),key_size_,key_type_);
     return key;
 }
@@ -296,13 +299,13 @@ int BPTree::binarySearch(BPNode &node,const Key &key){
     while(l + 1 < r){
         int mid = (l+r) >> 1;
         Key node_key = node.getKey(mid);
-        if(key >= node_key){
+        if(key <= node_key){
             r = mid;
         }else{
             l = mid;
         }
     }
-    return l;
+    return r;
 }
 void BPTree::searchLeaf(const Key &key){
     while(cur_!=-1){
@@ -327,10 +330,12 @@ vector<byte> BPTree::Search(const Key &key){
     //此时叶子结点已经载入到内存中,进行二分查找返回数据即可
     //第二步,二分查找数据
     int pos = binarySearch(bufnode_,key);
+    if(pos < 0 || bufnode_.getKey(pos) != key){
+        return vector<byte>{};//如果没找到,返回空vector
+    }
     //第三步,读取对应数据,返回字节流供解析
     vector<byte> elem = bufnode_.getRawData(pos);
     return elem;
-    
 }
 streampos BPTree::SearchPos(const Key &key){
     //搜索
@@ -357,7 +362,7 @@ vector<vector<byte>> BPTree::SearchRange(const Key& left,const Key& right){
     }
     //第三步,读取对应数据,返回字节流供解析
     vector<vector<byte>> result;
-    while(bufnode_.getKey(pos) <= right){
+    while(pos < bufnode_.busy_ &&bufnode_.getKey(pos) <= right){
         result.push_back(bufnode_.getRawData(pos));
         pos++;
     }
@@ -370,9 +375,15 @@ bool BPTree::Insert(const Key &key,vector<byte> &data){
     searchLeaf(key);
     //接着判断键值是否重复
     int pos = binarySearch(bufnode_,key);
+    
     if(pos >= 0 && is_table_&&key == bufnode_.getKey(pos)){
         //键值重复,无法插入(表的主键不能重复)
+        throw BPTreeException("Key Duplicate!");
         return false;
+    }
+    if(pos == -1 && bufnode_.busy_ == 0){
+        //第一个元素
+        pos = 0;
     }
     if(bufnode_.busy_==bufnode_.degree_){
         //如果节点满了,需要分裂
@@ -509,7 +520,7 @@ void BPTree::insertNoSplit(BPNode &node,const Key &key,const vector<byte> &data)
     int pos = binarySearch(node,key);
     //插入的位置应该是pos+1
     node.busy_++;
-    node.insertDataAtPos(pos+1,key,data);
+    node.insertDataAtPos(pos,key,data);
     //O(n)的插入操作
     //增加busy数量
     
@@ -572,8 +583,8 @@ vector<vector<byte>> BPTree::GetAllElemInChunk(){
     //获取当前节点的所有元素
     vector<vector<byte>> res;
     if(bufnode_.isLeaf()){
-        for(auto it=bufnode_.dataBegin();it!=bufnode_.dataEnd();it+=bufnode_.data_size_){
-            vector<byte> elem(it,it+bufnode_.data_size_);
+        for(auto it=bufnode_.dataBegin();it!=bufnode_.dataEnd();it+=(bufnode_.data_size_+bufnode_.key_size_)){
+            vector<byte> elem(it+bufnode_.key_size_,it+bufnode_.key_size_+bufnode_.data_size_);
             res.push_back(elem);
         }
     }

@@ -22,7 +22,7 @@ void SQLWhere::PraseSQLVector(vector<string> tokens){
 string SQLWhere::GetBestIndex(vector<string> &col_name_list,const string primary){
     if(rootClause_==nullptr){
         //根本就没有where从句
-        return "";
+        return "*";
     }
     //读取WhereClause,返回最佳索引
     //如果主键在条件中,则直接返回主键
@@ -39,6 +39,8 @@ string SQLWhere::GetBestIndex(vector<string> &col_name_list,const string primary
     if(col_name_set_.size()>0){
         return *col_name_set_.begin();
     }
+    //如果set为空,该错误处理了
+    throw SQLWhereError("SQLWhere::GetBestIndex:col_name_set_ is empty");
     return "";
 }
 QueryType SQLWhere::GetQueryType(string index_name){
@@ -92,14 +94,14 @@ Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
         }
         //若 id > 5,左边界为当前值+1
         if(related_terms[0].getOperator()==TermOperator::GREATER){
-            uint64 value = 0;
+            int64 value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
             return Key(value+1);
         }
         //若 id >= 5,左边界为当前值
-        uint64 value = 0;
+        int64 value = 0;
         stringstream ss;
         ss<<related_terms[0].getValue();
         ss>>value;
@@ -108,43 +110,43 @@ Key SQLWhere::GetQueryLeftKey(string index_name,uint8 data_type){
     //如果有两个WhereTerm,则需要进一步处理
     //两个WhereTerm的下标分别是0和1
         //先从第一个WhereTerm中提取出值
-        uint64 value = 0;
+        int64 value = 0;
         //理论上不可能出现等值查询
         //如果为小于等于,则返回最小值,如果为大于等于,则返回当前值
         //即若 id < 5,左边界为最小值
         if(related_terms[0].getOperator()==TermOperator::LESS_EQUAL || related_terms[0].getOperator()==TermOperator::LESS){
-            value = 0;
+            value = INT64_MIN;
         }
         //若 id > 5,左边界为当前值+1
         if(related_terms[0].getOperator()==TermOperator::GREATER){
-            uint64 value = 0;
+            value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
             value += 1;
         }
         if(related_terms[0].getOperator()==TermOperator::GREATER_EQUAL){
-            uint64 value = 0;
+            value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
         }
         //再从第二个WhereTerm中提取出值,最后的值为两个值中最大的
-        uint64 value2 = 0;
+        int64 value2 = 0;
         
         if(related_terms[1].getOperator()==TermOperator::LESS_EQUAL || related_terms[1].getOperator()==TermOperator::LESS){
-            value2 = 0;
+            value2 = INT64_MIN;
         }
         //若 id > 5,左边界为当前值+1
         if(related_terms[1].getOperator()==TermOperator::GREATER){
-            uint64 value2 = 0;
+            value2 = 0;
             stringstream ss;
             ss<<related_terms[1].getValue();
             ss>>value2;
             value2 += 1;
         }
         if(related_terms[1].getOperator()==TermOperator::GREATER_EQUAL){
-            uint64 value2 = 0;
+            value2 = 0;
             stringstream ss;
             ss<<related_terms[1].getValue();
             ss>>value2;
@@ -185,7 +187,7 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
         //如果不是,则进一步处理,如果为小于等于,则返回当前值,如果为大于等于,则返回最大值
         //即若 id < 5,右边界为当前值-1
         if(related_terms[0].getOperator()==TermOperator::LESS){
-            uint64 value = 0;
+            int64 value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
@@ -193,11 +195,11 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
         }
         //若 id <= 5,右边界为当前值
         if(related_terms[0].getOperator()==TermOperator::LESS_EQUAL){
-            uint64 value = 0;
+            int64 value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
-            return value;
+            return Key(value);
         }
         //若 id > 5或id >= 5,右边界为最大值
         if(related_terms[0].getOperator()==TermOperator::GREATER_EQUAL || related_terms[0].getOperator()==TermOperator::GREATER){
@@ -208,45 +210,45 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
     //返回满足两个条件中最小的值
     //两个WhereTerm的下标分别是0和1
         //先从第一个WhereTerm中提取出值
-        uint64 value = 0;
+        int64 value = 0;
         //理论上不可能出现等值查询
         //如果为小于等于,则返回最大值,如果为大于等于,则返回当前值
         //即若 id < 5,右边界为最大值
-        if(related_terms[0].getOperator()==TermOperator::LESS_EQUAL || related_terms[0].getOperator()==TermOperator::LESS){
-            value = UINT64_MAX;
+        if(related_terms[0].getOperator()==TermOperator::GREATER_EQUAL || related_terms[0].getOperator()==TermOperator::GREATER){
+            value = INT64_MAX;
         }
         //若 id > 5,右边界为当前值-1
-        if(related_terms[0].getOperator()==TermOperator::GREATER){
-            uint64 value = 0;
+        if(related_terms[0].getOperator()==TermOperator::LESS){
+            value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
             value -= 1;
         }
-        if(related_terms[0].getOperator()==TermOperator::GREATER_EQUAL){
-            uint64 value = 0;
+        if(related_terms[0].getOperator()==TermOperator::LESS_EQUAL){
+            value = 0;
             stringstream ss;
             ss<<related_terms[0].getValue();
             ss>>value;
         }
         //再从第二个WhereTerm中提取出值,最后的值为两个值中最小的
-        uint64 value2 = 0;
+        int64 value2 = 0;
         //理论上不可能出现等值查询
         //如果为小于等于,则返回当前值,如果为大于等于,则返回最大值
         //即若 id < 5,右边界为最大值
-        if(related_terms[1].getOperator()==TermOperator::LESS_EQUAL || related_terms[1].getOperator()==TermOperator::LESS){
-            value2 = UINT64_MAX;
+        if(related_terms[1].getOperator()==TermOperator::GREATER_EQUAL || related_terms[1].getOperator()==TermOperator::GREATER){
+            value2 = INT64_MAX;
         }
         //若 id > 5,右边界为当前值-1
-        if(related_terms[1].getOperator()==TermOperator::GREATER){
-            uint64 value2 = 0;
+        if(related_terms[1].getOperator()==TermOperator::LESS){
+            value2 = 0;
             stringstream ss;
             ss<<related_terms[1].getValue();
             ss>>value2;
             value2 -= 1;
         }
-        if(related_terms[1].getOperator()==TermOperator::GREATER_EQUAL){
-            uint64 value2 = 0;
+        if(related_terms[1].getOperator()==TermOperator::LESS_EQUAL){
+            value2 = 0;
             stringstream ss;
             ss<<related_terms[1].getValue();
             ss>>value2;
@@ -256,9 +258,7 @@ Key SQLWhere::GetQueryRightKey(string index_name,uint8 data_type){
     Key key2(value2);
     if(rootClause_->getOperator()==ClauseOperator::AND){
         //如果连接符为AND
-        
         return (key1<key2)?key1:key2;
-        
     }
     //如果连接符为OR
     return (key1<key2)?key2:key1;
@@ -276,7 +276,12 @@ shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,v
         is_attr = false;
         //解析WhereTerm
         WhereTerm term = PraseWhereTerm(it);
+        it += 3;
         //解析运算符
+        if(it == end){
+            terms_.push_back(term);
+            break;
+        }
         transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
         if(*it == "and"&&(op==ClauseOperator::NOP||op==ClauseOperator::AND)){
             op = ClauseOperator::AND;
@@ -384,7 +389,7 @@ WhereTerm::WhereTerm(const string& col_name,const string& eOperator,const string
     }else if(eOperator=="<="){
         eOperator_ = TermOperator::LESS_EQUAL;
     }else{
-        throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+eOperator);
+        throw SQLSyntaxError("SQL WHERE SYNTAX ERROR,OPERATOR NOT SUPPORT:"+eOperator+",col_name:"+col_name+",value:"+value);
     }
 }
 string WhereTerm::getColName() const{

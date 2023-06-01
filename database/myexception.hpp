@@ -27,6 +27,17 @@ public:
 private:
     std::string msg_;
 };
+//SQLWhere中出现的错误
+class SQLWhereError: public std::exception
+{
+public:
+    SQLWhereError(const std::string& msg):msg_("SQLWhereError:"+msg){}
+    const char* what() const noexcept override{
+        return msg_.c_str();
+    }
+private:
+    std::string msg_;
+};
 //在DBmanager中使用的报错
 class DBManagerError: public std::exception
 {
