@@ -487,6 +487,10 @@ export default {
                     this.singleActivityRate = (num0 / this.eventList.length) * 100
                     this.groupActivityRate = (num1 / this.eventList.length) * 100
                     this.tempRate = (num2 / this.eventList.length) * 100
+                    // 三者保留一位小数
+                    this.singleActivityRate = this.singleActivityRate.toFixed(1)
+                    this.groupActivityRate = this.groupActivityRate.toFixed(1)
+                    this.tempRate = this.tempRate.toFixed(1)
                 }
                
                 for (let i = 0; i < this.eventList.length; i++) {
