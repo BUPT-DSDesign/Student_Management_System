@@ -53,7 +53,8 @@ void BPNode::ReadChunk(streampos pos){
     BPNodeHead head;
     //TODO 将一个区块读取到字节流中
     //1.打开文件读写流
-    fstream fp(file_name_.data(),ios::binary|ios::in);
+    fstream fp(file_name_,ios::binary|ios::in);
+    cerr << "Reading Chunk,file_name_:" << file_name_ <<" "<<pos<< endl;
     fp.seekg(pos,ios::beg);
     if(!fp.eof()){
         //如果没有读写到文件末尾
@@ -102,7 +103,7 @@ void BPNode::ReadChunk(streampos pos){
 void BPNode::WriteChunk(){
     //将节点按格式写入硬盘
     //1.打开文件读写流
-    fstream fp(file_name_.data(),ios::binary|ios::in|ios::out);
+    fstream fp(file_name_,ios::binary|ios::in|ios::out);
     fp.seekp(node_pos,ios::beg);
     //2.写入
     //第一部分,写入结构体头
@@ -145,25 +146,32 @@ void BPNode::CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_ty
     data_size_ = data_size;
     key_type_ = key_type;
     key_size_ = key_size;
-    degree_ = (PAGE_SIZE-sizeof(BPNodeHead)-sizeof(streampos))/(sizeof(streampos)+data_size)+1;
+    busy_ = 0;
+    if(is_leaf){
+        //如果是叶,新建时把一前一后俩指针给初始化了
+        degree_ = (PAGE_SIZE-sizeof(BPNodeHead)-sizeof(streampos)*2)/(data_size+key_size)+1;
+        child_.push_back(INVALID_OFFSET);
+        child_.push_back(INVALID_OFFSET);
+    }else{
+        degree_ = (PAGE_SIZE-sizeof(BPNodeHead)-sizeof(streampos))/(sizeof(streampos)+data_size+key_size)+1;
+    }
     busy_ = 0;
     //去系统中要一块新内存写入
     //1.获取新页位置
-    //TODO 此处可改为获取一块脏页
-    char buffer[PAGE_SIZE];
-    fstream fp(file_name_.data(),ios::out|ios::binary);
+    //此处可改为获取一块脏页
+    char buffer[PAGE_SIZE] = {0};
+    fstream fp(file_name_,ios::out|ios::binary);
     fp.seekp(0,ios::end);
     node_pos = fp.tellp();
-    //2.填充空数据
-    //TODO 如果是脏数据则忽略
-    fp.write(buffer,sizeof(buffer));
-    //3.关闭读写流
+    //2.填充头信息
+    fp.write(buffer,PAGE_SIZE);
     fp.close();
+    
 }
 streampos BPNode::releaseChunk(){
     //从磁盘中卸载当前块
     //1.打开文件读写流
-    fstream fp(file_name_.data(),ios::binary|ios::in|ios::out);
+    fstream fp(file_name_,ios::binary|ios::in|ios::out);
     fp.seekp(node_pos,ios::beg);
     //2.将其标记为脏页
     is_dirty_ = true;
@@ -263,6 +271,7 @@ BPTree::BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key
     }
     //如果是表,则需要初始化一些属性
     bufnode_.CreateChunk(true,data_size,key_size,key_type);
+    bufnode_.WriteChunk();
     //初始化BPTree类
 
 }
@@ -270,6 +279,8 @@ BPTree::~BPTree(){
     
 }
 bool BPTree::isBufLeaf(){
+    if(cur_ == INVALID_OFFSET)
+        return false;
     return bufnode_.isLeaf();
 }
 //核心算法1:二分查找
@@ -538,6 +549,11 @@ void BPTree::ReadNextChunk(){
     //此时必须为叶子节点
     if(bufnode_.isLeaf()){
         cur_ = bufnode_.child_[1];
+        if(cur_ == INVALID_OFFSET){
+            //如果已经是最后一个了,就不用再读了
+            bufnode_.is_leaf_ = false;
+            return;
+        }
         bufnode_.ReadChunk(cur_);
     }
 }

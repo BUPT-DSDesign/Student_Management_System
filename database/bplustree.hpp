@@ -35,7 +35,7 @@ class BPTree;
 class BPNode
 {
 private:
-    string_view file_name_;//文件名
+    string file_name_;//文件名
     bool is_leaf_;//判断是不是叶子结点
     bool is_dirty_;//判断是否为脏页(即该页数据是否已经被删除)
     uint8 key_type_;//键的类型

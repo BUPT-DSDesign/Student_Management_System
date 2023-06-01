@@ -24,8 +24,12 @@ void DB_API::CreateTable(SQLCreateTable &statement){
     //利用SQLCreateTable中的tb_name_创建一个表文件
     db_manager_->CreateTable(statement.get_tb_name(),statement.get_attr());
     //然后创建索引
+    //TODO 索引呢？？？
     vector<pair<string,string>> index_sequence = statement.get_index();
+    cerr <<"index_sequence.size() = "<<index_sequence.size()<<endl;
     for(auto &index : index_sequence){
+        cerr << "index.first = "<<index.first<<" index.second = "<<index.second<<endl;
+
         db_manager_->CreateIndex(statement.get_tb_name(),index.first,index.second);
     }
 }

@@ -31,6 +31,9 @@ void Row::Update(vector<pair<string,string>> &col_item){
     }
 }
 bool Row::isSatisfied(const SQLWhere& where) const{
+    if(where.getOperator() == ClauseOperator::NOP){
+        return true;
+    }
     //先判断Where语句顶层是AND还是OR,如果是AND则需要都满足,如果是OR则只需要有一个满足
     if(where.getOperator() == ClauseOperator::AND){
         for(auto &i:col_value_){
@@ -317,6 +320,8 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
     
     uint16 shift = 0;
     for(int i = 0;i < col_cnt_;i++){
+        string name = col_info[i].col_name_;
+        col2id_[name] = i;
         col_shift_.push_back(shift);
         shift += col_info[i].length_;
     }
@@ -518,6 +523,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
             Row row(col_info_,it);
             tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),it);
         }
+        tb_data_->ReadNextChunk();
     }
     //将索引信息写到tbinfo中
     IndexAttribute index_attr;
@@ -698,13 +704,31 @@ Key Table::getValue(vector<byte> &data,uint16 col_id){
 void Table::SelectRecord(SQLWhere &where){
     //用Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
+    cerr << "Select Complete:indexName:" << indexName << endl;
     //随后根据索引的类型,调用不同的函数
     //先判断这玩意是不是主键,再判断有没有这样的索引
     vector<Row> rows_result;
-    if(indexName == primary_key_){
+    if(indexName == ""){
+        //根本就没有Where条件,直接查
+        cerr << "no index search" << endl;
+        vector<vector<byte>> record;
+        tb_data_->ReadFirstChunk();
+        while(tb_data_->isBufLeaf()){
+            cerr << "isBufLeaf" << endl;
+            record = tb_data_->GetAllElemInChunk();
+            for(auto &it:record){
+                Row row(col_info_,it);
+                rows_result.push_back(row);
+                
+            }
+            tb_data_->ReadNextChunk();
+        }
+    }else if(indexName == primary_key_){
         //如果是主键,则直接调用主键查找函数
+        cerr << "primary key search" << endl;
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则调用主键查找函数
+            cerr << "EQ search" << endl;
             Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType())));
             rows_result.push_back(row);
             //result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
@@ -780,7 +804,7 @@ void Table::SelectRecord(SQLWhere &where){
         }
     }
     //最后将结果转换为字符串输出
-    PrintToStream("Result Found",rows_result);
+    PrintToStream("ResulUSEt Found",rows_result);
 }
 
 void Table::InsertRecord(vector<pair<string,string>> &col_item){

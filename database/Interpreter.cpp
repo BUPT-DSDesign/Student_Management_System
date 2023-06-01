@@ -46,6 +46,8 @@ void Interpreter::GenSQL(){
 	// 在 ( ) , = <> < > 前后加空格,并去掉多增加的空格
 	reg = " ?(\\(|\\)|,|=|(<>)|<|>) ?";
 	sql_statement_ = regex_replace(sql_statement_, reg, " $1 ");
+    reg = "(\"|\'|\\`)\\s*|\\s*(\"|\'|\\`)";
+    sql_statement_ = regex_replace(sql_statement_, reg, " $1$2 ");
 	reg = "< *>";
 	sql_statement_ = regex_replace(sql_statement_, reg, "<>");
 	reg = "< *=";
