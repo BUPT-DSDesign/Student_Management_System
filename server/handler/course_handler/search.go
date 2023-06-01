@@ -56,7 +56,7 @@ func SearchHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, searchResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
-			StatusMsg:  "课程表返回成功",
+			StatusMsg:  "查询的课程信息返回成功",
 		},
 		Courses: courses,
 	})
