@@ -42,7 +42,7 @@ func (f *queryFlow) checkNum() error {
 
 func (f *queryFlow) run(activities **[]*system.ActivityInfo) error {
 	// 在数据库中根据f.userId查询活动
-	var activitiesInfo *[]*system.ActivityInfo
+	activitiesInfo := new([]*system.ActivityInfo)
 	if err := dao.Group.ActivityDao.QueryAllActivityByUserId(f.userId, &activitiesInfo); err != nil {
 		return err
 	}

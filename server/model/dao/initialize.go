@@ -59,7 +59,6 @@ func (db *DB) ExecSql(sqlStr string) error {
 
 func WriteLine(data string) error {
 	// 通过db.stdinWriter将数据写入到标准输入
-	println("写入----------", data)
 	data = strings.TrimSpace(data)
 	_, err := fmt.Fprintf(db.stdin, "%s\n", data)
 	return err
@@ -75,6 +74,5 @@ func ReadLine() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	println("读出----------", string(jsonStr))
 	return jsonStr, nil
 }
