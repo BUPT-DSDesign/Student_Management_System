@@ -38,7 +38,7 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -59,7 +59,7 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		_ = json.Unmarshal(jsonStr, &result)
 
 		// 判断result.status_code是否为0
-		if result["status_code"].(int) != 0 {
+		if result["status_code"].(float64) != 0 {
 			return errors.New(result["status_msg"].(string))
 		}
 	}
@@ -81,7 +81,7 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		_ = json.Unmarshal(jsonStr, &result)
 
 		// 判断result.status_code是否为0
-		if result["status_code"].(int) != 0 {
+		if result["status_code"].(float64) != 0 {
 			return errors.New(result["status_msg"].(string))
 		}
 	}
@@ -106,7 +106,7 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -162,7 +162,7 @@ func (s *courseDao) UpdateCourse(courseId int64, newCourseInfo *common.AddCourse
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -185,7 +185,7 @@ func (s *courseDao) QueryAllCourse(courses **[]*system.CourseInfo) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -232,7 +232,7 @@ func (s *courseDao) QueryCompulsoryCourse(courses **[]*system.CourseInfo) error 
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -246,7 +246,7 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 	/*
 		查询选修课
 	*/
-	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id IN (SELECT course_id FROM student_course WHERE user_id = '%v')", userId)
+	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id IN (SELECT course_id FROM student_course WHERE student_id = '%v')", userId)
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
@@ -261,7 +261,7 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -288,7 +288,7 @@ func (s *courseDao) JudgeIsStudentSelectCourse(userId int64, courseId int64) boo
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return false
 	}
 
@@ -322,7 +322,7 @@ func (s *courseDao) QueryAllSelectiveCourse(courses **[]*system.CourseInfo) erro
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -353,7 +353,7 @@ func (s *courseDao) SelectCourse(userId int64, courseId int64) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -379,7 +379,7 @@ func (s *courseDao) QuerySectionListById(courseId int64, sectionList *[]int) err
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -408,7 +408,7 @@ func (s *courseDao) QueryWeekScheduleById(courseId int64, weekSchedule *[]int) e
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -438,7 +438,7 @@ func (s *courseDao) QueryCourseByName(courseName string, courses **[]*system.Cou
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -467,7 +467,7 @@ func (s *courseDao) QueryCourseByClassroom(classroom string, courses **[]*system
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -497,7 +497,7 @@ func (s *courseDao) QueryCourseBySection(section int, courseIds *[]int64) error 
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -526,7 +526,7 @@ func (s *courseDao) QueryCourseByWeek(week int, courseIds *[]int64) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -553,7 +553,7 @@ func (s *courseDao) QueryCourseById(courseId int64, course *system.CourseInfo) e
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 

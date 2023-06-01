@@ -477,9 +477,12 @@ export default {
                     }
                     this.eventList[i].date = this.eventList[i].start_time.slice(0, -6)
                 }
-                this.singleActivityRate = (num0 / this.eventList.length) * 100
-                this.groupActivityRate = (num1 / this.eventList.length) * 100
-                this.tempRate = (num2 / this.eventList.length) * 100
+                if (this.eventList.length != 0) {
+                    this.singleActivityRate = (num0 / this.eventList.length) * 100
+                    this.groupActivityRate = (num1 / this.eventList.length) * 100
+                    this.tempRate = (num2 / this.eventList.length) * 100
+                }
+               
                 for (let i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].frequency == 0) {
                         this.eventList[i].frequency = '(单次)'
@@ -637,6 +640,7 @@ export default {
                         "create_time": TimeStore.getTime(),
                         "content": "删除活动成功, 活动名为：" + row.activity_name,
                     }
+                    location.reload();
                     console.log(log)
                     LogStore.AddLog(log)
                     this.deleteEventData = {}
@@ -665,8 +669,8 @@ export default {
             this.submit.activity_name = this.addEventData.name;
             this.submit.start_time = "第" + this.addEventData.week + "周-星期" + this.addEventData.weekday + "-" + this.addEventData.time;
             this.submit.frequency = this.addEventData.frequency;
-            this.submit.is_mention = this.addEventData.ismention;
-            this.submit.advance_mention_time = this.addEventData.advance_mention_time;
+            this.submit.is_mention = this.addEventData.ismention = 'true' ? true : false;
+            this.submit.advance_mention_time = Number(this.addEventData.advance_mention_time);
             this.submit.location = this.addEventData.location;
             
 
@@ -683,6 +687,7 @@ export default {
             else if (this.addEventData.activityType == 'temp') {
                 this.submit.type = 1;
             }
+            console.log(this.submit)
             const addEvent = async (data) => {
                 const fg = await EventStore.AddEventInfo(data);
                 if (fg) {
@@ -692,6 +697,8 @@ export default {
                         message: '添加活动成功',
                         type: 'success'
                     });
+                    this.submit = {};
+                    this.addEventData = {};
                     // 创建一个日志对象
                     const log = {
                         "create_time": TimeStore.getTime(),
@@ -700,12 +707,17 @@ export default {
                     console.log(log)
                     LogStore.AddLog(log)
 
+                    // 刷新页面
+                    location.reload();
                 } else {
                     console.log('error')
                 }
             }
             addEvent(this.submit)
             this.selectedActivityMembers = []
+
+
+
         },
     },
     computed: {

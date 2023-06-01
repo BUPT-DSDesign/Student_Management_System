@@ -40,5 +40,6 @@ func GenerateSalt(size int) (string, error) {
 	for i := 0; i < size; i++ {
 		result += string(randomNum)
 	}
+
 	return result, nil
 }

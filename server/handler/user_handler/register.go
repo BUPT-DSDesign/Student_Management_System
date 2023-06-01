@@ -26,11 +26,12 @@ func RegisterHandler(c *gin.Context) {
 	// 1.拿到middleware传来的参数
 
 	// 表单数据
-	var registerForm common.RegisterRequest
-	_ = c.ShouldBind(&registerForm)
+	rawRegisterForm := c.MustGet("registerForm")
+	registerForm := rawRegisterForm.(common.RegisterRequest)
 
 	rawPassword, ok1 := c.Get("password")
 	rawSalt, ok2 := c.Get("salt")
+
 	if !ok1 || !ok2 {
 		c.JSON(http.StatusOK, registerResponse{
 			StatusResponse: common.StatusResponse{
@@ -44,6 +45,7 @@ func RegisterHandler(c *gin.Context) {
 	password := rawPassword.(string)
 	salt := rawSalt.(string)
 
+	println(salt)
 	// 2.交给service层处理
 	access, err := user_service.Server.DoRegister(registerForm, password, salt)
 	if err != nil {

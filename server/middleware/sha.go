@@ -18,7 +18,11 @@ func reportErr(c *gin.Context, err error) {
 
 func ShaMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		rawPassword := c.PostForm("password")
+		// 获取body中的password
+		var registerForm common.RegisterRequest
+		_ = c.ShouldBindJSON(&registerForm)
+		rawPassword := registerForm.Password
+
 		// 密码sha1加密
 		sha1Password, err := utils.Sha1(rawPassword)
 		if err != nil {
@@ -28,6 +32,7 @@ func ShaMiddleware() gin.HandlerFunc {
 		}
 
 		salt, err := utils.GenerateSalt(10) // 盐, 默认盐的长度为10, 后期可以写到const里面
+
 		if err != nil {
 			reportErr(c, err)
 			c.Abort()
@@ -42,6 +47,7 @@ func ShaMiddleware() gin.HandlerFunc {
 			return
 		}
 
+		c.Set("registerForm", registerForm)
 		c.Set("password", password)
 		c.Set("salt", salt)
 		c.Next()

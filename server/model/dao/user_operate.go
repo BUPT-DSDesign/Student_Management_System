@@ -34,7 +34,7 @@ func (s *userDao) AddUser(userInfo *system.UserInfo) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -61,12 +61,21 @@ func (s *userDao) QueryUserById(userId int64, userInfo **system.UserInfo) error 
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
+	var userInfos []*system.UserInfo
 	// 将result.data转换为[]int64
-	_ = json.Unmarshal([]byte(result["data"].(string)), *userInfo)
+	_ = json.Unmarshal([]byte(result["data"].(string)), &userInfos)
+	if len(userInfos) != 0 {
+		*userInfo = userInfos[0]
+	}
+	println("userInfos: ", (*userInfo).Username)
+
+	if *userInfo == nil {
+		return errors.New("用户不存在")
+	}
 
 	return nil
 }
@@ -88,17 +97,22 @@ func (s *userDao) QueryUserByName(username string, userInfo **system.UserInfo) e
 	}
 
 	// 用一个map来接收返回的json
-	var result map[string]interface{}
+	result := make(map[string]interface{}, 0)
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
 	// 将result.data转换为[]int64
+	var userInfos []*system.UserInfo
 
-	_ = json.Unmarshal([]byte(result["data"].(string)), *userInfo)
+	_ = json.Unmarshal([]byte(result["data"].(string)), &userInfos)
+
+	if len(userInfos) != 0 {
+		*userInfo = userInfos[0]
+	}
 
 	return nil
 }
@@ -123,7 +137,7 @@ func (s *userDao) UpdateUserAvatar(userId int64, avatarUrl string) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -150,7 +164,7 @@ func (s *userDao) UpdateSignature(userId int64, signature string) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -177,7 +191,7 @@ func (s *userDao) QueryAllUser(userInfos **[]*system.UserInfo) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
