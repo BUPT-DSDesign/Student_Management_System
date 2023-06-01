@@ -3,6 +3,8 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
+using namespace std;
 Key::Key(bool is_maximun){
     is_maximun_ = is_maximun;
     is_minimun_ = !is_maximun;
@@ -51,7 +53,8 @@ Key::Key(vector<byte>::iterator begin,int len,uint8 data_type){
             value_uint_ = *(uint64*)&(*begin);
             break;
         default:
-            value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
+            value_str_.assign((char*)&(*begin),len);
+            //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
     }
     data_type_ = data_type;
 }
@@ -191,7 +194,10 @@ ColValue::ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator
             value_uint_ = *(uint64*)&(*begin);
             break;
         default:
-            value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
+            //注意截断
+            value_str_.assign((char*)&(*begin),len);
+            //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
+            cerr << "Get value_str_"<< value_str_ << endl;
     }
 }
 vector<byte> ColValue::getBytes() const{

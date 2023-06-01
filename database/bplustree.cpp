@@ -88,8 +88,8 @@ void BPNode::ReadChunk(streampos pos){
                 child_.push_back(child_p);
             }
             //读取数据
-            vector<byte> tmp(head.data_size_);
-            fp.read((char*)tmp.data(),head.data_size_);
+            vector<byte> tmp(head.data_size_+head.key_size_);
+            fp.read((char*)tmp.data(),head.data_size_+head.key_size_);
             data_.insert(data_.end(),tmp.begin(),tmp.end());
         }
         //如果不是叶子结点,这里记录最后一个孩子
@@ -127,7 +127,7 @@ void BPNode::WriteChunk(){
         if(!head_.is_leaf_)
             //如果不是叶子节点的话才有child
             fp.write((char*)&child_[i],sizeof(child_[i]));
-        fp.write((char*)&data_[data_.size()],head_.data_size_);
+        fp.write((char*)&data_[getElemLocInData(i)],data_size_+key_size_);
     }
     if(!head_.is_leaf_)
         fp.write((char*)&child_[head_.busy_],sizeof(child_[head_.busy_]));
@@ -190,22 +190,29 @@ vector<byte> BPNode::getRawData(int id){
     return tmp;
 }
 void BPNode::setKey(int id,const Key &key){
+    if(id < 0){
+        throw BPNodeException("func setKey:id must be positive");
+    }
     //设置第id个元素的key
     uint16 pos = getElemLocInData(id);
-    std::copy(key.getBytes().begin(),key.getBytes().end(),data_.begin()+pos);
+    vector<byte> tmp_key = key.getBytes();
+    std::copy(tmp_key.begin(),tmp_key.end(),data_.begin()+pos);
 }
 uint16 BPNode::getElemLocInData(int id){
-    return id*data_size_;
+    return id*(data_size_+key_size_);
 }
 void BPNode::insertDataAtPos(int id,const Key &key,const vector<byte>& data){
-    
+    if(id < 0){
+        throw BPNodeException("func insertDataAtPos:id must be positive");
+    }
     //先拿到写入位置
     uint16 pos = getElemLocInData(id);
     //随后开始写入
     //前8个字节为key,后面为data
     vector<byte> tmp;
     //先把key拷贝进去
-    tmp.insert(tmp.end(),key.getBytes().begin(),key.getBytes().end());
+    vector<byte> tmp_key = key.getBytes();
+    tmp.insert(tmp.end(),tmp_key.begin(),tmp_key.end());
     //再把data拷贝进去
     tmp.insert(tmp.end(),data.begin(),data.end());
     //最后写入data_
@@ -363,7 +370,7 @@ bool BPTree::Insert(const Key &key,vector<byte> &data){
     searchLeaf(key);
     //接着判断键值是否重复
     int pos = binarySearch(bufnode_,key);
-    if(is_table_&&key == bufnode_.getKey(pos)){
+    if(pos >= 0 && is_table_&&key == bufnode_.getKey(pos)){
         //键值重复,无法插入(表的主键不能重复)
         return false;
     }
@@ -388,7 +395,8 @@ void BPTree::insertKey(const Key &key,const streampos &old,const streampos &afte
         //节点只有一个,即键值
         root.busy_ = 1;
         //将值写入
-        root.data_.insert(root.data_.begin(),key.getBytes().begin(),key.getBytes().end());
+        vector<byte> key_bytes = key.getBytes();
+        root.data_.insert(root.data_.begin(),key_bytes.begin(),key_bytes.end());
         //然后old为第一个孩子,after为第二个孩子(正好一前一后)
         root.child_[0] = old;
         root.child_[1] = after;
@@ -499,10 +507,12 @@ void BPTree::splitTreeNode(const Key &key,vector<byte> &data){
 void BPTree::insertNoSplit(BPNode &node,const Key &key,const vector<byte> &data){
     //先用二分查找定位
     int pos = binarySearch(node,key);
+    //插入的位置应该是pos+1
+    node.busy_++;
+    node.insertDataAtPos(pos+1,key,data);
     //O(n)的插入操作
     //增加busy数量
-    node.busy_++;
-    node.insertDataAtPos(pos,key,data);
+    
     
 }
 void BPTree::resetIndexChildrenParent(BPNode &node){

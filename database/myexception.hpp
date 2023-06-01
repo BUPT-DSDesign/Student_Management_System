@@ -127,3 +127,14 @@ public:
 private:
     std::string msg_;
 };
+//BPNode相关的错误
+class BPNodeException: public std::exception
+{
+public:
+    BPNodeException(const std::string& msg):msg_("BPNodeException:"+msg){}
+    const char* what() const noexcept override{
+        return (msg_).c_str();
+    }
+private:
+    std::string msg_;
+};

@@ -55,10 +55,13 @@ string Row::getRowJSON() const{
     //获取一条记录的JSON格式
     string res = "{";
     for(auto &i:col_value_){
+        cerr << "\""+i.getColName()+"\":"+i.getValue()+"," << endl;
         res += "\""+i.getColName()+"\":"+i.getValue()+",";
     }
-    res.pop_back();
+    if(col_value_.size() > 0)res.pop_back();
     res += "}";
+    cerr<<"We have res:";
+    cerr<<res<<endl;
     return res;
 }
 vector<byte> Row::toByte() const{
@@ -106,6 +109,10 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
         TableColAttribute tmp;
         //读取每一列的信息,即TableColAttribute中除了default_和comment_的部分
         table_info_->read(reinterpret_cast<char*>(&tmp),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
+        if(tmp.is_primary_){
+            //初始化主键
+            primary_key_ = tmp.col_name_;
+        }
         //读取default_和comment_
         if(tmp.default_length_!=0){
             //如果有默认值,则读取默认值
@@ -179,6 +186,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
             has_primary_key = true;
             primary_key_size = it.length_;
             primary_key_type = it.data_type_;
+            primary_key_ = it.col_name_;
         }
         //写入除了default_和comment_的部分
         table_info_->write(reinterpret_cast<char*>(&it),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
@@ -301,13 +309,15 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
     //如果没有主键,新增主键,并标注为隐藏列
     if(!has_primary_key){
         TableColAttribute primary_key;
-        memset(&primary_key,0,sizeof(TableColAttribute));
+        //会清零的初始化
+        //memset(&primary_key,0,sizeof(TableColAttribute));
         primary_key.data_type_ = T_BIG_INT;
         primary_key.is_primary_ = true;
         primary_key.is_hidden_ = true;
         primary_key.length_ = 8;
-        string primary_key_name = "HIDDEN_PRIMARY_KEY_";
-        std::copy(primary_key_name.begin(),primary_key_name.end(),primary_key.col_name_);
+        primary_key_ = "HIDDEN_PRIMARY_KEY_";
+
+        std::copy(primary_key_.begin(),primary_key_.end(),primary_key.col_name_);
         primary_key.default_length_ = 0;
         primary_key.comment_length_ = 0;
         col_cnt_++;
@@ -682,7 +692,9 @@ vector<byte> Table::serialize(vector<pair<string,string>> &col_item){
                         throw TableDataError("Data Serialize Error,varchar length out of range,COLUMN:"+it.first+" VALUE:"+it.second);
                     }
                     //如果没有超过,则直接拷贝
-                    std::copy(reinterpret_cast<std::byte*>(it.second.data()),reinterpret_cast<std::byte*>(it.second.data())+col_info_[id].length_,data.begin()+shift);
+                    
+                    std::copy(reinterpret_cast<byte*>(it.second.data()),reinterpret_cast<byte*>(it.second.data())+it.second.length(),data.begin()+shift);
+                    
                 } 
                 break;
         }
@@ -826,7 +838,10 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
         std::copy(reinterpret_cast<char*>(&pos),reinterpret_cast<char*>(&pos)+sizeof(streampos),reinterpret_cast<char*>(index_data.data()));
         tb_index_[it.first]->Insert(index_key,index_data);
     }
-    saySuccess();
+    //输出插入的数据
+    vector<Row> result;
+    result.push_back(Row(col_info_,data));
+    PrintToStream("Insert Record",result);
 }
 void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
     //先根据Where类的成员函数获取最应该使用的索引
