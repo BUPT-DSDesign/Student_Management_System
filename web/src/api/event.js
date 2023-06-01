@@ -25,7 +25,7 @@ export const DeleteEvent= (data) => {
 }
 // 查询课程
 export const SearchEvent = (fromTime, endTime) => {
-    const url = '/activity/query?from_time=' + fromTime + 'end_time=' + endTime;
+    const url = '/activity/query?from_time=' + fromTime + '&' + 'to_time=' + endTime;
     return service({
         url: url,
         method: 'get',

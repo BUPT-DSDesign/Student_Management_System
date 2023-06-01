@@ -354,6 +354,15 @@ export default {
             addEventData: {
                 activityType: 'group',
             },
+            dayMap: {
+                '周一': '星期1',
+                '周二': '星期2',
+                '周三': '星期3',
+                '周四': '星期4',
+                '周五': '星期5',
+                '周六': '星期6',
+                '周日': '星期7'
+            },
             deleteEventData: {},
             radio: '',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
@@ -457,8 +466,8 @@ export default {
                 { label: '周六', value: '周六' },
                 { label: '周日', value: '周七' }
             ],
-            timeOptions: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
-            searchEventlist: [],
+            timeOptions: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+            searchEventList: [],
         }
     },
     created() {
@@ -488,9 +497,9 @@ export default {
                     this.groupActivityRate = (num1 / this.eventList.length) * 100
                     this.tempRate = (num2 / this.eventList.length) * 100
                     // 三者保留一位小数
-                    this.singleActivityRate = this.singleActivityRate.toFixed(1)
-                    this.groupActivityRate = this.groupActivityRate.toFixed(1)
-                    this.tempRate = this.tempRate.toFixed(1)
+                    this.singleActivityRate = this.singleActivityRate.toFixed(0)
+                    this.groupActivityRate = this.groupActivityRate.toFixed(0)
+                    this.tempRate = this.tempRate.toFixed(0)
                 }
                
                 for (let i = 0; i < this.eventList.length; i++) {
@@ -556,12 +565,14 @@ export default {
         },
          // 发送查询请求
         query() {
-            let start_time = this.queryForm.startTime.week + "-" + this.queryForm.startTime.day + "-" + this.queryForm.startTime.time;
-            let end_time = this.queryForm.endTime.week + "-" + this.queryForm.endTime.day + "-" + this.queryForm.endTime.time;
+
+            let start_time = this.queryForm.startTime.week + "-" + this.dayMap[this.queryForm.startTime.day] + "-" + this.queryForm.startTime.time;
+            let end_time = this.queryForm.endTime.week + "-" + this.dayMap[this.queryForm.endTime.day] + "-" + this.queryForm.endTime.time;
             const searchEvent = async (start_time, end_time) => {
                 const fg = await EventStore.SearchEventInfo(start_time, end_time);
                 if (fg) {
-                    this.searchEventlist = CourseStore.searchlist;
+                    this.searchEventList = EventStore.searchList;
+                    console.log(this.searchEventList)
 
                 } else {
                     console.log('error')

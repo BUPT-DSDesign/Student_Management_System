@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 export const useEventStore = defineStore('event', () => {
     const eventList = ref([])
-    const searchlist=ref([])
+    const searchList=ref([])
     const GetEventTable = async () => {
         try {
             const res = await EventTable()
@@ -54,9 +54,11 @@ export const useEventStore = defineStore('event', () => {
             return false
         }
     }
+
     const SearchEventInfo = async (fromTime, endTime) => {
         try {
             const res = await SearchEvent(fromTime, endTime)
+            console.log(res.data)
             if (res.data.status_code == 0) {
                 searchList.value = res.data.activities
                 return true
@@ -68,7 +70,7 @@ export const useEventStore = defineStore('event', () => {
 
     return {
         eventList,
-        searchlist,
+        searchList,
         GetEventTable,
         AddEventInfo,
         DeleteEventInfo,

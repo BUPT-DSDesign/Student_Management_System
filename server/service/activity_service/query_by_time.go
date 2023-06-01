@@ -22,7 +22,7 @@ func (s *server) DoQueryByTime(userId int64, fromTime string, toTime string) (*[
 }
 
 func (f *queryFlow) do() (*[]*system.ActivityInfo, error) {
-	var activities *[]*system.ActivityInfo
+	activities := new([]*system.ActivityInfo)
 
 	if err := f.checkNum(); err != nil {
 		return nil, err
