@@ -367,6 +367,7 @@ export default {
             //点击弹窗打开
             this.dialogVisible2 = true;
         },
+        //删除课程
         deleteClass(index, row) {
             let name=row.classname;
             const matchingObj = this.classData.find(obj => obj.course_name == name);
@@ -401,6 +402,7 @@ export default {
 
             deleteCourse(id);
         },
+       //修改课程
         submitEditForm() {
             this.dialogVisible2 = false;
             let week_schedule = [];
@@ -447,9 +449,9 @@ export default {
                     this.clickedClassData = {}
                 }
             }
-
             editCourse(this.clickedClassData)
         },
+        //添加课程
         submitAddForm() {
             this.dialogVisible4 = false;
             let week_schedule = [];
@@ -465,10 +467,8 @@ export default {
             })
             section_list.sort();
             this.addClassData.section_list = section_list;
-
             this.addClassData.is_course_online = 1 ? true : false;
             this.addClassData.is_compulsory = 1 ? true : false;
-
 
             const addCourse = async (data) => {
                 const fg = await CourseStore.AddCourseInfo(data);
@@ -498,15 +498,8 @@ export default {
                     this.addClassData = {}
                 }
             }
-
-            addCourse(this.addClassData)
-
-            
+            addCourse(this.addClassData) 
         },
-        addclass() {
-            this.dialogVisible4 = true;
-
-        }
     },
 }
 </script>

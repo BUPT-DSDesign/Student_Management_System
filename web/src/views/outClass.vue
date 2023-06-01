@@ -354,6 +354,7 @@ export default {
             searchText: '',
             weeks: Array.from({ length: 15 }, (_, i) => i + 1),
             days: ['一', '二', '三', '四', '五', '六', '日'],
+            tempRate:1,
             placelist: [
                 { id: 0, address: "青年公寓", value: "青年公寓" },
                 { id: 1, address: "北邮锦江酒店", value: "北邮锦江酒店" },
@@ -455,6 +456,8 @@ export default {
         }
     },
     created() {
+
+        //获取活动
         const getActivityTable = async () => {
             const fg = await EventStore.GetEventTable()
             if (fg) {
@@ -511,6 +514,7 @@ export default {
         }
         getActivityTable()
 
+         //获取学生信息
         const getStudentsInfo = async () => {
             const fg = await UserStore.GetAllStuInfo()
             if (fg) {
@@ -532,17 +536,15 @@ export default {
         }
         getStudentsInfo()
     },
+
     methods: {
         showDialog() {
             this.showDialogVisible = true
         },
+         // 发送查询请求
         query() {
-            // 发送查询请求
-            console.log(this.queryForm.startTime);
-            console.log(this.queryForm.endTime);
-
-            let start_time = this.queryForm.startTime;
-            let end_time = this.queryForm.endTime;
+            let start_time = this.queryForm.startTime.week + "-" + this.queryForm.startTime.day + "-" + this.queryForm.startTime.time;
+            let end_time = this.queryForm.endTime.week + "-" + this.queryForm.endTime.day + "-" + this.queryForm.endTime.time;
             const searchEvent = async (start_time, end_time) => {
                 const fg = await EventStore.SearchEventInfo(start_time, end_time);
                 if (fg) {
@@ -555,6 +557,7 @@ export default {
             searchEvent(start_time, end_time)
             this.showDialogVisible = false
         },
+
         // 搜索框智能加载
         querySearch(queryString, cb) {
             var placelist = this.placelist;
