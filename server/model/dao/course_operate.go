@@ -24,6 +24,8 @@ func (s *courseDao) AddCourse(courseInfo *system.CourseInfo) error {
 		utils.BoolToInt8(courseInfo.IsCompulsory),
 	)
 
+	println(sqlStr)
+
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}

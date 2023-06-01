@@ -60,6 +60,10 @@ func (s *userDao) QueryUserById(userId int64, userInfo **system.UserInfo) error 
 	var result map[string]interface{}
 	_ = json.Unmarshal(jsonStr, &result)
 
+	// 将result转换为json
+	dbg, _ := json.Marshal(result)
+	println(string(dbg))
+
 	// 判断result.status_code是否为0
 	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
@@ -71,7 +75,7 @@ func (s *userDao) QueryUserById(userId int64, userInfo **system.UserInfo) error 
 	if len(userInfos) != 0 {
 		*userInfo = userInfos[0]
 	}
-	println("userInfos: ", (*userInfo).Username)
+	println("userInfos: ", (*userInfo).IsAdmin)
 
 	if *userInfo == nil {
 		return errors.New("用户不存在")
@@ -107,7 +111,6 @@ func (s *userDao) QueryUserByName(username string, userInfo **system.UserInfo) e
 
 	// 将result.data转换为[]int64
 	var userInfos []*system.UserInfo
-
 	_ = json.Unmarshal([]byte(result["data"].(string)), &userInfos)
 
 	if len(userInfos) != 0 {

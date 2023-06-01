@@ -11,12 +11,13 @@
                     <el-input v-model="search" size="mini" placeholder="输入关键字搜索" prefix-icon="el-icon-search" />
                 </template>
                 <template slot-scope="scope">
+                    <el-button size="mini" type="success">查看详情</el-button>
                     <el-button size="mini" type="primary" @click="editClass(scope.$index, scope.row)">修改课程</el-button>
                     <el-button size="mini" type="danger" @click="deleteClass(scope.$index, scope.row)">删除课程</el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <el-button type="primary" plain @click="addclass">添加课程</el-button>
+        <el-button type="primary" plain @click="addClass">添加课程</el-button>
         <!-- 修改课程 -->
         <el-dialog title="修改课程" :visible.sync="dialogVisible2" width="600px">
                 <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
@@ -24,7 +25,7 @@
                         <el-input v-model="clickedClassData.course_name"></el-input>
                     </el-form-item>
                     <el-form-item label="上课地点">
-                        <el-input v-model="clickedClassData.section_list"></el-input>
+                        <el-input v-model="clickedClassData.classroom"></el-input>
                     </el-form-item>
                     <el-form-item label="授课老师">
                         <el-input v-model="clickedClassData.teacher"></el-input>
@@ -81,7 +82,7 @@
                     <el-input v-model="addClassData.course_name"></el-input>
                 </el-form-item>
                 <el-form-item label="上课地点">
-                    <el-input v-model="addClassData.section_list"></el-input>
+                    <el-input v-model="addClassData.classroom"></el-input>
                 </el-form-item>
                 <el-form-item label="授课老师">
                     <el-input v-model="addClassData.teacher"></el-input>
@@ -343,6 +344,9 @@ export default {
         }
     },
     methods: {
+        addClass() {
+            this.dialogVisible4 = true;
+        },
         clickcell(e) {
             this.clickedClass = e.classname;
             // 循环遍历找到数据库中该课程的所有信息
@@ -419,8 +423,8 @@ export default {
             section_list.sort();
             this.clickedClassData.section_list = section_list;
 
-            this.clickedClassData.is_course_online = 1 ? true : false;
-            this.clickedClassData.is_compulsory = 1 ? true : false;
+            this.clickedClassData.is_course_online = '1' ? true : false;
+            this.clickedClassData.is_compulsory = '1' ? true : false;
 
             const editCourse = async (data) => {
                 const fg = await CourseStore.EditCourseInfo(data);
@@ -467,10 +471,11 @@ export default {
             })
             section_list.sort();
             this.addClassData.section_list = section_list;
-            this.addClassData.is_course_online = 1 ? true : false;
-            this.addClassData.is_compulsory = 1 ? true : false;
+            this.addClassData.is_course_online = '1' ? true : false;
+            this.addClassData.is_compulsory = '1' ? true : false;
 
             const addCourse = async (data) => {
+                console.log(data)
                 const fg = await CourseStore.AddCourseInfo(data);
                 if (fg) {
                     this.$message({
@@ -486,7 +491,7 @@ export default {
                     }
                     console.log(log)
                     LogStore.AddLog(log)
-                    this.addClassData = {}
+                    // this.addClassData = {}
                                        
                 } else {
                     this.$message({
@@ -495,7 +500,7 @@ export default {
                         message: '添加课程失败',
                         type: 'error'
                     });
-                    this.addClassData = {}
+                    // this.addClassData = {}
                 }
             }
             addCourse(this.addClassData) 

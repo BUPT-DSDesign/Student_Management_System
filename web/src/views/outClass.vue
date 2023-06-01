@@ -5,7 +5,7 @@
             <div class="table-container">
                 <el-table :data="filteredData" :default-sort="{ prop: 'start_day', order: 'ascending' }" :filters="filters"
                     filter-method="filterTable" max-height="370px" height="370px" :fixed="true">
-
+                    <el-table-column type="index" width="10px" align="center"></el-table-column>
                     <el-table-column label="开始日期" :formatter="formatDay" sortable :sort-method="sortDay" align="center">
                         <template slot-scope="scope">
                             <span>{{ scope.row.date }}</span>

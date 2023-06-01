@@ -23,7 +23,7 @@ func AddHandler(c *gin.Context) {
 	rawUserId, ok1 := c.Get("user_id")
 	userId, ok2 := rawUserId.(int64)
 	if !ok1 || !ok2 {
-		c.JSON(http.StatusOK, tableResponse{
+		c.JSON(http.StatusOK, addResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 1,
 				StatusMsg:  "解析id出错",
@@ -34,12 +34,11 @@ func AddHandler(c *gin.Context) {
 
 	// 得到addCourseRequest
 	var addCourseRequest common.AddCourseRequest
-
 	_ = c.ShouldBindJSON(&addCourseRequest)
 
 	// 调用service服务
 	if err := course_service.Server.DoAdd(userId, addCourseRequest); err != nil {
-		c.JSON(http.StatusOK, tableResponse{
+		c.JSON(http.StatusOK, addResponse{
 			StatusResponse: common.StatusResponse{
 				StatusCode: 2,
 				StatusMsg:  err.Error(),
@@ -49,7 +48,7 @@ func AddHandler(c *gin.Context) {
 	}
 
 	// 添加课程返回成功
-	c.JSON(http.StatusOK, tableResponse{
+	c.JSON(http.StatusOK, addResponse{
 		StatusResponse: common.StatusResponse{
 			StatusCode: 0,
 			StatusMsg:  "添加课程成功",

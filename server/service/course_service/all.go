@@ -19,7 +19,7 @@ func (s *server) DoAll(userId int64) (*[]*system.CourseInfo, error) {
 }
 
 func (f *allFlow) do() (*[]*system.CourseInfo, error) {
-	var courses *[]*system.CourseInfo
+	courses := new([]*system.CourseInfo)
 
 	if err := f.checkNum(); err != nil {
 		return nil, err

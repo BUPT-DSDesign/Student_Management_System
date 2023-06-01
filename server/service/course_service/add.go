@@ -1,7 +1,6 @@
 package course_service
 
 import (
-	"errors"
 	"server/model/dao"
 	"server/model/entity/common"
 	"server/model/entity/system"
@@ -36,13 +35,6 @@ func (f *addFlow) do() error {
 // 检验参数
 func (f *addFlow) checkNum() error {
 	// 根据userId, 判断是否是管理员进行操作
-	var userInfo *system.UserInfo
-	if err := dao.Group.UserDao.QueryUserById(f.userId, &userInfo); err != nil {
-		return err
-	}
-	if userInfo.IsAdmin == false {
-		return errors.New("您不是管理员, 没有权限添加课程")
-	}
 	return nil
 }
 
