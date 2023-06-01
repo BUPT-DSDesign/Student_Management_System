@@ -1,10 +1,18 @@
 <template>
     <div style="margin:20px">
-        <h1>课程管理</h1>
-        <el-table :data="tableData" height="380px" border style="width: 800px">
-            <el-table-column prop="classname" label="课程名称" width="180">
+        <div style="text-align: center;"><h1>课程管理</h1></div>
+
+        <el-table :data="classData" height="380px" border>
+            <el-table-column type="index" width="10px" align="center"></el-table-column>
+            <el-table-column prop="course_name" label="课程名称" width="120" align="center">
             </el-table-column>
-            <el-table-column prop="classtime" label="课程时间" width="280">
+            <el-table-column prop="teacher" label="上课老师" width="120" align="center">
+            </el-table-column>
+            <el-table-column prop="teacher" label="上课地点" width="120" align="center">
+            </el-table-column>
+            <el-table-column prop="classTime" label="课程时间" width="280" align="center">
+            </el-table-column>
+            <el-table-column prop="exam_option" label="考核方式" width="100" align="center">
             </el-table-column>
             <el-table-column align="right">
                 <template slot="header" slot-scope="scope">
@@ -17,7 +25,7 @@
                 </template>
             </el-table-column>
         </el-table>
-        <el-button type="primary" plain @click="addClass">添加课程</el-button>
+        <el-button style="float: right; margin-top: 10px" type="primary" @click="addClass">添加课程</el-button>
         <!-- 修改课程 -->
         <el-dialog title="修改课程" :visible.sync="dialogVisible2" width="600px">
                 <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
@@ -195,9 +203,10 @@ const sectionMap = [{
 export default {
     created() {
         const getTable = async () => {
-            const fg = await CourseStore.GetCourseTable();
+            const fg = await CourseStore.GetAllCourse();
             if (fg) {
-                this.classData = CourseStore.courseList
+                this.classData = CourseStore.allCourseList
+                console.log(this.classData)
                 //添加一个属性以便格式化课程时间
                 for (let i = 0; i < this.classData.length; i++) {
                     let start = 0;
@@ -228,13 +237,7 @@ export default {
                     else {
                         this.classData[i]['classTime'] = startTime + '-' + endTime;
                     }
-
-                }
-                for (let i = 0; i < this.classData.length; i++) {
-                    this.tableData.push({
-                        classname: this.classData[i].course_name,
-                        classtime: this.classData[i].classTime,
-                    })
+                    
                 }
             } else {
                 console.log('error')

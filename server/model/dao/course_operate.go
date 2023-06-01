@@ -389,7 +389,7 @@ func (s *courseDao) QuerySectionListById(courseId int64, sectionList *[]int) err
 	/*
 		根据课程id查询节次
 	*/
-	sqlStr := fmt.Sprintf("SELECT section_id FROM course_section WHERE course_id = '%v'", courseId)
+	sqlStr := fmt.Sprintf("SELECT * FROM course_section WHERE course_id = '%v'", courseId)
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
@@ -408,8 +408,12 @@ func (s *courseDao) QuerySectionListById(courseId int64, sectionList *[]int) err
 		return errors.New(result["status_msg"].(string))
 	}
 
-	// 将result.data转换为[]int
-	_ = json.Unmarshal([]byte(result["data"].(string)), sectionList)
+	var courseSection []*system.CourseSection
+	_ = json.Unmarshal([]byte(result["data"].(string)), &courseSection)
+
+	for _, v := range courseSection {
+		*sectionList = append(*sectionList, v.SectionId)
+	}
 
 	return nil
 }
@@ -435,6 +439,13 @@ func (s *courseDao) QueryWeekScheduleById(courseId int64, weekSchedule *[]int) e
 	// 判断result.status_code是否为0
 	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
+	}
+
+	var courseWeek []*system.CourseWeek
+	_ = json.Unmarshal([]byte(result["data"].(string)), &courseWeek)
+
+	for _, v := range courseWeek {
+		*weekSchedule = append(*weekSchedule, v.WeekId)
 	}
 
 	// 将result.data转换为[]int

@@ -43,5 +43,20 @@ func (f *allFlow) run(courses **[]*system.CourseInfo) error {
 		return err
 	}
 
+	// 添加课程的周次和节次
+	for _, course := range **courses {
+		// 课程的周次和节次
+		var weekSchedule []int
+		var sectionList []int
+		if err := dao.Group.CourseDao.QueryWeekScheduleById(course.CourseId, &weekSchedule); err != nil {
+			return err
+		}
+		if err := dao.Group.CourseDao.QuerySectionListById(course.CourseId, &sectionList); err != nil {
+			return err
+		}
+		course.WeekSchedule = weekSchedule
+		course.SectionList = sectionList
+	}
+
 	return nil
 }
