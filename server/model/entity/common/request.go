@@ -35,9 +35,9 @@ type AddActivityRequest struct {
 	Location           string  `json:"location" form:"location"`
 	Tag                string  `json:"tag" form:"tag"`
 	Frequency          int     `json:"frequency" form:"frequency"`
-	IsMention          bool    `json:"is_mention" form:"is_mention"` // 是否需要提醒
-	AdvanceMentionTime int     `json:"advance_mention_time"`         // 提前提醒时间, 单位是分钟
-	Members            []int64 `json:"members" form:"members"`       // 活动成员, 当为集体活动时, 该字段不为空
+	IsMention          bool    `json:"is_mention" form:"is_mention"`                     // 是否需要提醒
+	AdvanceMentionTime int     `json:"advance_mention_time" form:"advance_mention_time"` // 提前提醒时间, 单位是分钟
+	Members            []int64 `json:"members" form:"members"`                           // 活动成员, 当为集体活动时, 该字段不为空
 }
 
 // NavigateRequest 导航请求

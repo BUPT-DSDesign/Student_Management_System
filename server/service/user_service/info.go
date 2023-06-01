@@ -43,16 +43,5 @@ func (f *infoFlow) run(userInfo **system.UserInfo) error {
 		return err
 	}
 
-	*userInfo = &system.UserInfo{
-		Username:  "admin",
-		Password:  "213213",
-		Salt:      "3213",
-		UserId:    0,
-		StudentId: "32131",
-		IsAdmin:   false,
-		AvatarUrl: "http://127.0.0.1:8080/static/avatar.jpg",
-		Signature: "开心每一天",
-	}
-
 	return nil
 }

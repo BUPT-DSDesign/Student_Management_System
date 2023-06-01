@@ -28,7 +28,7 @@ func (s *logDao) QueryLogsByUserId(UserId int64, logs **[]*system.LogInfo) error
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -60,7 +60,7 @@ func (s *logDao) AddLog(logInfo *system.LogInfo) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -87,7 +87,7 @@ func (s *logDao) DeleteLogById(logId int64) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 

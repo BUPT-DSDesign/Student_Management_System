@@ -10,7 +10,7 @@ import (
 
 func (s *activityDao) AddActivity(activityInfo *system.ActivityInfo) error {
 	// 将activityInfo转换为sql语句
-	sqlStr := fmt.Sprintf("INSERT INTO activity_info VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
+	sqlStr := fmt.Sprintf("INSERT INTO activity_info VALUES('%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v', '%v')",
 		activityInfo.ActivityId,
 		activityInfo.ActivityName,
 		activityInfo.UserId,
@@ -20,7 +20,10 @@ func (s *activityDao) AddActivity(activityInfo *system.ActivityInfo) error {
 		activityInfo.Tag,
 		activityInfo.Frequency,
 		utils.BoolToInt8(activityInfo.IsMention),
+		activityInfo.AdvanceMentionTime,
 	)
+
+	println(sqlStr)
 
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
@@ -36,7 +39,7 @@ func (s *activityDao) AddActivity(activityInfo *system.ActivityInfo) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -59,7 +62,7 @@ func (s *activityDao) DeleteActivity(activityId int64) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -82,7 +85,7 @@ func (s *activityDao) QueryNeedMentionActivity(userId int64, activities **[]*sys
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
@@ -98,17 +101,21 @@ func (s *activityDao) QueryAllActivityByUserId(userId int64, activities **[]*sys
 		return err
 	}
 
+	println(sqlStr)
+
 	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
+
+	println("jsonStr: ", string(jsonStr))
 
 	// 用一个map来接收返回的json
 	var result map[string]interface{}
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 

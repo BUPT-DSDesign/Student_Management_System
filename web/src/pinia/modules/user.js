@@ -6,6 +6,15 @@ import { Loading } from 'element-ui'
 export const useUserStore = defineStore('user', () => {
     const loadingInstance = ref(null) // 加载框
 
+
+
+    // 登录
+    const initTokenAndId = () => {
+        window.localStorage.removeItem('token') //移除token
+        window.localStorage.removeItem('userId') //移除id
+        window.localStorage.removeItem('role')
+    }
+
     // 注册
     const RegisterIn = async (registerInfo) => {
         loadingInstance.value = Loading.service({
@@ -26,19 +35,14 @@ export const useUserStore = defineStore('user', () => {
                 loadingInstance.value.close()
                 // ....其他操作
                 return true
+            } else {
+                loadingInstance.value.close()    
             }
             return false
         } catch (err) {
             loadingInstance.value.close()
             return false
         }
-    }
-
-    // 登录
-    const initTokenAndId = () => {
-        window.localStorage.removeItem('token') //移除token
-        window.localStorage.removeItem('userId') //移除id
-        window.localStorage.removeItem('role')
     }
     const LoginIn = async (loginInfo) => {
         loadingInstance.value = Loading.service({
@@ -48,7 +52,6 @@ export const useUserStore = defineStore('user', () => {
         })
         try {
             const res = await Login(loginInfo)
-            console.log(res.data)
             if (res.data.status_code == 0) {
                 initTokenAndId()
                 // 登录成功后把token和userId存起来
@@ -60,6 +63,8 @@ export const useUserStore = defineStore('user', () => {
                 loadingInstance.value.close()
                 // ....其他操作
                 return true
+            } else {
+                loadingInstance.value.close()    
             }
 
             return false
@@ -74,7 +79,9 @@ export const useUserStore = defineStore('user', () => {
     const GetUserInfo = async () => {
         try {
             const res = await GetInfo()
+            console.log(res.data)
             if (res.data.status_code == 0) {
+                
                 userInfo.value = res.data.user_info
                 return true
             }

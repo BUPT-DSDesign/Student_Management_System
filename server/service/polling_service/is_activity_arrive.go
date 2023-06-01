@@ -53,7 +53,8 @@ func (f *isActivityArriveFlow) checkNum() error {
 
 func (f *isActivityArriveFlow) run(activityInfo **system.ActivityInfo) error {
 	// 先根据userId查出来用户的所有需要提醒的活动
-	var activityInfos *[]*system.ActivityInfo
+	activityInfos := new([]*system.ActivityInfo)
+
 	if err := dao.Group.ActivityDao.QueryNeedMentionActivity(f.userId, &activityInfos); err != nil {
 		return err
 	}
