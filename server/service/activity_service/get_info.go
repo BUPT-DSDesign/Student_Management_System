@@ -1,7 +1,6 @@
 package activity_service
 
 import (
-	"server/algorithm/my_sort"
 	"server/model/dao"
 	"server/model/entity/system"
 )
@@ -47,17 +46,17 @@ func (f *getInfoFlow) run(activities **[]*system.ActivityInfo) error {
 		return err
 	}
 
-	// 对活动按照时间进行排序
-	var activitySlice my_sort.ActivitySlice
-	for _, activity := range **activities {
-		activitySlice = append(activitySlice, activity)
-	}
-	my_sort.QuickSort(activitySlice)
-
-	// 将排序后的活动放回activities
-	for i, activity := range activitySlice {
-		(**activities)[i] = activity
-	}
+	//// 对活动按照时间进行排序
+	//var activitySlice my_sort.ActivitySlice
+	//for _, activity := range **activities {
+	//	activitySlice = append(activitySlice, activity)
+	//}
+	//my_sort.QuickSort(activitySlice)
+	//
+	//// 将排序后的活动放回activities
+	//for i, activity := range activitySlice {
+	//	(**activities)[i] = activity
+	//}
 
 	return nil
 }

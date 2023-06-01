@@ -267,7 +267,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 // TransactionAndActivityIsExistConflict 检测事务和活动是否冲突
 func TransactionAndActivityIsExistConflict(userId int64, activity *system.ActivityInfo) bool {
 	// 先根据userId查询出学生的活动
-	var activities *[]*system.ActivityInfo
+	activities := new([]*system.ActivityInfo)
 	if err := dao.Group.ActivityDao.QueryAllActivityByUserId(userId, &activities); err != nil {
 		return false
 	}

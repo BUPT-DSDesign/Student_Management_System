@@ -83,6 +83,7 @@ func (f *addFlow) run() error {
 
 		// 遍历f.addActivityRequest.Members, 如果是集体活动, 则其成员也需要加入该活动
 		for _, memberId := range f.addActivityRequest.Members {
+			println(memberId)
 			// 生成一个活动id
 			activityId, err = utils.GenerateId()
 			if err != nil {

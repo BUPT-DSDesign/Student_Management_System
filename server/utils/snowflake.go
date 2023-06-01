@@ -17,7 +17,7 @@ func GenerateId() (int64, error) {
 
 	id := node.Generate().Int64()
 	idStr := strconv.FormatInt(id, 10)
-	idStr = idStr[3:]
+	idStr = idStr[6:]
 	id, err = strconv.ParseInt(idStr, 10, 64)
 	return id, nil
 }

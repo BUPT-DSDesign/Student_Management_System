@@ -199,13 +199,13 @@ func (s *courseDao) QueryCourseByUserId(userId int64, courses *[]*system.CourseI
 	// 查询学生选课表
 	// 方法是先查询必修课，再查询选修课
 	// 必修课
-	var compulsoryCourse *[]*system.CourseInfo
+	compulsoryCourse := new([]*system.CourseInfo)
 	if err := s.QueryCompulsoryCourse(&compulsoryCourse); err != nil {
 		return err
 	}
 
 	// 选修课
-	var electiveCourse *[]*system.CourseInfo
+	electiveCourse := new([]*system.CourseInfo)
 	if err := s.QueryElectiveCourse(userId, &electiveCourse); err != nil {
 		return err
 	}

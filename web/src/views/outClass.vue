@@ -153,14 +153,14 @@
                         </el-form-item>
                         <el-form-item label="活动频次">
                             <el-radio-group v-model="addEventData.frequency">
-                                <el-radio label="1">单次</el-radio>
-                                <el-radio label="2">每天一次</el-radio>
-                                <el-radio label="3">每周一次</el-radio>
+                                <el-radio label="0">单次</el-radio>
+                                <el-radio label="1">每天一次</el-radio>
+                                <el-radio label="2">每周一次</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="活动地点">
                             <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
-                                placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                                placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                             </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="是否添加提醒">
@@ -209,14 +209,14 @@
                         </el-form-item>
                         <el-form-item label="活动频次">
                             <el-radio-group v-model="addEventData.frequency">
-                                <el-radio label="1">单次</el-radio>
-                                <el-radio label="2">每天一次</el-radio>
-                                <el-radio label="3">每周一次</el-radio>
+                                <el-radio label="0">单次</el-radio>
+                                <el-radio label="1">每天一次</el-radio>
+                                <el-radio label="2">每周一次</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="活动地点">
                             <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
-                                placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                                placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                             </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="是否添加提醒">
@@ -241,7 +241,7 @@
                         </el-form-item>
                         <el-form-item label="活动时间">
                             <el-time-picker placeholder="选择时间" v-model="addEventData.time"
-                                style="width: 100%;"></el-time-picker>
+                                style="width: 100%;" :picker-options="{ format: 'HH:mm' }" value-format="HH:mm"></el-time-picker>
                         </el-form-item>
                         <el-form-item label="周次">
                             <el-select v-model="addEventData.week" placeholder="请选择" @change="getWeekDays">
@@ -249,13 +249,19 @@
                             </el-select>
                         </el-form-item>
                         <el-form-item label="星期">
-                            <el-select v-model="addEventData.weekday" placeholder="请选择">
-                                <el-option v-for="day in days" :key="day" :label="`星期${day}`" :value="day"></el-option>
+                            <el-select v-model="addEventData.weekday">
+                                <el-option label="星期一" value="1"></el-option>
+                                <el-option label="星期二" value="2"></el-option>
+                                <el-option label="星期三" value="3"></el-option>
+                                <el-option label="星期四" value="4"></el-option>
+                                <el-option label="星期五" value="5"></el-option>
+                                <el-option label="星期六" value="6"></el-option>
+                                <el-option label="星期日" value="7"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="活动地点">
                             <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
-                                placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                                placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                             </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="是否添加提醒">
@@ -665,7 +671,7 @@ export default {
             this.submit = {};
             this.submit.activity_name = this.addEventData.name;
             this.submit.start_time = "第" + this.addEventData.week + "周-星期" + this.addEventData.weekday + "-" + this.addEventData.time;
-            this.submit.frequency = this.addEventData.frequency;
+            this.submit.frequency = Number(this.addEventData.frequency);
             this.submit.is_mention = this.addEventData.ismention = 'true' ? true : false;
             this.submit.advance_mention_time = Number(this.addEventData.advance_mention_time);
             this.submit.location = this.addEventData.location;
@@ -683,6 +689,7 @@ export default {
             }
             else if (this.addEventData.activityType == 'temp') {
                 this.submit.type = 1;
+                this.submit.tag = "临时活动";
             }
             console.log(this.submit)
             const addEvent = async (data) => {
