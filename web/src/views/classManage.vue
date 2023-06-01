@@ -405,13 +405,13 @@ export default {
                 const sectionIndex = (section - 1) % 9; // 获取第几节课
                 return days[day] + sections[sectionIndex];
             }).join('，');
-            const weekSchedule = course.week_schedule.map((week, index) => week === 1 ? index + 1 : null).filter(week => week !== null).join('，') + '周';
+            
             return {
                 course_name: course.course_name,
                 classroom: course.classroom,
                 teacher: course.teacher,
                 class_time: classTime,
-                week_schedule: weekSchedule,
+                week_schedule: "第"+course.week_schedule+"周",
                 exam_time: course.exam_time,
                 exam_location: course.exam_location
             };
@@ -496,6 +496,7 @@ export default {
             this.clickedClassData.is_course_online = '1' ? true : false;
             this.clickedClassData.is_compulsory = '1' ? true : false;
 
+             console.log(this.clickedClassData)
             const editCourse = async (data) => {
                 const fg = await CourseStore.EditCourseInfo(data);
                 if (fg) {
