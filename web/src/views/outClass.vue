@@ -5,7 +5,7 @@
             <div class="table-container">
                 <el-table :data="filteredData" :default-sort="{ prop: 'start_day', order: 'ascending' }" :filters="filters"
                     filter-method="filterTable" max-height="370px" height="370px" :fixed="true">
-
+                    <el-table-column type="index" width="10px" align="center"></el-table-column>
                     <el-table-column label="开始日期" :formatter="formatDay" sortable :sort-method="sortDay" align="center">
                         <template slot-scope="scope">
                             <span>{{ scope.row.date }}</span>
@@ -63,8 +63,9 @@
             <!-- 按键部分 -->
             <div class="button-container">
                 <!-- 查询活动 -->
-                <el-button type="success" @click="showDialog" icon="el-icon-search" style="margin-right: 5px;">查询活动</el-button>
-                <el-dialog title="查询活动" :visible.sync="showDialogVisible" >
+                <el-button type="success" @click="showDialog" icon="el-icon-search"
+                    style="margin-right: 5px;">查询活动</el-button>
+                <el-dialog title="查询活动" :visible.sync="showDialogVisible">
                     <el-form :model="queryForm" label-width="140px">
                         <el-row>
                             <el-col :span="12">
@@ -74,8 +75,9 @@
                                             :value="week"></el-option>
                                     </el-select>
                                     <el-select v-model="queryForm.endTime.day" placeholder="请选择星期">
-                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label" :value="day.value"></el-option>
-                    </el-select>
+                                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label"
+                                            :value="day.value"></el-option>
+                                    </el-select>
                                     <el-select v-model="queryForm.startTime.time" placeholder="请选择时间">
                                         <el-option v-for="time in timeOptions" :key="time" :label="time"
                                             :value="time"></el-option>
@@ -88,9 +90,10 @@
                                         <el-option v-for="week in weekOptions" :key="week" :label="week"
                                             :value="week"></el-option>
                                     </el-select>
-                                <el-select v-model="queryForm.startTime.day" placeholder="请选择星期">
-                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label" :value="day.value"></el-option>
-                    </el-select>
+                                    <el-select v-model="queryForm.startTime.day" placeholder="请选择星期">
+                                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label"
+                                            :value="day.value"></el-option>
+                                    </el-select>
                                     <el-select v-model="queryForm.endTime.time" placeholder="请选择时间">
                                         <el-option v-for="time in timeOptions" :key="time" :label="time"
                                             :value="time"></el-option>
@@ -104,6 +107,26 @@
                         <el-button type="primary" @click="query">确认</el-button>
                     </div>
                 </el-dialog>
+                <!-- 查询结果弹窗 -->
+                         <el-dialog :visible.sync="searchdialogVisible" title="活动详细信息" :style="{ 'max-height': '80%' }">
+            <el-scrollbar style="max-height: 500px;">
+              <el-table :data="searchEventList" style="width: 100%">
+                <el-table-column prop="activity_name" label="活动名称"></el-table-column>
+                <el-table-column prop="location" label="活动地点"></el-table-column>
+                <el-table-column prop="start_time" label="活动开始时间"></el-table-column>
+                 <el-table-column prop="is_mention" label="是否提醒">
+                  <template slot-scope="{ row }">
+                    {{ row.is_mention ? (row.advance_mention_time + '分钟前') : '否' }}
+                  </template>
+                </el-table-column>
+                <el-table-column v-if="isMentionExist" prop="advance_mention_time" label="提醒提前时间"></el-table-column>
+                <el-table-column prop="tag" label="标签"></el-table-column>
+              </el-table>
+            </el-scrollbar>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="searchdialogVisible = false">关闭</el-button>
+            </span>
+          </el-dialog>
                 <!-- 添加活动按钮和弹窗 -->
                 <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
                     @click="dialogAddVisible = true">添加活动</el-button>
@@ -118,14 +141,15 @@
 
                     <el-form v-if="addEventData.activityType === 'group'">
                         <el-form-item label="活动名称">
-                            
+
                             <el-input v-model="addEventData.name"></el-input>
                         </el-form-item>
 
                         <el-form-item label="活动成员">
-                        
-                            <el-transfer v-model="selectedActivityMembers" :data="studentsInfo" :titles="['学生列表', '活动成员列表']"></el-transfer>
-                            
+
+                            <el-transfer v-model="selectedActivityMembers" :data="studentsInfo"
+                                :titles="['学生列表', '活动成员列表']"></el-transfer>
+
                         </el-form-item>
 
                         <el-form-item label="请选择周次">
@@ -153,14 +177,14 @@
                         </el-form-item>
                         <el-form-item label="活动频次">
                             <el-radio-group v-model="addEventData.frequency">
-                                <el-radio label="1">单次</el-radio>
-                                <el-radio label="2">每天一次</el-radio>
-                                <el-radio label="3">每周一次</el-radio>
+                                <el-radio label="0">单次</el-radio>
+                                <el-radio label="1">每天一次</el-radio>
+                                <el-radio label="2">每周一次</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="活动地点">
                             <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
-                                placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                                placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                             </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="是否添加提醒">
@@ -178,7 +202,7 @@
                                 <el-option label="60分钟" value="60"></el-option>
                             </el-select>
                         </el-form-item>
-                       
+
                     </el-form>
                     <el-form v-else-if="addEventData.activityType === 'personal'">
                         <el-form-item label="活动名称">
@@ -209,14 +233,14 @@
                         </el-form-item>
                         <el-form-item label="活动频次">
                             <el-radio-group v-model="addEventData.frequency">
-                                <el-radio label="1">单次</el-radio>
-                                <el-radio label="2">每天一次</el-radio>
-                                <el-radio label="3">每周一次</el-radio>
+                                <el-radio label="0">单次</el-radio>
+                                <el-radio label="1">每天一次</el-radio>
+                                <el-radio label="2">每周一次</el-radio>
                             </el-radio-group>
                         </el-form-item>
                         <el-form-item label="活动地点">
                             <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
-                                placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                                placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                             </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="是否添加提醒">
@@ -240,22 +264,29 @@
                             <el-input v-model="addEventData.name"></el-input>
                         </el-form-item>
                         <el-form-item label="活动时间">
-                            <el-time-picker placeholder="选择时间" v-model="addEventData.time"
-                                style="width: 100%;"></el-time-picker>
+                            <el-time-picker placeholder="选择时间" v-model="addEventData.time" style="width: 100%;"
+                                :picker-options="{ format: 'HH:mm' }" value-format="HH:mm"></el-time-picker>
                         </el-form-item>
                         <el-form-item label="周次">
                             <el-select v-model="addEventData.week" placeholder="请选择" @change="getWeekDays">
-                                <el-option v-for="week in weeks" :key="week" :label="`第 ${week} 周`" :value="week"></el-option>
+                                <el-option v-for="week in weeks" :key="week" :label="`第 ${week} 周`"
+                                    :value="week"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="星期">
-                            <el-select v-model="addEventData.weekday" placeholder="请选择">
-                                <el-option v-for="day in days" :key="day" :label="`星期${day}`" :value="day"></el-option>
+                            <el-select v-model="addEventData.weekday">
+                                <el-option label="星期一" value="1"></el-option>
+                                <el-option label="星期二" value="2"></el-option>
+                                <el-option label="星期三" value="3"></el-option>
+                                <el-option label="星期四" value="4"></el-option>
+                                <el-option label="星期五" value="5"></el-option>
+                                <el-option label="星期六" value="6"></el-option>
+                                <el-option label="星期日" value="7"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="活动地点">
                             <el-autocomplete v-model="addEventData.location" :fetch-suggestions="querySearch"
-                                placeholder="请输入您当前的位置" @select="getInput" :trigger-on-focus="false" class="el-auto">
+                                placeholder="请输入活动地点" @select="getInput" :trigger-on-focus="false" class="el-auto">
                             </el-autocomplete>
                         </el-form-item>
                         <el-form-item label="是否添加提醒">
@@ -275,7 +306,7 @@
                         </el-form-item>
                     </el-form>
                     <div slot="footer">
-                        <el-button @click.native="dialogAddVisible = false;selectedActivityMembers=[]">取消</el-button>
+                        <el-button @click.native="dialogAddVisible = false; selectedActivityMembers = []">取消</el-button>
                         <el-button type="primary" @click.native="submitAddForm">确定</el-button>
                     </div>
                 </el-dialog>
@@ -324,6 +355,7 @@ import { UserStore } from '@/store/user';
 export default {
     data() {
         return {
+             searchdialogVisible: false,
             selectedActivityMembers: [],
             studentsInfo: [],
             isStudentsListVisible: false,
@@ -348,12 +380,22 @@ export default {
             addEventData: {
                 activityType: 'group',
             },
+            dayMap: {
+                '周一': '星期1',
+                '周二': '星期2',
+                '周三': '星期3',
+                '周四': '星期4',
+                '周五': '星期5',
+                '周六': '星期6',
+                '周日': '星期7'
+            },
             deleteEventData: {},
             radio: '',
             value1: [new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)],
             searchText: '',
             weeks: Array.from({ length: 15 }, (_, i) => i + 1),
             days: ['一', '二', '三', '四', '五', '六', '日'],
+            tempRate: 1,
             placelist: [
                 { id: 0, address: "青年公寓", value: "青年公寓" },
                 { id: 1, address: "北邮锦江酒店", value: "北邮锦江酒店" },
@@ -450,11 +492,13 @@ export default {
                 { label: '周六', value: '周六' },
                 { label: '周日', value: '周七' }
             ],
-            timeOptions: ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
-            searchEventlist: [],
+            timeOptions: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+            searchEventList: [],
         }
     },
     created() {
+
+        //获取活动
         const getActivityTable = async () => {
             const fg = await EventStore.GetEventTable()
             if (fg) {
@@ -467,16 +511,23 @@ export default {
                     console.log(this.eventList[i].tag)
                     if (this.eventList[i].tag == "个人活动") {
                         num0++
-                    } else if (this.eventList[i].tag == "集体活动"){
+                    } else if (this.eventList[i].tag == "集体活动") {
                         num1++
                     } else {
                         num2++
                     }
                     this.eventList[i].date = this.eventList[i].start_time.slice(0, -6)
                 }
-                this.singleActivityRate = (num0 / this.eventList.length) * 100
-                this.groupActivityRate = (num1 / this.eventList.length) * 100
-                this.tempRate = (num2 / this.eventList.length) * 100
+                if (this.eventList.length != 0) {
+                    this.singleActivityRate = (num0 / this.eventList.length) * 100
+                    this.groupActivityRate = (num1 / this.eventList.length) * 100
+                    this.tempRate = (num2 / this.eventList.length) * 100
+                    // 三者保留一位小数
+                    this.singleActivityRate = this.singleActivityRate.toFixed(0)
+                    this.groupActivityRate = this.groupActivityRate.toFixed(0)
+                    this.tempRate = this.tempRate.toFixed(0)
+                }
+
                 for (let i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].frequency == 0) {
                         this.eventList[i].frequency = '(单次)'
@@ -511,6 +562,7 @@ export default {
         }
         getActivityTable()
 
+        //获取学生信息
         const getStudentsInfo = async () => {
             const fg = await UserStore.GetAllStuInfo()
             if (fg) {
@@ -532,29 +584,31 @@ export default {
         }
         getStudentsInfo()
     },
+
     methods: {
         showDialog() {
             this.showDialogVisible = true
         },
+        // 发送查询请求
         query() {
-            // 发送查询请求
-            console.log(this.queryForm.startTime);
-            console.log(this.queryForm.endTime);
 
-            let start_time = this.queryForm.startTime;
-            let end_time = this.queryForm.endTime;
+            let start_time = this.queryForm.startTime.week + "-" + this.dayMap[this.queryForm.startTime.day] + "-" + this.queryForm.startTime.time;
+            let end_time = this.queryForm.endTime.week + "-" + this.dayMap[this.queryForm.endTime.day] + "-" + this.queryForm.endTime.time;
             const searchEvent = async (start_time, end_time) => {
                 const fg = await EventStore.SearchEventInfo(start_time, end_time);
                 if (fg) {
-                    this.searchEventlist = CourseStore.searchlist;
+                    this.searchEventList = EventStore.searchList;
+                    console.log(this.searchEventList)
 
                 } else {
                     console.log('error')
                 }
             }
-            searchEvent(start_time, end_time)
-            this.showDialogVisible = false
+             searchEvent(start_time, end_time)
+            this.showDialogVisible = false;
+            this.searchdialogVisible = true;
         },
+
         // 搜索框智能加载
         querySearch(queryString, cb) {
             var placelist = this.placelist;
@@ -634,6 +688,7 @@ export default {
                         "create_time": TimeStore.getTime(),
                         "content": "删除活动成功, 活动名为：" + row.activity_name,
                     }
+                    location.reload();
                     console.log(log)
                     LogStore.AddLog(log)
                     this.deleteEventData = {}
@@ -656,16 +711,16 @@ export default {
             this.dialogDetailVisible = true;
         },
         submitAddForm() {
-    
+
             this.dialogAddVisible = false;
             this.submit = {};
             this.submit.activity_name = this.addEventData.name;
             this.submit.start_time = "第" + this.addEventData.week + "周-星期" + this.addEventData.weekday + "-" + this.addEventData.time;
-            this.submit.frequency = this.addEventData.frequency;
-            this.submit.is_mention = this.addEventData.ismention;
-            this.submit.advance_mention_time = this.addEventData.advance_mention_time;
+            this.submit.frequency = Number(this.addEventData.frequency);
+            this.submit.is_mention = this.addEventData.ismention = 'true' ? true : false;
+            this.submit.advance_mention_time = Number(this.addEventData.advance_mention_time);
             this.submit.location = this.addEventData.location;
-            
+
 
             if (this.addEventData.activityType == 'personal') {
                 this.submit.type = 0;
@@ -679,7 +734,9 @@ export default {
             }
             else if (this.addEventData.activityType == 'temp') {
                 this.submit.type = 1;
+                this.submit.tag = "临时活动";
             }
+            console.log(this.submit)
             const addEvent = async (data) => {
                 const fg = await EventStore.AddEventInfo(data);
                 if (fg) {
@@ -689,6 +746,8 @@ export default {
                         message: '添加活动成功',
                         type: 'success'
                     });
+                    this.submit = {};
+                    this.addEventData = {};
                     // 创建一个日志对象
                     const log = {
                         "create_time": TimeStore.getTime(),
@@ -697,15 +756,23 @@ export default {
                     console.log(log)
                     LogStore.AddLog(log)
 
+                    // 刷新页面
+                    location.reload();
                 } else {
                     console.log('error')
                 }
             }
             addEvent(this.submit)
             this.selectedActivityMembers = []
+
+
+
         },
     },
     computed: {
+         isMentionExist() {
+            return this.searchEventList.length > 0 && this.searchEventList[0].hasOwnProperty('is_mention');
+        },
         transFormToDate() {
             return (startTime) => {
                 // 去掉startTime的后6位
@@ -731,10 +798,12 @@ export default {
 .el-transfer__buttons {
     padding: 0 10px;
 }
+
 .activity-proportion {
     width: 400px;
-   
+
 }
+
 .table-container {
     height: 370px;
     overflow-y: auto;
@@ -768,5 +837,4 @@ h2 {
 .weekinput {
     width: 30px;
     margin: 0 5px;
-}
-</style>
+}</style>

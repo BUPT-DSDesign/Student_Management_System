@@ -62,6 +62,8 @@ func (f *addFlow) run() error {
 		AdvanceMentionTime: f.addActivityRequest.AdvanceMentionTime,
 	}
 
+	fmt.Printf("activityInfo: %v\n", *activityInfo)
+
 	// 检查活动与课程是否冲突
 	isConflict, validTime := check_conflict.ActivityAndCoursesIsExistConflict(f.userId, activityInfo)
 
@@ -73,6 +75,7 @@ func (f *addFlow) run() error {
 
 	// 只有不冲突的时候才插入数据库数据
 	if !isConflict && !isConflict1 {
+		println("没问题吧")
 		// 将activityInfo插入数据库
 		if err = dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
 			return err
@@ -80,6 +83,7 @@ func (f *addFlow) run() error {
 
 		// 遍历f.addActivityRequest.Members, 如果是集体活动, 则其成员也需要加入该活动
 		for _, memberId := range f.addActivityRequest.Members {
+			println(memberId)
 			// 生成一个活动id
 			activityId, err = utils.GenerateId()
 			if err != nil {

@@ -163,6 +163,7 @@ export default {
             const fg = await CourseStore.GetCourseTable()
             if (fg) {
                 this.classData = CourseStore.courseList
+                console.log(this.classData)
             } else {
                 console.log('error')
             }
@@ -223,6 +224,7 @@ export default {
                         type: 'success',
                         message: '选修课程成功!'
                     });
+                    location.reload();
                     // 创建一个日志对象
                     const log = {
                         "create_time":  TimeStore.getTime(),
@@ -278,7 +280,7 @@ export default {
                  Message.info({
                     showClose: true,
                     center: true,
-                     message: '当前课节无课',
+                    message: '当前课节无课',
                     duration:1000,
                 })
                 return;
@@ -305,16 +307,28 @@ export default {
             let search = {};
             if (this.radio == 1) {
                 search.is_course_name = 1;
-                search.keyWord = this.keyWord;
+                search.key_word = this.keyWord;
             }
             else if (this.radio == 2) {
                 search.is_course_name = 0;
-                search.keyWord = this.keyWord;
+                search.key_word = this.keyWord;
             }
-             const inqueryCourse = async (data) => {
-                const fg = await CourseStore.inqueryCourseInfo(data);
+            if (search.key_word == '') {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '不能输入空的关键词',
+                    type: 'error'
+                });
+                return;
+            }
+            const inqueryCourse = async (data) => {
+                console.log('测试查询')
+                console.log(data)
+                
+                const fg = await CourseStore.inquiryCourseInfo(data);
                  if (fg) {
-                     this.searchlist = CourseStore.searchCourseList;;
+                    this.searchlist = CourseStore.searchCourseList;
                     this.$message({
                         showClose: true,
                         center: true,
@@ -367,7 +381,7 @@ export default {
 <style lang='scss' scoped>
 .select-class {
     text-align: center;
-    margin-top: 80px;
+    margin-top: 50px;
 
 }
 .buttons-combine {

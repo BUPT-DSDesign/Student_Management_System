@@ -89,20 +89,33 @@ export default {
     methods: {
         RegisterIn: async function () {
             // const useUserStore = new useUserStore()
+            console.log(this.ruleForm)
             return await UserStore.RegisterIn(this.ruleForm)
         },
         submitForm(formName) {
             this.$refs[formName].validate(async (valid) => {
                 if (valid) {
                     const fg = await this.RegisterIn() // 这里等待请求过程完成
+                    console.log('error')
                     if (fg) {                              
-                        this.$router.push('/Main/Homepage')
-                        this.$message({
-                            showClose: true,
-                            center: true,
-                            message: '注册成功, 直接跳转至主页面',
-                            type: 'success'
-                        });
+                        if (localStorage.getItem("role") == 'student') {
+                            this.$router.push('/studentMain/Homepage')
+                            this.$message({
+                                showClose: true,
+                                center: true,
+                                message: '用户登录成功',
+                                type: 'success'
+                            });
+                        } 
+                        else {
+                            this.$router.push('/adminMain/classManage')
+                            this.$message({
+                                showClose: true,
+                                center: true,
+                                message: '管理员登录成功',
+                                type: 'success'
+                            });
+                        }       
                         // 将注册成功的信息写入日志
                         const log = {
                             "create_time":  TimeStore.getTime(),

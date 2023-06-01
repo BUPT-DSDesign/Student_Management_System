@@ -74,12 +74,19 @@ export default {
                         }
                         console.log(log)
                         LogStore.AddLog(log)           
+                    } else {
+                        this.$message({
+                            showClose: true,
+                            center: true,
+                            message: '登录失败, 用户未注册或密码错误',
+                            type: 'error'
+                        });
                     }
                 } else {
                     this.$message({
                         showClose: true,
                         center: true,
-                        message: '登录失败',
+                        message: '登录失败, 请检查表单',
                         type: 'error'
                     });
                     return false;

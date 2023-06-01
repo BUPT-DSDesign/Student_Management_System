@@ -4,6 +4,7 @@ import { ref } from 'vue'
 
 export const useCourseStore = defineStore('course', () => {
     const courseList = ref([])
+    const allCourseList = ref([])
     const searchCourseList = ref([])
     const selectiveCourseList = ref([])
     const GetCourseTable = async () => {
@@ -51,6 +52,7 @@ export const useCourseStore = defineStore('course', () => {
             const res = await AllCourse()
             console.log(res.data)
             if (res.data.status_code == 0) {
+                allCourseList.value = res.data.course_list
                 return true
             }
         } catch (err) {
@@ -117,6 +119,7 @@ export const useCourseStore = defineStore('course', () => {
         inquiryCourseInfo,
         GetAllCourse,
         selectiveCourseList,
-        SelectCourse
+        SelectCourse,
+        allCourseList
     }
 })

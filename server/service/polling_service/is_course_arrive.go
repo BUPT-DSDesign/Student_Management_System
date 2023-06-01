@@ -54,7 +54,7 @@ func (f *isCourseArriveFlow) checkNum() error {
 
 func (f *isCourseArriveFlow) run(courseInfo **system.CourseInfo) error {
 	// 先查出来必修课程
-	var courseInfos *[]*system.CourseInfo
+	courseInfos := new([]*system.CourseInfo)
 	if err := dao.Group.CourseDao.QueryCompulsoryCourse(&courseInfos); err != nil {
 		return err
 	}
@@ -104,7 +104,7 @@ func (f *isCourseArriveFlow) run(courseInfo **system.CourseInfo) error {
 	}
 
 	// 查出来选修课程
-	courseInfos = nil
+	courseInfos = new([]*system.CourseInfo)
 	if err := dao.Group.CourseDao.QueryElectiveCourse(f.userId, &courseInfos); err != nil {
 		return err
 	}

@@ -20,17 +20,16 @@ export const AddCourse = (data) => {
 // 删除课程
 export const DeleteCourse = (data) => {
     return service({
-        url: '/course/delete',
-        method: 'post',
-        data: data
+        url: '/course/delete?course_id=' + data,
+        method: 'delete',
     })
 }
 
 // 编辑课程
 export const EditCourse = (data) => {
     return service({
-        url: '/course/edit',
-        method: 'post',
+        url: '/course/update',
+        method: 'put',
         data: data
     })
 }
@@ -38,9 +37,8 @@ export const EditCourse = (data) => {
 // 查询课程
 export const inquiryCourse = (data) => {
     return service({
-        url: '/course/inquiry',
-        method: 'post',
-        data: data
+        url: '/course/search?is_course_name=' + data.is_course_name + '&' + 'key_word=' + data.key_word,
+        method: 'get',
     })
 }
 // 查询选修课

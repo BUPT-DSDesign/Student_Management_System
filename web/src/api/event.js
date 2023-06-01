@@ -19,14 +19,13 @@ export const AddEvent = (data) => {
 // 删除活动
 export const DeleteEvent= (data) => {
     return service({
-        url: '/activity/delete',
-        method: 'post',
-        data: data
+        url: '/activity/delete?activity_id=' + data,
+        method: 'delete',
     })
 }
 // 查询课程
 export const SearchEvent = (fromTime, endTime) => {
-    const url = '/activity/query?from_time=' + fromTime + 'end_time=' + endTime;
+    const url = '/activity/query?from_time=' + fromTime + '&' + 'to_time=' + endTime;
     return service({
         url: url,
         method: 'get',

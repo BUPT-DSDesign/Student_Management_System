@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/bwmarrin/snowflake"
@@ -14,5 +15,9 @@ func GenerateId() (int64, error) {
 		return int64(0), err
 	}
 
-	return node.Generate().Int64(), nil
+	id := node.Generate().Int64()
+	idStr := strconv.FormatInt(id, 10)
+	idStr = idStr[6:]
+	id, err = strconv.ParseInt(idStr, 10, 64)
+	return id, nil
 }

@@ -22,7 +22,7 @@ func (s *server) DoQueryByTime(userId int64, fromTime string, toTime string) (*[
 }
 
 func (f *queryFlow) do() (*[]*system.ActivityInfo, error) {
-	var activities *[]*system.ActivityInfo
+	activities := new([]*system.ActivityInfo)
 
 	if err := f.checkNum(); err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (f *queryFlow) checkNum() error {
 
 func (f *queryFlow) run(activities **[]*system.ActivityInfo) error {
 	// 在数据库中根据f.userId查询活动
-	var activitiesInfo *[]*system.ActivityInfo
+	activitiesInfo := new([]*system.ActivityInfo)
 	if err := dao.Group.ActivityDao.QueryAllActivityByUserId(f.userId, &activitiesInfo); err != nil {
 		return err
 	}

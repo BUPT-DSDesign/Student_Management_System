@@ -1,79 +1,88 @@
 <template>
     <div style="margin:20px">
-        <h1>课程管理</h1>
-        <el-table :data="tableData" height="380px" border style="width: 800px">
-            <el-table-column prop="classname" label="课程名称" width="180">
+        <div style="text-align: center;">
+            <h1>课程管理</h1>
+        </div>
+
+        <el-table :data="classData" height="380px" border>
+            <el-table-column type="index" width="10px" align="center"></el-table-column>
+            <el-table-column prop="course_name" label="课程名称" width="140" align="center">
             </el-table-column>
-            <el-table-column prop="classtime" label="课程时间" width="280">
+            <el-table-column prop="teacher" label="上课老师" width="120" align="center">
+            </el-table-column>
+            <el-table-column prop="teacher" label="上课地点" width="120" align="center">
+            </el-table-column>
+            <el-table-column prop="classTime" label="课程时间" width="260" align="center">
+            </el-table-column>
+            <el-table-column prop="exam_option" label="考核方式" width="100" align="center">
+
             </el-table-column>
             <el-table-column align="right">
                 <template slot="header" slot-scope="scope">
                     <el-input v-model="search" size="mini" placeholder="输入关键字搜索" prefix-icon="el-icon-search" />
                 </template>
                 <template slot-scope="scope">
+                    <el-button size="mini" type="success" @click="seeCourseInfo(scope.row)">查看详情</el-button>
                     <el-button size="mini" type="primary" @click="editClass(scope.$index, scope.row)">修改课程</el-button>
                     <el-button size="mini" type="danger" @click="deleteClass(scope.$index, scope.row)">删除课程</el-button>
                 </template>
             </el-table-column>
         </el-table>
-        <el-button type="primary" plain @click="addclass">添加课程</el-button>
+        <el-button style="float: right; margin-top: 10px" type="primary" @click="addClass">添加课程</el-button>
         <!-- 修改课程 -->
         <el-dialog title="修改课程" :visible.sync="dialogVisible2" width="600px">
-                <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
-                    <el-form-item label="课程名称">
-                        <el-input v-model="clickedClassData.course_name"></el-input>
-                    </el-form-item>
-                    <el-form-item label="上课地点">
-                        <el-input v-model="clickedClassData.section_list"></el-input>
-                    </el-form-item>
-                    <el-form-item label="授课老师">
-                        <el-input v-model="clickedClassData.teacher"></el-input>
-                    </el-form-item>
-                    <el-form-item label="联系方式">
-                        <el-input v-model="clickedClassData.contact"></el-input>
-                    </el-form-item>
-                    <el-form-item label="上课节次">
-                        <el-cascader v-model="clickedClassData.section_list" :options="options" :props="{ multiple: true }"
-                            filterable ></el-cascader>
-                    </el-form-item>
-                    <el-form-item label="上课周次">
-                        <el-select v-model="clickedClassData.week_schedule" placeholder="请选择" multiple>
-                            <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
-                            </el-option>
-                        </el-select>
-                    </el-form-item>
-                    <el-form-item label="考试时间">
-                        <el-input v-model="clickedClassData.exam_time"></el-input>
-                    </el-form-item>
-                    <el-form-item label="考试地点">
-                        <el-input v-model="clickedClassData.exam_location"></el-input>
-                    </el-form-item>
-                    <el-form-item label="考核方式">
-                        <el-radio-group v-model="clickedClassData.exam_option">
-                            <el-radio :label="0">论文考察</el-radio>
-                            <el-radio :label="1">线下考试</el-radio>
-                            <el-radio :label="2">线上考试</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
+            <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
+                <el-form-item label="课程名称">
+                    <el-input v-model="clickedClassData.course_name"></el-input>
+                </el-form-item>
+                <el-form-item label="上课地点">
+                    <el-input v-model="clickedClassData.classroom"></el-input>
+                </el-form-item>
+                <el-form-item label="授课老师">
+                    <el-input v-model="clickedClassData.teacher"></el-input>
+                </el-form-item>
+                <el-form-item label="联系方式">
+                    <el-input v-model="clickedClassData.contact"></el-input>
+                </el-form-item>
+                <el-form-item label="上课周次">
+                    <el-select v-model="clickedClassData.week_schedule" placeholder="请选择" multiple>
+                        <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+                <el-form-item label="考试时间">
+                    <el-input v-model="clickedClassData.exam_time"></el-input>
+                </el-form-item>
+                <el-form-item label="考试地点">
+                    <el-input v-model="clickedClassData.exam_location"></el-input>
+                </el-form-item>
+                <el-form-item label="考核方式">
+                    <el-radio-group v-model="clickedClassData.exam_option">
+                        <el-radio label="论文考察">论文考察</el-radio>
+                        <el-radio label="线下考试">线下考试</el-radio>
+                        <el-radio label="线上考试">线上考试</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                <el-form-item label="是否为线上课程">
+                    <el-radio-group v-model="clickedClassData.is_course_online">
+                        <el-radio :label="true">{{ clickedClassData.is_course_online ? '是' : '否' }}</el-radio>
+                        <el-radio :label="false">{{ clickedClassData.is_course_online ? '否' : '是' }}</el-radio>
+                    </el-radio-group>
+                </el-form-item>
 
-                    <el-form-item label="是否为线上课程">
-                        <el-radio-group v-model="clickedClassData.is_course_online">
-                            <el-radio :label="1">是</el-radio>
-                            <el-radio :label="0">否</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                    <el-form-item label="是否为必修课程">
-                        <el-radio-group v-model="clickedClassData.is_compulsory">
-                            <el-radio :label="1">是</el-radio>
-                            <el-radio :label="0">否</el-radio>
-                        </el-radio-group>
-                    </el-form-item>
-                </el-form>
+                <el-form-item label="是否为必修课程">
+                    <el-radio-group v-model="clickedClassData.is_compulsory">
+                        <el-radio :label="true">{{ clickedClassData.is_compulsory ? '是' : '否' }}</el-radio>
+                        <el-radio :label="false">{{ clickedClassData.is_compulsory ? '否' : '是' }}</el-radio>
+                    </el-radio-group>
+                </el-form-item>
+                 </el-form>
                 <div slot="footer" class="dialog-footer">
                     <el-button @click="dialogVisible4 = false">取 消</el-button>
                     <el-button type="primary" @click="submitEditForm">保存修改</el-button>
                 </div>
-            </el-dialog>      
+        </el-dialog>
+
         <!-- 添加课程 -->
         <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="600px">
             <el-form :model="addClassData" label-width="170px" style="backgroundColor:#fff">
@@ -81,7 +90,7 @@
                     <el-input v-model="addClassData.course_name"></el-input>
                 </el-form-item>
                 <el-form-item label="上课地点">
-                    <el-input v-model="addClassData.section_list"></el-input>
+                    <el-input v-model="addClassData.classroom"></el-input>
                 </el-form-item>
                 <el-form-item label="授课老师">
                     <el-input v-model="addClassData.teacher"></el-input>
@@ -91,7 +100,7 @@
                 </el-form-item>
                 <el-form-item label="上课节次">
                     <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }"
-                        filterable ></el-cascader>
+                        filterable></el-cascader>
                 </el-form-item>
                 <el-form-item label="上课周次">
                     <el-select v-model="addClassData.week_schedule" placeholder="请选择" multiple>
@@ -131,7 +140,18 @@
                 <el-button type="primary" @click="submitAddForm">添 加</el-button>
             </div>
         </el-dialog>
-
+        <!-- 查看课程详情 -->
+        <el-dialog :visible.sync="seeCourseInfoVis" title="课程详细信息" :style="{ 'max-height': '80%' }">
+            <span>{{ courseInfo.course_name }}</span>
+            <div style="padding: 20px">
+                <p><strong>上课地点：</strong>{{ courseInfo.classroom }}</p>
+                <p><strong>授课老师：</strong>{{ courseInfo.teacher }}</p>
+                <p><strong>上课时间：</strong>{{ courseInfo.class_time }}</p>
+                <p><strong>上课周次：</strong>{{ courseInfo.week_schedule }}</p>
+                <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
+                <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
@@ -194,9 +214,10 @@ const sectionMap = [{
 export default {
     created() {
         const getTable = async () => {
-            const fg = await CourseStore.GetCourseTable();
+            const fg = await CourseStore.GetAllCourse();
             if (fg) {
-                this.classData = CourseStore.courseList
+                this.classData = CourseStore.allCourseList
+                console.log(this.classData)
                 //添加一个属性以便格式化课程时间
                 for (let i = 0; i < this.classData.length; i++) {
                     let start = 0;
@@ -219,8 +240,8 @@ export default {
                         }
 
                     }
-                    let startTime = startTimeMap[this.classData[i].section_list[start] % 9];
-                    let endTime = endTimeMap[this.classData[i].section_list[end] % 9];
+                    let startTime = startTimeMap[(this.classData[i].section_list[start] - 1) % 9 + 1];
+                    let endTime = endTimeMap[(this.classData[i].section_list[end] - 1) % 9 + 1];
                     if (this.classData[i].hasOwnProperty('classTime')) {
                         this.classData[i]['classTime'] = this.classData[i]['classTime'] + ',' + startTime + '-' + endTime;
                     }
@@ -228,12 +249,15 @@ export default {
                         this.classData[i]['classTime'] = startTime + '-' + endTime;
                     }
 
-                }
-                for (let i = 0; i < this.classData.length; i++) {
-                    this.tableData.push({
-                        classname: this.classData[i].course_name,
-                        classtime: this.classData[i].classTime,
-                    })
+                    // 根据this.classData[i].exam_option的值来判断考核方式
+                    if (this.classData[i].exam_option == 0) {
+                        this.classData[i].exam_option = '论文考察'
+                    } else if (this.classData[i].exam_option == 1) {
+                        this.classData[i].exam_option = '线下考试'
+                    } else if (this.classData[i].exam_option == 2) {
+                        this.classData[i].exam_option = '线上考试'
+                    }
+
                 }
             } else {
                 console.log('error')
@@ -339,22 +363,40 @@ export default {
                     label: '周天',
                     children: sectionMap,
                 },
-            ]
+            ],
+            selectedCourse: {},
+            courseInfo: {},
+            seeCourseInfoVis: false
         }
     },
     methods: {
-        clickcell(e) {
-            this.clickedClass = e.classname;
-            // 循环遍历找到数据库中该课程的所有信息
-            for (let i = 0; i < this.classData.length; i++) {
-                if (this.classData[i].course_name == this.clickedClass) {
-                    //如果有该课程，更新curClassData
-                    this.clickedClassData = this.classData[i];
-                    console.log(this.clickedClassData)
-                }
-            }
-            //点击弹窗
-            this.dialogVisible1 = true;
+        seeCourseInfo(course) {
+            this.selectedCourse = course;
+            this.courseInfo = this.processCourseInfo(course);
+            this.seeCourseInfoVis = true;
+
+        },
+        processCourseInfo(course) {
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const classTime = course.section_list.map(section => {
+                const day = Math.floor((section - 1) / 9); // 获取星期几
+                const sectionIndex = (section - 1) % 9; // 获取第几节课
+                return days[day] + sections[sectionIndex];
+            }).join('，');
+
+            return {
+                course_name: course.course_name,
+                classroom: course.classroom,
+                teacher: course.teacher,
+                class_time: classTime,
+                week_schedule: "第" + course.week_schedule + "周",
+                exam_time: course.exam_time,
+                exam_location: course.exam_location
+            };
+        },
+        addClass() {
+            this.dialogVisible4 = true;
         },
         // 关闭弹窗
         handleClose(done) {
@@ -362,16 +404,15 @@ export default {
         },
         //编辑课程
         editClass(index, row) {
-            let name = row.classname;
-            this.clickedClassData= this.classData.find(obj => obj.course_name == name);
+            this.clickedClassData = row;
+            console.log("修改前：")
+            console.log(this.clickedClassData)
             //点击弹窗打开
             this.dialogVisible2 = true;
         },
+        //删除课程
         deleteClass(index, row) {
-            let name=row.classname;
-            const matchingObj = this.classData.find(obj => obj.course_name == name);
-            let id = matchingObj ? matchingObj.course_id : null;
-              const deleteCourse = async (data) => {
+            const deleteCourse = async (data) => {
                 const fg = await CourseStore.DeleteCourseInfo(data);
                 if (fg) {
                     this.$message({
@@ -380,6 +421,7 @@ export default {
                         message: '删除课程成功',
                         type: 'success'
                     });
+                    location.reload();
                     // 将添加课程的信息添加到日志中
                     const log = {
                         "create_time": TimeStore.getTime(),
@@ -398,9 +440,9 @@ export default {
                     this.deleteClassData = {}
                 }
             }
-
-            deleteCourse(id);
+            deleteCourse(row.course_id);
         },
+        //修改课程
         submitEditForm() {
             this.dialogVisible2 = false;
             let week_schedule = [];
@@ -410,18 +452,32 @@ export default {
             week_schedule.sort();
             this.clickedClassData.week_schedule = week_schedule;
 
-            let section_list = [];
-            this.clickedClassData.section_list.forEach(function (item) {
-                section_list.push((item[0] - 1) * 9 + item[1]);
-            })
-            section_list.sort();
-            this.clickedClassData.section_list = section_list;
+            // let section_list = [];
+            // this.clickedClassData.section_list.forEach(function (item) {
+            //     section_list.push((item[0] - 1) * 9 + item[1]);
+            // })
+            // section_list.sort();
+            // this.clickedClassData.section_list = section_list;
 
-            this.clickedClassData.is_course_online = 1 ? true : false;
-            this.clickedClassData.is_compulsory = 1 ? true : false;
+            this.clickedClassData.is_course_online = '1' ? true : false;
+            this.clickedClassData.is_compulsory = '1' ? true : false;
 
+            switch (this.clickedClassData.exam_option) {
+                case '论文考察':
+                    this.clickedClassData.exam_option = 0;
+                    break;
+                case '线下考试':
+                    this.clickedClassData.exam_option = 1;
+                    break;
+                case '线上考试':
+                    this.clickedClassData.exam_option = 2;
+                    break;
+                default:
+                    break;
+            }
             const editCourse = async (data) => {
                 const fg = await CourseStore.EditCourseInfo(data);
+                console.log(fg)
                 if (fg) {
                     this.$message({
                         showClose: true,
@@ -429,6 +485,7 @@ export default {
                         message: '修改课程成功',
                         type: 'success'
                     });
+                    location.reload();
                     // 将添加课程的信息添加到日志中
                     const log = {
                         "create_time": TimeStore.getTime(),
@@ -447,9 +504,9 @@ export default {
                     this.clickedClassData = {}
                 }
             }
-
             editCourse(this.clickedClassData)
         },
+        //添加课程
         submitAddForm() {
             this.dialogVisible4 = false;
             let week_schedule = [];
@@ -465,12 +522,11 @@ export default {
             })
             section_list.sort();
             this.addClassData.section_list = section_list;
-
-            this.addClassData.is_course_online = 1 ? true : false;
-            this.addClassData.is_compulsory = 1 ? true : false;
-
+            this.addClassData.is_course_online = this.addClassData.is_course_online == 1 ? true : false;
+            this.addClassData.is_compulsory = this.addClassData.is_compulsory == 1 ? true : false;
 
             const addCourse = async (data) => {
+                console.log(data)
                 const fg = await CourseStore.AddCourseInfo(data);
                 if (fg) {
                     this.$message({
@@ -486,8 +542,9 @@ export default {
                     }
                     console.log(log)
                     LogStore.AddLog(log)
+                    location.reload();
                     this.addClassData = {}
-                                       
+
                 } else {
                     this.$message({
                         showClose: true,
@@ -498,15 +555,8 @@ export default {
                     this.addClassData = {}
                 }
             }
-
             addCourse(this.addClassData)
-
-            
         },
-        addclass() {
-            this.dialogVisible4 = true;
-
-        }
     },
 }
 </script>

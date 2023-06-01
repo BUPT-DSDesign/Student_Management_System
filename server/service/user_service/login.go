@@ -2,7 +2,9 @@ package user_service
 
 import (
 	"errors"
+	"server/model/dao"
 	"server/model/entity/common"
+	"server/model/entity/system"
 	"server/utils"
 )
 
@@ -36,33 +38,31 @@ func (f *loginFlow) do() (*common.AccessResponse, error) {
 // 检验参数
 func (f *loginFlow) checkNum() error {
 	// 检验f.loginForm, 如用户是否存在以及密码是否正确等
-	if f.loginForm.Password != "123456" {
-		return errors.New("密码错误")
+
+	var userInfo *system.UserInfo
+	if err := dao.Group.UserDao.QueryUserByName(f.loginForm.Username, &userInfo); err != nil {
+		return err
+	}
+	if userInfo == nil {
+		return errors.New("用户不存在, 请先注册！")
 	}
 
-	/*
-		var userInfo *system.UserInfo
-		if err := dao.Group.UserDao.QueryUserByName(f.loginForm.Username, &userInfo); err != nil {
-			return err
-		}
-		if userInfo == nil {
-			return errors.New("用户不存在, 请先注册！")
-		}
-		rawPassword, err := utils.Sha1(f.loginForm.Password)
-		if err != nil {
-			return err
-		}
-		password, err := utils.Sha256(rawPassword + userInfo.Salt)
-		if err != nil {
-			return err
-		}
-		if password != f.loginForm.Password {
-			return errors.New("您的密码错误, 请重新输入！")
-		}
-		f.userId = userInfo.UserId
-	*/
+	rawPassword, err := utils.Sha1(f.loginForm.Password)
+	if err != nil {
+		return err
+	}
 
-	f.userId = 122131231 // 这个赋值在检验参数成功后进行
+	password, err := utils.Sha256(rawPassword + userInfo.Salt)
+	if err != nil {
+		return err
+	}
+
+	if password != userInfo.Password {
+		return errors.New("您的密码错误, 请重新输入！")
+	}
+
+	f.userId = userInfo.UserId
+
 	return nil
 }
 

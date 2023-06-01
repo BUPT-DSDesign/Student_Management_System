@@ -3,6 +3,7 @@ package user_handler
 import (
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"server/model/dao"
 	"server/model/entity/common"
 	"server/model/entity/system"
 	"server/service/user_service"
@@ -55,27 +56,17 @@ func AllInfoHandler(c *gin.Context) {
 
 	// 遍历users, 获取每个用户的课程
 	for _, user := range *users {
-		var courses *[]*system.CourseInfo
+		courses := new([]*system.CourseInfo)
 		// 给courses造几个数据
-		courses = &[]*system.CourseInfo{
-			{
-				CourseId:   1,
-				CourseName: "数据结构",
-			},
-			{
-				CourseId:   2,
-				CourseName: "操作系统",
-			},
+		if err := dao.Group.CourseDao.QueryCourseByUserId(user.UserId, courses); err != nil {
+			c.JSON(http.StatusOK, allInfoResponse{
+				StatusResponse: common.StatusResponse{
+					StatusCode: 3,
+					StatusMsg:  err.Error(),
+				},
+			})
+			return
 		}
-		//if err := dao.Group.CourseDao.QueryCourseByUserId(user.UserId, courses); err != nil {
-		//	c.JSON(http.StatusOK, allInfoResponse{
-		//		StatusResponse: common.StatusResponse{
-		//			StatusCode: 3,
-		//			StatusMsg:  err.Error(),
-		//		},
-		//	})
-		//	return
-		//}
 		userInfos = append(userInfos, UserInfo{
 			UserInfo: user,
 			Courses:  courses,

@@ -73,6 +73,7 @@ export default {
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()
             if (fg) {
+    
                 this.userInfo = UserStore.userInfo
             } else {
                 console.log('获取用户信息失败')
@@ -225,10 +226,6 @@ h4 {
 
 .el-card.is-always-shadow, .el-card.is-hover-shadow:focus, .el-card.is-hover-shadow:hover {
     box-shadow: 0 0;
-}
-
-.el-card__body {
-    padding: 5px;
 }
 
 .box-card {
