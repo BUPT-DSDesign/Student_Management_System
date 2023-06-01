@@ -163,6 +163,7 @@ export default {
             const fg = await CourseStore.GetCourseTable()
             if (fg) {
                 this.classData = CourseStore.courseList
+                console.log(this.classData)
             } else {
                 console.log('error')
             }
@@ -380,7 +381,7 @@ export default {
 <style lang='scss' scoped>
 .select-class {
     text-align: center;
-    margin-top: 80px;
+    margin-top: 50px;
 
 }
 .buttons-combine {

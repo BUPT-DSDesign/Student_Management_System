@@ -127,7 +127,7 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 	_ = json.Unmarshal(jsonStr, &result)
 
 	// 判断result.status_code是否为0
-	if result["status_code"].(int) != 0 {
+	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 

@@ -454,6 +454,7 @@ export default {
                         message: '删除课程成功',
                         type: 'success'
                     });
+                    location.reload();
                     // 将添加课程的信息添加到日志中
                     const log = {
                         "create_time": TimeStore.getTime(),
@@ -504,6 +505,7 @@ export default {
                         message: '修改课程成功',
                         type: 'success'
                     });
+                    location.reload();
                     // 将添加课程的信息添加到日志中
                     const log = {
                         "create_time": TimeStore.getTime(),
