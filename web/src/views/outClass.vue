@@ -63,8 +63,9 @@
             <!-- 按键部分 -->
             <div class="button-container">
                 <!-- 查询活动 -->
-                <el-button type="success" @click="showDialog" icon="el-icon-search" style="margin-right: 5px;">查询活动</el-button>
-                <el-dialog title="查询活动" :visible.sync="showDialogVisible" >
+                <el-button type="success" @click="showDialog" icon="el-icon-search"
+                    style="margin-right: 5px;">查询活动</el-button>
+                <el-dialog title="查询活动" :visible.sync="showDialogVisible">
                     <el-form :model="queryForm" label-width="140px">
                         <el-row>
                             <el-col :span="12">
@@ -74,8 +75,9 @@
                                             :value="week"></el-option>
                                     </el-select>
                                     <el-select v-model="queryForm.endTime.day" placeholder="请选择星期">
-                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label" :value="day.value"></el-option>
-                    </el-select>
+                                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label"
+                                            :value="day.value"></el-option>
+                                    </el-select>
                                     <el-select v-model="queryForm.startTime.time" placeholder="请选择时间">
                                         <el-option v-for="time in timeOptions" :key="time" :label="time"
                                             :value="time"></el-option>
@@ -88,9 +90,10 @@
                                         <el-option v-for="week in weekOptions" :key="week" :label="week"
                                             :value="week"></el-option>
                                     </el-select>
-                                <el-select v-model="queryForm.startTime.day" placeholder="请选择星期">
-                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label" :value="day.value"></el-option>
-                    </el-select>
+                                    <el-select v-model="queryForm.startTime.day" placeholder="请选择星期">
+                                        <el-option v-for="(day, index) in dayOptions" :key="index" :label="day.label"
+                                            :value="day.value"></el-option>
+                                    </el-select>
                                     <el-select v-model="queryForm.endTime.time" placeholder="请选择时间">
                                         <el-option v-for="time in timeOptions" :key="time" :label="time"
                                             :value="time"></el-option>
@@ -104,6 +107,26 @@
                         <el-button type="primary" @click="query">确认</el-button>
                     </div>
                 </el-dialog>
+                <!-- 查询结果弹窗 -->
+                         <el-dialog :visible.sync="searchdialogVisible" title="活动详细信息" :style="{ 'max-height': '80%' }">
+            <el-scrollbar style="max-height: 500px;">
+              <el-table :data="searchEventList" style="width: 100%">
+                <el-table-column prop="activity_name" label="活动名称"></el-table-column>
+                <el-table-column prop="location" label="活动地点"></el-table-column>
+                <el-table-column prop="start_time" label="活动开始时间"></el-table-column>
+                 <el-table-column prop="is_mention" label="是否提醒">
+                  <template slot-scope="{ row }">
+                    {{ row.is_mention ? (row.advance_mention_time + '分钟前') : '否' }}
+                  </template>
+                </el-table-column>
+                <el-table-column v-if="isMentionExist" prop="advance_mention_time" label="提醒提前时间"></el-table-column>
+                <el-table-column prop="tag" label="标签"></el-table-column>
+              </el-table>
+            </el-scrollbar>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible = false">关闭</el-button>
+            </span>
+          </el-dialog>
                 <!-- 添加活动按钮和弹窗 -->
                 <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
                     @click="dialogAddVisible = true">添加活动</el-button>
@@ -118,14 +141,15 @@
 
                     <el-form v-if="addEventData.activityType === 'group'">
                         <el-form-item label="活动名称">
-                            
+
                             <el-input v-model="addEventData.name"></el-input>
                         </el-form-item>
 
                         <el-form-item label="活动成员">
-                        
-                            <el-transfer v-model="selectedActivityMembers" :data="studentsInfo" :titles="['学生列表', '活动成员列表']"></el-transfer>
-                            
+
+                            <el-transfer v-model="selectedActivityMembers" :data="studentsInfo"
+                                :titles="['学生列表', '活动成员列表']"></el-transfer>
+
                         </el-form-item>
 
                         <el-form-item label="请选择周次">
@@ -178,7 +202,7 @@
                                 <el-option label="60分钟" value="60"></el-option>
                             </el-select>
                         </el-form-item>
-                       
+
                     </el-form>
                     <el-form v-else-if="addEventData.activityType === 'personal'">
                         <el-form-item label="活动名称">
@@ -240,12 +264,13 @@
                             <el-input v-model="addEventData.name"></el-input>
                         </el-form-item>
                         <el-form-item label="活动时间">
-                            <el-time-picker placeholder="选择时间" v-model="addEventData.time"
-                                style="width: 100%;" :picker-options="{ format: 'HH:mm' }" value-format="HH:mm"></el-time-picker>
+                            <el-time-picker placeholder="选择时间" v-model="addEventData.time" style="width: 100%;"
+                                :picker-options="{ format: 'HH:mm' }" value-format="HH:mm"></el-time-picker>
                         </el-form-item>
                         <el-form-item label="周次">
                             <el-select v-model="addEventData.week" placeholder="请选择" @change="getWeekDays">
-                                <el-option v-for="week in weeks" :key="week" :label="`第 ${week} 周`" :value="week"></el-option>
+                                <el-option v-for="week in weeks" :key="week" :label="`第 ${week} 周`"
+                                    :value="week"></el-option>
                             </el-select>
                         </el-form-item>
                         <el-form-item label="星期">
@@ -281,7 +306,7 @@
                         </el-form-item>
                     </el-form>
                     <div slot="footer">
-                        <el-button @click.native="dialogAddVisible = false;selectedActivityMembers=[]">取消</el-button>
+                        <el-button @click.native="dialogAddVisible = false; selectedActivityMembers = []">取消</el-button>
                         <el-button type="primary" @click.native="submitAddForm">确定</el-button>
                     </div>
                 </el-dialog>
@@ -330,6 +355,7 @@ import { UserStore } from '@/store/user';
 export default {
     data() {
         return {
+             searchdialogVisible: false,
             selectedActivityMembers: [],
             studentsInfo: [],
             isStudentsListVisible: false,
@@ -369,7 +395,7 @@ export default {
             searchText: '',
             weeks: Array.from({ length: 15 }, (_, i) => i + 1),
             days: ['一', '二', '三', '四', '五', '六', '日'],
-            tempRate:1,
+            tempRate: 1,
             placelist: [
                 { id: 0, address: "青年公寓", value: "青年公寓" },
                 { id: 1, address: "北邮锦江酒店", value: "北邮锦江酒店" },
@@ -485,7 +511,7 @@ export default {
                     console.log(this.eventList[i].tag)
                     if (this.eventList[i].tag == "个人活动") {
                         num0++
-                    } else if (this.eventList[i].tag == "集体活动"){
+                    } else if (this.eventList[i].tag == "集体活动") {
                         num1++
                     } else {
                         num2++
@@ -501,7 +527,7 @@ export default {
                     this.groupActivityRate = this.groupActivityRate.toFixed(0)
                     this.tempRate = this.tempRate.toFixed(0)
                 }
-               
+
                 for (let i = 0; i < this.eventList.length; i++) {
                     if (this.eventList[i].frequency == 0) {
                         this.eventList[i].frequency = '(单次)'
@@ -536,7 +562,7 @@ export default {
         }
         getActivityTable()
 
-         //获取学生信息
+        //获取学生信息
         const getStudentsInfo = async () => {
             const fg = await UserStore.GetAllStuInfo()
             if (fg) {
@@ -563,7 +589,7 @@ export default {
         showDialog() {
             this.showDialogVisible = true
         },
-         // 发送查询请求
+        // 发送查询请求
         query() {
 
             let start_time = this.queryForm.startTime.week + "-" + this.dayMap[this.queryForm.startTime.day] + "-" + this.queryForm.startTime.time;
@@ -578,8 +604,9 @@ export default {
                     console.log('error')
                 }
             }
-            searchEvent(start_time, end_time)
-            this.showDialogVisible = false
+             searchEvent(start_time, end_time)
+            this.showDialogVisible = false;
+            this.searchdialogVisible = true;
         },
 
         // 搜索框智能加载
@@ -684,7 +711,7 @@ export default {
             this.dialogDetailVisible = true;
         },
         submitAddForm() {
-    
+
             this.dialogAddVisible = false;
             this.submit = {};
             this.submit.activity_name = this.addEventData.name;
@@ -693,7 +720,7 @@ export default {
             this.submit.is_mention = this.addEventData.ismention = 'true' ? true : false;
             this.submit.advance_mention_time = Number(this.addEventData.advance_mention_time);
             this.submit.location = this.addEventData.location;
-            
+
 
             if (this.addEventData.activityType == 'personal') {
                 this.submit.type = 0;
@@ -743,6 +770,9 @@ export default {
         },
     },
     computed: {
+         isMentionExist() {
+            return this.searchEventList.length > 0 && this.searchEventList[0].hasOwnProperty('is_mention');
+        },
         transFormToDate() {
             return (startTime) => {
                 // 去掉startTime的后6位
@@ -768,10 +798,12 @@ export default {
 .el-transfer__buttons {
     padding: 0 10px;
 }
+
 .activity-proportion {
     width: 400px;
-   
+
 }
+
 .table-container {
     height: 370px;
     overflow-y: auto;
@@ -805,5 +837,4 @@ h2 {
 .weekinput {
     width: 30px;
     margin: 0 5px;
-}
-</style>
+}</style>
