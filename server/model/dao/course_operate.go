@@ -246,27 +246,50 @@ func (s *courseDao) QueryElectiveCourse(userId int64, courses **[]*system.Course
 	/*
 		查询选修课
 	*/
-	sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id IN (SELECT course_id FROM student_course WHERE student_id = '%v')", userId)
-	if err := db.ExecSql(sqlStr); err != nil {
+
+	// 先查询课程id
+	sonSqlStr := fmt.Sprintf("SELECT * FROM student_course WHERE student_id = '%v'", userId)
+	if err := db.ExecSql(sonSqlStr); err != nil {
 		return err
 	}
 
-	jsonStr, err := ReadLine()
+	sonJsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
 
 	// 用一个map来接收返回的json
 	var result map[string]interface{}
-	_ = json.Unmarshal(jsonStr, &result)
+	_ = json.Unmarshal(sonJsonStr, &result)
 
 	// 判断result.status_code是否为0
 	if result["status_code"].(float64) != 0 {
 		return errors.New(result["status_msg"].(string))
 	}
 
+	var studentCourse []*system.StudentCourse
 	// 将result.data转换为[]*system.CourseInfo
-	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
+	_ = json.Unmarshal([]byte(result["data"].(string)), &studentCourse)
+
+	realCourses := new([]*system.CourseInfo)
+	// 再查询课程信息
+	for _, v := range studentCourse {
+		var courseInfo []*system.CourseInfo
+		sqlStr := fmt.Sprintf("SELECT * FROM course_info WHERE course_id = '%v'", v.CourseId)
+		if err := db.ExecSql(sqlStr); err != nil {
+			return err
+		}
+		var result1 map[string]interface{}
+		_ = json.Unmarshal(sonJsonStr, &result1)
+		if result1["status_code"].(float64) != 0 {
+			return errors.New(result1["status_msg"].(string))
+		}
+		_ = json.Unmarshal([]byte(result1["data"].(string)), &courseInfo)
+		// 将courseInfo添加到courses中
+		*realCourses = append(*realCourses, courseInfo...)
+	}
+
+	*courses = realCourses
 
 	return nil
 }

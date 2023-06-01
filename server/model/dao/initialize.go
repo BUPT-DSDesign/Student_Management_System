@@ -7,6 +7,7 @@ import (
 	"log"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
 // 届时需要打开的数据库后端可执行文件相对路径
@@ -16,6 +17,7 @@ type DB struct {
 	cmd    *exec.Cmd
 	stdin  io.WriteCloser
 	stdout io.ReadCloser
+	mutex  *sync.Mutex
 }
 
 type CorrectType float64
@@ -41,6 +43,7 @@ func init() {
 	db.stdin = stdin
 	db.stdout = stdout
 	db.cmd = cmd
+	db.mutex = new(sync.Mutex)
 
 	go func() {
 		if err := cmd.Wait(); err != nil {
@@ -51,6 +54,7 @@ func init() {
 
 // ExecSql 执行sql语句
 func (db *DB) ExecSql(sqlStr string) error {
+	db.mutex.Lock()
 	if err := WriteLine(sqlStr); err != nil {
 		return err
 	}
@@ -65,6 +69,7 @@ func WriteLine(data string) error {
 }
 
 func ReadLine() ([]byte, error) {
+	defer db.mutex.Unlock()
 	result := make(map[string]interface{}, 0)
 	if err := json.NewDecoder(db.stdout).Decode(&result); err != nil {
 		return nil, err
