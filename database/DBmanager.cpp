@@ -26,7 +26,7 @@ void DBmanager::UseDatabase(const string& db_name)
             //去掉后缀名
             tb_name = tb_name.substr(0,tb_name.length()-6);
             tb_name_list_.push_back(tb_name);
-            tb_list_[tb_name] = make_unique<Table>(Table(db_path.string(),tb_name));
+            tb_list_[tb_name] = make_unique<Table>(db_path.string(),tb_name);
         }
     }
 }
@@ -85,7 +85,7 @@ void DBmanager::CreateTable(const string& tb_name,vector<TableColAttribute> &col
     tb_name_list_.push_back(tb_name);
     cerr<<"PATH:"<<path_ + "/" + db_name_<<endl;
     string full = path_ + "/" + db_name_;
-    tb_list_[tb_name] = make_unique<Table>(Table(full,tb_name,col_info));
+    tb_list_[tb_name] = make_unique<Table>(full,tb_name,col_info);
 }
 void DBmanager::DropTable(const string& tb_name)
 {

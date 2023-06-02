@@ -32,6 +32,11 @@ void Row::Update(vector<pair<string,string>> &col_item){
 }
 bool Row::isSatisfied(const SQLWhere& where) const{
     if(where.getOperator() == ClauseOperator::NOP){
+        for(auto &i:col_value_){
+            if(!where.Filter(i)){
+                return false;
+            }
+        }
         return true;
     }
     //先判断Where语句顶层是AND还是OR,如果是AND则需要都满足,如果是OR则只需要有一个满足
@@ -55,10 +60,13 @@ string Row::getRowJSON() const{
     //获取一条记录的JSON格式
     string res = "{";
     for(auto &i:col_value_){
+        //cerr << "\""+i.getColName()+"\":"+i.getValue()+"," << endl;
         res += "\""+i.getColName()+"\":"+i.getValue()+",";
     }
-    res.pop_back();
+    if(col_value_.size() > 0)res.pop_back();
     res += "}";
+    //cerr<<"We have res:";
+    //cerr<<res<<endl;
     return res;
 }
 vector<byte> Row::toByte() const{
@@ -88,7 +96,11 @@ Table::Table():col_cnt_(0),index_cnt_(0),record_length_(0){}
 Table::Table(const Table& tb):col_cnt_(tb.col_cnt_),index_cnt_(tb.index_cnt_),record_length_(tb.record_length_),table_name_(tb.table_name_),db_path_(tb.db_path_),col_info_(tb.col_info_),col_shift_(tb.col_shift_),index_name_(tb.index_name_),col2index_(tb.col2index_),col2id_(tb.col2id_),index_info_pos_(tb.index_info_pos_){
     //重新打开表的数据文件
     string fileData = db_path_+"/"+table_name_+".table";
-    tb_data_ = make_unique<BPTree>(fileData);
+    tb_data_ = make_unique<BPTree>(fileData,true);
+    for(auto &it:tb.index_name_){
+        string fileIndex = db_path_+"/"+it+".idx";
+        tb_index_[it] = make_unique<BPTree>(fileIndex,false);
+    }
 }
 //打开一张已有的表,将表头信息读入内存
 Table::Table(const string& db_path,const string& table_name):table_name_(table_name),db_path_(db_path){
@@ -106,6 +118,10 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
         TableColAttribute tmp;
         //读取每一列的信息,即TableColAttribute中除了default_和comment_的部分
         table_info_->read(reinterpret_cast<char*>(&tmp),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
+        if(tmp.is_primary_){
+            //初始化主键
+            primary_key_ = tmp.col_name_;
+        }
         //读取default_和comment_
         if(tmp.default_length_!=0){
             //如果有默认值,则读取默认值
@@ -144,11 +160,11 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     }
     //最后打开表的数据文件,其文件路径为db_path/table_name.table,
     string fileData = db_path_+"/"+table_name_+".table";
-    tb_data_ = make_unique<BPTree>(fileData);
+    tb_data_ = make_unique<BPTree>(fileData,true);
     //如果有索引文件,一并将其加载入内存
     for(auto &it:index_name_){
         string fileIndex = db_path_+"/"+it+".idx";
-        tb_index_[it] = make_unique<BPTree>(fileIndex);
+        tb_index_[it] = make_unique<BPTree>(fileIndex,false);
     }
 }
 
@@ -179,6 +195,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
             has_primary_key = true;
             primary_key_size = it.length_;
             primary_key_type = it.data_type_;
+            primary_key_ = it.col_name_;
         }
         //写入除了default_和comment_的部分
         table_info_->write(reinterpret_cast<char*>(&it),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
@@ -191,7 +208,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                 //1.数值类型:整型(符号型)
                 case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
                     {
-                        int64 val_int64;
+                        int64 val_int64 = 0;
                         val_int64 = any_cast<int64>(it.default_);
                         table_info_->write(reinterpret_cast<char*>(&val_int64),it.default_length_);
                     }
@@ -199,7 +216,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                 //2.数值类型:浮点型(单精度)
                 case T_FLOAT:
                     {
-                        float val_float;
+                        float val_float = 0;
                         val_float = any_cast<float>(it.default_);
                         table_info_->write(reinterpret_cast<char*>(&val_float),it.default_length_);
                     }
@@ -207,7 +224,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                 //3.数值类型:浮点型(双精度)
                 case T_DOUBLE:
                     {
-                        double val_double;
+                        double val_double = 0;
                         val_double = any_cast<double>(it.default_);
                         table_info_->write(reinterpret_cast<char*>(&val_double),it.default_length_);
                     }
@@ -217,7 +234,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                     //格式为YYYY-MM-DD
                     //范围为1000-01-01到9999-12-31
                     {
-                        uint64 val_uint64;
+                        uint64 val_uint64 = 0;
                         uint64 year,month,day;
                         char c;
                         iss>>year>>c>>month>>c>>day;
@@ -237,7 +254,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                     //格式为HH:MM:SS
                     //范围为-838:59:59到838:59:59,可表示一段时间或当天的某一时刻
                     {
-                        int32 val_int32;
+                        int32 val_int32 = 0;
                         int32 hour,minute,second;
                         char c;
                         iss>>hour>>c>>minute>>c>>second;
@@ -257,7 +274,7 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
                     //格式为YYYY
                     //范围为1901到2155
                     {
-                        uint8 val_uint8;
+                        uint8 val_uint8 = 0;
                         int32 year;
                         iss>>year;
                         //判断输入格式是否正确
@@ -301,13 +318,15 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
     //如果没有主键,新增主键,并标注为隐藏列
     if(!has_primary_key){
         TableColAttribute primary_key;
-        memset(&primary_key,0,sizeof(TableColAttribute));
+        //会清零的初始化
+        //memset(&primary_key,0,sizeof(TableColAttribute));
         primary_key.data_type_ = T_BIG_INT;
         primary_key.is_primary_ = true;
         primary_key.is_hidden_ = true;
         primary_key.length_ = 8;
-        string primary_key_name = "HIDDEN_PRIMARY_KEY_";
-        std::copy(primary_key_name.begin(),primary_key_name.end(),primary_key.col_name_);
+        primary_key_ = "HIDDEN_PRIMARY_KEY_";
+
+        std::copy(primary_key_.begin(),primary_key_.end(),primary_key.col_name_);
         primary_key.default_length_ = 0;
         primary_key.comment_length_ = 0;
         col_cnt_++;
@@ -682,7 +701,9 @@ vector<byte> Table::serialize(vector<pair<string,string>> &col_item){
                         throw TableDataError("Data Serialize Error,varchar length out of range,COLUMN:"+it.first+" VALUE:"+it.second);
                     }
                     //如果没有超过,则直接拷贝
-                    std::copy(reinterpret_cast<std::byte*>(it.second.data()),reinterpret_cast<std::byte*>(it.second.data())+col_info_[id].length_,data.begin()+shift);
+                    
+                    std::copy(reinterpret_cast<byte*>(it.second.data()),reinterpret_cast<byte*>(it.second.data())+it.second.length(),data.begin()+shift);
+                    
                 } 
                 break;
         }
@@ -708,31 +729,32 @@ void Table::SelectRecord(SQLWhere &where){
     //随后根据索引的类型,调用不同的函数
     //先判断这玩意是不是主键,再判断有没有这样的索引
     vector<Row> rows_result;
-    if(indexName == ""){
+    if(indexName == "*"){
         //根本就没有Where条件,直接查
-        cerr << "no index search" << endl;
+        //cerr << "no index search" << endl;
         vector<vector<byte>> record;
         tb_data_->ReadFirstChunk();
         while(tb_data_->isBufLeaf()){
-            cerr << "isBufLeaf" << endl;
+            //cerr << "isBufLeaf" << endl;
             record = tb_data_->GetAllElemInChunk();
             for(auto &it:record){
                 Row row(col_info_,it);
                 rows_result.push_back(row);
-                
             }
             tb_data_->ReadNextChunk();
         }
     }else if(indexName == primary_key_){
         //如果是主键,则直接调用主键查找函数
-        cerr << "primary key search" << endl;
+        //cerr << "primary key search" << endl;
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则调用主键查找函数
-            cerr << "EQ search" << endl;
-            Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType())));
-            rows_result.push_back(row);
-            //result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
-        
+            //cerr << "EQ search" << endl;
+            vector<byte> record = tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
+            if(record.size() != 0){
+                //找到了
+                Row row(col_info_,record);
+                rows_result.push_back(row);
+            } 
         }else{
             //如果是范围查询,则调用主键范围查找函数
             vector<vector<byte>> record = tb_data_->SearchRange(where.GetQueryLeftKey(indexName,tb_data_->getKeyType()),where.GetQueryRightKey(indexName,tb_data_->getKeyType()));
@@ -804,7 +826,7 @@ void Table::SelectRecord(SQLWhere &where){
         }
     }
     //最后将结果转换为字符串输出
-    PrintToStream("ResulUSEt Found",rows_result);
+    PrintToStream("Result Found",rows_result);
 }
 
 void Table::InsertRecord(vector<pair<string,string>> &col_item){
@@ -826,7 +848,10 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
         std::copy(reinterpret_cast<char*>(&pos),reinterpret_cast<char*>(&pos)+sizeof(streampos),reinterpret_cast<char*>(index_data.data()));
         tb_index_[it.first]->Insert(index_key,index_data);
     }
-    saySuccess();
+    //输出插入的数据
+    vector<Row> result;
+    result.push_back(Row(col_info_,data));
+    PrintToStream("Insert Record",result);
 }
 void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
     //先根据Where类的成员函数获取最应该使用的索引

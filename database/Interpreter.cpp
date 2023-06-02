@@ -31,32 +31,39 @@ Interpreter::Interpreter(const string dirPath):sql_type_(SQL_ERROR)//未指定,�
 }
 
 void Interpreter::GenSQL(){
+    
     //移除换行和tab
     regex reg("[\r\n\t]");
     sql_statement_ = regex_replace(sql_statement_,reg," ");
+    
     //移除;和;之后的字符
     reg = ";.*$";
     sql_statement_ = regex_replace(sql_statement_, reg, "");
+    
     //移除开头和结尾的空格
     reg = "(^ +)|( +$)";
 	sql_statement_ = regex_replace(sql_statement_, reg, "");
+    
 	//移除重复的空格
 	reg = " +";
 	sql_statement_ = regex_replace(sql_statement_, reg, " ");
+    
 	// 在 ( ) , = <> < > 前后加空格,并去掉多增加的空格
 	reg = " ?(\\(|\\)|,|=|(<>)|<|>) ?";
 	sql_statement_ = regex_replace(sql_statement_, reg, " $1 ");
-    reg = "(\"|\'|\\`)\\s*|\\s*(\"|\'|\\`)";
-    sql_statement_ = regex_replace(sql_statement_, reg, " $1$2 ");
 	reg = "< *>";
 	sql_statement_ = regex_replace(sql_statement_, reg, "<>");
 	reg = "< *=";
 	sql_statement_ = regex_replace(sql_statement_, reg, "<=");
 	reg = "> *=";
 	sql_statement_ = regex_replace(sql_statement_, reg, ">=");
-	
+	reg = "(\"|\'|\\`)\\s*|\\s*(\"|\'|\\`)";
+    sql_statement_ = regex_replace(sql_statement_, reg, " $1$2 ");
+    
 	//将string转换为vector
 	sql_vector_ = SplitSQL(sql_statement_, " ");
+    
+    //throw SQLTypeError("测试");
 }
 
 vector<string> Interpreter::get_gen_SQL(string &statement){

@@ -41,6 +41,7 @@ int main(int argc,char* argv[]){
                     break;
                 }
                 interpreter.ExecuteSQL(statement.str());
+                
             }catch(const SQLSyntaxError& e){
                 cerr<<e.what()<<"\n";
                 cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";

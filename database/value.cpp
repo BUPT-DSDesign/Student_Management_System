@@ -3,17 +3,18 @@
 #include <ctime>
 #include <iomanip>
 #include <sstream>
+#include <iostream>
+using namespace std;
 Key::Key(bool is_maximun){
     is_maximun_ = is_maximun;
     is_minimun_ = !is_maximun;
     data_type_ = T_INT;
     value_int_ = -2147483648;
 }
-Key::Key(uint64 value)
+Key::Key(int64 value)
 :is_maximun_(false),is_minimun_(false),data_type_(T_BIG_INT),value_int_(value)
 {
 }
-
 Key::Key(const string& key,uint8 data_type)
 :is_maximun_(false),is_minimun_(false)
 {
@@ -21,13 +22,14 @@ Key::Key(const string& key,uint8 data_type)
     switch(data_type){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
-            value_int_ = stoi(key);
+            value_int_ = stoll(key);
             break;
         case T_FLOAT:case T_DOUBLE:
             value_float64_ = stod(key);
             break;
+        //FIXME:这里的时间类型的处理有问题
         case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = stoul(key);
+            value_uint_ = stoull(key);
             break;
         default:
             value_str_ = key;
@@ -35,11 +37,14 @@ Key::Key(const string& key,uint8 data_type)
     data_type_ = data_type;
 
 }
-Key::Key(vector<byte>::iterator begin,int len,uint8 data_type){
+Key::Key(vector<byte>::iterator begin,int len,uint8 data_type)
+:is_maximun_(false),is_minimun_(false),data_type_(data_type)
+{
     switch(data_type){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
-            value_int_ = *(int64*)&(*begin);
+            value_int_ = 0;
+            std::copy(begin,begin+len,(byte*)&value_int_);
             break;
         case T_FLOAT:
             value_float64_ = *(float32*)&(*begin);
@@ -48,12 +53,13 @@ Key::Key(vector<byte>::iterator begin,int len,uint8 data_type){
             value_float64_ = *(float64*)&(*begin);
             break;
         case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = *(uint64*)&(*begin);
+            value_uint_ = 0;
+            std::copy(begin,begin+len,(byte*)&value_uint_);
             break;
         default:
-            value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
+            value_str_.assign((char*)&(*begin));
+            //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
     }
-    data_type_ = data_type;
 }
 string Key::getKey() const{
     switch(data_type_){
@@ -179,7 +185,8 @@ ColValue::ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator
     switch(data_type_){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
-            value_int_ = *(int64*)&(*begin);
+            value_int_ = 0;
+            std::copy(begin,begin+len,(byte*)&value_int_);
             break;
         case T_FLOAT:
             value_float64_ = *(float32*)&(*begin);
@@ -188,10 +195,14 @@ ColValue::ColValue(const string& col_name,uint8 data_type,vector<byte>::iterator
             value_float64_ = *(float64*)&(*begin);
             break;
         case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = *(uint64*)&(*begin);
+            value_uint_ = 0;
+            std::copy(begin,begin+len,(byte*)&value_uint_);
             break;
         default:
-            value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
+            //注意截断
+            value_str_.assign((char*)&(*begin));
+            //value_str_ = std::string(reinterpret_cast<char*>(&(*begin)), len);
+            //cerr << "Get value_str_"<< value_str_ << endl;
     }
 }
 vector<byte> ColValue::getBytes() const{
@@ -256,7 +267,7 @@ string ColValue::getValue() const{
                 int64 year = value_int_/10000;
                 int64 month = (value_int_%10000)/100;
                 int64 day = value_int_%100;
-                return to_string(year)+"-"+to_string(month)+"-"+to_string(day);
+                return "\""+to_string(year)+"-"+to_string(month)+"-"+to_string(day)+"\"";
             }
         case T_TIME:
             //格式为HH:MM:SS
@@ -265,12 +276,12 @@ string ColValue::getValue() const{
                 int64 hour = value_int_/3600;
                 int64 minute = (value_int_%3600)/60;
                 int64 second = value_int_%60;
-                return to_string(hour)+":"+to_string(minute)+":"+to_string(second);
+                return "\""+to_string(hour)+":"+to_string(minute)+":"+to_string(second)+"\"";
             }
         case T_YEAR:
             //格式为YYYY
             //范围为1901到2155
-            return to_string(value_uint_);
+            return "\""+to_string(value_uint_)+"\"";
         case T_TIMESTAMP:
             //格式为YYYY-MM-DD HH:MM:SS
             //以1970-01-01 00:00:00为起始值
@@ -279,10 +290,10 @@ string ColValue::getValue() const{
                 std::tm timestamp = *std::localtime(&val_time_t);
                 stringstream ss;
                 ss << std::put_time(&timestamp,"%Y-%m-%d %H:%M:%S");
-                return ss.str();
+                return "\""+ss.str()+"\"";
             }
         default:
-            return value_str_;
+            return "\""+value_str_+"\"";
     }
 }
 uint8 ColValue::getDataType() const{

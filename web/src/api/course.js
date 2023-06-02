@@ -28,8 +28,8 @@ export const DeleteCourse = (data) => {
 // 编辑课程
 export const EditCourse = (data) => {
     return service({
-        url: '/course/edit',
-        method: 'post',
+        url: '/course/update',
+        method: 'put',
         data: data
     })
 }

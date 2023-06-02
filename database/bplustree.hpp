@@ -123,7 +123,7 @@ private:
 public:
     //以下为打开
     //打开一个已有的B+树文件
-    BPTree(string path);
+    BPTree(string path,bool is_table);
     //新建一个B+树文件
     BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type);
     //析构函数
