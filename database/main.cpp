@@ -33,9 +33,11 @@ int main(int argc,char* argv[]){
     Interpreter interpreter("./");
     if(argc == 2){
         //跟着的是数据库名称
-        stringstream sqlUSE;
-        sqlUSE << "USE " << argv[1] <<";"<< endl;
-        interpreter.ExecuteSQL(sqlUSE.str());
+        try{
+            stringstream sqlUSE;
+            sqlUSE << "USE " << argv[1] <<";"<< endl;
+            interpreter.ExecuteSQL(sqlUSE.str());
+        }
     }
     //读入SQL语句,读到分号执行一句,否则继续读,同时利用try catch捕获异常
     while(getline(cin,buf)){
