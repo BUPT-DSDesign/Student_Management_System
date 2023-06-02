@@ -28,14 +28,25 @@
         <el-tag effect="dark">第{{ curWeek }}周</el-tag>
         <el-button-group>
             <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()">上一周</el-button>
-            <el-button type="primary" @click="toNextweek()">下一周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
+            <el-button type="primary" @click="toNextweek()">下一周<i
+                    class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
-        
+
         <!-- 点击弹窗 -->
         <el-dialog title="课程详情" :visible.sync="dialogVisible1" width="30%" :before-close="handleClose">
-                <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
+            <span>{{ courseInfo.course_name }}</span>
+            <div style="padding: 20px">
+                <p><strong>上课地点：</strong>{{ courseInfo.classroom }}</p>
+                <p><strong>授课老师：</strong>{{ courseInfo.teacher }}</p>
+                <p><strong>上课时间：</strong>{{ courseInfo.class_time }}</p>
+                <p><strong>上课周次：</strong>{{ courseInfo.week_schedule }}</p>
+                <p><strong>课程性质：</strong>{{ courseInfo.is_compulsory == true ? '必修' : '选修' }}</p>
+                <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
+                <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
+            </div>
+            <!-- <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
                     <div class="course_time">课程时间：{{ curClassData.section_list }}</div>
-                    <div class="course_address">课程地点：{{ curClassData.classroom }}</div>
+                    <div class="course_address">课程地点：{{ curClassData.classroom }}</div> -->
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible1 = false">取 消</el-button>
                 <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
@@ -64,10 +75,12 @@
                     </el-radio-group>
                     <h2 style="text-align: center; padding-top: 20px;">查询课程</h2>
                     <el-form>
-                        <el-input size="small" v-model="keyWord" placeholder="请输入查询关键词" prefix-icon="el-icon-search"></el-input>
+                        <el-input size="small" v-model="keyWord" placeholder="请输入查询关键词"
+                            prefix-icon="el-icon-search"></el-input>
                     </el-form>
                     <ul class="list-group">
-                        <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)" style="font-size:10px;">
+                        <li v-for="(p, index) of filclasslist" :key="index" @click="chooseclass($event)"
+                            style="font-size:10px;">
                             {{ radio == 1 ? p.course_name : p.classroom }}
                         </li>
                     </ul>
@@ -77,7 +90,8 @@
                     </div>
 
                     <div class="select-class" style="color: red">
-                        -------------<el-button type="danger" @click="openSelectCourseSystem">进入选课系统</el-button>-------------
+                        -------------<el-button type="danger"
+                            @click="openSelectCourseSystem">进入选课系统</el-button>-------------
                     </div>
                 </el-card>
             </el-col>
@@ -103,9 +117,10 @@
                 <el-table-column label="操作" fixed align="center" width="300">
                     <template slot-scope="scope">
                         <el-button size="small" type="primary" @click="seeCourseInfo(scope.row)">查看课程详情</el-button>
-                         <!-- 点击弹窗 -->
-                        
-                        <el-button size="small" type="success" :disabled="scope.row.is_selected" @click="openConfirmFrame(scope.row)">{{scope.row.is_selected == true ? '已选': '选课'}}</el-button>
+                        <!-- 点击弹窗 -->
+
+                        <el-button size="small" type="success" :disabled="scope.row.is_selected"
+                            @click="openConfirmFrame(scope.row)">{{ scope.row.is_selected == true ? '已选' : '选课' }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -128,7 +143,6 @@
                 <el-button type="primary" @click="courseInfoVis = false">确 定</el-button>
             </span>
         </el-dialog>
-
     </div>
 </template>
 <script>
@@ -145,6 +159,7 @@ export default {
             weeks: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
             time: ['08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00', '13:00-14:00', '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00'],
             classData: [],
+            courseInfo: [],
             dialogVisible1: false, //点击弹窗的可见性
             dialogVisible2: false, //查询弹窗的可见性
             radio: 1,//多选框默认选中的单元
@@ -226,12 +241,12 @@ export default {
                     location.reload();
                     // 创建一个日志对象
                     const log = {
-                        "create_time":  TimeStore.getTime(),
+                        "create_time": TimeStore.getTime(),
                         "content": "选修课程成功, 课程名为：" + course.course_name,
                     }
                     console.log(log)
-                    LogStore.AddLog(log)  
-                    
+                    LogStore.AddLog(log)
+
                 } else {
                     this.$message({
                         type: 'error',
@@ -245,7 +260,7 @@ export default {
                 });
             });
         },
-        
+
         // 打开选课系统
         openSelectCourseSystem() {
             this.selectCourseSystemVis = true
@@ -276,11 +291,11 @@ export default {
         //点击课程单元格
         clickClass(event) {
             if (event.target.innerText == '') {
-                 Message.info({
+                Message.info({
                     showClose: true,
                     center: true,
                     message: '当前课节无课',
-                    duration:1000,
+                    duration: 1000,
                 })
                 return;
             }
@@ -296,10 +311,69 @@ export default {
             }
             //点击弹窗
             this.dialogVisible1 = true;
+            this.courseInfo = this.processCourseInfo(this.curClassData);
         },
         // 关闭弹窗
         handleClose(done) {
             done();
+        },
+       getCourseTime(sectionList) {
+            const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const courseTime = [];
+            let currentCourse = {
+                weekday: '',
+                sections: []
+            };
+            sectionList.forEach(section => {
+                const weekday = weekdays[Math.floor((section - 1) / 9)];
+                const sectionIndex = (section - 1) % 9;
+                let sectionName = sections[sectionIndex];
+                if (weekday === '周二' && sectionIndex < 5) {
+                    sectionName = `第${sectionIndex + 1}节`;
+                }
+                if (weekday === currentCourse.weekday && sectionIndex === currentCourse.sections[currentCourse.sections.length - 1] + 1) {
+                    currentCourse.sections.push(sectionIndex);
+                } else {
+                    if (currentCourse.weekday) {
+                        courseTime.push(currentCourse);
+                    }
+                    currentCourse = {
+                        weekday,
+                        sections: [sectionIndex]
+                    };
+                }
+            });
+            if (currentCourse.weekday) {
+                courseTime.push(currentCourse);
+            }
+            const formattedTime = courseTime.map(course => {
+                const { weekday, sections } = course;
+                if (sections.length === 1) {
+                    return `${weekday}第${sections[0] === 0 ? sections[0] + 1 : `第${sections[0] + 1}节`}节`;
+                } else if (sections.length === 9) {
+                    return `${weekday}全天`;
+                } else {
+                    return `${weekday}第${sections[0] + 1}~${sections[sections.length - 1] + 1}节`;
+                }
+            });
+            return formattedTime.join('，');
+        },
+        processCourseInfo(course) {
+            const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const classTime = this.getCourseTime(course.section_list)
+
+            return {
+                course_name: course.course_name,
+                classroom: course.classroom,
+                teacher: course.teacher,
+                class_time: classTime,
+                week_schedule: "第" + course.week_schedule + "周",
+                exam_time: course.exam_time,
+                exam_location: course.exam_location,
+                is_compulsory: course.is_compulsory
+            };
         },
         //查询的点击事件
         onSubmit() {
@@ -324,9 +398,9 @@ export default {
             const inqueryCourse = async (data) => {
                 console.log('测试查询')
                 console.log(data)
-                
+
                 const fg = await CourseStore.inquiryCourseInfo(data);
-                 if (fg) {
+                if (fg) {
                     this.searchlist = CourseStore.searchCourseList;
                     this.$message({
                         showClose: true,
@@ -383,15 +457,18 @@ export default {
     margin-top: 50px;
 
 }
+
 .buttons-combine {
     display: flex;
     justify-content: space-evenly;
 }
-.list-group{
+
+.list-group {
     color: #adb5bd;
-    margin-left:10px;
-    margin-top:10px;
+    margin-left: 10px;
+    margin-top: 10px;
 }
+
 ul {
     margin-top: 20px;
 }
@@ -408,16 +485,18 @@ h2 {
 
 .searchbox {
     float: right;
-    padding:20px;
-    width:350px;
-    height:400px;
+    padding: 20px;
+    width: 350px;
+    height: 400px;
     margin-top: -500px;
     margin-left: 650px;
 }
-.el-form{
-    height:35px;
+
+.el-form {
+    height: 37px;
     background-color: #fff;
 }
+
 .el-tag {
     font-size: 18px;
     height: 35px;
@@ -431,7 +510,9 @@ h2 {
 
 .class-table {
     justify-content: center;
-  align-items: center;
+    align-items: center;
+    overflow-x: hidden;
+
     .table-wrapper {
         width: 600px;
         height: 500px;
@@ -467,7 +548,7 @@ h2 {
             td {
                 width: 60px;
                 padding: 12px 2px;
-                font-size: 10px;
+                font-size: 9px;
                 text-align: center;
             }
 
@@ -480,5 +561,4 @@ h2 {
             }
         }
     }
-}
-</style>
+}</style>
