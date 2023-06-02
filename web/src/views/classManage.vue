@@ -32,33 +32,31 @@
         <!-- 修改课程 -->
         <el-dialog title="修改课程" :visible.sync="dialogVisible2" width="600px">
             <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
-                <el-form-item label="课程名称">
+                <el-form-item label="课程名称" required>
                     <el-input v-model="clickedClassData.course_name"></el-input>
                 </el-form-item>
-                <el-form-item label="上课地点">
-                    <el-input v-model="clickedClassData.classroom"></el-input>
-                </el-form-item>
-                <el-form-item label="授课老师">
+               <el-form-item label="上课地点" required>
+                            <el-select v-model="addClassData.classroom" placeholder="请选择">
+                                <el-option v-for="option in placelist" :key="option.value" :label="option.label"
+                                    :value="option.value"></el-option>
+                            </el-select>
+                        </el-form-item>
+                <el-form-item label="授课老师" required>
                     <el-input v-model="clickedClassData.teacher"></el-input>
                 </el-form-item>
                 <el-form-item label="联系方式">
                     <el-input v-model="clickedClassData.contact"></el-input>
                 </el-form-item>
-                <el-form-item label="上课周次">
+                <el-form-item label="上课周次" required>
                     <el-select v-model="clickedClassData.week_schedule" placeholder="请选择" multiple>
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="考试时间">
+                <el-form-item label="考试时间" >
                     <el-input v-model="clickedClassData.exam_time"></el-input>
                 </el-form-item>
-                <el-form-item label="上课地点">
-                        <el-select v-model="addClassData.classroom" placeholder="请选择">
-                            <el-option v-for="option in placelist" :key="option.value" :label="option.label"
-                                :value="option.value"></el-option>
-                        </el-select>
-                    </el-form-item>
+                
                 <el-form-item label="考核方式">
                     <el-radio-group v-model="clickedClassData.exam_option">
                         <el-radio label="论文考察">论文考察</el-radio>
@@ -73,7 +71,7 @@
                     </el-radio-group>
                 </el-form-item>
 
-                <el-form-item label="是否为必修课程">
+                <el-form-item label="是否为必修课程" required>
                     <el-radio-group v-model="clickedClassData.is_compulsory">
                         <el-radio :label="true">{{ clickedClassData.is_compulsory ? '是' : '否' }}</el-radio>
                         <el-radio :label="false">{{ clickedClassData.is_compulsory ? '否' : '是' }}</el-radio>
@@ -88,27 +86,27 @@
 
         <!-- 添加课程 -->
         <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="600px">
-            <el-form :model="addClassData" label-width="170px" style="backgroundColor:#fff">
-                <el-form-item label="课程名称">
+            <el-form :model="addClassData" label-width="180px" style="backgroundColor:#fff">
+                <el-form-item label="课程名称" required>
                     <el-input v-model="addClassData.course_name"></el-input>
                 </el-form-item>
-                <el-form-item label="上课地点">
+                <el-form-item label="上课地点" required>
                     <el-select v-model="addClassData.classroom" placeholder="请选择">
                         <el-option v-for="option in placelist" :key="option.value" :label="option.label"
                             :value="option.value"></el-option>
                     </el-select>
                 </el-form-item>
-                <el-form-item label="授课老师">
+                <el-form-item label="授课老师" required>
                     <el-input v-model="addClassData.teacher"></el-input>
                 </el-form-item>
-                <el-form-item label="联系方式">
+                <el-form-item label="联系方式" >
                     <el-input v-model="addClassData.contact"></el-input>
                 </el-form-item>
-                <el-form-item label="上课节次">
+                <el-form-item label="上课节次" required>
                     <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }"
                         filterable></el-cascader>
                 </el-form-item>
-                <el-form-item label="上课周次">
+                <el-form-item label="上课周次" required>
                     <el-select v-model="addClassData.week_schedule" placeholder="请选择" multiple>
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
@@ -128,13 +126,13 @@
                     </el-radio-group>
                 </el-form-item>
 
-                <el-form-item label="是否为线上课程">
+                <el-form-item label="是否为线上课程" required>
                     <el-radio-group v-model="addClassData.is_course_online">
                         <el-radio :label="1">是</el-radio>
                         <el-radio :label="0">否</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="是否为必修课程">
+                <el-form-item label="是否为必修课程" required>
                     <el-radio-group v-model="addClassData.is_compulsory">
                         <el-radio :label="1">是</el-radio>
                         <el-radio :label="0">否</el-radio>
