@@ -34,27 +34,6 @@
                         </div>
                         <div style="clear:both;"></div> <!-- 添加清除浮动的元素 -->
                     </el-dialog>
-                    <!-- <el-dialog title="明日课程、活动安排" :visible.sync="dialogVisible">
-      <div class="timeline-container">
-        <div class="timeline-title">明日课程</div>
-        <el-timeline class="timeline-left">
-          <el-timeline-item v-for="(course, index) in curcourseList" :key="index" :type="course.type"
-            :timestamp="course.timestamp"  color="#8ce99a">
-            {{ course.content }}
-          </el-timeline-item>
-        </el-timeline>
-      </div>
-      <div class="timeline-container">
-        <div class="timeline-title">明日活动</div>
-        <el-timeline class="timeline-right">
-          <el-timeline-item v-for="(activity, index) in todayActivities" :key="index"
-            :timestamp="activity.timestamp"  color="#8ce99a">
-            {{ activity.activity_name }}
-          </el-timeline-item>
-        </el-timeline>
-      </div>
-    </el-dialog> -->
-
                 </el-main>
             </el-container>
         </el-container>
