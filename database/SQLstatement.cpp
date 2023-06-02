@@ -601,7 +601,7 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
                 value += *it;
                 it++;
                 if(it == sql_vector.end()){
-                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT \', BUT GET NOTHING");
+                    throw SQLSyntaxError("SQL INSERT SYNTAX ERROR, EXCEPT \', BUT GET NOTHING");
                     return;
                 }
             }
@@ -617,7 +617,7 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
                 value += *it;
                 it++;
                 if(it == sql_vector.end()){
-                    throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, EXCEPT \", BUT GET NOTHING");
+                    throw SQLSyntaxError("SQL INSERT SYNTAX ERROR, EXCEPT \", BUT GET NOTHING");
                     return;
                 }
             }
