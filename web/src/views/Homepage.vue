@@ -135,7 +135,7 @@ export default {
                             && this.courseList[i].section_list[j] <= TimeStore.day * 9) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: (this.courseList[i].section_list[j] % 9),
+                                timestamp: this.courseList[i].section_list[j] % 9==0?9: (this.courseList[i].section_list[j] % 9),
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',

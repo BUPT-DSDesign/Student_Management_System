@@ -324,14 +324,12 @@ export default {
             let currentCourse = {
                 weekday: '',
                 sections: []
-            };
+           };
+            sectionList.sort();
             sectionList.forEach(section => {
                 const weekday = weekdays[Math.floor((section - 1) / 9)];
                 const sectionIndex = (section - 1) % 9;
                 let sectionName = sections[sectionIndex];
-                if (weekday === '周二' && sectionIndex < 5) {
-                    sectionName = `第${sectionIndex + 1}节`;
-                }
                 if (weekday === currentCourse.weekday && sectionIndex === currentCourse.sections[currentCourse.sections.length - 1] + 1) {
                     currentCourse.sections.push(sectionIndex);
                 } else {

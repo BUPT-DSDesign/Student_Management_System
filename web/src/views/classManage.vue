@@ -380,13 +380,11 @@ export default {
                 weekday: '',
                 sections: []
             };
+            sectionList.sort();
             sectionList.forEach(section => {
                 const weekday = weekdays[Math.floor((section - 1) / 9)];
                 const sectionIndex = (section - 1) % 9;
                 let sectionName = sections[sectionIndex];
-                if (weekday === '周二' && sectionIndex < 5) {
-                    sectionName = `第${sectionIndex + 1}节`;
-                }
                 if (weekday === currentCourse.weekday && sectionIndex === currentCourse.sections[currentCourse.sections.length - 1] + 1) {
                     currentCourse.sections.push(sectionIndex);
                 } else {
@@ -405,7 +403,7 @@ export default {
             const formattedTime = courseTime.map(course => {
                 const { weekday, sections } = course;
                  if (sections.length === 1) {
-                    return `${weekday}第${sections[0] === 0 ? sections[0] + 1 : `第${sections[0] + 1}节`}节`;
+                    return `${weekday}${sections[0] === 0 ?  `第${sections[0] + 1}节` : `第${sections[0] + 1}节`}`;
                 } else if (sections.length === 9) {
                     return `${weekday}全天`;
                 } else {
