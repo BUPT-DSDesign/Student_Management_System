@@ -2,6 +2,7 @@ package check_conflict
 
 import (
 	"fmt"
+	"math"
 	"server/model/dao"
 	"server/model/entity/system"
 	"server/utils"
@@ -38,14 +39,13 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			// 得到sectionList
 			var sectionList []int
 			for _, courseId := range courseIds {
-				println("第一层循环")
+
 				// 先判断这门课程是否是自己的
 				var courseInfo system.CourseInfo
 				if err := dao.Group.CourseDao.QueryCourseById(courseId, &courseInfo); err != nil {
 					return false, nil
 				}
-				// 打印courseInfo
-				fmt.Printf("courseInfo: %v\n", courseInfo)
+
 				// 如果是自己的课程, 才需要检测冲突
 				if courseInfo.IsCompulsory || dao.Group.CourseDao.JudgeIsStudentSelectCourse(userId, courseId) {
 					println("自己的课程")
@@ -77,7 +77,10 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			// 判断活动时间是否在timeList中
 			hour, minute := utils.GetHourAndMinute(activity.StartTime)
 			for _, time := range timeList {
-				if hour*60+minute >= time[0] && hour*60+minute <= time[1] || hour*60+minute+60 >= time[0] && hour*60+minute+60 <= time[1] {
+				// 判断是否有交集
+				l := math.Max(float64(time[0]), float64(hour*60+minute))
+				r := math.Min(float64(time[1]), float64(hour*60+minute+60))
+				if l < r {
 					isConflict = true
 					break
 				}
@@ -176,7 +179,10 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			// 判断活动时间是否在timeList中
 			hour, minute := utils.GetHourAndMinute(activity.StartTime)
 			for _, time := range timeList {
-				if hour*60+minute >= time[0] && hour*60+minute <= time[1] || hour*60+minute+60 >= time[0] && hour*60+minute+60 <= time[1] {
+				// 判断是否有交集
+				l := math.Max(float64(time[0]), float64(hour*60+minute))
+				r := math.Min(float64(time[1]), float64(hour*60+minute+60))
+				if l < r {
 					isConflict = true
 					break
 				}
@@ -260,7 +266,10 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			// 判断活动时间是否在timeList中
 			hour, minute := utils.GetHourAndMinute(activity.StartTime)
 			for _, time := range timeList {
-				if hour*60+minute >= time[0] && hour*60+minute <= time[1] || hour*60+minute+60 >= time[0] && hour*60+minute+60 <= time[1] {
+				// 判断是否有交集
+				l := math.Max(float64(time[0]), float64(hour*60+minute))
+				r := math.Min(float64(time[1]), float64(hour*60+minute+60))
+				if l < r {
 					isConflict = true
 					break
 				}

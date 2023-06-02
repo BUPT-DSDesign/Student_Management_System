@@ -744,7 +744,8 @@ export default {
                         showClose: true,
                         center: true,
                         message: '添加活动成功',
-                        type: 'success'
+                        type: 'success',
+                        duration: 1000
                     });
                     this.submit = {};
                     this.addEventData = {};
@@ -762,14 +763,16 @@ export default {
                     let err = EventStore.errMsg
                     // 找到错误信息中的:
                     let index = err.indexOf(':')
+                    if (index == -1) {
+                        err = err.substring(0, index + 1) + '<br>' + err.substring(index + 1)
+                    }
                     // 在index前面加上<br>
-                    err = err.substring(0, index + 1) + '<br>' + err.substring(index + 1)
                     
                     this.$message({
                         showClose: true,
                         center: true,
                         dangerouslyUseHTMLString: true,
-                        message: '<strong style="color: red">' + err + '</strong>',
+                        message: '<strong style="color: red; font-size: 16px;">' + err + '</strong>',
                         type: 'error',
                         duration: 0
                     });
