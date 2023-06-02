@@ -39,7 +39,7 @@
                     <el-input v-model="clickedClassData.course_name"></el-input>
                 </el-form-item>
                <el-form-item label="上课地点" required>
-                            <el-select v-model="addClassData.classroom" placeholder="请选择">
+                            <el-select v-model="clickedClassData.classroom" placeholder="请选择">
                                 <el-option v-for="option in placelist" :key="option.value" :label="option.label"
                                     :value="option.value"></el-option>
                             </el-select>
@@ -50,7 +50,7 @@
                 <el-form-item label="联系方式">
                     <el-input v-model="clickedClassData.contact"></el-input>
                 </el-form-item>
-                 <!-- <el-form-item label="上课节次" required>
+                 <el-form-item label="上课节次" required>
                         <el-cascader v-model="clickedClassData.section_list" :options="options" :props="{ multiple: true }"
                             filterable></el-cascader>
                     </el-form-item>
@@ -59,7 +59,7 @@
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item> -->
+                </el-form-item>
                 <el-form-item label="考试时间" >
                     <el-input v-model="clickedClassData.exam_time"></el-input>
                 </el-form-item>
@@ -421,7 +421,7 @@ export default {
             const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
             const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
             const classTime = this.getCourseTime(course.section_list)
-
+            course.week_schedule.sort();
             return {
                 course_name: course.course_name,
                 classroom: course.classroom,
@@ -444,7 +444,6 @@ export default {
         editClass(index, row) {
             // 将row的值给clickedClassData, 不需要指针传递
             this.clickedClassData = Object.assign({}, row);
-            console.log("修改前：")
             console.log(this.clickedClassData)
             //点击弹窗打开
             this.dialogVisible2 = true;
@@ -491,12 +490,12 @@ export default {
             week_schedule.sort();
             this.clickedClassData.week_schedule = week_schedule;
 
-            // let section_list = [];
-            // this.clickedClassData.section_list.forEach(function (item) {
-            //     section_list.push((item[0] - 1) * 9 + item[1]);
-            // })
-            // section_list.sort();
-            // this.clickedClassData.section_list = section_list;
+            let section_list = [];
+            this.clickedClassData.section_list.forEach(function (item) {
+                section_list.push((item[0] - 1) * 9 + item[1]);
+            })
+            section_list.sort();
+            this.clickedClassData.section_list = section_list;
 
             this.clickedClassData.is_course_online = '1' ? true : false;
             this.clickedClassData.is_compulsory = '1' ? true : false;

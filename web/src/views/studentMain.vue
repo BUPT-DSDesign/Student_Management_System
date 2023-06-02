@@ -66,22 +66,18 @@ export default {
     },
     methods: {
         getTodayActivities() {
-            const today = TimeStore.day;
+            const today = (TimeStore.day %7)+1;
             const thisWeek = `第${TimeStore.week}周`;
             const todayActivities = [];
             this.eventList.forEach(activity => {
                 const { start_time, frequency, activity_name } = activity;
                 if (start_time.includes(thisWeek) && start_time.includes(`星期${today}`)) {
                     const hour = parseInt(start_time.split("-")[2].split(":")[0]);
-                    if (frequency === 0 && TimeStore.hour >= hour) {
+                    if (frequency === 0 ) {
                         todayActivities.push({
                             activity_name,
-                            time: `${hour}:00`,
-                            timestamp: new Date(
-                                TimeStore.hour >= hour
-                                    ? Date.now()
-                                    : Date.now() - 24 * 60 * 60 * 1000
-                            )
+                            timestamp: `${hour}:00`,
+                        
                         });
                     } else if (frequency === 1) {
                         todayActivities.push({
@@ -133,15 +129,15 @@ export default {
                 this.courseList = this.courseList.filter((item) => {
                     return item.week_schedule.indexOf(TimeStore.week) != -1;
                 });
-                //查找本天的课程，然后将他们按照顺序排列。
+                //查找明天的课程，然后将他们按照顺序排列。
                 for (let i = 0; i < this.courseList.length; i++) {
+                    this.courseList[i].section_list.sort();
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-
-                        if (this.courseList[i].section_list[j] >= (TimeStore.day - 1) * 9 + 1
-                            && this.courseList[i].section_list[j] <= TimeStore.day * 9) {
+                        if (this.courseList[i].section_list[j] >= ((TimeStore.day+1) - 1) * 9 + 1
+                            && this.courseList[i].section_list[j] <= (TimeStore.day+1) * 9) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: (this.courseList[i].section_list[j] % 9),
+                                timestamp: this.courseList[i].section_list[j] % 9 == 0 ? 9 : (this.courseList[i].section_list[j] % 9),
                             })
                         }
                     }
