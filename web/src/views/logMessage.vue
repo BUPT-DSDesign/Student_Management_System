@@ -154,7 +154,7 @@ export default {
             // 导出日志文件
             let data = ''
             for (let i = 0; i < this.logs.length; i++) {
-                const time = this.logs[i].crneate_time
+                const time = this.logs[i].create_time
                 const content = this.logs[i].content
                 data += time + '    ' + content + '\n' 
             }

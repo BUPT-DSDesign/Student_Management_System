@@ -27,9 +27,10 @@ var db *DB
 
 func init() {
 
-	cmd := exec.Command(filename)
-	cmd.Args = append(cmd.Args, "sms")
-	//cmd := exec.Command(standFileNAME)
+	//cmd := exec.Command(filename, "sms")
+
+	cmd := exec.Command(standFileNAME)
+
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		panic(err)
@@ -66,8 +67,8 @@ func (db *DB) ExecSql(sqlStr string) error {
 
 func WriteLine(data string) error {
 	// 通过db.stdinWriter将数据写入到标准输入
-	println("写入----------" + data)
 	data = strings.TrimSpace(data)
+	println("写入-----" + fmt.Sprintf("%s;\n", data))
 	_, err := fmt.Fprintf(db.stdin, "%s;\n", data)
 	return err
 }
@@ -75,6 +76,8 @@ func WriteLine(data string) error {
 func ReadLine() ([]byte, error) {
 	defer db.mutex.Unlock()
 	result := make(map[string]interface{}, 0)
+	// 使用db.stdout读取
+
 	if err := json.NewDecoder(db.stdout).Decode(&result); err != nil {
 		return nil, err
 	}

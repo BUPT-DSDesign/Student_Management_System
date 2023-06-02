@@ -27,7 +27,8 @@
         </div>
         <el-tag effect="dark" style="position: absolute; bottom: 0;">第{{ curWeek }}周</el-tag>
         <el-button-group>
-            <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()" style="position: absolute; bottom: 0;left:407px">上一周</el-button>
+            <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()"
+                style="position: absolute; bottom: 0;left:407px">上一周</el-button>
             <el-button type="primary" @click="toNextweek()" style="position: absolute; bottom: 0;left: 518px">下一周<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
@@ -44,26 +45,27 @@
                 <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
                 <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
             </div>
-            <!-- <div class="course_name">课程名称：{{ curClassData.course_name }}</div>
-                    <div class="course_time">课程时间：{{ curClassData.section_list }}</div>
-                    <div class="course_address">课程地点：{{ curClassData.classroom }}</div> -->
             <span slot="footer" class="dialog-footer">
                 <el-button @click="dialogVisible1 = false">取 消</el-button>
                 <el-button type="primary" @click="dialogVisible1 = false">确 定</el-button>
             </span>
         </el-dialog>
         <!-- 搜索弹窗 -->
-        <el-dialog title="课程详情" :visible.sync="dialogVisible2" width="30%" :before-close="handleClose">
-            <div v-for="(item, index) in searchlist" :key="index">
-                <div class="course_name">课程名称：{{ item.course_name }}</div>
-                <div class="course_time">课程时间：{{ item.section_list }}</div>
-                <div class="course_address">课程地点：{{ item.classroom }}</div>
-            </div>
-            <span slot="footer" class="dialog-footer">
-                <el-button @click="dialogVisible2 = false">取 消</el-button>
-                <el-button type="primary" @click="dialogVisible2 = false">确 定</el-button>
-            </span>
-        </el-dialog>
+         <el-dialog title="课程详情" :visible.sync="dialogVisible2" width="30%" :before-close="handleClose">
+             <div style="padding: 20px" v-for="(item, index) in searchlist" :key="index"> 
+            <span>{{ item.course_name }}</span>
+                    <p><strong>上课地点：</strong>{{ item.classroom }}</p>
+                    <p><strong>授课老师：</strong>{{ item.teacher }}</p>
+                    <p><strong>上课时间：</strong>{{ item.class_time }}</p>
+                    <p><strong>上课周次：</strong>{{ item.week_schedule }}</p>
+                    <p><strong>课程性质：</strong>{{ item.is_compulsory == true ? '必修' : '选修' }}</p>
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogVisible2 = false">取 消</el-button>
+                    <el-button type="primary" @click="dialogVisible2 = false">确 定</el-button>
+                </span>
+            </el-dialog>
+
         <!-- 右侧：课程搜索功能，通过选择课程名称，时间，地点，对关键字进行模糊匹配，查询后直接在下方显示 -->
         <el-row :gutter="12">
             <el-col :span="100">
@@ -117,10 +119,9 @@
                 <el-table-column label="操作" fixed align="center" width="300">
                     <template slot-scope="scope">
                         <el-button size="small" type="primary" @click="seeCourseInfo(scope.row)">查看课程详情</el-button>
-                        <!-- 点击弹窗 -->
-
                         <el-button size="small" type="success" :disabled="scope.row.is_selected"
-                            @click="openConfirmFrame(scope.row)">{{ scope.row.is_selected == true ? '已选' : '选课' }}</el-button>
+                            @click="openConfirmFrame(scope.row)">{{ scope.row.is_selected == true ? '已选' : '选课'
+                            }}</el-button>
                     </template>
                 </el-table-column>
             </el-table>
@@ -129,15 +130,19 @@
                 <el-button @click="selectCourseSystemVis = false">关闭</el-button>
             </span>
         </el-dialog>
-        <el-dialog title="课程详情" :visible.sync="courseInfoVis" width="30%">
-            <div>课程名称：{{ selectedCourseInfo.course_name }}</div>
-            <div>课程节次：{{ selectedCourseInfo.section_list }}</div>
-            <div>课程周次：{{ selectedCourseInfo.week_schedule }}</div>
-            <div>课程地点：{{ selectedCourseInfo.classroom }}</div>
-            <div>教师：{{ selectedCourseInfo.teacher }}</div>
-            <div>联系方式：{{ selectedCourseInfo.contact }}</div>
-            <div>考试时间：{{ selectedCourseInfo.exam_time }}</div>
-            <div>考试地点：{{ selectedCourseInfo.exam_location }}</div>
+
+
+        <el-dialog title="选课课程详情" :visible.sync="courseInfoVis" width="30%" :before-close="handleClose">
+            <span>{{ selectedCourseInfo.course_name }}</span>
+            <div style="padding: 20px">
+                <p><strong>上课地点：</strong>{{ selectedCourseInfo.classroom }}</p>
+                <p><strong>授课老师：</strong>{{ selectedCourseInfo.teacher }}</p>
+                <p><strong>上课时间：</strong>{{ selectedCourseInfo.class_time }}</p>
+                <p><strong>上课周次：</strong>{{ selectedCourseInfo.week_schedule }}</p>
+                <p><strong>课程性质：</strong>{{ selectedCourseInfo.is_compulsory == true ? '必修' : '选修' }}</p>
+                <p><strong>考试时间：</strong>{{ selectedCourseInfo.exam_time }}</p>
+                <p><strong>考试地点：</strong>{{ selectedCourseInfo.exam_location }}</p>
+            </div>
             <span slot="footer" class="dialog-footer">
                 <el-button @click="courseInfoVis = false">取 消</el-button>
                 <el-button type="primary" @click="courseInfoVis = false">确 定</el-button>
@@ -177,7 +182,6 @@ export default {
             const fg = await CourseStore.GetCourseTable()
             if (fg) {
                 this.classData = CourseStore.courseList
-                console.log(this.classData)
             } else {
                 console.log('error')
             }
@@ -224,6 +228,7 @@ export default {
         },
         seeCourseInfo(data) {
             this.selectedCourseInfo = data
+            this.selectedCourseInfo = this.processCourseInfo(this.selectedCourseInfo)
             this.courseInfoVis = true
         },
         openConfirmFrame(course) {
@@ -244,7 +249,6 @@ export default {
                         "create_time": TimeStore.getTime(),
                         "content": "选修课程成功, 课程名为：" + course.course_name,
                     }
-                    console.log(log)
                     LogStore.AddLog(log)
 
                 } else {
@@ -304,7 +308,6 @@ export default {
             // 循环遍历找到数据库中该课程的所有信息
             for (let i = 0; i < this.classData.length; i++) {
                 if (this.classData[i].course_name == this.curClass) {
-                    console.log('相等')
                     //如果有该课程，更新curClassData
                     this.curClassData = this.classData[i];
                 }
@@ -317,14 +320,14 @@ export default {
         handleClose(done) {
             done();
         },
-       getCourseTime(sectionList) {
+        getCourseTime(sectionList) {
             const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
             const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
             const courseTime = [];
             let currentCourse = {
                 weekday: '',
                 sections: []
-           };
+            };
             sectionList.sort();
             sectionList.forEach(section => {
                 const weekday = weekdays[Math.floor((section - 1) / 9)];
@@ -394,12 +397,12 @@ export default {
                 return;
             }
             const inqueryCourse = async (data) => {
-                console.log('测试查询')
-                console.log(data)
-
                 const fg = await CourseStore.inquiryCourseInfo(data);
                 if (fg) {
                     this.searchlist = CourseStore.searchCourseList;
+                    for (let i = 0; i < this.searchlist.length; i++){
+                        this.searchlist[i]= this.processCourseInfo(this.searchlist[i])
+                    }
                     this.$message({
                         showClose: true,
                         center: true,
@@ -420,6 +423,8 @@ export default {
             inqueryCourse(search);
             //点击弹窗
             this.dialogVisible2 = true;
+           
+           
         },
         //点击ul自动填充input
         chooseclass(e) {

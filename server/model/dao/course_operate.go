@@ -588,6 +588,26 @@ func (s *courseDao) QueryCourseByName(courseName string, courses **[]*system.Cou
 	// 将result.data转换为[]*system.CourseInfo
 	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
+	// 将result["data"]中的is_compulsory、is_course_online转换为bool,并赋值给courses
+	mpStr := result["data"].(string)
+
+	// 将mpStr转换为map
+	mp := make([]map[string]interface{}, 0)
+	_ = json.Unmarshal([]byte(mpStr), &mp)
+
+	for i, v := range **courses {
+		if mp[i]["is_compulsory"].(float64) == 0 {
+			v.IsCompulsory = false
+		} else {
+			v.IsCompulsory = true
+		}
+		if mp[i]["is_course_online"].(float64) == 0 {
+			v.IsCourseOnline = false
+		} else {
+			v.IsCourseOnline = true
+		}
+	}
+
 	return nil
 }
 
@@ -616,6 +636,26 @@ func (s *courseDao) QueryCourseByClassroom(classroom string, courses **[]*system
 
 	// 将result.data转换为[]*system.CourseInfo
 	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
+
+	// 将result["data"]中的is_compulsory、is_course_online转换为bool,并赋值给courses
+	mpStr := result["data"].(string)
+
+	// 将mpStr转换为map
+	mp := make([]map[string]interface{}, 0)
+	_ = json.Unmarshal([]byte(mpStr), &mp)
+
+	for i, v := range **courses {
+		if mp[i]["is_compulsory"].(float64) == 0 {
+			v.IsCompulsory = false
+		} else {
+			v.IsCompulsory = true
+		}
+		if mp[i]["is_course_online"].(float64) == 0 {
+			v.IsCourseOnline = false
+		} else {
+			v.IsCourseOnline = true
+		}
+	}
 
 	return nil
 }
