@@ -1,13 +1,16 @@
 <!-- 登录页面 -->
 <template>
     <div class="login-container">
-        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="150px" class="demo-ruleForm" hide-required-asterisk="false">
-             <h1 class="title">用户登陆</h1>
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="150px" class="demo-ruleForm"
+            hide-required-asterisk="false">
+            <h1 class="title">用户登陆</h1>
             <el-form-item label="用户名" prop="username">
-                <el-input v-model="ruleForm.username" suffix-icon="el-icon-user" @keyup.enter.native="submitForm('ruleForm')"></el-input>
+                <el-input v-model="ruleForm.username" suffix-icon="el-icon-user"
+                    @keyup.enter.native="submitForm('ruleForm')"></el-input>
             </el-form-item>
             <el-form-item label="密码" prop="password">
-                <el-input type="password" v-model="ruleForm.password" show-password @keyup.enter.native="submitForm('ruleForm')"></el-input>
+                <el-input type="password" v-model="ruleForm.password" show-password
+                    @keyup.enter.native="submitForm('ruleForm')"></el-input>
             </el-form-item>
             <el-link type="primary" @click="jumpReg">注册账号</el-link>
             <el-button type="primary" @click="submitForm('ruleForm')">登录</el-button>
@@ -30,11 +33,11 @@ export default {
             rules: {
                 username: [
                     { required: true, message: '请输入用户名', trigger: 'blur' },
-                    { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
+                    { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
                 ],
                 password: [
                     { required: true, message: '请输入密码', trigger: 'blur' },
-                    { min: 6, max:8, message: '长度在 6 到 8 个字符', trigger: 'blur' }
+                    { min: 6, max: 8, message: '长度在 6 到 8 个字符', trigger: 'blur' }
                 ],
 
             },
@@ -42,13 +45,13 @@ export default {
     },
     methods: {
         LoginIn: async function () {
-            return await UserStore.LoginIn(this.ruleForm) 
+            return await UserStore.LoginIn(this.ruleForm)
         },
         submitForm(formName) {
             this.$refs[formName].validate(async (valid) => {
                 if (valid) {
                     const fg = await this.LoginIn() // 这里等待请求过程完成
-                    if (fg) {        
+                    if (fg) {
                         if (localStorage.getItem("role") == 'student') {
                             this.$router.push('/studentMain/Homepage')
                             this.$message({
@@ -57,7 +60,7 @@ export default {
                                 message: '用户登录成功',
                                 type: 'success'
                             });
-                        } 
+                        }
                         else {
                             this.$router.push('/adminMain/classManage')
                             this.$message({
@@ -66,14 +69,14 @@ export default {
                                 message: '管理员登录成功',
                                 type: 'success'
                             });
-                        }       
+                        }
                         // 将登录成功的信息写入日志
                         const log = {
-                            "create_time":  TimeStore.getTime(),
+                            "create_time": TimeStore.getTime(),
                             "content": "登录系统",
                         }
                         console.log(log)
-                        LogStore.AddLog(log)           
+                        LogStore.AddLog(log)
                     } else {
                         this.$message({
                             showClose: true,
