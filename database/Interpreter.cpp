@@ -131,6 +131,8 @@ void Interpreter::GetSQLType(){
         sql_type_ = SQL_DELETE;
     else if (op_first == "use")
         sql_type_ = SQL_USE;
+    else if (op_first == "update")
+        sql_type_ = SQL_UPDATE;
     else if (op_first == "quit")
         sql_type_ = SQL_QUIT;
     else{

@@ -868,18 +868,17 @@ void SQLUpdate::PraseSQLVector(vector<string> &sql_vector)
         throw SQLSyntaxError("SQL UPDATE SYNTAX ERROR, NUMBER OF COLUMNS AND VALUES NOT MATCH");
         return;
     }
-    if (*it == "where")
+    if (it != sql_vector.end())
     {
-        it++;
-        //将WHERE条件解析到condition_中
-        //从it开始解析
-        vector<string> condition_vector;
-        while (it != sql_vector.end())
+        // 如果没到结尾,说明有where条件
+        transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+        if (*it != "where")
         {
-            condition_vector.push_back(*it);
-            it++;
+            throw SQLSyntaxError("SQL SELECT SYNTAX ERROR, EXCEPT KEYWORD 'WHERE', BUT GET OTHER:"+*it);
+            return;
         }
-        condition_.PraseSQLVector(condition_vector);
+        // 将WHERE条件解析到condition_中
+        condition_.PraseSQLVector(vector<string>(it, sql_vector.end()));
     }
 }
 /*******************SQLSelect**********************************/

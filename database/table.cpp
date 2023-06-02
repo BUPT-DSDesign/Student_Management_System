@@ -974,7 +974,8 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             for(auto &it:addr_list){
                 streampos pos;
                 //std::copy(reinterpret_cast<std::byte*>(&val_uint8),reinterpret_cast<std::byte*>(&val_uint8)+col_info_[id].length_,data.begin()+shift);
-                std::copy(reinterpret_cast<char*>(it.data()),reinterpret_cast<char*>(it.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
+                std::copy(it.begin(),it.begin()+sizeof(streampos),(byte*)&pos);
+                //std::copy(reinterpret_cast<char*>(it.data()),reinterpret_cast<char*>(it.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
                 pos_set.insert(pos);
             }
             //随后将这些块读取出来,并过滤
