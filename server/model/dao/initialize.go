@@ -65,7 +65,7 @@ func WriteLine(data string) error {
 	// 通过db.stdinWriter将数据写入到标准输入
 	//println("写入----------" + data)
 	data = strings.TrimSpace(data)
-	_, err := fmt.Fprintf(db.stdin, "%s\n", data)
+	_, err := fmt.Fprintf(db.stdin, "%s;\n", data)
 	return err
 }
 
