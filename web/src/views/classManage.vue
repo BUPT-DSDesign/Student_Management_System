@@ -4,7 +4,7 @@
             <h1>课程管理</h1>
         </div>
 
-        <el-table :data="classData" height="380px" border>
+        <el-table :data="classShowData" height="380px" border>
             <el-table-column type="index" width="10px" align="center"></el-table-column>
             <el-table-column prop="course_name" label="课程名称" width="140" align="center">
             </el-table-column>
@@ -12,8 +12,11 @@
             </el-table-column>
             <el-table-column prop="classroom" label="上课地点" width="120" align="center">
             </el-table-column>
-            <el-table-column prop="classTime" label="课程时间" width="260" align="center">
-            </el-table-column>
+           <el-table-column prop="section_list" label="课程时间" width="260">
+          <template slot-scope="{ row }">
+            {{ getCourseTime(row.section_list) }}
+          </template>
+        </el-table-column>
             <el-table-column prop="exam_option" label="考核方式" width="100" align="center">
 
             </el-table-column>
@@ -47,12 +50,16 @@
                 <el-form-item label="联系方式">
                     <el-input v-model="clickedClassData.contact"></el-input>
                 </el-form-item>
+                 <!-- <el-form-item label="上课节次" required>
+                        <el-cascader v-model="clickedClassData.section_list" :options="options" :props="{ multiple: true }"
+                            filterable></el-cascader>
+                    </el-form-item>
                 <el-form-item label="上课周次" required>
                     <el-select v-model="clickedClassData.week_schedule" placeholder="请选择" multiple>
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item>
+                </el-form-item> -->
                 <el-form-item label="考试时间" >
                     <el-input v-model="clickedClassData.exam_time"></el-input>
                 </el-form-item>
@@ -221,38 +228,8 @@ export default {
             const fg = await CourseStore.GetAllCourse();
             if (fg) {
                 this.classData = CourseStore.allCourseList
-                console.log(this.classData)
-                //添加一个属性以便格式化课程时间
-                for (let i = 0; i < this.classData.length; i++) {
-                    let start = 0;
-                    let end = 0;
-                    for (let j = 0; j < this.classData[i].section_list.length - 1; j++) {
-                        if (this.classData[i].section_list[j] + 1 == this.classData[i].section_list[j + 1]) {
-                            end++;
-                        }
-                        else {
-                            let startTime = startTimeMap[this.classData[i].section_list[start] % 9];
-                            let endTime = endTimeMap[this.classData[i].section_list[end] % 9];
-                            if (this.classData[i].hasOwnProperty('classTime')) {
-                                this.classData[i]['classTime'] = this.classData[i]['classTime'] + ',' + startTime + '-' + endTime;
-                            }
-                            else {
-                                this.classData[i]['classTime'] = startTime + '-' + endTime;
-                            }
-                            start = end + 1;
-                            end = start;
-                        }
-
-                    }
-                    let startTime = startTimeMap[(this.classData[i].section_list[start] - 1) % 9 + 1];
-                    let endTime = endTimeMap[(this.classData[i].section_list[end] - 1) % 9 + 1];
-                    if (this.classData[i].hasOwnProperty('classTime')) {
-                        this.classData[i]['classTime'] = this.classData[i]['classTime'] + ',' + startTime + '-' + endTime;
-                    }
-                    else {
-                        this.classData[i]['classTime'] = startTime + '-' + endTime;
-                    }
-
+                this.classShowData = this.classData;
+                 for (let i = 0; i < this.classData.length; i++) {
                     // 根据this.classData[i].exam_option的值来判断考核方式
                     if (this.classData[i].exam_option == 0) {
                         this.classData[i].exam_option = '论文考察'
@@ -261,7 +238,6 @@ export default {
                     } else if (this.classData[i].exam_option == 2) {
                         this.classData[i].exam_option = '线上考试'
                     }
-
                 }
             } else {
                 console.log('error')
@@ -272,8 +248,8 @@ export default {
     },
     data() {
         return {
-            classData: [],
-            tableData: [],
+            classShowData: [],
+            classData:[],
             clickedClass: '',  //当前点击的单元格的课程名称
             clickedClassData: {},  //记录当前点击单元格课程的信息（对象类型
             addClassData: {},//添加的课程的信息
@@ -395,6 +371,48 @@ export default {
         }
     },
     methods: {
+        getCourseTime(sectionList) {
+            const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const courseTime = [];
+            let currentCourse = {
+                weekday: '',
+                sections: []
+            };
+            sectionList.forEach(section => {
+                const weekday = weekdays[Math.floor((section - 1) / 9)];
+                const sectionIndex = (section - 1) % 9;
+                let sectionName = sections[sectionIndex];
+                if (weekday === '周二' && sectionIndex < 5) {
+                    sectionName = `第${sectionIndex + 1}节`;
+                }
+                if (weekday === currentCourse.weekday && sectionIndex === currentCourse.sections[currentCourse.sections.length - 1] + 1) {
+                    currentCourse.sections.push(sectionIndex);
+                } else {
+                    if (currentCourse.weekday) {
+                        courseTime.push(currentCourse);
+                    }
+                    currentCourse = {
+                        weekday,
+                        sections: [sectionIndex]
+                    };
+                }
+            });
+            if (currentCourse.weekday) {
+                courseTime.push(currentCourse);
+            }
+            const formattedTime = courseTime.map(course => {
+                const { weekday, sections } = course;
+                 if (sections.length === 1) {
+                    return `${weekday}第${sections[0] === 0 ? sections[0] + 1 : `第${sections[0] + 1}节`}节`;
+                } else if (sections.length === 9) {
+                    return `${weekday}全天`;
+                } else {
+                    return `${weekday}第${sections[0] + 1}~${sections[sections.length - 1] + 1}节`;
+                }
+            });
+            return formattedTime.join('，');
+        },
         seeCourseInfo(course) {
             this.selectedCourse = course;
             this.courseInfo = this.processCourseInfo(course);
@@ -404,11 +422,7 @@ export default {
         processCourseInfo(course) {
             const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
             const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
-            const classTime = course.section_list.map(section => {
-                const day = Math.floor((section - 1) / 9); // 获取星期几
-                const sectionIndex = (section - 1) % 9; // 获取第几节课
-                return days[day] + sections[sectionIndex];
-            }).join('，');
+            const classTime = this.getCourseTime(course.section_list)
 
             return {
                 course_name: course.course_name,
