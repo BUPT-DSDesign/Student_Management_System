@@ -45,11 +45,14 @@ func TSPHandler(c *gin.Context) {
 
 	// 途径节点编号集合
 	passIdsString := c.Query("pass_ids")
-	passIdsMap := make(map[string]int, 0)
+	println(passIdsString)
+	passIdsMap := make(map[string]string, 0)
 	_ = json.Unmarshal([]byte(passIdsString), &passIdsMap)
 	var passIds []int
 	for _, v := range passIdsMap {
-		passIds = append(passIds, v)
+		// 将字符串转换成int
+		id, _ := strconv.Atoi(v)
+		passIds = append(passIds, id)
 	}
 
 	// 调用服务

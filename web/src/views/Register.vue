@@ -122,6 +122,14 @@ export default {
                             "content": "成功注册账号",
                         }
                         LogStore.addLog(log)
+                    } else {
+                        this.$message({
+                            showClose: true,
+                            center: true,
+                            message: "用户名已存在",
+                            type: 'error'
+                        });
+                        return false;
                     }
                 } else {
                     this.$message({

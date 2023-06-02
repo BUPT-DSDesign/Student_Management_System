@@ -63,12 +63,14 @@ function getTodayActivityNum(activityList, currentTime) {
   let count = 0;
   activityList.forEach(activity => {
     const { start_time, frequency } = activity;
+    console.log(start_time, frequency)
     if (start_time.includes(thisWeek) && start_time.includes(`星期${today}`)) {
       if (frequency === 0) {
-        const startTime = start_time.split('-')[2];
-        if (currentTime.hour > parseInt(startTime.split(':')[0]) || (currentTime.hour === parseInt(startTime.split(':')[0]) && currentTime.minute >= parseInt(startTime.split(':')[1]))) {
-          count++;
-        }
+        count++
+        // const startTime = start_time.split('-')[2];
+        // if (currentTime.hour > parseInt(startTime.split(':')[0]) || (currentTime.hour === parseInt(startTime.split(':')[0]) && currentTime.minute >= parseInt(startTime.split(':')[1]))) {
+        //   count++;
+        // }
       } else if (frequency === 1) {
         count++;
       } else if (frequency === 2 && start_time.includes(`星期${today}`)) {

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <el-table :data="students" style="width: 100%">
+        <el-table :data="students" style="width: 100%" height="510px">
             <el-table-column type="index" width="50"></el-table-column>
             <el-table-column prop="student_id" label="学号" sortable></el-table-column>
             <el-table-column prop="username" label="姓名"></el-table-column>

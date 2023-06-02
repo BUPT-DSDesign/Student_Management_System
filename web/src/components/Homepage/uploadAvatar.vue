@@ -7,7 +7,7 @@
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="userInfo" :src="userInfo" class="avatar">
+            <img v-if="userInfo" :src="userInfo" class="avatar" @error="changeToDefault">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
     </el-tooltip>
@@ -25,6 +25,9 @@ export default {
     },
     props: ['userInfo'],
     methods: {
+        changeToDefault() {
+            this.userInfo = `http://127.0.0.1:8080/static/avatar.jpg`
+        },
         handleAvatarSuccess(res, file) {
             loadingInstance = Loading.service({
                 lock: true,

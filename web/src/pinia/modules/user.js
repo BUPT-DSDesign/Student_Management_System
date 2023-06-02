@@ -5,7 +5,7 @@ import { Loading } from 'element-ui'
 
 export const useUserStore = defineStore('user', () => {
     const loadingInstance = ref(null) // 加载框
-
+    const errMsg = ref('') // 错误信息
 
 
     // 登录
@@ -36,6 +36,7 @@ export const useUserStore = defineStore('user', () => {
                 // ....其他操作
                 return true
             } else {
+                errMsg.value = res.data.status_msg
                 loadingInstance.value.close()    
             }
             return false

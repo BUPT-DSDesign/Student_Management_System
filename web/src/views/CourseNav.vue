@@ -87,8 +87,9 @@
                     </el-table-column>
                 </el-table>
                 <el-button @click="submitTempEventNav">去做这些活动</el-button>
-
+                
             </div>
+            <!-- <el-button @click="testTsp">测试tsp问题</el-button> -->
         </div>
     </div>
 </template>
@@ -413,6 +414,8 @@ export default {
             };
         },
         getInput(item) {
+            console.log("检测起点")
+            console.log(item.address)
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
                 if (this.placelist[key].address == item.address) {
@@ -422,11 +425,30 @@ export default {
         },
         //课程导航提交
         submitclassNav(index, row) {
+            if (NavigateStore.startId == -1) {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '请先输入起点！！！',
+                    type: 'warning'
+                });
+                return
+            }
             for (let key in this.placelist) {
                 //判断地址表的address是否有匹配上的
-                if (this.placelist[key].address == row.place.slice(0, 2)) {
+                if (this.placelist[key].address == row.place.replace(/\s+/g, "")) {
                     NavigateStore.endId = key;
                 }
+            }
+
+            if (NavigateStore.startId == NavigateStore.endId) {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '您已经在原地了！！！',
+                    type: 'warning'
+                });
+                return
             }
             // 起始点id， 终止点id
             const getPath = async () => {
@@ -463,9 +485,20 @@ export default {
                 return
             }
             for (let key in this.placelist) {
-                if (this.placelist[key].address == row.place) {
+                // this.multipleSelection[i].place.replace(/\s+/g, "")
+                if (this.placelist[key].address == row.place.replace(/\s+/g, "")) {
                     NavigateStore.endId = key;
                 }
+            }
+
+            if (NavigateStore.startId == NavigateStore.endId) {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '您已经在原地了！！！',
+                    type: 'warning'
+                });
+                return
             }
             // 起始点id， 终止点id
             const getPath = async () => {
@@ -483,7 +516,6 @@ export default {
                     console.log(log)
                     LogStore.AddLog(log)
                 } else {
-                    alert("您还未输入起始位置");
                     console.log('未输入起始位置')
                 }
             }
@@ -502,11 +534,15 @@ export default {
             }
             let passArray = [];
             for (let i = 0; i < this.multipleSelection.length; i++) {
+                console.log(this.multipleSelection[i].place)
                 for (let key in this.placelist) {
                     //判断地址表的address是否有匹配上的
-                    if (this.placelist[key].address == this.multipleSelection[i].place) {
-                        passArray.push(parseInt(key));
+                    // 将this.multipleSelection[i].place的空格去掉
+                    if (this.placelist[key].address == this.multipleSelection[i].place.replace(/\s+/g, "")) {
+                        console.log("成功")
+                        passArray.push(key);
                     }
+                    
                 }
             }
             let jso = {};
@@ -514,6 +550,7 @@ export default {
                 jso[i] = passArray[i]
             }
             let passIds = JSON.stringify(jso);
+            console.log(passIds)
             const getPath = async () => {
                 const flag = await NavigateStore.GetTSPPath(NavigateStore.startId, passIds)
                 if (flag) {
@@ -522,6 +559,8 @@ export default {
                     this.lineArr = NavigateStore.tspPath.node_list;
                     this.firstArr = this.lineArr[0];
                     let passlist = NavigateStore.tspPath.pass_list;
+                    console.log(passlist.length)
+
                     this.markers = [];
                     for (let i = 0; i < passlist.length; i++) {
                         this.markers.push({
