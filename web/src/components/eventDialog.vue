@@ -3,7 +3,7 @@
             <div>活动名称：{{ selected.activity_name }}</div>
             <div>活动周次:{{ selected.date }}周</div>
             <div>活动地点：{{ selected.location }}</div>
-            <div>活动类型：{{ selected.tag==0?'集体活动':'个人活动'}}</div>
+            <div>活动类型：{{ selected.tag}}</div>
             <div>活动开始时间：{{ selected.start_time }}</div>
             <div>活动闹钟 (提前分钟数, 0表示不提醒)：{{ selected.advance_mention_time }}</div>
         <span slot="footer" class="dialog-footer">
