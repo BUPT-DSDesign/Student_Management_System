@@ -10,7 +10,7 @@
             </el-table-column>
             <el-table-column prop="teacher" label="上课老师" width="120" align="center">
             </el-table-column>
-            <el-table-column prop="teacher" label="上课地点" width="120" align="center">
+            <el-table-column prop="classroom" label="上课地点" width="120" align="center">
             </el-table-column>
             <el-table-column prop="classTime" label="课程时间" width="260" align="center">
             </el-table-column>
@@ -78,7 +78,7 @@
                 </el-form-item>
                  </el-form>
                 <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible4 = false">取 消</el-button>
+                    <el-button @click="dialogVisible2 = false">取 消</el-button>
                     <el-button type="primary" @click="submitEditForm">保存修改</el-button>
                 </div>
         </el-dialog>
@@ -404,7 +404,8 @@ export default {
         },
         //编辑课程
         editClass(index, row) {
-            this.clickedClassData = row;
+            // 将row的值给clickedClassData, 不需要指针传递
+            this.clickedClassData = Object.assign({}, row);
             console.log("修改前：")
             console.log(this.clickedClassData)
             //点击弹窗打开
@@ -475,8 +476,8 @@ export default {
                 default:
                     break;
             }
-            const editCourse = async (data) => {
-                const fg = await CourseStore.EditCourseInfo(data);
+            const editCourse = async (data, courseId) => {
+                const fg = await CourseStore.EditCourseInfo(data, courseId);
                 console.log(fg)
                 if (fg) {
                     this.$message({
@@ -504,7 +505,7 @@ export default {
                     this.clickedClassData = {}
                 }
             }
-            editCourse(this.clickedClassData)
+            editCourse(this.clickedClassData, this.clickedClassData.course_id)
         },
         //添加课程
         submitAddForm() {

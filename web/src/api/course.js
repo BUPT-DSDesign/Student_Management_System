@@ -26,9 +26,9 @@ export const DeleteCourse = (data) => {
 }
 
 // 编辑课程
-export const EditCourse = (data) => {
+export const EditCourse = (data, courseId) => {
     return service({
-        url: '/course/update',
+        url: '/course/update?course_id=' + courseId,
         method: 'put',
         data: data
     })
