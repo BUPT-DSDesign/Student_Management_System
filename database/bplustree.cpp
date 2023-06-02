@@ -76,7 +76,11 @@ void BPNode::ReadChunk(streampos pos){
         key_size_ = head.key_size_;
         if(is_dirty_){
             //脏页,需要重新读取
-            throw BPNodeException("BPNode is dirty,can't read");
+            if(pos != 0){
+                throw BPNodeException("BPNode is dirty,can't read");
+            }else{
+                CreateChunk(true,data_size_,key_size_,key_type_);
+            }
         }
         //第二个部分,读取节点数据
         //整体结构为 指针0 | 数据1 | 指针1 | ... | 数据n | 指针n 

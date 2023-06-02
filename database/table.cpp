@@ -546,7 +546,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     }
     //将索引信息写到tbinfo中
     IndexAttribute index_attr;
-    memset(&index_attr,0,sizeof(index_attr));
+    //memset(&index_attr,0,sizeof(index_attr));
     index_attr.col_id_ = col_id;
     std::copy(index_name.begin(),index_name.end(),index_attr.index_name_);
     string fileInfo = db_path_+"/"+table_name_+".tbinfo";
@@ -560,6 +560,8 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     //将索引数加一
     index_num++;
     //将索引数写回去
+    file.seekg(index_info_pos_);
+    file.seekp(index_info_pos_);
     file.write(reinterpret_cast<char*>(&index_num),sizeof(index_num));
     //写入索引信息到文件尾
     file.seekg(0,ios::end);
