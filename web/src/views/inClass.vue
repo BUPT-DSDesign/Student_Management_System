@@ -28,8 +28,7 @@
         <el-tag effect="dark">第{{ curWeek }}周</el-tag>
         <el-button-group>
             <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()">上一周</el-button>
-            <el-button type="primary" @click="toNextweek()">下一周<i
-                    class="el-icon-arrow-right el-icon--right"></i></el-button>
+            <el-button type="primary" @click="toNextweek()">下一周<i class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
         
         <!-- 点击弹窗 -->
@@ -460,7 +459,7 @@ h2 {
 
                 td {
                     color: #677998;
-                    line-height: 12px;
+                    line-height: 11px;
                 }
             }
 

@@ -277,7 +277,6 @@ shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,v
         is_attr = false;
         //解析WhereTerm
         WhereTerm term = PraseWhereTerm(it);
-        it += 3;
         //解析运算符
         if(it == end){
             terms_.push_back(term);
@@ -305,7 +304,7 @@ shared_ptr<WhereClause> SQLWhere::PraseWhereClause(vector<string>::iterator it,v
     shared_ptr<WhereClause> clause = make_shared<WhereClause>(terms_,op);
     return clause;
 }
-WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator it){
+WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator& it){
     //解析一个Where算式
     //Where算式由一个列名、一个运算符和一个值组成
     //列名
@@ -316,7 +315,28 @@ WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator it){
     ++it;
     //有可能遇到括号,此时为一个新的clause,但此处不考虑这么复杂的条件了,后期加上
     //值
-    string value = *it;
+    //有可能有引号
+    string value = "";
+    if(*it == "\'"){
+        it++;
+        while(*it != "\'"){
+            value += *it;
+            value += " ";
+            it++;
+        }
+        value.pop_back();
+    }else if(*it == "\""){
+        it++;
+        while(*it != "\""){
+            value += *it;
+            value += " ";
+            it++;
+        }
+        value.pop_back();
+    }else{
+        string value = *it;
+    }
+    
     ++it;
     return WhereTerm(col_name,op,value);
 }

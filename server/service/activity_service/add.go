@@ -75,7 +75,6 @@ func (f *addFlow) run() error {
 
 	// 只有不冲突的时候才插入数据库数据
 	if !isConflict && !isConflict1 {
-		println("没问题吧")
 		// 将activityInfo插入数据库
 		if err = dao.Group.ActivityDao.AddActivity(activityInfo); err != nil {
 			return err
@@ -110,7 +109,7 @@ func (f *addFlow) run() error {
 		if validTime == nil {
 			return errors.New("该活动(或临时事务)与课程时间冲突, 并且没有合适的时间段")
 		}
-		return errors.New(fmt.Sprintf("该活动(或临时事务)与课程时间冲突, 以下是合适的时间段为: %v", validTime))
+		return errors.New(fmt.Sprintf("该活动(或临时事务)与课程时间冲突, 以下是当天合适的时间段\n: %v", validTime))
 	}
 
 	return nil

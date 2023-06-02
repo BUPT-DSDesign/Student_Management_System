@@ -91,7 +91,7 @@ public:
     string GetBestIndex(vector<string> &col_name_list,const string primary);
     void PraseSQLVector(vector<string> tokens);
     shared_ptr<WhereClause> PraseWhereClause(vector<string>::iterator it,vector<string>::iterator end);
-    WhereTerm PraseWhereTerm(vector<string>::iterator it);
+    WhereTerm PraseWhereTerm(vector<string>::iterator& it);
     Key GetQueryKey(string index_name,uint8 data_type);
     Key GetQueryLeftKey(string index_name,uint8 data_type);
     Key GetQueryRightKey(string index_name,uint8 data_type);

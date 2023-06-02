@@ -101,14 +101,10 @@ func (s *activityDao) QueryAllActivityByUserId(userId int64, activities **[]*sys
 		return err
 	}
 
-	println(sqlStr)
-
 	jsonStr, err := ReadLine()
 	if err != nil {
 		return err
 	}
-
-	println("jsonStr: ", string(jsonStr))
 
 	// 用一个map来接收返回的json
 	var result map[string]interface{}

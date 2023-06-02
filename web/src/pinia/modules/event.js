@@ -5,6 +5,7 @@ import { ref } from 'vue'
 export const useEventStore = defineStore('event', () => {
     const eventList = ref([])
     const searchList=ref([])
+    const errMsg = ref('')
     const GetEventTable = async () => {
         try {
             const res = await EventTable()
@@ -28,12 +29,7 @@ export const useEventStore = defineStore('event', () => {
                 return true
             }
             else {
-                this.$message({
-                    showClose: true,
-                    center: true,
-                    message: res.data.status_msg,
-                    type: 'error'
-                });
+                errMsg.value = res.data.status_msg
             }
             return false
         } catch (err) {
@@ -74,6 +70,7 @@ export const useEventStore = defineStore('event', () => {
         GetEventTable,
         AddEventInfo,
         DeleteEventInfo,
-        SearchEventInfo
+        SearchEventInfo,
+        errMsg
     }
 })
