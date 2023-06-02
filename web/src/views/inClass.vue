@@ -25,10 +25,10 @@
                 </table>
             </div>
         </div>
-        <el-tag effect="dark">第{{ curWeek }}周</el-tag>
+        <el-tag effect="dark" style="position: absolute; bottom: 0;">第{{ curWeek }}周</el-tag>
         <el-button-group>
-            <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()">上一周</el-button>
-            <el-button type="primary" @click="toNextweek()">下一周<i
+            <el-button type="primary" icon="el-icon-arrow-left" @click="toLastweek()" style="position: absolute; bottom: 0;left:407px">上一周</el-button>
+            <el-button type="primary" @click="toNextweek()" style="position: absolute; bottom: 0;left: 518px">下一周<i
                     class="el-icon-arrow-right el-icon--right"></i></el-button>
         </el-button-group>
 
@@ -528,7 +528,7 @@ h2 {
 
                 th {
                     color: #fff;
-                    line-height: 17px;
+                    line-height: 10px;
                     font-weight: normal;
                 }
             }

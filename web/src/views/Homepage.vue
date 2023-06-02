@@ -228,7 +228,13 @@ h4 {
     right: 0;
     border-block-width: 0px;
     margin: 0;
+    padding: 0;
     background-color: #f8f9fa;
+}
+
+.el-card__body {
+    padding: 0px;
+    padding-bottom: 1px;
 }
 
 .block {

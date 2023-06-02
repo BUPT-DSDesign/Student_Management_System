@@ -1,7 +1,6 @@
 package check_conflict
 
 import (
-	"fmt"
 	"math"
 	"server/model/dao"
 	"server/model/entity/system"
@@ -10,7 +9,7 @@ import (
 )
 
 // ActivityAndCoursesIsExistConflict 检查活动和课程是否存在冲突
-func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityInfo) (bool, []string) {
+func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityInfo) (bool, []string, [][2]int) {
 	switch activity.Frequency {
 	case 0:
 		{
@@ -30,11 +29,8 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			// 现根据第几周查询这周的所有课程id
 			var courseIds []int64
 			if err := dao.Group.CourseDao.QueryCourseByWeek(week, &courseIds); err != nil {
-				return false, nil
+				return false, nil, nil
 			}
-
-			//打印courseIds
-			fmt.Printf("courseIds: %v\n", courseIds)
 
 			// 得到sectionList
 			var sectionList []int
@@ -43,16 +39,14 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				// 先判断这门课程是否是自己的
 				var courseInfo system.CourseInfo
 				if err := dao.Group.CourseDao.QueryCourseById(courseId, &courseInfo); err != nil {
-					return false, nil
+					return false, nil, nil
 				}
 
 				// 如果是自己的课程, 才需要检测冲突
 				if courseInfo.IsCompulsory || dao.Group.CourseDao.JudgeIsStudentSelectCourse(userId, courseId) {
-					println("自己的课程")
-
 					var rawSectionList []int
 					if err := dao.Group.CourseDao.QuerySectionListById(courseId, &rawSectionList); err != nil {
-						return false, nil
+						return false, nil, nil
 					}
 					for _, section := range rawSectionList {
 						if utils.GetDayBySection(section) == utils.GetDay(activity.StartTime) {
@@ -69,6 +63,52 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 
 			// 根据sectionList得到时间段
 			timeList := utils.SplitSectionList(sectionList)
+
+			// 再根据userId查询这个用户的所有活动
+			activityList := new([]*system.ActivityInfo)
+			if err := dao.Group.ActivityDao.QueryAllActivityByUserId(userId, &activityList); err != nil {
+				return false, nil, nil
+			}
+			for _, activityInfo := range *activityList {
+				// 如果是临时活动, 则不需要检测冲突
+				if activityInfo.Type == 1 {
+					continue
+				}
+				switch activityInfo.Frequency {
+				case 0:
+					{
+						// 如果是单次活动, 则判断是否在同一天
+						if utils.GetWeek(activityInfo.StartTime) == utils.GetWeek(activity.StartTime) && utils.GetDay(activityInfo.StartTime) == utils.GetDay(activity.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				case 1:
+					{
+						// 如果是每天活动, 则判断是否在同一天
+						if utils.GetWeek(activityInfo.StartTime) < utils.GetWeek(activity.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						} else if utils.GetWeek(activityInfo.StartTime) == utils.GetWeek(activity.StartTime) && utils.GetDay(activityInfo.StartTime) <= utils.GetDay(activity.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				case 2:
+					{
+						// 如果是每周活动, 则判断是否在同一天
+						if utils.GetWeek(activityInfo.StartTime) <= utils.GetWeek(activity.StartTime) && utils.GetDay(activityInfo.StartTime) == utils.GetDay(activity.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				}
+			}
+
 			// 将timeList按照时间顺序排序
 			sort.Slice(timeList, func(i, j int) bool {
 				return timeList[i][0] < timeList[j][0]
@@ -87,24 +127,20 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			}
 
 			// 如果冲突, 由于这是单次活动, 所以需要找出找出可行的时间段
-
-			if isConflict {
-				var validTime []string
-				newTimeList := append([][2]int{{360, 360}}, timeList...)
-				newTimeList = append(newTimeList, [2]int{1320, 1320})
-				for i := 0; i < len(newTimeList)-1; i++ {
-					if newTimeList[i+1][0]-newTimeList[i][1] >= 60 {
-						// 可行
-						startTime := utils.GetFormatTimeByTranVal(newTimeList[i][1])
-						endTime := utils.GetFormatTimeByTranVal(newTimeList[i+1][0])
-						validTime = append(validTime, startTime+" ~ "+endTime)
-					}
+			var validTime []string
+			var validTimeList [][2]int
+			newTimeList := append([][2]int{{360, 360}}, timeList...)
+			newTimeList = append(newTimeList, [2]int{1320, 1320})
+			for i := 0; i < len(newTimeList)-1; i++ {
+				if newTimeList[i+1][0]-newTimeList[i][1] >= 60 {
+					// 可行
+					startTime := utils.GetFormatTimeByTranVal(newTimeList[i][1])
+					endTime := utils.GetFormatTimeByTranVal(newTimeList[i+1][0])
+					validTime = append(validTime, startTime+" ~ "+endTime)
+					validTimeList = append(validTimeList, [2]int{newTimeList[i][1], newTimeList[i+1][0]})
 				}
-				return true, validTime
 			}
-
-			// 不冲突
-			return false, nil
+			return isConflict, validTime, validTimeList
 		}
 	case 1:
 		{
@@ -126,7 +162,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			// 先根据userId查询这个用户的所有课程
 			var coursesInfo []*system.CourseInfo
 			if err := dao.Group.CourseDao.QueryCourseByUserId(userId, &coursesInfo); err != nil {
-				return false, nil
+				return false, nil, nil
 			}
 
 			// 得到sectionList
@@ -135,7 +171,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				// 先查询这门课程的周数
 				var rawWeekList []int
 				if err := dao.Group.CourseDao.QueryWeekScheduleById(courseInfo.CourseId, &rawWeekList); err != nil {
-					return false, nil
+					return false, nil, nil
 				}
 				maxWeek := utils.QueryMaxNum(rawWeekList)
 
@@ -147,7 +183,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				// 否则查询这门课程的节次
 				var rawSectionList []int
 				if err := dao.Group.CourseDao.QuerySectionListById(courseInfo.CourseId, &rawSectionList); err != nil {
-					return false, nil
+					return false, nil, nil
 				}
 				if maxWeek > week {
 					sectionList = append(sectionList, rawSectionList...)
@@ -171,6 +207,50 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 
 			// 根据sectionList得到时间段
 			timeList := utils.SplitSectionList(sectionList)
+
+			// 再根据userId查询这个用户的所有活动
+			activityList := new([]*system.ActivityInfo)
+			if err := dao.Group.ActivityDao.QueryAllActivityByUserId(userId, &activityList); err != nil {
+				return false, nil, nil
+			}
+			for _, activityInfo := range *activityList {
+				// 如果是临时活动, 则不需要检测冲突
+				if activityInfo.Type == 1 {
+					continue
+				}
+				switch activityInfo.Frequency {
+				case 0:
+					{
+						if utils.GetWeek(activityInfo.StartTime) > utils.GetWeek(activity.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						} else if utils.GetWeek(activityInfo.StartTime) == utils.GetWeek(activity.StartTime) && utils.GetDay(activityInfo.StartTime) >= utils.GetDay(activity.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				case 1:
+					{
+						hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+						timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+					}
+				case 2:
+					{
+						if utils.GetWeek(activity.StartTime) < 16 {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						} else if utils.GetDay(activity.StartTime) <= utils.GetDay(activityInfo.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				}
+			}
+
 			// 将timeList按照时间顺序排序
 			sort.Slice(timeList, func(i, j int) bool {
 				return timeList[i][0] < timeList[j][0]
@@ -189,7 +269,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			}
 
 			// 直接返回冲突, 因为这是每天活动, 不需要找出可行的时间段
-			return isConflict, nil
+			return isConflict, nil, nil
 
 		}
 	case 2:
@@ -216,7 +296,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			for _, section := range activitySectionList {
 				var courseIdList []int64
 				if err := dao.Group.CourseDao.QueryCourseBySection(section, &courseIdList); err != nil {
-					return false, nil
+					return false, nil, nil
 				}
 				for _, courseId := range courseIdList {
 
@@ -231,14 +311,14 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				// 先判断这门课程是否是自己的
 				var courseInfo system.CourseInfo
 				if err := dao.Group.CourseDao.QueryCourseById(courseId, &courseInfo); err != nil {
-					return false, nil
+					return false, nil, nil
 				}
 				// 如果是自己的课程, 才需要检测冲突
 				if courseInfo.IsCompulsory || dao.Group.CourseDao.JudgeIsStudentSelectCourse(userId, courseId) {
 					// 然后查询这么课程的周数
 					var rawWeekList []int
 					if err := dao.Group.CourseDao.QueryWeekScheduleById(courseId, &rawWeekList); err != nil {
-						return false, nil
+						return false, nil, nil
 					}
 					maxWeek := utils.QueryMaxNum(rawWeekList)
 					if maxWeek < week {
@@ -258,6 +338,43 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 
 			// 根据sectionList得到时间段
 			timeList := utils.SplitSectionList(sectionList)
+
+			// 再根据userId查询这个用户的所有活动
+			activityList := new([]*system.ActivityInfo)
+			if err := dao.Group.ActivityDao.QueryAllActivityByUserId(userId, &activityList); err != nil {
+				return false, nil, nil
+			}
+			for _, activityInfo := range *activityList {
+				// 如果是临时活动, 则不需要检测冲突
+				if activityInfo.Type == 1 {
+					continue
+				}
+				switch activityInfo.Frequency {
+				case 0:
+					{
+						if utils.GetWeek(activity.StartTime) <= utils.GetWeek(activityInfo.StartTime) && utils.GetDay(activity.StartTime) == utils.GetDay(activityInfo.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				case 1:
+					{
+						// 如果是同一天, 则将这个活动的节次加入到timeList中
+						hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+						timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+					}
+				case 2:
+					{
+						if utils.GetDay(activity.StartTime) == utils.GetDay(activityInfo.StartTime) {
+							// 如果是同一天, 则将这个活动的节次加入到timeList中
+							hour, minute := utils.GetHourAndMinute(activityInfo.StartTime)
+							timeList = append(timeList, [2]int{hour*60 + minute, hour*60 + minute + 60})
+						}
+					}
+				}
+			}
+
 			// 将timeList按照时间顺序排序
 			sort.Slice(timeList, func(i, j int) bool {
 				return timeList[i][0] < timeList[j][0]
@@ -276,11 +393,11 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 			}
 
 			// 直接返回冲突, 因为这是每周活动, 不需要找出可行的时间段
-			return isConflict, nil
+			return isConflict, nil, nil
 		}
 	}
 
-	return false, nil
+	return false, nil, nil
 }
 
 // TransactionAndActivityIsExistConflict 检测事务和活动是否冲突

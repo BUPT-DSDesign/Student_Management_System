@@ -334,7 +334,7 @@ WhereTerm SQLWhere::PraseWhereTerm(vector<string>::iterator& it){
         }
         value.pop_back();
     }else{
-        string value = *it;
+        value = *it;
     }
     
     ++it;
