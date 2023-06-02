@@ -138,6 +138,8 @@ public:
     vector<vector<byte>> SearchRange(const Key& left,const Key& right);
     //读取指定的块到bufnode中
     void ReadChunk(streampos pos);
+    //返回当前的块的位置
+    streampos GetChunkPos();
     //读取最开头的叶节点所对应区块(当查找条件不为键值时)
     void ReadFirstChunk();
     //读取上一个叶节点所对应区块

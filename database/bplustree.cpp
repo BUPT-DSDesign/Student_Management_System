@@ -555,6 +555,9 @@ void BPTree::resetIndexChildrenParent(BPNode &node){
         tmpNode.WriteChunk();
     }
 }
+streampos BPTree::GetChunkPos(){
+    return bufnode_.node_pos;
+}
 void BPTree::ReadChunk(streampos pos){
     if(pos == cur_){
         //如果已经读取过了,就不用再读了

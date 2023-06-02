@@ -267,7 +267,7 @@ string ColValue::getValue() const{
                 int64 year = value_int_/10000;
                 int64 month = (value_int_%10000)/100;
                 int64 day = value_int_%100;
-                return "\""+to_string(year)+"-"+to_string(month)+"-"+to_string(day)+"\"";
+                return "\\\""+to_string(year)+"-"+to_string(month)+"-"+to_string(day)+"\\\"";
             }
         case T_TIME:
             //格式为HH:MM:SS
@@ -276,12 +276,12 @@ string ColValue::getValue() const{
                 int64 hour = value_int_/3600;
                 int64 minute = (value_int_%3600)/60;
                 int64 second = value_int_%60;
-                return "\""+to_string(hour)+":"+to_string(minute)+":"+to_string(second)+"\"";
+                return "\\\""+to_string(hour)+":"+to_string(minute)+":"+to_string(second)+"\\\"";
             }
         case T_YEAR:
             //格式为YYYY
             //范围为1901到2155
-            return "\""+to_string(value_uint_)+"\"";
+            return "\\\""+to_string(value_uint_)+"\\\"";
         case T_TIMESTAMP:
             //格式为YYYY-MM-DD HH:MM:SS
             //以1970-01-01 00:00:00为起始值
@@ -290,10 +290,10 @@ string ColValue::getValue() const{
                 std::tm timestamp = *std::localtime(&val_time_t);
                 stringstream ss;
                 ss << std::put_time(&timestamp,"%Y-%m-%d %H:%M:%S");
-                return "\""+ss.str()+"\"";
+                return "\\\""+ss.str()+"\\\"";
             }
         default:
-            return "\""+value_str_+"\"";
+            return "\\\""+value_str_+"\\\"";
     }
 }
 uint8 ColValue::getDataType() const{
