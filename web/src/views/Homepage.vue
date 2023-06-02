@@ -25,7 +25,7 @@
             </div>
             <div class="eventblock" style="height: 80%">
                 <img src="../assets/image/event.png" style="height: 100%;width: auto; margin-left:11px">
-                <span class="right-event">今天共有<h6 style="font-size:25px">{{ eventNumber_remaining }}</h6>个活动</span>
+                <span class="right-event">今天共有<h6 style="font-size:25px">{{ eventCount }}</h6>个活动</span>
             </div>
         </div>
         <div class="three item">
@@ -58,10 +58,36 @@ import { CourseStore } from '@/store/course';
 import { EventStore } from '@/store/event';
 import { UserStore } from '@/store/user'
 import { TimeStore } from '@/store/time';
+
+
+function getTodayActivityNum(activityList, currentTime) {
+  const today = currentTime.day;
+  const thisWeek = `第${currentTime.week}周`;
+  let count = 0;
+  activityList.forEach(activity => {
+    const { start_time, frequency } = activity;
+    if (start_time.includes(thisWeek) && start_time.includes(`星期${today}`)) {
+      if (frequency === 0) {
+        const startTime = start_time.split('-')[2];
+        if (currentTime.hour > parseInt(startTime.split(':')[0]) || (currentTime.hour === parseInt(startTime.split(':')[0]) && currentTime.minute >= parseInt(startTime.split(':')[1]))) {
+          count++;
+        }
+      } else if (frequency === 1) {
+        count++;
+      } else if (frequency === 2 && start_time.includes(`星期${today}`)) {
+        const startTime = start_time.split('-')[2];
+        if (currentTime.hour > parseInt(startTime.split(':')[0]) || (currentTime.hour === parseInt(startTime.split(':')[0]) && currentTime.minute >= parseInt(startTime.split(':')[1]))) {
+          count++;
+        }
+      }
+    }
+  });
+  return count;
+}
 export default {
     data() {
         return {
-            eventNumber_remaining: 0,
+            eventCount: 0,
             userInfo: {},
             eventInfo:{},
             courseList: [],
@@ -85,36 +111,10 @@ export default {
             const fg = await EventStore.GetEventTable()
             if (fg) {
                 this.eventInfo = EventStore.eventList;
-                console.log(EventStore)
-                //  //根据当前周，查找在本周的活动
-                // this.eventInfo = this.eventInfo.filter((item) => {
-                //     return item.week_schedule.indexOf(TimeStore.week) != -1;
-                // });
-                // //查找本天的课程，然后将他们按照顺序排列。
-                // for (let i = 0; i < this.courseList.length; i++) {
-                //     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                //         if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
-                //             this.curcourseList.push({
-                //                 content: this.courseList[i].course_name,
-                //                 timestamp: this.courseList[i].section_list[j] % 9,
-                //                 size: 'large',
-                //                 type: 'primary',
-                //                 color: '#8ce99a',
-                //             })
-                //         }
-                //         if (this.courseList[i].section_list[j] / 9 == 1) {
-                //             this.curcourseList.push({
-                //                 content: this.courseList[i].course_name,
-                //                 timestamp: 9,
-                //                 size: 'large',
-                //                 type: 'primary',
-                //                 color: '#8ce99a',
-                //             })
-                //         }
-                //     }
-                // }
+                this.eventCount = getTodayActivityNum(this.eventInfo, TimeStore);
+               
             } else {
-                console.log('获取课程信息失败')
+                console.log('获取活动信息失败')
             }
         }
         getEventInfo();
