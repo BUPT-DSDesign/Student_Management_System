@@ -9,10 +9,7 @@
                     <h4>班级:{{ 2021211309 }}</h4>
                 </div>
             </div>
-            
             <signature :userInfo="userInfo"></signature>
-            
-           
             <el-card class="box-card">
                 <p id="hitokoto" class="yiyan"> 获取中...</p>
             </el-card>
