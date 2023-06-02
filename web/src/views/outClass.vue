@@ -55,15 +55,17 @@
 
         <div style="display: flex;justify-content:space-between">
             <div class="activity-proportion">
-                <h4 style="text-align: center;  margin-left: 60px; ">活动占比</h4>
-                <el-progress :percentage="singleActivityRate" color="#ffc078" style="margin: 0px" ></el-progress>
-                <el-progress :percentage="groupActivityRate" color="#67C23A" style="margin: 3px 0px"></el-progress>
-                <el-progress :percentage="tempRate" color="#4dabf7" style="margin: 0px"></el-progress>
+                <div class="activity-proportion">
+                    <h4 style="text-align: center; color:#409eff; margin-left: 160px;">活动占比</h4>
+                    <el-progress :percentage="singleActivityRate" color="#e6a23c" style="margin: 0px"></el-progress>
+                    <el-progress :percentage="groupActivityRate" color="#409eff" style="margin: 3px 0px"></el-progress>
+                    <el-progress :percentage="tempRate" color="#67c23a" style="margin: 0px"></el-progress>
+                </div>
             </div>
             <!-- 按键部分 -->
             <div class="button-container">
                 <!-- 查询活动 -->
-                <el-button type="primary" @click="showDialog" icon="el-icon-search"
+                <el-button type="success" @click="showDialog" icon="el-icon-search"
                     style="margin-right: 5px;">查询活动</el-button>
                 <el-dialog title="查询活动" :visible.sync="showDialogVisible">
                     <el-form :model="queryForm" label-width="140px">
@@ -847,7 +849,7 @@ h2 {
 
 .OperationButton {
     margin-top: 20px;
-    margin-right: 1px;
+    margin-right: 2px;
 }
 
 .weekinput {
