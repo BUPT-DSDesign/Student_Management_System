@@ -794,7 +794,7 @@ void Table::SelectRecord(SQLWhere &where){
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则直接调用索引的查找函数
             //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
-            vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
+            vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_index_[indexName]->getKeyType()));
             //将这个字节流转换为streampos类型
             streampos pos;
             std::copy(reinterpret_cast<char*>(addr.data()),reinterpret_cast<char*>(addr.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
@@ -860,7 +860,8 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
         Key index_key = getValue(data,col2id_[it.first]);
         //随后调用索引的插入函数
         //将pos转换为字节流
-        vector<byte> index_data(sizeof(streampos));
+        vector<byte> index_data(sizeof(streampos),std::byte(0));
+        //FIXME 此处强制转换有问题
         std::copy(reinterpret_cast<char*>(&pos),reinterpret_cast<char*>(&pos)+sizeof(streampos),reinterpret_cast<char*>(index_data.data()));
         tb_index_[it.first]->Insert(index_key,index_data);
     }
@@ -939,6 +940,9 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             set<streampos> pos_set;
             for(auto &it:addr_list){
                 streampos pos;
+                std::copy(reinterpret_cast<std::byte*>(&val_int64),reinterpret_cast<std::byte*>(&val_int64)+col_info_[id].length_,data.begin()+shift);
+                std::copy((byte*)&value_uint_,(byte*)&value_uint_+SIZE_OF_T[data_type_],bytes.begin());
+                //std::copy(reinterpret_cast<std::byte*>(&val_uint8),reinterpret_cast<std::byte*>(&val_uint8)+col_info_[id].length_,data.begin()+shift);
                 std::copy(reinterpret_cast<char*>(it.data()),reinterpret_cast<char*>(it.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
                 pos_set.insert(pos);
             }
@@ -1033,6 +1037,7 @@ void Table::DeleteRecord(SQLWhere &where){
         Key index_key = where.GetQueryKey(indexName,tb_data_->getKeyType());
         //随后调用索引的删除函数
         vector<byte> remove = tb_index_[indexName]->Remove(index_key);
+        //FIXME 此处remove是streampos
         //最后调用Table的删除函数
         Key primary_key = getValue(remove,col2id_[primary_key_]);
         Row row(col_info_,tb_data_->Remove(primary_key));
