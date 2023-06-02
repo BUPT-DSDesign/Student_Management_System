@@ -237,7 +237,18 @@ export default {
                 //筛选课外活动列表
                 this.eventList = EventStore.eventList;
                 for (let i = 0; i < this.eventList.length; i++) {
-                    if (this.eventList[i].type == 0 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
+                    let week = 0
+                    let day = 0
+                    if (this.eventList[i].start_time.length == 13) {
+                        week = Number(this.eventList[i].start_time[1])
+                        day = Number(this.eventList[i].start_time[6])
+                    } else {
+                        week = Number(this.eventList[i].start_time[1] + this.eventList[i].start_time[2])
+                        day = Number(this.eventList[i].start_time[7])
+                    }
+                    console.log(week, day)
+
+                    if (this.eventList[i].type == 0 && week == TimeStore.week && day == TimeStore.day) {
                         this.outEventList.push({
                             name: this.eventList[i].activity_name,
                             time: this.eventList[i].start_time,
@@ -247,7 +258,16 @@ export default {
                 }
                 //筛选临时活动列表
                 for (let i = 0; i < this.eventList.length; i++) {
-                    if (this.eventList[i].type == 1 && this.eventList[i].start_week == TimeStore.week && this.eventList[i].start_day == TimeStore.day) {
+                    let week = 0
+                    let day = 0
+                    if (this.eventList[i].start_time.length == 13) {
+                        week = Number(this.eventList[i].start_time[1])
+                        day = Number(this.eventList[i].start_time[6])
+                    } else {
+                        week = Number(this.eventList[i].start_time[1] + this.eventList[i].start_time[2])
+                        day = Number(this.eventList[i].start_time[7])
+                    }
+                    if (this.eventList[i].type == 1 && week == TimeStore.week && day == TimeStore.day) {
                         this.tempEventList.push({
                             name: this.eventList[i].activity_name,
                             time: this.eventList[i].start_time,
@@ -282,7 +302,7 @@ export default {
                     this.markers = [];
                     for (let i = 0; i < passlist.length; i++) {
                         this.markers.push({
-                            icon: 'https://i.328888.xyz/2023/04/09/icaVW8.png',
+                            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
                             // 设置了 icon 以后，设置 icon 的偏移量，以 icon 的 [center bottom] 为原点
                             offset: new AMap.Pixel(-13, -30),
                             position: passlist[i],
@@ -426,7 +446,7 @@ export default {
                     console.log(log)
                     LogStore.AddLog(log)
                 } else {
-                    alert("您还未输入起始位置");
+                    this.$message.error('您还未输入起始位置');
                     console.log('未输入起始位置')
                 }
             }
@@ -434,6 +454,15 @@ export default {
         },
         //课外活动导航提交
         submitOutEventNav(index, row) {
+            if (NavigateStore.startId == -1) {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '请先输入起点！！！',
+                    type: 'warning'
+                });
+                return
+            }
             for (let key in this.placelist) {
                 if (this.placelist[key].address == row.place) {
                     NavigateStore.endId = key;
@@ -463,6 +492,15 @@ export default {
         },
         // 临时事务导航提交
         submitTempEventNav() {
+            if (NavigateStore.startId == -1) {
+                this.$message({
+                    showClose: true,
+                    center: true,
+                    message: '请先输入起点！！！',
+                    type: 'warning'
+                });
+                return
+            }
             let passArray = [];
             for (let i = 0; i < this.multipleSelection.length; i++) {
                 for (let key in this.placelist) {
@@ -488,7 +526,7 @@ export default {
                     this.markers = [];
                     for (let i = 0; i < passlist.length; i++) {
                         this.markers.push({
-                            icon: 'https://i.328888.xyz/2023/04/09/icaVW8.png',
+                            icon: 'https://webapi.amap.com/theme/v1.3/markers/n/mark_b.png',
                             offset: new AMap.Pixel(-13, -30),
                             position: passlist[i],
                         })
