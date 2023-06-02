@@ -47,10 +47,13 @@ string SQLWhere::GetBestIndex(vector<string> &col_name_list,const string primary
 QueryType SQLWhere::GetQueryType(string index_name){
     //根据索引列名返回查询类型
     //查找下在clause中对应的WhereTerm
+    if(rootClause_==nullptr){
+        return QueryType::NOP;
+    }
     vector<WhereTerm> terms = rootClause_->getTerms();
     for(auto &term:terms){
         if(term.getColName()==index_name){
-            return (term.getOperator() == TermOperator::EQUAL)?QueryType::QUERY_EQ:QueryType::NOP;
+            return (term.getOperator() == TermOperator::EQUAL)?QueryType::QUERY_EQ:QueryType::QUERT_OTHER;
         }
     }
     return QueryType::NOP;

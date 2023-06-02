@@ -89,7 +89,7 @@ void Interpreter::ExecuteSQL(const string& statement)
     catch(const string& e)
     {
         sql_type_ = SQL_ERROR;
-        std::cerr << e << '\n';
+        //std:://cerr << e << '\n';
     }
     
     

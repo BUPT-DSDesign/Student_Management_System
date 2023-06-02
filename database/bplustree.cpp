@@ -50,6 +50,10 @@ void BPNode::ReadChunk(streampos pos){
         //如果是无效的偏移量,则不读取
         return;
     }
+    if(pos == node_pos){
+        //如果是当前节点,则不读取
+        return;
+    }
     BPNodeHead head;
     //TODO 将一个区块读取到字节流中
     //1.打开文件读写流
@@ -70,6 +74,10 @@ void BPNode::ReadChunk(streampos pos){
         father_ = head.father_;
         node_pos = head.chunk_pos_;
         key_size_ = head.key_size_;
+        if(is_dirty_){
+            //脏页,需要重新读取
+            throw BPNodeException("BPNode is dirty,can't read");
+        }
         //第二个部分,读取节点数据
         //整体结构为 指针0 | 数据1 | 指针1 | ... | 数据n | 指针n 
         //如果是叶子节点的话,仅在开始和结束有指针
@@ -666,14 +674,9 @@ vector<byte> BPTree::Remove(const Key &key){
     
     if(bufnode_.father_ == -1){
         //当前节点为根节点
-        if(bufnode_.busy_ == 1){
-            //就剩下一个了,删除就润
-            bufnode_.releaseChunk();
-        }else{
-            //正常删除就行
-            simpleLeafRemove(bufnode_,pos);
-            bufnode_.WriteChunk();
-        }
+        //正常删除就行
+        simpleLeafRemove(bufnode_,pos);
+        bufnode_.WriteChunk();
     }else if(bufnode_.busy_ < (bufnode_.degree_ + 1)/2){
         //如果删除之后,节点的元素个数小于等于阶数的一半,则需要进行调整操作
         BPNode parent,lSibling,rSibling;

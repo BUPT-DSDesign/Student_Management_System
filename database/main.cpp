@@ -25,7 +25,7 @@ int main(int argc,char* argv[]){
     string buf;
     stringstream statement;
     /*if(argc != 2){
-        cerr<<"Usage: "<<argv[0]<<" <database path>\n";
+        //cerr<<"Usage: "<<argv[0]<<" <database path>\n";
         return 0;
     }*/
     Interpreter interpreter("./");
@@ -36,8 +36,8 @@ int main(int argc,char* argv[]){
             sqlUSE << "USE " << argv[1] <<";"<< endl;
             interpreter.ExecuteSQL(sqlUSE.str());
         }catch(const SQLSyntaxError& e){
-            cerr<<e.what()<<"\n";
-            cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
+            //cerr<<e.what()<<"\n";
+            //cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
             sayFailure(e.what());
         }
     }
@@ -53,52 +53,52 @@ int main(int argc,char* argv[]){
                 interpreter.ExecuteSQL(statement.str());
                 
             }catch(const SQLSyntaxError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
                 sayFailure(e.what());
             }catch(const SQLTypeError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Statement Type Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Statement Type Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const DBManagerError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Database Manager Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Database Manager Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableOpenError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Table Open Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Table Open Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableDataError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Table Data Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Table Data Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableIndexError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Table Index Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Table Index Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableIndexExist& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Table Index Exist Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Table Index Exist Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableCreateError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Table Create Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Table Create Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableDeleteError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Table Delete Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Table Delete Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const ColValueError& e){
-                cerr<<e.what()<<"\n";
-                cerr<<"Col Value Error,You can check the manual for Supported SQL Type\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"Col Value Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const BPTreeException & e){
-                cerr<<e.what()<<"\n";
-                cerr<<"BPTree Error"<<"\n";
+                //cerr<<e.what()<<"\n";
+                //cerr<<"BPTree Error"<<"\n";
                 sayFailure(e.what());
             }catch(const BPNodeException & e){
-                cerr<<e.what()<<endl;
-                cerr<<"BPNode Error"<<"\n";
+                //cerr<<e.what()<<endl;
+                //cerr<<"BPNode Error"<<"\n";
                 sayFailure(e.what());
             }
             //将分号以及之前的语句清空

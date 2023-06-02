@@ -103,7 +103,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         is_attr = false;
         string keyword = sql_vector[pos];
         transform(keyword.begin(), keyword.end(), keyword.begin(), (int (*)(int))tolower);
-        cerr << "Get Keyword:" << keyword << endl;
+        //cerr << "Get Keyword:" << keyword << endl;
         // 第一种情况,这是在设置主键
         if (keyword == "primary")
         {
@@ -152,7 +152,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
         }
         else if(keyword == "unique")
         {
-            cerr << "Create Table has INDEX!"<<endl;
+            //cerr << "Create Table has INDEX!"<<endl;
             //TODO 第二种情况,增加唯一索引
             pos++;
             //格式UNIQUE KEY `username` (`username`)
@@ -214,7 +214,7 @@ void SQLCreateTable::PraseSQLVector(vector<string> &sql_vector)
                 return;
             }
             indexs_.push_back({index_name,col_name});
-            cerr<<"index_name:"<<index_name<<" col_name:"<<col_name<<endl;
+            //cerr<<"index_name:"<<index_name<<" col_name:"<<col_name<<endl;
         }
         else
         {
@@ -663,13 +663,13 @@ void SQLInsert::PraseSQLVector(vector<string> &sql_vector)
     {
         // 设置的行和值不配对，报错.
         for(auto i:col_name_){
-            cerr<<i<<" ";
+            //cerr<<i<<" ";
         }
-        cerr<<endl;
+        //cerr<<endl;
         for(auto i:values_){
-            cerr<<i<<" ";
+            //cerr<<i<<" ";
         }
-        cerr<<endl;
+        //cerr<<endl;
         throw SQLSyntaxError("SQL INSERT SYNTAX ERROR,NUMBER OF COLUMNS AND VALUES NOT MATCH");
         
         return;
@@ -909,7 +909,7 @@ void SQLSelect::PraseSQLVector(vector<string> &sql_vector)
     // value可以是数字或者字符串
     // 如果value是字符串,则需要用单引号或者双引号括起来
     // 如果value是数字,则不需要用单引号或者双引号括起来
-    //cerr << "SQLSelect:PraseSQLVector" << endl;
+    ////cerr << "SQLSelect:PraseSQLVector" << endl;
     if (sql_vector.size() < 4)
     {
         throw SQLSyntaxError("SQL SELECT SYNTAX ERROR,TOO SHORT");

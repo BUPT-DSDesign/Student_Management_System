@@ -83,6 +83,7 @@ private:
 enum class QueryType{
     NOP,
     QUERY_EQ,//=
+    QUERT_OTHER
 };
 class SQLWhere
 {

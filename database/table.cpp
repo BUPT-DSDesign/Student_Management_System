@@ -1002,7 +1002,7 @@ void Table::DeleteRecord(SQLWhere &where){
     //目前只支持等值删除,所以不用考虑范围删除,范围删除直接丢异常
     //同时,删除函数会返回删除的记录,这些记录需要同步删除索引,同时也需要返回给用户
     vector<Row> rows_result;
-    if(where.GetQueryType(indexName) != QueryType::QUERY_EQ){
+    if(where.GetQueryType(indexName) == QueryType::QUERT_OTHER){
         throw TableDeleteError("Range Delete is not supported now!");
     }
     if(indexName == primary_key_){
