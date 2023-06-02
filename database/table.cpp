@@ -940,8 +940,6 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             set<streampos> pos_set;
             for(auto &it:addr_list){
                 streampos pos;
-                std::copy(reinterpret_cast<std::byte*>(&val_int64),reinterpret_cast<std::byte*>(&val_int64)+col_info_[id].length_,data.begin()+shift);
-                std::copy((byte*)&value_uint_,(byte*)&value_uint_+SIZE_OF_T[data_type_],bytes.begin());
                 //std::copy(reinterpret_cast<std::byte*>(&val_uint8),reinterpret_cast<std::byte*>(&val_uint8)+col_info_[id].length_,data.begin()+shift);
                 std::copy(reinterpret_cast<char*>(it.data()),reinterpret_cast<char*>(it.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
                 pos_set.insert(pos);
