@@ -53,9 +53,12 @@
                 <el-form-item label="考试时间">
                     <el-input v-model="clickedClassData.exam_time"></el-input>
                 </el-form-item>
-                <el-form-item label="考试地点">
-                    <el-input v-model="clickedClassData.exam_location"></el-input>
-                </el-form-item>
+                <el-form-item label="上课地点">
+                        <el-select v-model="addClassData.classroom" placeholder="请选择">
+                            <el-option v-for="option in placelist" :key="option.value" :label="option.label"
+                                :value="option.value"></el-option>
+                        </el-select>
+                    </el-form-item>
                 <el-form-item label="考核方式">
                     <el-radio-group v-model="clickedClassData.exam_option">
                         <el-radio label="论文考察">论文考察</el-radio>
@@ -76,11 +79,11 @@
                         <el-radio :label="false">{{ clickedClassData.is_compulsory ? '否' : '是' }}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                 </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible2 = false">取 消</el-button>
-                    <el-button type="primary" @click="submitEditForm">保存修改</el-button>
-                </div>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible2 = false">取 消</el-button>
+                <el-button type="primary" @click="submitEditForm">保存修改</el-button>
+            </div>
         </el-dialog>
 
         <!-- 添加课程 -->
@@ -90,7 +93,10 @@
                     <el-input v-model="addClassData.course_name"></el-input>
                 </el-form-item>
                 <el-form-item label="上课地点">
-                    <el-input v-model="addClassData.classroom"></el-input>
+                    <el-select v-model="addClassData.classroom" placeholder="请选择">
+                        <el-option v-for="option in placelist" :key="option.value" :label="option.label"
+                            :value="option.value"></el-option>
+                    </el-select>
                 </el-form-item>
                 <el-form-item label="授课老师">
                     <el-input v-model="addClassData.teacher"></el-input>
@@ -366,7 +372,28 @@ export default {
             ],
             selectedCourse: {},
             courseInfo: {},
-            seeCourseInfoVis: false
+            seeCourseInfoVis: false,
+            placelist: [
+                { value: '教九', label: '教九' },
+                { value: '经管楼', label: '经管楼' },
+                { value: '科研楼', label: '科研楼' },
+                { value: '学生活动中心(南门)', label: '学生活动中心(南门)' },
+                { value: '学生活动中心(西门)', label: '学生活动中心(西门)' },
+                { value: '教四(东门)', label: '教四' },
+                { value: '教四(南门)', label: '教四(南门)' },
+                { value: '主楼', label: '主楼' },
+                { value: '教三(北门)', label: '教三' },
+                { value: '教三(西门)', label: '教三(西门)' },
+                { value: '教二(西门)', label: '教二' },
+                { value: '教二(北门)', label: '教二(北门)' },
+                { value: '可信网络通信协同创新中心(创新楼)', label: '可信网络通信协同创新中心(创新楼)' },
+                { value: '学生发展中心', label: '学生发展中心' },
+                { value: '图书馆', label: '图书馆' },
+                { value: '教一楼(西门)', label: '教一' },
+                { value: '教一楼(南门)', label: '教一楼(南门)' },
+                { value: '教一楼(东门)', label: '教一楼(东门)' }
+            ],
+            placelistOption: '',
         }
     },
     methods: {
