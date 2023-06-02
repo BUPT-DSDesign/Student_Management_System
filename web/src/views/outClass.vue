@@ -55,10 +55,10 @@
 
         <div style="display: flex;justify-content:space-between">
             <div class="activity-proportion">
-                <h4 style="text-align: center; color:#409eff; margin-left: 60px; ">活动占比</h4>
-                <el-progress :percentage="singleActivityRate" color="#74c0fc" style="margin: 0px" ></el-progress>
-                <el-progress :percentage="groupActivityRate" color="#409eff" style="margin: 3px 0px"></el-progress>
-                <el-progress :percentage="tempRate" color="#1864ab" style="margin: 0px"></el-progress>
+                <h4 style="text-align: center;  margin-left: 60px; ">活动占比</h4>
+                <el-progress :percentage="singleActivityRate" color="#ffc078" style="margin: 0px" ></el-progress>
+                <el-progress :percentage="groupActivityRate" color="#67C23A" style="margin: 3px 0px"></el-progress>
+                <el-progress :percentage="tempRate" color="#4dabf7" style="margin: 0px"></el-progress>
             </div>
             <!-- 按键部分 -->
             <div class="button-container">
