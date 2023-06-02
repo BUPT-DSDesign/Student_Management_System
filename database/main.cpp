@@ -19,7 +19,7 @@ void sayFailure(const char* msg){
     cout<<"{";
     cout<<"\"status_code\":1,";
     cout<<"\"status_msg\":\""<<msg<<"\",";
-    cout<<"\"data\":[]";
+    cout<<"\"data\":\"[]\"";
     cout<<"}"<<endl;
 }
 int main(int argc,char* argv[]){

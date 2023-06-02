@@ -1077,7 +1077,7 @@ void Table::PrintToStream(string msg,vector<Row> result){
     //其中,data为多条deserialized后的记录
 
     //先构造status_code和status_msg
-    cout<<"{\"status_code\":0,\"status_msg\":\""<<msg<<"\",\"data\":[";
+    cout<<"{\"status_code\":0,\"status_msg\":\""<<msg<<"\",\"data\":\"[";
     //遍历输出result
     for(auto it=result.begin();it!=result.end();it++){
         cout<<it->getRowJSON();
@@ -1086,6 +1086,6 @@ void Table::PrintToStream(string msg,vector<Row> result){
         }
     }
 
-    cout<<"]}"<<endl;
+    cout<<"]\"}"<<endl;
 }
 
