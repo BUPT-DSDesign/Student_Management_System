@@ -17,6 +17,7 @@
 </template>
 <script>
 import mytime from '@/components/mytime.vue'
+import { TimeStore } from '@/store/time'
 export default {
   data() {
     return {
@@ -37,6 +38,7 @@ export default {
       this.avatarUrl = `http://127.0.0.1:8080/static/avatar.jpg`
     },
     layout() {
+      TimeStore.clear()
       window.localStorage.clear()
       this.$router.replace('/')
       location.reload()

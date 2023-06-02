@@ -674,8 +674,34 @@ func (s *courseDao) QueryCourseById(courseId int64, course *system.CourseInfo) e
 		return errors.New(result["status_msg"].(string))
 	}
 
-	// 将result.data转换为[]int64
-	_ = json.Unmarshal([]byte(result["data"].(string)), course)
+	var courseInfo []*system.CourseInfo
+	// 将result.data转换为
+	_ = json.Unmarshal([]byte(result["data"].(string)), &courseInfo)
+
+	// 将result["data"]中的is_compulsory、is_course_online转换为bool,并赋值给courses
+	mpStr := result["data"].(string)
+
+	// 将mpStr转换为map
+	mp := make([]map[string]interface{}, 0)
+	_ = json.Unmarshal([]byte(mpStr), &mp)
+
+	for i, v := range courseInfo {
+		if mp[i]["is_compulsory"].(float64) == 0 {
+			v.IsCompulsory = false
+		} else {
+			v.IsCompulsory = true
+		}
+		if mp[i]["is_course_online"].(float64) == 0 {
+			v.IsCourseOnline = false
+		} else {
+			v.IsCourseOnline = true
+		}
+	}
+
+	if len(courseInfo) != 0 {
+		*course = *courseInfo[0]
+
+	}
 
 	return nil
 }

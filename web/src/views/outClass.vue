@@ -108,25 +108,25 @@
                     </div>
                 </el-dialog>
                 <!-- 查询结果弹窗 -->
-                         <el-dialog :visible.sync="searchdialogVisible" title="活动详细信息" :style="{ 'max-height': '80%' }">
-            <el-scrollbar style="max-height: 500px;">
-              <el-table :data="searchEventList" style="width: 100%">
-                <el-table-column prop="activity_name" label="活动名称"></el-table-column>
-                <el-table-column prop="location" label="活动地点"></el-table-column>
-                <el-table-column prop="start_time" label="活动开始时间"></el-table-column>
-                 <el-table-column prop="is_mention" label="是否提醒">
-                  <template slot-scope="{ row }">
-                    {{ row.is_mention ? (row.advance_mention_time + '分钟前') : '否' }}
-                  </template>
-                </el-table-column>
-                <el-table-column v-if="isMentionExist" prop="advance_mention_time" label="提醒提前时间"></el-table-column>
-                <el-table-column prop="tag" label="标签"></el-table-column>
-              </el-table>
-            </el-scrollbar>
-            <span slot="footer" class="dialog-footer">
-              <el-button @click="searchdialogVisible = false">关闭</el-button>
-            </span>
-          </el-dialog>
+                <el-dialog :visible.sync="searchdialogVisible" title="活动详细信息" :style="{ 'max-height': '80%' }">
+                    <el-scrollbar style="max-height: 500px;">
+                    <el-table :data="searchEventList" style="width: 100%">
+                        <el-table-column prop="activity_name" label="活动名称"></el-table-column>
+                        <el-table-column prop="location" label="活动地点"></el-table-column>
+                        <el-table-column prop="start_time" label="活动开始时间"></el-table-column>
+                        <el-table-column prop="is_mention" label="是否提醒">
+                        <template slot-scope="{ row }">
+                            {{ row.is_mention ? (row.advance_mention_time + '分钟前') : '否' }}
+                        </template>
+                        </el-table-column>
+                        <el-table-column v-if="isMentionExist" prop="advance_mention_time" label="提醒提前时间"></el-table-column>
+                        <el-table-column prop="tag" label="标签"></el-table-column>
+                    </el-table>
+                    </el-scrollbar>
+                    <span slot="footer" class="dialog-footer">
+                    <el-button @click="searchdialogVisible = false">关闭</el-button>
+                    </span>
+                </el-dialog>
                 <!-- 添加活动按钮和弹窗 -->
                 <el-button class="OperationButton" type="primary" icon="el-icon-circle-plus-outline"
                     @click="dialogAddVisible = true">添加活动</el-button>
@@ -759,7 +759,20 @@ export default {
                     // 刷新页面
                     location.reload();
                 } else {
-                    console.log('error')
+                    let err = EventStore.errMsg
+                    // 找到错误信息中的:
+                    let index = err.indexOf(':')
+                    // 在index前面加上<br>
+                    err = err.substring(0, index + 1) + '<br>' + err.substring(index + 1)
+                    
+                    this.$message({
+                        showClose: true,
+                        center: true,
+                        dangerouslyUseHTMLString: true,
+                        message: '<strong style="color: red">' + err + '</strong>',
+                        type: 'error',
+                        duration: 0
+                    });
                 }
             }
             addEvent(this.submit)

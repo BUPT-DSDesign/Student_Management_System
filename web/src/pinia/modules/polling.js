@@ -10,7 +10,7 @@ export const usePollingStore = defineStore('polling', () => {
     const GetArrivedCourse = async (curTime) => {
         try {
             const res = await IsCourseArrive(curTime);
-            console.log(res.data)
+            
             if (res.data.status_code == 0) {
                 pollingCourse.value = res.data.course_info;
                 is_course_arrive.value = res.data.is_arrive;
@@ -25,6 +25,7 @@ export const usePollingStore = defineStore('polling', () => {
     const GetArrivedEvent = async (curTime) => {
         try {
             const res = await IsEventArrive(curTime);
+            console.log(res.data)
             if (res.data.status_code == 0) {
                 pollingEvent.value = res.data.activity_info;
                 is_event_arrive.value = res.data.is_arrive;

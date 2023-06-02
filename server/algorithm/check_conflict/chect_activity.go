@@ -1,6 +1,7 @@
 package check_conflict
 
 import (
+	"fmt"
 	"server/model/dao"
 	"server/model/entity/system"
 	"server/utils"
@@ -9,7 +10,7 @@ import (
 
 // ActivityAndCoursesIsExistConflict 检查活动和课程是否存在冲突
 func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityInfo) (bool, []string) {
-	switch activity.Type {
+	switch activity.Frequency {
 	case 0:
 		{
 			/*
@@ -19,6 +20,7 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				3.之后将课程属于活动当天的节次加入到一个数组中
 				4.最后将sectionList数组转换为时间段来检查活动时间是否和这些课程时间冲突
 			*/
+
 			isConflict := false
 
 			// 活动所在的周数
@@ -30,16 +32,24 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				return false, nil
 			}
 
+			//打印courseIds
+			fmt.Printf("courseIds: %v\n", courseIds)
+
 			// 得到sectionList
 			var sectionList []int
 			for _, courseId := range courseIds {
+				println("第一层循环")
 				// 先判断这门课程是否是自己的
 				var courseInfo system.CourseInfo
 				if err := dao.Group.CourseDao.QueryCourseById(courseId, &courseInfo); err != nil {
 					return false, nil
 				}
+				// 打印courseInfo
+				fmt.Printf("courseInfo: %v\n", courseInfo)
 				// 如果是自己的课程, 才需要检测冲突
 				if courseInfo.IsCompulsory || dao.Group.CourseDao.JudgeIsStudentSelectCourse(userId, courseId) {
+					println("自己的课程")
+
 					var rawSectionList []int
 					if err := dao.Group.CourseDao.QuerySectionListById(courseId, &rawSectionList); err != nil {
 						return false, nil
