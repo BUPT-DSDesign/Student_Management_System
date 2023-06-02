@@ -27,14 +27,10 @@ var db *DB
 
 func init() {
 
-<<<<<<< HEAD
-	cmd := exec.Command(filename, "sms")
-	//cmd := exec.Command(standFileNAME)
-=======
-	// cmd := exec.Command(filename)
-	// cmd.Args = append(cmd.Args, "sms")
+	//cmd := exec.Command(filename, "sms")
+
 	cmd := exec.Command(standFileNAME)
->>>>>>> 97346f85d2bf2638f6af3cf2d99549f9e6e2f0c5
+
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		panic(err)
