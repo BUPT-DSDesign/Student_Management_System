@@ -50,10 +50,10 @@ void BPNode::ReadChunk(streampos pos){
         //如果是无效的偏移量,则不读取
         return;
     }
-    if(pos == node_pos){
+    /*if(pos == node_pos){
         //如果是当前节点,则不读取
         return;
-    }
+    }*/
     BPNodeHead head;
     //TODO 将一个区块读取到字节流中
     //1.打开文件读写流
@@ -79,7 +79,7 @@ void BPNode::ReadChunk(streampos pos){
             if(pos != 0){
                 throw BPNodeException("BPNode is dirty,can't read");
             }else{
-                CreateChunk(true,data_size_,key_size_,key_type_);
+                is_dirty_ = false;
             }
         }
         //第二个部分,读取节点数据

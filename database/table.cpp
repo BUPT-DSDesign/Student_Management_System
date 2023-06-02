@@ -99,7 +99,7 @@ Table::Table(const Table& tb):col_cnt_(tb.col_cnt_),index_cnt_(tb.index_cnt_),re
     tb_data_ = make_unique<BPTree>(fileData,true);
     for(auto &it:tb.index_name_){
         string fileIndex = db_path_+"/"+it+".idx";
-        tb_index_[it] = make_unique<BPTree>(fileIndex,false);
+        tb_index_[it] = make_shared<BPTree>(fileIndex,false);
     }
 }
 //打开一张已有的表,将表头信息读入内存
@@ -155,8 +155,12 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     for(int i = 0;i < index_cnt_;i++){
         IndexAttribute tmp;
         table_info_->read(reinterpret_cast<char*>(&tmp),sizeof(IndexAttribute));
-        index_name_.push_back(tmp.index_name_);
-        col2index_[col_info_[tmp.col_id_].col_name_] = tmp.index_name_;
+        string tmp_str;
+        tmp_str.assign(tmp.index_name_);
+        index_name_.push_back(tmp_str);
+        string tmp_col_name;
+        tmp_col_name.assign(col_info_[tmp.col_id_].col_name_);
+        col2index_[tmp_col_name] = tmp_str;
     }
     //最后打开表的数据文件,其文件路径为db_path/table_name.table,
     string fileData = db_path_+"/"+table_name_+".table";
@@ -164,7 +168,7 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     //如果有索引文件,一并将其加载入内存
     for(auto &it:index_name_){
         string fileIndex = db_path_+"/"+it+".idx";
-        tb_index_[it] = make_unique<BPTree>(fileIndex,false);
+        tb_index_[it] = make_shared<BPTree>(fileIndex,false);
     }
 }
 
@@ -530,7 +534,8 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     }
     //确认没有同名索引后,创建索引
     uint16 col_id = col2id_[col_name];
-    tb_index_[index_name] = make_unique<BPTree>(fileIndex,false,sizeof(streampos),col_info_[col_id].length_,col_info_[col_id].data_type_);
+    tb_index_[index_name] = make_shared<BPTree>(fileIndex,false,sizeof(streampos),col_info_[col_id].length_,col_info_[col_id].data_type_);
+    col2index_[col_name] = index_name;
     //遍历表的数据文件,将数据文件中的数据插入到索引中
     //直接按顺序读取数据文件,然后插入到索引中
     tb_data_->ReadFirstChunk();
@@ -546,7 +551,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     }
     //将索引信息写到tbinfo中
     IndexAttribute index_attr;
-    //memset(&index_attr,0,sizeof(index_attr));
+    memset(index_attr.index_name_,0,sizeof(index_attr.index_name_));
     index_attr.col_id_ = col_id;
     std::copy(index_name.begin(),index_name.end(),index_attr.index_name_);
     string fileInfo = db_path_+"/"+table_name_+".tbinfo";

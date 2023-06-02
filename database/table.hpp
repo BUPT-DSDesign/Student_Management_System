@@ -72,7 +72,7 @@ private:
     vector<string> index_name_;//这个表相关的索引名,大小与col_info_.size()相同
     vector<string> index_col_name_;//这个表相关的索引所对应的列名,大小与col_info_.size()相同    
     unique_ptr<BPTree> tb_data_;//表的数据,因其仿造的是InnoDB,所以使用B+树
-    map<string,unique_ptr<BPTree>> tb_index_;//表的索引,使用map存储,键为索引名,值为B+树
+    map<string,shared_ptr<BPTree>> tb_index_;//表的索引,使用map存储,键为索引名,值为B+树
     map<string,string> col2index_;//列名到索引名的映射
     map<string,int> col2id_;//列名到列id的映射
     string deserialize(vector<byte> &data);//反序列化单条数据为json
