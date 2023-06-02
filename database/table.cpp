@@ -565,7 +565,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     file.seekg(0,ios::end);
     file.seekp(0,ios::end);
     file.write(reinterpret_cast<char*>(&index_attr),sizeof(index_attr));
-    cerr<<"Create Index "<<index_name<<" on "<<col_name<<" success"<<endl;
+    //cerr<<"Create Index "<<index_name<<" on "<<col_name<<" success"<<endl;
 }
 
 vector<byte> Table::serialize(vector<pair<string,string>> &col_item){
@@ -725,7 +725,7 @@ Key Table::getValue(vector<byte> &data,uint16 col_id){
 void Table::SelectRecord(SQLWhere &where){
     //用Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
-    cerr << "Select Complete:indexName:" << indexName << endl;
+    //cerr << "Select Complete:indexName:" << indexName << endl;
     //随后根据索引的类型,调用不同的函数
     //先判断这玩意是不是主键,再判断有没有这样的索引
     vector<Row> rows_result;
