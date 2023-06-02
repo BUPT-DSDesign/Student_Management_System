@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="schedule-container">
-            <h2 style="text-align: center; padding-right: 105px;">日程安排表</h2>
+            <h2 style="text-align: center; padding-right: 100px;">日程安排表</h2>
             <div class="table-container">
                 <el-table :data="filteredData" :default-sort="{ prop: 'start_day', order: 'ascending' }" :filters="filters"
                     filter-method="filterTable" max-height="370px" height="370px" :fixed="true">
@@ -55,10 +55,12 @@
 
         <div style="display: flex;justify-content:space-between">
             <div class="activity-proportion">
-                <h4 style="text-align: center; color:#409eff; margin-left: 160px;">活动占比</h4>
-                <el-progress :percentage="singleActivityRate" color="#e6a23c" style="margin: 0px"></el-progress>
-                <el-progress :percentage="groupActivityRate" color="#409eff" style="margin: 3px 0px"></el-progress>
-                <el-progress :percentage="tempRate" color="#67c23a" style="margin: 0px"></el-progress>
+                <div class="activity-proportion">
+                    <h4 style="text-align: center; color:#409eff; margin-left: 160px;">活动占比</h4>
+                    <el-progress :percentage="singleActivityRate" color="#e6a23c" style="margin: 0px"></el-progress>
+                    <el-progress :percentage="groupActivityRate" color="#409eff" style="margin: 3px 0px"></el-progress>
+                    <el-progress :percentage="tempRate" color="#67c23a" style="margin: 0px"></el-progress>
+                </div>
             </div>
             <!-- 按键部分 -->
             <div class="button-container">
@@ -468,7 +470,7 @@ export default {
             ],
             weekday: '',
             hour: '',
-            times: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+            times: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
             showDialogVisible: false,
             queryForm: {
                 startTime: {
@@ -492,7 +494,7 @@ export default {
                 { label: '周六', value: '周六' },
                 { label: '周日', value: '周七' }
             ],
-            timeOptions: ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'],
+            timeOptions: ['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'],
             searchEventList: [],
         }
     },
@@ -847,7 +849,7 @@ h2 {
 
 .OperationButton {
     margin-top: 20px;
-    margin-right: 1px;
+    margin-right: 2px;
 }
 
 .weekinput {

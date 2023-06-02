@@ -130,19 +130,12 @@ export default {
                 //查找本天的课程，然后将他们按照顺序排列。
                 for (let i = 0; i < this.courseList.length; i++) {
                     for (let j = 0; j < this.courseList[i].section_list.length; j++) {
-                        if (this.courseList[i].section_list[j] / 9 < TimeStore.day) {
+                        //通过获取this.courseList[i].section_list[j] 和TimeStore.day对比，发现是今天的课程
+                        if (this.courseList[i].section_list[j] >= (TimeStore.day - 1) * 9 + 1
+                            && this.courseList[i].section_list[j] <= TimeStore.day * 9) {
                             this.curcourseList.push({
                                 content: this.courseList[i].course_name,
-                                timestamp: this.courseList[i].section_list[j] % 9,
-                                size: 'large',
-                                type: 'primary',
-                                color: '#8ce99a',
-                            })
-                        }
-                        if (this.courseList[i].section_list[j] / 9 == 1) {
-                            this.curcourseList.push({
-                                content: this.courseList[i].course_name,
-                                timestamp: 9,
+                                timestamp: (this.courseList[i].section_list[j] % 9),
                                 size: 'large',
                                 type: 'primary',
                                 color: '#8ce99a',
@@ -235,7 +228,13 @@ h4 {
     right: 0;
     border-block-width: 0px;
     margin: 0;
+    padding: 0;
     background-color: #f8f9fa;
+}
+
+.el-card__body {
+    padding: 0px;
+    padding-bottom: 1px;
 }
 
 .block {
