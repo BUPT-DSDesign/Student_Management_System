@@ -13,22 +13,48 @@
                 <el-main>
                     <!-- 子路由的路由出口 -->
                     <router-view></router-view>
-                    <el-dialog title="今日课程" :visible.sync="dialogVisible">
-                        <el-timeline>
-                            <el-timeline-item v-for="course in todayCourses" :key="course.id">
-                                <div>{{ course.course_name }}</div>
-                                <div>第{{ course.section_list[TimeStore.day ] }}节</div>
-                            </el-timeline-item>
-                        </el-timeline>
+                    <el-dialog title="明日课程、活动安排" :visible.sync="dialogVisible">
+                        <div class="timeline-container" style="float:left">
+                            <div class="timeline-title">明日课程</div>
+                            <el-timeline>
+                                <el-timeline-item v-for="(course, index) in curcourseList" :key="index" :type="course.type"
+                                    :timestamp="course.timestamp" color="#8ce99a">
+                                    {{ course.content }}
+                                </el-timeline-item>
+                            </el-timeline>
+                        </div>
+                        <div class="timeline-container" style="float:right">
+                            <div class="timeline-title">明日活动</div>
+                            <el-timeline>
+                                <el-timeline-item v-for="(activity, index) in todayActivities" :key="index"
+                                    :timestamp="activity.timestamp" color="#8ce99a">
+                                    {{ activity.activity_name }}
+                                </el-timeline-item>
+                            </el-timeline>
+                        </div>
+                        <div style="clear:both;"></div> <!-- 添加清除浮动的元素 -->
                     </el-dialog>
-                    <!-- <el-dialog title="明天的活动" :visible.sync="dialogVisible">
-                        <el-timeline>
-                            <el-timeline-item v-for="(activity, index) in todayActivities" :key="index"
-                                :timestamp="activity.timestamp" placement="top">
-                                {{ activity.activity_name }}
-                            </el-timeline-item>
-                        </el-timeline>
-                    </el-dialog> -->
+                    <!-- <el-dialog title="明日课程、活动安排" :visible.sync="dialogVisible">
+      <div class="timeline-container">
+        <div class="timeline-title">明日课程</div>
+        <el-timeline class="timeline-left">
+          <el-timeline-item v-for="(course, index) in curcourseList" :key="index" :type="course.type"
+            :timestamp="course.timestamp"  color="#8ce99a">
+            {{ course.content }}
+          </el-timeline-item>
+        </el-timeline>
+      </div>
+      <div class="timeline-container">
+        <div class="timeline-title">明日活动</div>
+        <el-timeline class="timeline-right">
+          <el-timeline-item v-for="(activity, index) in todayActivities" :key="index"
+            :timestamp="activity.timestamp"  color="#8ce99a">
+            {{ activity.activity_name }}
+          </el-timeline-item>
+        </el-timeline>
+      </div>
+    </el-dialog> -->
+
                 </el-main>
             </el-container>
         </el-container>
@@ -49,6 +75,7 @@ export default {
             eventList: [],
             todayActivities: [],
             courseList: [],
+            curcourseList: [],
             dialogVisible: true,
             myTimeStore: TimeStore,
         }
@@ -57,16 +84,6 @@ export default {
         getRoutes() {
             return global.antRouter
         },
-        computed: {
-            todayCourses() {
-                const { week, day } = this.myTimeStore;
-                return this.courseList.filter(course => {
-                    return course.week_schedule === week && course.section_list[day ];
-                }).sort((a, b) => {
-                    return a.section_list[day ] - b.section_list[day ];
-                });
-            }
-        }
     },
     methods: {
         getTodayActivities() {
@@ -109,9 +126,10 @@ export default {
             });
             todayActivities.sort((a, b) => a.timestamp - b.timestamp);
             return todayActivities;
-        }
+        },
+
     },
-    
+
     watch: {
         myTimeStore: {
             handler(val) {
@@ -132,11 +150,37 @@ export default {
             const fg = await CourseStore.GetCourseTable();
             if (fg) {
                 this.courseList = CourseStore.courseList;
+                //根据当前周，查找在本周的课程
+                this.courseList = this.courseList.filter((item) => {
+                    return item.week_schedule.indexOf(TimeStore.week) != -1;
+                });
+                //查找本天的课程，然后将他们按照顺序排列。
+                for (let i = 0; i < this.courseList.length; i++) {
+                    for (let j = 0; j < this.courseList[i].section_list.length; j++) {
+                        //通过获取this.courseList[i].section_list[j] 和TimeStore.day对比，发现是今天的课程
+                        if (this.courseList[i].section_list[j] >= (TimeStore.day - 1) * 9 + 1
+                            && this.courseList[i].section_list[j] <= TimeStore.day * 9) {
+                            this.curcourseList.push({
+                                content: this.courseList[i].course_name,
+                                timestamp: (this.courseList[i].section_list[j] % 9),
+                            })
+                        }
+                    }
+                }
+                //对课程按照节次进行排序
+                this.curcourseList.sort(function (a, b) {
+                    return a.timestamp - b.timestamp;
+                });
+                //添加上汉字
+                this.curcourseList = this.curcourseList.map(function (item, index, arr) {
+                    item.timestamp = '第' + item.timestamp + '节';
+                    return item;
+                })
             } else {
                 console.log('获取用户课程失败')
             }
         }
-        getTable();
+        getTable()
         //获取活动
         const getActivityTable = async () => {
             const fg = await EventStore.GetEventTable()
@@ -159,6 +203,18 @@ export default {
 
 .el-main {
     padding: 0;
+}
+
+.timeline-container {
+    margin:20px 100px;
+}
+
+.timeline-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 20px;
+    margin-top: -40px;
+    margin-bottom: 30px;
 }
 </style>
 

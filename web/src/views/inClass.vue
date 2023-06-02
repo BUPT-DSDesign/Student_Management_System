@@ -414,7 +414,7 @@ h2 {
     margin-left: 650px;
 }
 .el-form{
-    height:35px;
+    height:37px;
     background-color: #fff;
 }
 .el-tag {
@@ -467,7 +467,7 @@ h2 {
             td {
                 width: 60px;
                 padding: 12px 2px;
-                font-size: 10px;
+                font-size: 9px;
                 text-align: center;
             }
 
