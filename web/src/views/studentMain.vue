@@ -57,6 +57,7 @@ export default {
             curcourseList: [],
             dialogVisible: false,
             myTimeStore: TimeStore,
+            solvePro: false
         }
     },
     computed: {
@@ -108,8 +109,11 @@ export default {
     watch: {
         myTimeStore: {
             handler(val) {
-                if (val.hour == 20 && val.minute == 0) {
+                if (val.hour == 20 && val.minute == 0 && this.solvePro == false) {
                     this.dialogVisible = true;
+                    this.solvePro = true;
+                } else {
+                    // this.solvePro = false;
                 }
             },
             deep: true

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"server/model/dao"
 	"server/model/entity/common"
+	"server/model/entity/system"
 )
 
 type updateFlow struct {
@@ -43,6 +44,15 @@ func (f *updateFlow) checkNum() error {
 		}
 		var allSectionList []int
 		for _, courseId := range courseIds {
+			// 排除自己
+			var courseInfo system.CourseInfo
+			if err := dao.Group.CourseDao.QueryCourseById(courseId, &courseInfo); err != nil {
+				return err
+			}
+			if courseInfo.CourseName == f.addCourseRequest.CourseName {
+				continue
+			}
+
 			var sectionList []int
 			if err := dao.Group.CourseDao.QuerySectionListById(courseId, &sectionList); err != nil {
 				return err

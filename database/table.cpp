@@ -61,7 +61,7 @@ string Row::getRowJSON() const{
     string res = "{";
     for(auto &i:col_value_){
         //cerr << "\""+i.getColName()+"\":"+i.getValue()+"," << endl;
-        res += "\""+i.getColName()+"\":"+i.getValue()+",";
+        res += "\\\""+i.getColName()+"\\\":"+i.getValue()+",";
     }
     if(col_value_.size() > 0)res.pop_back();
     res += "}";

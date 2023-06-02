@@ -2,7 +2,7 @@
     <div class="wrapper">
         <div class="one item">
             <div class="user-container">
-                <uploadAvatar :userInfo="userInfo"></uploadAvatar>
+                <uploadAvatar :userInfo="avatarUrl"></uploadAvatar>
                 <div class="user-info">
                     <h4>姓名:{{ userInfo.username }}</h4>
                     <h4>学号:{{ userInfo.student_id }}</h4>
@@ -88,10 +88,14 @@ export default {
             userInfo: {},
             eventInfo:{},
             courseList: [],
-            curcourseList: []
+            curcourseList: [],
+            avatarUrl: '',
         }
     },
     created() {
+        const userId = window.localStorage.getItem('userId')
+        // console.log(userId)
+        this.avatarUrl = `http://127.0.0.1:8080/static/${userId}.jpg`
         // 在个人主页渲染的时候, 应该向后端请求个人信息
         const getUserInfo = async () => {
             const fg = await UserStore.GetUserInfo()

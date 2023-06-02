@@ -7,7 +7,7 @@
             :show-file-list="false"
             :on-success="handleAvatarSuccess"
             :before-upload="beforeAvatarUpload">
-            <img v-if="userInfo.avatar_url" :src="userInfo.avatar_url" class="avatar">
+            <img v-if="userInfo" :src="userInfo" class="avatar">
             <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
     </el-tooltip>

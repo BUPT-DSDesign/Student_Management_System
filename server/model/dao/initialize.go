@@ -68,7 +68,7 @@ func (db *DB) ExecSql(sqlStr string) error {
 func WriteLine(data string) error {
 	// 通过db.stdinWriter将数据写入到标准输入
 	data = strings.TrimSpace(data)
-	println("写入-----" + fmt.Sprintf("%s;\n", data))
+	println("写入-----" + fmt.Sprintf("%s;", data))
 	_, err := fmt.Fprintf(db.stdin, "%s;\n", data)
 	return err
 }
