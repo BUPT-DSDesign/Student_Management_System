@@ -129,7 +129,6 @@
                 <el-button type="primary" @click="courseInfoVis = false">确 定</el-button>
             </span>
         </el-dialog>
-
     </div>
 </template>
 <script>
@@ -432,7 +431,8 @@ h2 {
 
 .class-table {
     justify-content: center;
-  align-items: center;
+    align-items: center;
+    overflow-x: hidden;
     .table-wrapper {
         width: 600px;
         height: 500px;
