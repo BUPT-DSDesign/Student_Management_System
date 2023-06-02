@@ -11,7 +11,8 @@ import (
 )
 
 // 届时需要打开的数据库后端可执行文件相对路径
-const filename string = "./test_sql"
+const filename string = "./database"
+const standFileNAME string = "./test_sql"
 
 type DB struct {
 	cmd    *exec.Cmd
@@ -26,7 +27,9 @@ var db *DB
 
 func init() {
 
-	cmd := exec.Command(filename)
+	//cmd := exec.Command(filename)
+	//cmd.Args = append(cmd.Args, "sms")
+	cmd := exec.Command(standFileNAME)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		panic(err)
@@ -63,7 +66,7 @@ func (db *DB) ExecSql(sqlStr string) error {
 
 func WriteLine(data string) error {
 	// 通过db.stdinWriter将数据写入到标准输入
-	//println("写入----------" + data)
+	println("写入----------" + data)
 	data = strings.TrimSpace(data)
 	_, err := fmt.Fprintf(db.stdin, "%s;\n", data)
 	return err
@@ -77,7 +80,7 @@ func ReadLine() ([]byte, error) {
 	}
 	// 将map转换为json
 	jsonStr, err := json.Marshal(result)
-	//println("读出----------" + string(jsonStr))
+	println("读出----------" + string(jsonStr))
 	if err != nil {
 		return nil, err
 	}
