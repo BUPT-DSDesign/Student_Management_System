@@ -95,40 +95,40 @@ export default {
         },
     },
     mounted() {
-        // // 轮询课程是否来临
-        // setInterval(async () => {
-        //     const fg = await PollingStore.GetArrivedCourse(TimeStore.getTime());
-        //     if (fg) {
-        //         if (PollingStore.is_course_arrive == true) {
-        //             // this.showClassAlarm = true
-        //             this.pollingCourse = PollingStore.pollingCourse;
-        //             const alarmContent = '<div style="font-size: 17px">' + `<strong>${this.pollingCourse.course_name}</strong>` + '课程马上开始了!' + '</div>';
-        //             if (!this.isCourseAlarmClosed) {
-        //                 this.courseAlarm = Notification({
-        //                     title: '课程闹钟！！！',
-        //                     iconClass: 'el-icon-bell',
-        //                     dangerouslyUseHTMLString: true,
-        //                     message: alarmContent + '<br/><button style="display: inline-block; margin-top: 10px; margin-left: 55px; padding: 5px 5px; font-size: 14px; font-weight: bold; text-align: center; text-transform: uppercase; color: #fff; background-color: #007bff; border: none; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); cursor: pointer; transition: background-color 0.3s ease;">跳转至导航页面</button>',
-        //                     onClick: () => {
-        //                         // 点击后跳转到导航页面
-        //                         this.$router.push('/studentMain/CourseNav');
-        //                         console.log('Notification Clicked!')
-        //                     },
-        //                     onClose: () => {
-        //                         this.isCourseAlarmClosed = true
-        //                     },
-        //                     duration: 0
-        //                 })
-        //             }
-        //         } else {
-        //             this.courseAlarm.close()
-        //             this.isCourseAlarmClosed = false
-                    
-        //         }
-        //     } else {
-        //         console.log('error')
-        //     }
-        // }, 5000);
+        // 轮询课程是否来临
+        setInterval(async () => {
+            const fg = await PollingStore.GetArrivedCourse(TimeStore.getTime());
+            if (fg) {
+                if (PollingStore.is_course_arrive == true) {
+                    // this.showClassAlarm = true
+                    console.log("闹钟成功")
+                    this.pollingCourse = PollingStore.pollingCourse;
+                    const alarmContent = '<div style="font-size: 17px">' + `<strong>${this.pollingCourse.course_name}</strong>` + '课程还有' + `<strong style="color: red">${1}</strong>` + '小时开始了!' + '</div>';
+                    if (!this.isCourseAlarmClosed) {
+                        this.courseAlarm = Notification({
+                            title: '课程闹钟！！！',
+                            iconClass: 'el-icon-bell',
+                            dangerouslyUseHTMLString: true,
+                            message: alarmContent + '<br/><button style="display: inline-block; margin-top: 10px; margin-left: 55px; padding: 5px 5px; font-size: 14px; font-weight: bold; text-align: center; text-transform: uppercase; color: #fff; background-color: #007bff; border: none; border-radius: 5px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); cursor: pointer; transition: background-color 0.3s ease;">跳转至导航页面</button>',
+                            onClick: () => {
+                                // 点击后跳转到导航页面
+                                this.$router.push('/studentMain/CourseNav');
+                                console.log('Notification Clicked!')
+                            },
+                            onClose: () => {
+                                this.isCourseAlarmClosed = true
+                            },
+                            duration: 0
+                        })
+                    }
+                } else {
+                    this.courseAlarm.close()
+                    this.isCourseAlarmClosed = false
+                }
+            } else {
+                console.log('error')
+            }
+        }, 5000);
         // setInterval(async () => {
         //     const fg = await PollingStore.GetArrivedEvent(TimeStore.getTime());
         //     if (fg) {

@@ -8,7 +8,7 @@
             <el-table-column type="index" width="10px" align="center"></el-table-column>
             <el-table-column prop="course_name" label="课程名称" width="140" align="center">
             </el-table-column>
-            <el-table-column prop="teacher" label="上课老师" width="120" align="center">
+            <el-table-column prop="teacher" label="上课老师" width="100" align="center">
             </el-table-column>
             <el-table-column prop="classroom" label="上课地点" width="120" align="center">
             </el-table-column>
@@ -159,6 +159,7 @@
                 <p><strong>授课老师：</strong>{{ courseInfo.teacher }}</p>
                 <p><strong>上课时间：</strong>{{ courseInfo.class_time }}</p>
                 <p><strong>上课周次：</strong>{{ courseInfo.week_schedule }}</p>
+                <p><strong>课程性质：</strong>{{ courseInfo.is_compulsory == true ? '必修': '选修' }}</p>
                 <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
                 <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
             </div>
@@ -417,7 +418,6 @@ export default {
             this.selectedCourse = course;
             this.courseInfo = this.processCourseInfo(course);
             this.seeCourseInfoVis = true;
-
         },
         processCourseInfo(course) {
             const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
@@ -431,7 +431,8 @@ export default {
                 class_time: classTime,
                 week_schedule: "第" + course.week_schedule + "周",
                 exam_time: course.exam_time,
-                exam_location: course.exam_location
+                exam_location: course.exam_location,
+                is_compulsory: course.is_compulsory
             };
         },
         addClass() {
@@ -589,10 +590,9 @@ export default {
                     this.$message({
                         showClose: true,
                         center: true,
-                        message: '添加课程失败',
+                        message: '课程已存在或课程时间与其他课程时间冲突',
                         type: 'error'
                     });
-                    this.addClassData = {}
                 }
             }
             addCourse(this.addClassData)

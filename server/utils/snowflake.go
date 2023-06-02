@@ -1,23 +1,55 @@
 package utils
 
 import (
-	"strconv"
+	"math/rand"
+	"sync"
 	"time"
-
-	"github.com/bwmarrin/snowflake"
 )
 
-// GenerateId 雪花算法生成用户Id
-func GenerateId() (int64, error) {
-	// 创建一个节点
-	node, err := snowflake.NewNode(time.Now().Unix()%1024 + 1)
-	if err != nil {
-		return int64(0), err
-	}
+type Snowflake struct {
+	machineID uint16
+	sequence  uint16
+	lastTime  int64
+	lock      sync.Mutex
+}
 
-	id := node.Generate().Int64()
-	idStr := strconv.FormatInt(id, 10)
-	idStr = idStr[6:]
-	id, err = strconv.ParseInt(idStr, 10, 64)
-	return id, nil
+const (
+	t0          int64  = 1609459200 // 2021-01-01 00:00:00 UTC
+	machineMax  uint16 = 0x1FFF     // 13 bits
+	sequenceMax uint16 = 0x3FF      // 10 bits
+)
+
+func NewSnowflake() *Snowflake {
+	rand.Seed(time.Now().UnixNano())
+	return &Snowflake{
+		machineID: uint16(rand.Intn(int(machineMax))),
+		sequence:  0,
+		lastTime:  0,
+		lock:      sync.Mutex{},
+	}
+}
+
+func (sf *Snowflake) NextID() int64 {
+	sf.lock.Lock()
+	defer sf.lock.Unlock()
+	timestamp := time.Now().Unix() - t0
+	if timestamp < sf.lastTime {
+		panic("Time moved backwards")
+	}
+	if timestamp == sf.lastTime {
+		sf.sequence = (sf.sequence + 1) & sequenceMax
+		if sf.sequence == 0 {
+			time.Sleep(time.Millisecond)
+			timestamp = time.Now().Unix() - t0
+		}
+	} else {
+		sf.sequence = 0
+	}
+	sf.lastTime = timestamp
+	return (timestamp << 23) | (int64(sf.machineID) << 10) | int64(sf.sequence)
+}
+
+func GenerateId() (int64, error) {
+	snowflake := NewSnowflake()
+	return snowflake.NextID(), nil
 }
