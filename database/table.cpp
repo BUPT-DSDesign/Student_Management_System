@@ -117,7 +117,9 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     for(int i = 0;i < col_cnt_;i++){
         TableColAttribute tmp;
         //读取每一列的信息,即TableColAttribute中除了default_和comment_的部分
-        table_info_->read(reinterpret_cast<char*>(&tmp),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
+        TabAttrHead header;
+        table_info_->read(reinterpret_cast<char*>(&header),sizeof(TabAttrHead));
+        tmp = getTabAttr(header);
         if(tmp.is_primary_){
             //初始化主键
             primary_key_ = tmp.col_name_;
@@ -202,7 +204,9 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
             primary_key_ = it.col_name_;
         }
         //写入除了default_和comment_的部分
-        table_info_->write(reinterpret_cast<char*>(&it),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
+        TabAttrHead tmp;
+        tmp = getTabAttrHead(it);
+        table_info_->write(reinterpret_cast<char*>(&tmp),sizeof(TabAttrHead));
         //写入default_和comment_
         if(it.default_length_!=0){
             //如果有默认值,则写入默认值
@@ -360,6 +364,32 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
     tb_data_ = make_unique<BPTree>(fileData,true,record_length_,primary_key_size,primary_key_type);
 }
 Table::~Table(){}
+TabAttrHead Table::getTabAttrHead(TableColAttribute info){
+    TabAttrHead head;
+    std::copy(info.col_name_,info.col_name_+sizeof(info.col_name_),head.col_name_);
+    head.data_type_ = info.data_type_;
+    head.is_primary_ = info.is_primary_;
+    head.is_hidden_ = info.is_hidden_;
+    head.is_not_null = info.is_not_null;
+    head.is_hidden_ = info.is_hidden_;
+    head.length_ = info.length_;
+    head.default_length_ = info.default_length_;
+    head.comment_length_ = info.comment_length_;
+    return head;
+}
+TableColAttribute Table::getTabAttr(TabAttrHead head){
+    TableColAttribute info;
+    std::copy(head.col_name_,head.col_name_+sizeof(head.col_name_),info.col_name_);
+    info.data_type_ = head.data_type_;
+    info.is_primary_ = head.is_primary_;
+    info.is_hidden_ = head.is_hidden_;
+    info.is_not_null = head.is_not_null;
+    info.is_hidden_ = head.is_hidden_;
+    info.length_ = head.length_;
+    info.default_length_ = head.default_length_;
+    info.comment_length_ = head.comment_length_;
+    return info;
+}
 void Table::DropTable(){
     //删除表
     //删除表的配置文件,其文件路径为db_path/table_name.tbinfo

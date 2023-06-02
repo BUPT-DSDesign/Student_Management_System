@@ -164,13 +164,13 @@ ColValue::ColValue(const string& col_name,const string& value,uint8 data_type)
     switch(data_type_){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
         case T_TIME:
-            value_int_ = stoi(value);
+            value_int_ = stoll(value);
             break;
         case T_FLOAT:case T_DOUBLE:
             value_float64_ = stod(value);
             break;
         case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = stoul(value);
+            value_uint_ = stoull(value);
             break;
         default:
             value_str_ = value;

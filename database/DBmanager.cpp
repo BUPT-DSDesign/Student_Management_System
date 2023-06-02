@@ -86,7 +86,7 @@ void DBmanager::CreateTable(const string& tb_name,vector<TableColAttribute> &col
     cerr<<"PATH:"<<path_ + "/" + db_name_<<endl;
     string full = path_ + "/" + db_name_;
     tb_list_[tb_name] = make_unique<Table>(full,tb_name,col_info);
-}
+} 
 void DBmanager::DropTable(const string& tb_name)
 {
     //删除表
