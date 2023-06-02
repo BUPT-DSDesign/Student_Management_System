@@ -55,7 +55,7 @@ export default {
             todayActivities: [],
             courseList: [],
             curcourseList: [],
-            dialogVisible: true,
+            dialogVisible: false,
             myTimeStore: TimeStore,
         }
     },
