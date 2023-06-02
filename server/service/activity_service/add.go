@@ -96,6 +96,9 @@ func (f *addFlow) run() error {
 		}
 
 		if membersIsConflict {
+			if f.addActivityRequest.Frequency != 0 {
+				return errors.New("该集体活动与某些成员时间冲突, 且当天任何成员都没有空闲的时间段或因为这个活动不是单次的活动")
+			}
 			// 如果有成员冲突, 则遍历membersValidTimeList, 看是否可以找出合适的时间段
 			// 开一个1500长度的数组, 用来记录每个时间段的冲突次数
 			var validNum [1500]int
@@ -211,6 +214,7 @@ func (f *addFlow) run() error {
 			}
 			return errors.New(fmt.Sprintf("该活动(或临时事务)与其他时间冲突, 以下是当天合适的时间段\n: %v", validTime))
 		} else {
+
 			// 如果是集体活动, 则其他成员也需要参与冲突检测
 			// 创建一个bool数组和一个时间段数组
 			var isMembersConflict []bool
@@ -234,6 +238,9 @@ func (f *addFlow) run() error {
 			}
 
 			if membersIsConflict {
+				if f.addActivityRequest.Frequency != 0 {
+					return errors.New("该集体活动与某些成员时间冲突, 且当天任何成员都没有空闲的时间段或因为这个活动不是单次的活动")
+				}
 				// 如果有成员冲突, 则遍历membersValidTimeList, 看是否可以找出合适的时间段
 				// 开一个1500长度的数组, 用来记录每个时间段的冲突次数
 				var validNum [1500]int
@@ -298,7 +305,7 @@ func (f *addFlow) run() error {
 							endTime := utils.GetFormatTimeByTranVal(v[1])
 							result = append(result, startTime+" ~ "+endTime)
 						}
-						return errors.New(fmt.Sprintf("该集体活动与某些成员时间冲突, 以下是冲突人数最少的时间段排序\n: %v", finalValidTime1))
+						return errors.New(fmt.Sprintf("该集体活动与某些成员时间冲突, 以下是冲突人数最少的时间段排序\n: %v", result))
 					}
 				} else {
 					var result []string
@@ -307,7 +314,7 @@ func (f *addFlow) run() error {
 						endTime := utils.GetFormatTimeByTranVal(v[1])
 						result = append(result, startTime+" ~ "+endTime)
 					}
-					return errors.New(fmt.Sprintf("该集体活动与某些成员时间冲突, 以下是当天成员都有空的时间段\n: %v", finalValidTime))
+					return errors.New(fmt.Sprintf("该集体活动与某些成员时间冲突, 以下是当天成员都有空的时间段\n: %v", result))
 				}
 			}
 		}
