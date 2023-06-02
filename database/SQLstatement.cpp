@@ -507,7 +507,7 @@ string SQLInsert::get_tb_name()
 {
     return tb_name_;
 }
-vector<pair<string,string>> SQLInsert::get_values()
+vector<pair<string,string>> SQLInsert::get_pair()
 {
     //将col_name_和values_组合成一个pair
     vector<pair<string,string>> values;
@@ -515,6 +515,14 @@ vector<pair<string,string>> SQLInsert::get_values()
         values.push_back(make_pair(col_name_[i],values_[i]));
     }
     return values;
+}
+int SQLInsert::get_col_num()
+{
+    return col_name_.size();
+}
+vector<string> SQLInsert::get_values()
+{
+    return values_;
 }
 
 

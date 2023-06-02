@@ -95,6 +95,8 @@ public:
     //新建索引
     void CreateIndex(const string& col_name,const string& index_name);
     //下面为处理CRUD的相关函数定义
+    //插入无行号的记录
+    void InsertRecord(vector<string> &value_item);
     //插入记录
     void InsertRecord(vector<pair<string,string>> &col_item);
     //删除记录

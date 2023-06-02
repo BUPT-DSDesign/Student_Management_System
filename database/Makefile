@@ -5,7 +5,7 @@ CFLAGS = -Wall -Wextra -W -Wpedantic -g
 DEBUG = -DMY_MACRO -D TEST_SQL
 
 database: value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o 
-	${CC} ${CFLAGS} -o ../server/database value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o -lm
+	${CC} ${CFLAGS} -o database value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o -lm
 testsql: Interpreter.o.test SQLstatement.o.test main.o
 	${CC} ${CFLAGS} ${DEBUG} -o testsql Interpreter.o SQLstatement.o main.o -lm
 Interpreter.o.test: Interpreter.cpp

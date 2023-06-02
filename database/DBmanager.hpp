@@ -27,6 +27,7 @@ public:
     void DropTable(const string& tb_name);//删除表
     void CreateIndex(const string& tb_name,const string& col_name,const string& index_name);//新建索引
     void DropIndex(const string& index_name);//删除索引
+    void InsertData(string table_name, vector<string> &value_item);//插入数据
     void InsertData(string table_name, vector<pair<string,string>> &col_item);//插入数据
     void DeleteData(string table_name,SQLWhere &where);//删除数据
     void UpdateData(string table_name, vector<pair<string,string>> &col_item,SQLWhere &where);//更新数据

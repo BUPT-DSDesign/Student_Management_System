@@ -85,8 +85,13 @@ void DB_API::Insert(SQLInsert &statement){
     //利用SQLInsert中的tb_name_和col_name_插入一条记录
     //需要将其加工为字节流,然后调用Table的插入函数
     //最后将其写入表文件
-    vector<pair<string,string>> col_info_ = statement.get_values();
-    db_manager_->InsertData(statement.get_tb_name(),col_info_);
+    if(statement.get_col_num() == 0){
+        vector<string> values = statement.get_values();
+        db_manager_->InsertData(statement.get_tb_name(),values);
+    }else{
+        vector<pair<string,string>> col_info_ = statement.get_pair();
+        db_manager_->InsertData(statement.get_tb_name(),col_info_);
+    }
 }
 
 void DB_API::Select(SQLSelect &statement){

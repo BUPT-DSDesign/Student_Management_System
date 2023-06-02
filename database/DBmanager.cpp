@@ -121,6 +121,15 @@ void DBmanager::DropIndex(const string& index_name)
     filesystem::remove(index_path);
     //索引信息的删除由Table类完成,这里不做处理
 }
+void DBmanager::InsertData(string table_name, vector<string> &value_item){
+    //插入数据
+    //先检查表是否存在,若不存在则抛出异常
+    if(tb_list_.find(table_name) == tb_list_.end()){
+        throw DBManagerError("Table " + table_name + " does not exist!");
+    }
+    //调用Table的插入数据函数
+    tb_list_[table_name]->InsertRecord(value_item);
+}
 void DBmanager::InsertData(string table_name, vector<pair<string,string>> &col_item)
 {
     //插入数据

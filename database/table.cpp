@@ -828,7 +828,16 @@ void Table::SelectRecord(SQLWhere &where){
     //最后将结果转换为字符串输出
     PrintToStream("Result Found",rows_result);
 }
-
+void Table::InsertRecord(vector<string> &value_item){
+    //利用TableAttribute组装成pair
+    vector<pair<string,string>> col_item;
+    for(int i=0;i<col_info_.size();i++){
+        string col_name;
+        col_name.assign(col_info_[i].col_name_);
+        col_item.push_back(make_pair(col_name,value_item[i]));
+    }
+    InsertRecord(col_item);
+}
 void Table::InsertRecord(vector<pair<string,string>> &col_item){
     //一条一条插入记录,先将记录序列化
     vector<byte> data = serialize(col_item);

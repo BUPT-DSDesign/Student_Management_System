@@ -120,7 +120,9 @@ public:
     SQLInsert(vector<string> &sql_vector);
     void PraseSQLVector(vector<string> &sql_vector);
     string get_tb_name();
-    vector<pair<string,string>> get_values();
+    vector<pair<string,string>> get_pair();
+    int get_col_num();
+    vector<string> get_values();
 private:
     string tb_name_;//表名
     vector<string> col_name_;//对应的列名
