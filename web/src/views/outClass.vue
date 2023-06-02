@@ -112,21 +112,22 @@
                 <!-- 查询结果弹窗 -->
                 <el-dialog :visible.sync="searchdialogVisible" title="活动详细信息" :style="{ 'max-height': '80%' }">
                     <el-scrollbar style="max-height: 500px;">
-                    <el-table :data="searchEventList" style="width: 100%">
-                        <el-table-column prop="activity_name" label="活动名称"></el-table-column>
-                        <el-table-column prop="location" label="活动地点"></el-table-column>
-                        <el-table-column prop="start_time" label="活动开始时间"></el-table-column>
-                        <el-table-column prop="is_mention" label="是否提醒">
-                        <template slot-scope="{ row }">
-                            {{ row.is_mention ? (row.advance_mention_time + '分钟前') : '否' }}
-                        </template>
-                        </el-table-column>
-                        <el-table-column v-if="isMentionExist" prop="advance_mention_time" label="提醒提前时间"></el-table-column>
-                        <el-table-column prop="tag" label="标签"></el-table-column>
-                    </el-table>
+                        <el-table :data="searchEventList" style="width: 100%">
+                            <el-table-column prop="activity_name" label="活动名称"></el-table-column>
+                            <el-table-column prop="location" label="活动地点"></el-table-column>
+                            <el-table-column prop="start_time" label="活动开始时间"></el-table-column>
+                            <el-table-column prop="is_mention" label="是否提醒">
+                                <template slot-scope="{ row }">
+                                    {{ row.is_mention ? (row.advance_mention_time + '分钟前') : '否' }}
+                                </template>
+                            </el-table-column>
+                            <el-table-column v-if="isMentionExist" prop="advance_mention_time"
+                                label="提醒提前时间"></el-table-column>
+                            <el-table-column prop="tag" label="标签"></el-table-column>
+                        </el-table>
                     </el-scrollbar>
                     <span slot="footer" class="dialog-footer">
-                    <el-button @click="searchdialogVisible = false">关闭</el-button>
+                        <el-button @click="searchdialogVisible = false">关闭</el-button>
                     </span>
                 </el-dialog>
                 <!-- 添加活动按钮和弹窗 -->
@@ -269,7 +270,7 @@
                             <el-time-picker placeholder="选择时间" v-model="addEventData.time" style="width: 100%;"
                                 :picker-options="{ format: 'HH:mm' }" value-format="HH:mm"></el-time-picker>
                         </el-form-item>
-                        <el-form-item label="周次" required> 
+                        <el-form-item label="周次" required>
                             <el-select v-model="addEventData.week" placeholder="请选择" @change="getWeekDays">
                                 <el-option v-for="week in weeks" :key="week" :label="`第 ${week} 周`"
                                     :value="week"></el-option>
@@ -357,7 +358,7 @@ import { UserStore } from '@/store/user';
 export default {
     data() {
         return {
-             searchdialogVisible: false,
+            searchdialogVisible: false,
             selectedActivityMembers: [],
             studentsInfo: [],
             isStudentsListVisible: false,
@@ -525,9 +526,9 @@ export default {
                     this.groupActivityRate = (num1 / this.eventList.length) * 100
                     this.tempRate = (num2 / this.eventList.length) * 100
                     // 三者保留一位小数
-                    this.singleActivityRate = this.singleActivityRate.toFixed(0)
-                    this.groupActivityRate = this.groupActivityRate.toFixed(0)
-                    this.tempRate = this.tempRate.toFixed(0)
+                    this.singleActivityRate = Number(this.singleActivityRate.toFixed(0))
+                    this.groupActivityRate = Number(this.groupActivityRate.toFixed(0))
+                    this.tempRate = Number(this.tempRate.toFixed(0))
                 }
 
                 for (let i = 0; i < this.eventList.length; i++) {
@@ -606,7 +607,7 @@ export default {
                     console.log('error')
                 }
             }
-             searchEvent(start_time, end_time)
+            searchEvent(start_time, end_time)
             this.showDialogVisible = false;
             this.searchdialogVisible = true;
         },
@@ -769,7 +770,7 @@ export default {
                         err = err.substring(0, index + 1) + '<br>' + err.substring(index + 1)
                     }
                     // 在index前面加上<br>
-                    
+
                     this.$message({
                         showClose: true,
                         center: true,
@@ -788,7 +789,7 @@ export default {
         },
     },
     computed: {
-         isMentionExist() {
+        isMentionExist() {
             return this.searchEventList.length > 0 && this.searchEventList[0].hasOwnProperty('is_mention');
         },
         transFormToDate() {
@@ -855,4 +856,5 @@ h2 {
 .weekinput {
     width: 30px;
     margin: 0 5px;
-}</style>
+}
+</style>

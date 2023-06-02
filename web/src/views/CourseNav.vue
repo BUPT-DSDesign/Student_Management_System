@@ -90,7 +90,6 @@
 
             </div>
         </div>
-        <el-button @click="testTsp">测试tsp问题</el-button>
     </div>
 </template>
 <script>
