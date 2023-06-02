@@ -232,6 +232,27 @@ func (s *courseDao) QueryAllCourse(courses **[]*system.CourseInfo) error {
 	// 将result.data转换为[]*system.CourseInfo
 	_ = json.Unmarshal([]byte(result["data"].(string)), *courses)
 
+	// 将result["data"]中的is_compulsory、is_course_online转换为bool,并赋值给courses
+	mpStr := result["data"].(string)
+
+	// 将mpStr转换为map
+	mp := make([]map[string]interface{}, 0)
+	_ = json.Unmarshal([]byte(mpStr), &mp)
+
+	for i, course := range **courses {
+		if mp[i]["is_compulsory"].(float64) == 0 {
+			course.IsCompulsory = false
+		} else {
+			println("true成功")
+			course.IsCompulsory = true
+		}
+		if mp[i]["is_course_online"].(float64) == 0 {
+			course.IsCourseOnline = false
+		} else {
+			course.IsCourseOnline = true
+		}
+	}
+
 	return nil
 }
 
@@ -242,6 +263,11 @@ func (s *courseDao) QueryCourseByUserId(userId int64, courses *[]*system.CourseI
 	compulsoryCourse := new([]*system.CourseInfo)
 	if err := s.QueryCompulsoryCourse(&compulsoryCourse); err != nil {
 		return err
+	}
+
+	// 将compulsoryCourse中is_compulsory置为1
+	for _, course := range *compulsoryCourse {
+		course.IsCompulsory = true
 	}
 
 	// 选修课
@@ -563,7 +589,7 @@ func (s *courseDao) QueryCourseBySection(section int, courseIds *[]int64) error 
 	/*
 		根据节次查询课程
 	*/
-	sqlStr := fmt.Sprintf("SELECT course_id FROM course_section WHERE section_id = %d", section)
+	sqlStr := fmt.Sprintf("SELECT * FROM course_section WHERE section_id = %d", section)
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
@@ -582,8 +608,13 @@ func (s *courseDao) QueryCourseBySection(section int, courseIds *[]int64) error 
 		return errors.New(result["status_msg"].(string))
 	}
 
-	// 将result.data转换为[]int64
-	_ = json.Unmarshal([]byte(result["data"].(string)), courseIds)
+	var courseSection []*system.CourseSection
+	// 将result.data转换为
+	_ = json.Unmarshal([]byte(result["data"].(string)), &courseSection)
+
+	for _, v := range courseSection {
+		*courseIds = append(*courseIds, v.CourseId)
+	}
 
 	return nil
 }
@@ -592,7 +623,7 @@ func (s *courseDao) QueryCourseByWeek(week int, courseIds *[]int64) error {
 	/*
 		根据周次查询课程
 	*/
-	sqlStr := fmt.Sprintf("SELECT course_id FROM course_week WHERE week_id = %d", week)
+	sqlStr := fmt.Sprintf("SELECT * FROM course_week WHERE week_id = %d", week)
 	if err := db.ExecSql(sqlStr); err != nil {
 		return err
 	}
@@ -611,8 +642,13 @@ func (s *courseDao) QueryCourseByWeek(week int, courseIds *[]int64) error {
 		return errors.New(result["status_msg"].(string))
 	}
 
-	// 将result.data转换为[]int64
-	_ = json.Unmarshal([]byte(result["data"].(string)), courseIds)
+	var courseWeek []*system.CourseWeek
+	// 将result.data转换为
+	_ = json.Unmarshal([]byte(result["data"].(string)), &courseWeek)
+
+	for _, v := range courseWeek {
+		*courseIds = append(*courseIds, v.CourseId)
+	}
 
 	return nil
 }
