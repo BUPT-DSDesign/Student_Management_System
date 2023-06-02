@@ -1,10 +1,8 @@
+#include "Interpreter.hpp"
+#include "MyException.hpp"
 #include <iostream>
 #include <sstream>
 #include <algorithm>
-
-#include "Interpreter.hpp"
-#include "MyException.hpp"
-
 using namespace std;
 void sayFailure(const char* msg){
     //返回的JSON示例如下
@@ -93,6 +91,14 @@ int main(int argc,char* argv[]){
             }catch(const ColValueError& e){
                 cerr<<e.what()<<"\n";
                 cerr<<"Col Value Error,You can check the manual for Supported SQL Type\n";
+                sayFailure(e.what());
+            }catch(const BPTreeException & e){
+                cerr<<e.what()<<"\n";
+                cerr<<"BPTree Error"<<"\n";
+                sayFailure(e.what());
+            }catch(const BPNodeException & e){
+                cerr<<e.what()<<endl;
+                cerr<<"BPNode Error"<<"\n";
                 sayFailure(e.what());
             }
             //将分号以及之前的语句清空
