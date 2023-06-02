@@ -1,6 +1,7 @@
 package course_service
 
 import (
+	"errors"
 	"server/model/dao"
 	"server/model/entity/common"
 )
@@ -33,7 +34,31 @@ func (f *updateFlow) do() error {
 
 // 检验参数
 func (f *updateFlow) checkNum() error {
-	// 根据userId, 判断是否是管理员进行操作
+	// 查看课程时间是否冲突
+	// 先遍历课程的周次
+	for _, week := range f.addCourseRequest.WeekSchedule {
+		var courseIds []int64
+		if err := dao.Group.CourseDao.QueryCourseByWeek(week, &courseIds); err != nil {
+			return err
+		}
+		var allSectionList []int
+		for _, courseId := range courseIds {
+			var sectionList []int
+			if err := dao.Group.CourseDao.QuerySectionListById(courseId, &sectionList); err != nil {
+				return err
+			}
+			allSectionList = append(allSectionList, sectionList...)
+		}
+
+		// 判断f.addCourseRequest.SectionList和allSectionList是否有交集
+		for _, section := range f.addCourseRequest.SectionList {
+			for _, allSection := range allSectionList {
+				if section == allSection {
+					return errors.New("更新后课程时间与其他课程时间冲突, 请重新更新课程")
+				}
+			}
+		}
+	}
 	return nil
 }
 

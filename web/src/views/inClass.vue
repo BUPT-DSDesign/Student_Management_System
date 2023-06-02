@@ -348,7 +348,7 @@ export default {
             const formattedTime = courseTime.map(course => {
                 const { weekday, sections } = course;
                 if (sections.length === 1) {
-                    return `${weekday}第${sections[0] === 0 ? sections[0] + 1 : `第${sections[0] + 1}节`}节`;
+                    return `${weekday}${sections[0] === 0 ? `第${sections[0] + 1}节` : `第${sections[0] + 1}节`}`;
                 } else if (sections.length === 9) {
                     return `${weekday}全天`;
                 } else {
@@ -361,7 +361,7 @@ export default {
             const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
             const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
             const classTime = this.getCourseTime(course.section_list)
-
+            course.week_schedule.sort();
             return {
                 course_name: course.course_name,
                 classroom: course.classroom,
