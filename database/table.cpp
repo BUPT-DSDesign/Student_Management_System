@@ -117,7 +117,9 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
     for(int i = 0;i < col_cnt_;i++){
         TableColAttribute tmp;
         //读取每一列的信息,即TableColAttribute中除了default_和comment_的部分
-        table_info_->read(reinterpret_cast<char*>(&tmp),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
+        TabAttrHead header;
+        table_info_->read(reinterpret_cast<char*>(&header),sizeof(TabAttrHead));
+        tmp = getTabAttr(header);
         if(tmp.is_primary_){
             //初始化主键
             primary_key_ = tmp.col_name_;
@@ -202,7 +204,9 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
             primary_key_ = it.col_name_;
         }
         //写入除了default_和comment_的部分
-        table_info_->write(reinterpret_cast<char*>(&it),sizeof(TableColAttribute)-sizeof(any)-sizeof(string));
+        TabAttrHead tmp;
+        tmp = getTabAttrHead(it);
+        table_info_->write(reinterpret_cast<char*>(&tmp),sizeof(TabAttrHead));
         //写入default_和comment_
         if(it.default_length_!=0){
             //如果有默认值,则写入默认值
@@ -360,6 +364,32 @@ Table::Table(const string& db_path,const string& table_name,vector<TableColAttri
     tb_data_ = make_unique<BPTree>(fileData,true,record_length_,primary_key_size,primary_key_type);
 }
 Table::~Table(){}
+TabAttrHead Table::getTabAttrHead(TableColAttribute info){
+    TabAttrHead head;
+    std::copy(info.col_name_,info.col_name_+sizeof(info.col_name_),head.col_name_);
+    head.data_type_ = info.data_type_;
+    head.is_primary_ = info.is_primary_;
+    head.is_hidden_ = info.is_hidden_;
+    head.is_not_null = info.is_not_null;
+    head.is_hidden_ = info.is_hidden_;
+    head.length_ = info.length_;
+    head.default_length_ = info.default_length_;
+    head.comment_length_ = info.comment_length_;
+    return head;
+}
+TableColAttribute Table::getTabAttr(TabAttrHead head){
+    TableColAttribute info;
+    std::copy(head.col_name_,head.col_name_+sizeof(head.col_name_),info.col_name_);
+    info.data_type_ = head.data_type_;
+    info.is_primary_ = head.is_primary_;
+    info.is_hidden_ = head.is_hidden_;
+    info.is_not_null = head.is_not_null;
+    info.is_hidden_ = head.is_hidden_;
+    info.length_ = head.length_;
+    info.default_length_ = head.default_length_;
+    info.comment_length_ = head.comment_length_;
+    return info;
+}
 void Table::DropTable(){
     //删除表
     //删除表的配置文件,其文件路径为db_path/table_name.tbinfo
@@ -542,10 +572,13 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     while(tb_data_->isBufLeaf()){
         //读取这一页的数据
         auto data = tb_data_->GetAllElemInChunk();
+        streampos pos = tb_data_->GetChunkPos();
         for(auto &it:data){
             //将数据插入到索引中
             Row row(col_info_,it);
-            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),it);
+            vector<byte> addr(sizeof(streampos),byte(0));
+            std::copy(reinterpret_cast<std::byte*>(&pos),reinterpret_cast<std::byte*>(&pos)+sizeof(streampos),addr.begin());
+            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),addr);
         }
         tb_data_->ReadNextChunk();
     }
@@ -797,7 +830,7 @@ void Table::SelectRecord(SQLWhere &where){
             vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_index_[indexName]->getKeyType()));
             //将这个字节流转换为streampos类型
             streampos pos;
-            std::copy(reinterpret_cast<char*>(addr.data()),reinterpret_cast<char*>(addr.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
+            std::copy(addr.begin(),addr.begin()+sizeof(streampos),(byte*)&pos);
             //将这个块读取出来
             tb_data_->ReadChunk(pos);
             //将这个块中的所有元素读取出来,并过滤
@@ -862,7 +895,7 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
         //将pos转换为字节流
         vector<byte> index_data(sizeof(streampos),std::byte(0));
         //FIXME 此处强制转换有问题
-        std::copy(reinterpret_cast<char*>(&pos),reinterpret_cast<char*>(&pos)+sizeof(streampos),reinterpret_cast<char*>(index_data.data()));
+        std::copy(reinterpret_cast<byte*>(&pos),reinterpret_cast<byte*>(&pos)+sizeof(streampos),index_data.begin());
         tb_index_[it.first]->Insert(index_key,index_data);
     }
     //输出插入的数据
@@ -921,7 +954,7 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
             //将这个字节流转换为streampos类型
             streampos pos;
-            std::copy(reinterpret_cast<char*>(addr.data()),reinterpret_cast<char*>(addr.data())+sizeof(streampos),reinterpret_cast<char*>(&pos));
+            std::copy(addr.begin(),addr.begin()+sizeof(streampos),(byte*)&pos);
             //将这个块读取出来
             tb_data_->ReadChunk(pos);
             //将这个块中的所有元素读取出来,并过滤
@@ -1033,12 +1066,29 @@ void Table::DeleteRecord(SQLWhere &where){
         //在索引中有这个值,则调用索引删除函数
         //先获取索引的键值
         Key index_key = where.GetQueryKey(indexName,tb_data_->getKeyType());
-        //随后调用索引的删除函数
-        vector<byte> remove = tb_index_[indexName]->Remove(index_key);
+        //获取删除的位置
+        vector<byte> remove = tb_index_[indexName]->Remove(index_key);    
         //FIXME 此处remove是streampos
+        streampos pos = *reinterpret_cast<streampos*>(remove.data());
+        //读取这个块,删除对应记录
+        tb_data_->ReadChunk(pos);
+        vector<vector<byte>> records = tb_data_->GetAllElemInChunk();
+        vector<vector<byte>> result;
         //最后调用Table的删除函数
-        Key primary_key = getValue(remove,col2id_[primary_key_]);
-        Row row(col_info_,tb_data_->Remove(primary_key));
+        for(auto &it:records){
+            Row row(col_info_,it);
+            if(row.isSatisfied(where)){
+                result.push_back(it);
+                //如果满足条件,则删除
+                rows_result.push_back(row);
+                //先获取主键的值
+                Key primary_key = getValue(it,col2id_[primary_key_]);
+                tb_data_->Remove(primary_key);
+                
+            }
+        }
+        
+    
         //result.push_back(tb_data_->Remove(std::any_cast<uint64>(primary_key)));
         //最后遍历索引,删除索引中的记录
         for(auto &it:tb_index_){
@@ -1046,10 +1096,12 @@ void Table::DeleteRecord(SQLWhere &where){
                 //删除过了,继续
                 continue;
             }
-            //先获取索引的键值
-            Key index_key = getValue(remove,col2id_[it.first]);
-            //随后调用索引的删除函数
-            tb_index_[it.first]->Remove(index_key);
+            for(auto &it2:result){
+                //先获取索引的键值
+                Key index_key = getValue(it2,col2id_[it.first]);
+                //随后调用索引的删除函数
+                tb_index_[it.first]->Remove(index_key);
+            }
         }
     }else{
         //既不是主键,也不是索引,则全表扫描过滤删除

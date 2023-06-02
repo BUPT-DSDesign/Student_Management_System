@@ -25,6 +25,16 @@ typedef struct
     any default_;//默认值,最长为65535个字符
     string_view comment_;//注释,最长为2048个字符     
 }TableColAttribute;
+struct TabAttrHead{
+    uint8 data_type_;//数据类型
+    bool is_primary_;//是否为主键
+    bool is_not_null;//是否必须存在
+    bool is_hidden_;//是否为隐藏自增主键
+    uint16 length_;//该数据类型长度(字节),最大为65535
+    char col_name_[27];//列名,最长为27个字符
+    uint16 default_length_;//默认值长度,0表示没有默认值
+    uint16 comment_length_;//注释长度,0表示没有注释
+};
 //定义表结构
 //表采用InnoDB的结构,即每一条记录都是定长的,每一条记录都有一个row_id,用于索引,且使用B+树为表基本存储结构
 //row_id是一个64位的无符号整数,每一条记录都有一个row_id,且不可更改
@@ -80,6 +90,8 @@ private:
     void PrintToStream(string msg,vector<Row> result);//输出结果到标准输入输出流
     void saySuccess();//输出成功信息
     Key getValue(vector<byte> &data,uint16 col_id);//获取某一列的值
+    TabAttrHead getTabAttrHead(TableColAttribute info);//获取某一列信息的表头
+    TableColAttribute getTabAttr(TabAttrHead head);//获取某一列信息
     //vector<byte> getValueInBytes(vector<byte> &data,uint16 col_id);//获取某一列的值
 public:
     //默认构造函数
