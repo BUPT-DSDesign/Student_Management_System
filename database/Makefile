@@ -3,7 +3,9 @@ CC = g++
 CFLAGS = -Wall -Wextra -W -Wpedantic -g
 #宏定义
 DEBUG = -DMY_MACRO -D TEST_SQL
-
+OUTPUTDIR = ../server/database
+release: database
+	cp database ${OUTPUTDIR}
 database: value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o 
 	${CC} ${CFLAGS} -o database value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o -lm
 testsql: Interpreter.o.test SQLstatement.o.test main.o
