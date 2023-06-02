@@ -4,16 +4,19 @@
             <h1>课程管理</h1>
         </div>
 
-        <el-table :data="classData" height="380px" border>
+        <el-table :data="classShowData" height="380px" border>
             <el-table-column type="index" width="10px" align="center"></el-table-column>
             <el-table-column prop="course_name" label="课程名称" width="140" align="center">
             </el-table-column>
-            <el-table-column prop="teacher" label="上课老师" width="120" align="center">
+            <el-table-column prop="teacher" label="上课老师" width="100" align="center">
             </el-table-column>
-            <el-table-column prop="teacher" label="上课地点" width="120" align="center">
+            <el-table-column prop="classroom" label="上课地点" width="120" align="center">
             </el-table-column>
-            <el-table-column prop="classTime" label="课程时间" width="260" align="center">
-            </el-table-column>
+           <el-table-column prop="section_list" label="课程时间" width="260">
+          <template slot-scope="{ row }">
+            {{ getCourseTime(row.section_list) }}
+          </template>
+        </el-table-column>
             <el-table-column prop="exam_option" label="考核方式" width="100" align="center">
 
             </el-table-column>
@@ -32,30 +35,35 @@
         <!-- 修改课程 -->
         <el-dialog title="修改课程" :visible.sync="dialogVisible2" width="600px">
             <el-form :model="clickedClassData" label-width="170px" style="backgroundColor:#fff">
-                <el-form-item label="课程名称">
+                <el-form-item label="课程名称" required>
                     <el-input v-model="clickedClassData.course_name"></el-input>
                 </el-form-item>
-                <el-form-item label="上课地点">
-                    <el-input v-model="clickedClassData.classroom"></el-input>
-                </el-form-item>
-                <el-form-item label="授课老师">
+               <el-form-item label="上课地点" required>
+                            <el-select v-model="addClassData.classroom" placeholder="请选择">
+                                <el-option v-for="option in placelist" :key="option.value" :label="option.label"
+                                    :value="option.value"></el-option>
+                            </el-select>
+                        </el-form-item>
+                <el-form-item label="授课老师" required>
                     <el-input v-model="clickedClassData.teacher"></el-input>
                 </el-form-item>
                 <el-form-item label="联系方式">
                     <el-input v-model="clickedClassData.contact"></el-input>
                 </el-form-item>
-                <el-form-item label="上课周次">
+                 <!-- <el-form-item label="上课节次" required>
+                        <el-cascader v-model="clickedClassData.section_list" :options="options" :props="{ multiple: true }"
+                            filterable></el-cascader>
+                    </el-form-item>
+                <el-form-item label="上课周次" required>
                     <el-select v-model="clickedClassData.week_schedule" placeholder="请选择" multiple>
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
                     </el-select>
-                </el-form-item>
-                <el-form-item label="考试时间">
+                </el-form-item> -->
+                <el-form-item label="考试时间" >
                     <el-input v-model="clickedClassData.exam_time"></el-input>
                 </el-form-item>
-                <el-form-item label="考试地点">
-                    <el-input v-model="clickedClassData.exam_location"></el-input>
-                </el-form-item>
+                
                 <el-form-item label="考核方式">
                     <el-radio-group v-model="clickedClassData.exam_option">
                         <el-radio label="论文考察">论文考察</el-radio>
@@ -70,39 +78,42 @@
                     </el-radio-group>
                 </el-form-item>
 
-                <el-form-item label="是否为必修课程">
+                <el-form-item label="是否为必修课程" required>
                     <el-radio-group v-model="clickedClassData.is_compulsory">
                         <el-radio :label="true">{{ clickedClassData.is_compulsory ? '是' : '否' }}</el-radio>
                         <el-radio :label="false">{{ clickedClassData.is_compulsory ? '否' : '是' }}</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                 </el-form>
-                <div slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible4 = false">取 消</el-button>
-                    <el-button type="primary" @click="submitEditForm">保存修改</el-button>
-                </div>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogVisible2 = false">取 消</el-button>
+                <el-button type="primary" @click="submitEditForm">保存修改</el-button>
+            </div>
         </el-dialog>
 
         <!-- 添加课程 -->
         <el-dialog title="添加课程" :visible.sync="dialogVisible4" width="600px">
-            <el-form :model="addClassData" label-width="170px" style="backgroundColor:#fff">
-                <el-form-item label="课程名称">
+            <el-form :model="addClassData" label-width="180px" style="backgroundColor:#fff">
+                <el-form-item label="课程名称" required>
                     <el-input v-model="addClassData.course_name"></el-input>
                 </el-form-item>
-                <el-form-item label="上课地点">
-                    <el-input v-model="addClassData.classroom"></el-input>
+                <el-form-item label="上课地点" required>
+                    <el-select v-model="addClassData.classroom" placeholder="请选择">
+                        <el-option v-for="option in placelist" :key="option.value" :label="option.label"
+                            :value="option.value"></el-option>
+                    </el-select>
                 </el-form-item>
-                <el-form-item label="授课老师">
+                <el-form-item label="授课老师" required>
                     <el-input v-model="addClassData.teacher"></el-input>
                 </el-form-item>
-                <el-form-item label="联系方式">
+                <el-form-item label="联系方式" >
                     <el-input v-model="addClassData.contact"></el-input>
                 </el-form-item>
-                <el-form-item label="上课节次">
+                <el-form-item label="上课节次" required>
                     <el-cascader v-model="addClassData.section_list" :options="options" :props="{ multiple: true }"
                         filterable></el-cascader>
                 </el-form-item>
-                <el-form-item label="上课周次">
+                <el-form-item label="上课周次" required>
                     <el-select v-model="addClassData.week_schedule" placeholder="请选择" multiple>
                         <el-option v-for="item in week_options" :key="item.value" :label="item.label" :value="item.value">
                         </el-option>
@@ -122,13 +133,13 @@
                     </el-radio-group>
                 </el-form-item>
 
-                <el-form-item label="是否为线上课程">
+                <el-form-item label="是否为线上课程" required>
                     <el-radio-group v-model="addClassData.is_course_online">
                         <el-radio :label="1">是</el-radio>
                         <el-radio :label="0">否</el-radio>
                     </el-radio-group>
                 </el-form-item>
-                <el-form-item label="是否为必修课程">
+                <el-form-item label="是否为必修课程" required>
                     <el-radio-group v-model="addClassData.is_compulsory">
                         <el-radio :label="1">是</el-radio>
                         <el-radio :label="0">否</el-radio>
@@ -148,6 +159,7 @@
                 <p><strong>授课老师：</strong>{{ courseInfo.teacher }}</p>
                 <p><strong>上课时间：</strong>{{ courseInfo.class_time }}</p>
                 <p><strong>上课周次：</strong>{{ courseInfo.week_schedule }}</p>
+                <p><strong>课程性质：</strong>{{ courseInfo.is_compulsory == true ? '必修': '选修' }}</p>
                 <p><strong>考试时间：</strong>{{ courseInfo.exam_time }}</p>
                 <p><strong>考试地点：</strong>{{ courseInfo.exam_location }}</p>
             </div>
@@ -217,38 +229,8 @@ export default {
             const fg = await CourseStore.GetAllCourse();
             if (fg) {
                 this.classData = CourseStore.allCourseList
-                console.log(this.classData)
-                //添加一个属性以便格式化课程时间
-                for (let i = 0; i < this.classData.length; i++) {
-                    let start = 0;
-                    let end = 0;
-                    for (let j = 0; j < this.classData[i].section_list.length - 1; j++) {
-                        if (this.classData[i].section_list[j] + 1 == this.classData[i].section_list[j + 1]) {
-                            end++;
-                        }
-                        else {
-                            let startTime = startTimeMap[this.classData[i].section_list[start] % 9];
-                            let endTime = endTimeMap[this.classData[i].section_list[end] % 9];
-                            if (this.classData[i].hasOwnProperty('classTime')) {
-                                this.classData[i]['classTime'] = this.classData[i]['classTime'] + ',' + startTime + '-' + endTime;
-                            }
-                            else {
-                                this.classData[i]['classTime'] = startTime + '-' + endTime;
-                            }
-                            start = end + 1;
-                            end = start;
-                        }
-
-                    }
-                    let startTime = startTimeMap[(this.classData[i].section_list[start] - 1) % 9 + 1];
-                    let endTime = endTimeMap[(this.classData[i].section_list[end] - 1) % 9 + 1];
-                    if (this.classData[i].hasOwnProperty('classTime')) {
-                        this.classData[i]['classTime'] = this.classData[i]['classTime'] + ',' + startTime + '-' + endTime;
-                    }
-                    else {
-                        this.classData[i]['classTime'] = startTime + '-' + endTime;
-                    }
-
+                this.classShowData = this.classData;
+                 for (let i = 0; i < this.classData.length; i++) {
                     // 根据this.classData[i].exam_option的值来判断考核方式
                     if (this.classData[i].exam_option == 0) {
                         this.classData[i].exam_option = '论文考察'
@@ -257,7 +239,6 @@ export default {
                     } else if (this.classData[i].exam_option == 2) {
                         this.classData[i].exam_option = '线上考试'
                     }
-
                 }
             } else {
                 console.log('error')
@@ -268,8 +249,8 @@ export default {
     },
     data() {
         return {
-            classData: [],
-            tableData: [],
+            classShowData: [],
+            classData:[],
             clickedClass: '',  //当前点击的单元格的课程名称
             clickedClassData: {},  //记录当前点击单元格课程的信息（对象类型
             addClassData: {},//添加的课程的信息
@@ -366,24 +347,82 @@ export default {
             ],
             selectedCourse: {},
             courseInfo: {},
-            seeCourseInfoVis: false
+            seeCourseInfoVis: false,
+            placelist: [
+                { value: '教九', label: '教九' },
+                { value: '经管楼', label: '经管楼' },
+                { value: '科研楼', label: '科研楼' },
+                { value: '学生活动中心(南门)', label: '学生活动中心(南门)' },
+                { value: '学生活动中心(西门)', label: '学生活动中心(西门)' },
+                { value: '教四(东门)', label: '教四' },
+                { value: '教四(南门)', label: '教四(南门)' },
+                { value: '主楼', label: '主楼' },
+                { value: '教三(北门)', label: '教三' },
+                { value: '教三(西门)', label: '教三(西门)' },
+                { value: '教二(西门)', label: '教二' },
+                { value: '教二(北门)', label: '教二(北门)' },
+                { value: '可信网络通信协同创新中心(创新楼)', label: '可信网络通信协同创新中心(创新楼)' },
+                { value: '学生发展中心', label: '学生发展中心' },
+                { value: '图书馆', label: '图书馆' },
+                { value: '教一楼(西门)', label: '教一' },
+                { value: '教一楼(南门)', label: '教一楼(南门)' },
+                { value: '教一楼(东门)', label: '教一楼(东门)' }
+            ],
+            placelistOption: '',
         }
     },
     methods: {
+        getCourseTime(sectionList) {
+            const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
+            const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
+            const courseTime = [];
+            let currentCourse = {
+                weekday: '',
+                sections: []
+            };
+            sectionList.forEach(section => {
+                const weekday = weekdays[Math.floor((section - 1) / 9)];
+                const sectionIndex = (section - 1) % 9;
+                let sectionName = sections[sectionIndex];
+                if (weekday === '周二' && sectionIndex < 5) {
+                    sectionName = `第${sectionIndex + 1}节`;
+                }
+                if (weekday === currentCourse.weekday && sectionIndex === currentCourse.sections[currentCourse.sections.length - 1] + 1) {
+                    currentCourse.sections.push(sectionIndex);
+                } else {
+                    if (currentCourse.weekday) {
+                        courseTime.push(currentCourse);
+                    }
+                    currentCourse = {
+                        weekday,
+                        sections: [sectionIndex]
+                    };
+                }
+            });
+            if (currentCourse.weekday) {
+                courseTime.push(currentCourse);
+            }
+            const formattedTime = courseTime.map(course => {
+                const { weekday, sections } = course;
+                 if (sections.length === 1) {
+                    return `${weekday}第${sections[0] === 0 ? sections[0] + 1 : `第${sections[0] + 1}节`}节`;
+                } else if (sections.length === 9) {
+                    return `${weekday}全天`;
+                } else {
+                    return `${weekday}第${sections[0] + 1}~${sections[sections.length - 1] + 1}节`;
+                }
+            });
+            return formattedTime.join('，');
+        },
         seeCourseInfo(course) {
             this.selectedCourse = course;
             this.courseInfo = this.processCourseInfo(course);
             this.seeCourseInfoVis = true;
-
         },
         processCourseInfo(course) {
             const days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
             const sections = ['第一节', '第二节', '第三节', '第四节', '第五节', '第六节', '第七节', '第八节', '第九节'];
-            const classTime = course.section_list.map(section => {
-                const day = Math.floor((section - 1) / 9); // 获取星期几
-                const sectionIndex = (section - 1) % 9; // 获取第几节课
-                return days[day] + sections[sectionIndex];
-            }).join('，');
+            const classTime = this.getCourseTime(course.section_list)
 
             return {
                 course_name: course.course_name,
@@ -392,7 +431,8 @@ export default {
                 class_time: classTime,
                 week_schedule: "第" + course.week_schedule + "周",
                 exam_time: course.exam_time,
-                exam_location: course.exam_location
+                exam_location: course.exam_location,
+                is_compulsory: course.is_compulsory
             };
         },
         addClass() {
@@ -404,7 +444,8 @@ export default {
         },
         //编辑课程
         editClass(index, row) {
-            this.clickedClassData = row;
+            // 将row的值给clickedClassData, 不需要指针传递
+            this.clickedClassData = Object.assign({}, row);
             console.log("修改前：")
             console.log(this.clickedClassData)
             //点击弹窗打开
@@ -475,8 +516,8 @@ export default {
                 default:
                     break;
             }
-            const editCourse = async (data) => {
-                const fg = await CourseStore.EditCourseInfo(data);
+            const editCourse = async (data, courseId) => {
+                const fg = await CourseStore.EditCourseInfo(data, courseId);
                 console.log(fg)
                 if (fg) {
                     this.$message({
@@ -504,7 +545,7 @@ export default {
                     this.clickedClassData = {}
                 }
             }
-            editCourse(this.clickedClassData)
+            editCourse(this.clickedClassData, this.clickedClassData.course_id)
         },
         //添加课程
         submitAddForm() {
@@ -549,10 +590,9 @@ export default {
                     this.$message({
                         showClose: true,
                         center: true,
-                        message: '添加课程失败',
+                        message: '课程已存在或课程时间与其他课程时间冲突',
                         type: 'error'
                     });
-                    this.addClassData = {}
                 }
             }
             addCourse(this.addClassData)

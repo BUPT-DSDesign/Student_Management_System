@@ -56,8 +56,10 @@ func AllInfoHandler(c *gin.Context) {
 
 	// 遍历users, 获取每个用户的课程
 	for _, user := range *users {
+		if user.Username == "admin" {
+			continue
+		}
 		courses := new([]*system.CourseInfo)
-		// 给courses造几个数据
 		if err := dao.Group.CourseDao.QueryCourseByUserId(user.UserId, courses); err != nil {
 			c.JSON(http.StatusOK, allInfoResponse{
 				StatusResponse: common.StatusResponse{

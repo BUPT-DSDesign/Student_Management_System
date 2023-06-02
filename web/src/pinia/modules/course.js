@@ -59,9 +59,9 @@ export const useCourseStore = defineStore('course', () => {
             return false
         }
     }
-    const EditCourseInfo = async (data) => {
+    const EditCourseInfo = async (data, courseId) => {
         try {
-            const res = await EditCourse(data)
+            const res = await EditCourse(data, courseId)
             console.log(res.data)
             if (res.data.status_code == 0) {
                 return true
