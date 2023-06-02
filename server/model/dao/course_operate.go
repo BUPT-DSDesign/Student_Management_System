@@ -129,6 +129,42 @@ func (s *courseDao) DeleteCourse(courseId int64) error {
 		return errors.New(result["status_msg"].(string))
 	}
 
+	// 删除course_section表中的内容
+	sqlStr = fmt.Sprintf("DELETE FROM course_section WHERE course_id = '%v'", courseId)
+	if err = db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+	jsonStr, err = ReadLine()
+	if err != nil {
+		return err
+	}
+
+	// 用一个map来接收返回的json
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(float64) != 0 {
+		return errors.New(result["status_msg"].(string))
+	}
+
+	// 删除course_week表中的内容
+	sqlStr = fmt.Sprintf("DELETE FROM course_week WHERE course_id = '%v'", courseId)
+	if err = db.ExecSql(sqlStr); err != nil {
+		return err
+	}
+	jsonStr, err = ReadLine()
+	if err != nil {
+		return err
+	}
+
+	// 用一个map来接收返回的json
+	_ = json.Unmarshal(jsonStr, &result)
+
+	// 判断result.status_code是否为0
+	if result["status_code"].(float64) != 0 {
+		return errors.New(result["status_msg"].(string))
+	}
+
 	return nil
 }
 
