@@ -68,7 +68,6 @@ func (db *DB) ExecSql(sqlStr string) error {
 func WriteLine(data string) error {
 	// 通过db.stdinWriter将数据写入到标准输入
 	data = strings.TrimSpace(data)
-	println("写入-----" + fmt.Sprintf("%s;", data))
 	_, err := fmt.Fprintf(db.stdin, "%s;\n", data)
 	return err
 }
@@ -83,7 +82,6 @@ func ReadLine() ([]byte, error) {
 	}
 	// 将map转换为json
 	jsonStr, err := json.Marshal(result)
-	println("读出----------" + string(jsonStr))
 	if err != nil {
 		return nil, err
 	}

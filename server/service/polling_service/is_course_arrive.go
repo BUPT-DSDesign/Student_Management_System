@@ -65,6 +65,10 @@ func (f *isCourseArriveFlow) run(courseInfo **system.CourseInfo) error {
 		if err := dao.Group.CourseDao.QueryWeekScheduleById(course.CourseId, &weekSchedule); err != nil {
 			return err
 		}
+
+		// 打印weekSchedule
+		// 将weekSchedule排序
+		sort.Ints(weekSchedule)
 		target := utils.GetWeek(f.curTime)
 		index := sort.SearchInts(weekSchedule, target)
 		if index >= len(weekSchedule) || weekSchedule[index] != target {
@@ -76,6 +80,8 @@ func (f *isCourseArriveFlow) run(courseInfo **system.CourseInfo) error {
 		if err := dao.Group.CourseDao.QuerySectionListById(course.CourseId, &rawSectionList); err != nil {
 			return err
 		}
+
+		// 打印rawSectionList
 		var sectionList []int
 		for _, section := range rawSectionList {
 			day, _, _ := utils.TransSectionToTime(section)
@@ -115,6 +121,7 @@ func (f *isCourseArriveFlow) run(courseInfo **system.CourseInfo) error {
 		if err := dao.Group.CourseDao.QueryWeekScheduleById(course.CourseId, &weekSchedule); err != nil {
 			return err
 		}
+		sort.Ints(weekSchedule)
 		target := utils.GetWeek(f.curTime)
 		index := sort.SearchInts(weekSchedule, target)
 		if index >= len(weekSchedule) || weekSchedule[index] != target {
