@@ -28,8 +28,8 @@ struct BPNodeHead{
     uint16 degree_;//阶数/孩子的最大数量
     uint16 busy_;// 当前的孩子数量
     uint16 data_size_;//每个元素的大小
-    streampos father_;//父节点的位置
-    streampos chunk_pos_;//区块偏移位置
+    filepos father_;//父节点的位置
+    filepos chunk_pos_;//区块偏移位置
 };
 class BPTree;
 class BPNode
@@ -44,33 +44,33 @@ private:
     uint16 child_cnt_;//当前孩子数量
     uint16 data_size_;//每个元素的大小
     uint16 key_size_;//键的大小
-    streampos father_;//父节点的位置
+    filepos father_;//父节点的位置
     //shared_ptr<fstream> file_head_;//文件读写头
     //BPNodeHead head_;//节点头
-    vector<streampos> child_;//孩子的位置
+    vector<filepos> child_;//孩子的位置
     vector<byte> data_;//数据
-    streampos node_pos;//当前节点的位置
+    filepos node_pos;//当前节点的位置
     friend class BPTree;
 public:
     BPNode();
-    std::vector<std::streampos>::iterator childBegin();//返回child的开始位置的迭代器
-    std::vector<std::streampos>::iterator childEnd();//返回child结束位置的迭代器
-    std::vector<std::streampos>::iterator childLoc(int id);//返回指向child id的迭代器
+    std::vector<filepos>::iterator childBegin();//返回child的开始位置的迭代器
+    std::vector<filepos>::iterator childEnd();//返回child结束位置的迭代器
+    std::vector<filepos>::iterator childLoc(int id);//返回指向child id的迭代器
     std::vector<std::byte>::iterator dataBegin();//返回data开始位置的迭代器
     std::vector<std::byte>::iterator dataEnd();//返回data的真实结束位置的迭代器
     std::vector<std::byte>::iterator dataLoc(int id);//返回指向id的迭代器
-    void ReadChunk(streampos pos);//读取节点,将区块信息写入
+    void ReadChunk(filepos pos);//读取节点,将区块信息写入
     void CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type);//TODO 新建节点
     bool isLeaf();//判断是否为叶子结点
     uint16 getElemCount();//获取节点的元素个数
     Key getKey(int id);//获取第k个元素的key
-    streampos getChild(int id);//获取第k个孩子
+    filepos getChild(int id);//获取第k个孩子
     vector<byte> getRawData(int id);//获取第k个元素的字节流数据
     void setKey(int id,const Key &key);//设置第k个元素的key
     void setElem(int id,const vector<byte> &data);//设置第k个元素的data
     void WriteChunk();//将节点写入
-    streampos releaseChunk();//释放节点
-    //streampos getElemLocation(int id);//获取节点的真实位置
+    filepos releaseChunk();//释放节点
+    //filepos getElemLocation(int id);//获取节点的真实位置
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
     
     void insertDataAtPos(int id,const Key &key,const vector<byte>& data);
@@ -80,8 +80,8 @@ class BPTree
 private:
     /* data */
     bool is_table_;//是table还是索引
-    streampos root_pos_;//根节点位置
-    streampos cur_;//当前读取的位置
+    filepos root_pos_;//根节点位置
+    filepos cur_;//当前读取的位置
     uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
@@ -94,7 +94,7 @@ private:
     //无分裂的插入
     void insertNoSplit(BPNode &node,const Key &key,const vector<byte> &data);
     //分裂后将节点向上传递
-    void insertKey(const Key &key,const streampos &old,const streampos &after);
+    void insertKey(const Key &key,const filepos &old,const filepos &after);
     //将节点的父亲全部更新
     void resetIndexChildrenParent(BPNode &node);
     //删除相关
@@ -119,7 +119,7 @@ private:
     //删除内部节点
     void innerNodeRemove(BPNode &node,int pos);
     //更新子节点的父亲
-    void subNodeUpdateParent(BPNode &node,streampos parent_pos);
+    void subNodeUpdateParent(BPNode &node,filepos parent_pos);
 public:
     //以下为打开
     //打开一个已有的B+树文件
@@ -133,13 +133,13 @@ public:
     //用键值寻找单个元素,返回值为字节流
     vector<byte> Search(const Key &key);
     //用键值寻找单个元素,返回值为数据的位置
-    streampos SearchPos(const Key &key);
+    filepos SearchPos(const Key &key);
     //利用键值,按范围寻找元素,返回值为字节流
     vector<vector<byte>> SearchRange(const Key& left,const Key& right);
     //读取指定的块到bufnode中
-    void ReadChunk(streampos pos);
+    void ReadChunk(filepos pos);
     //返回当前的块的位置
-    streampos GetChunkPos();
+    filepos GetChunkPos();
     //读取最开头的叶节点所对应区块(当查找条件不为键值时)
     void ReadFirstChunk();
     //读取上一个叶节点所对应区块

@@ -5,6 +5,7 @@
 *.zip
 *.txt
 *.idx
+*.sql
 # Binaries for programs and plugins
 *.exe
 *.exe~

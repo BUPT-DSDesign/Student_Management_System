@@ -71,7 +71,7 @@ private:
     friend class BPTree;//BPTree需要访问Table的私有成员,完成字节流解析和写入
     /* data */
     string primary_key_;//主键
-    streampos index_info_pos_;//索引信息的位置
+    filepos index_info_pos_;//索引信息的位置
     vector<TableColAttribute> col_info_;//表每一行的信息,最多有16列
     vector<uint16> col_shift_;//列位置偏移量
     uint16 col_cnt_;//列的数量
