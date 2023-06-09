@@ -1,6 +1,9 @@
 # Database related
 *.tbinfo
 *.table
+*.log
+*.zip
+*.txt
 *.idx
 # Binaries for programs and plugins
 *.exe
