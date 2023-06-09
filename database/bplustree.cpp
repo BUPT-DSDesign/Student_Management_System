@@ -159,11 +159,13 @@ void BPNode::CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_ty
     key_type_ = key_type;
     key_size_ = key_size;
     busy_ = 0;
+    child_cnt_ = 0;
     if(is_leaf){
         //如果是叶,新建时把一前一后俩指针给初始化了
         degree_ = (PAGE_SIZE-sizeof(BPNodeHead)-sizeof(filepos)*2)/(data_size+key_size);
         child_.push_back(INVALID_OFFSET);
         child_.push_back(INVALID_OFFSET);
+        child_cnt_ = 2;
     }else{
         degree_ = (PAGE_SIZE-sizeof(BPNodeHead)-sizeof(filepos))/(sizeof(filepos)+data_size+key_size);
     }
@@ -339,7 +341,6 @@ int BPTree::binarySearch(BPNode &node,const Key &key){
     return r;
 }
 void BPTree::searchLeaf(const Key &key){
-    //FIXME 这玩意儿有问题
     cur_ = root_pos_;
     while(cur_!=-1){
         //第一步,利用cur_来载入一个块
@@ -622,6 +623,11 @@ void BPTree::ReadFirstChunk(){
         //否则开始迭代叶子结点
         //每个区块里的元素都是从小到大排列
         //child_id是最靠左且小于等于key的孩子的id
+        if(bufnode_.child_.size() == 0){
+            //如果没有孩子,则直接返回
+            cur_ = INVALID_OFFSET;
+            return;
+        }
         cur_ = bufnode_.getChild(0);
     }
 }
