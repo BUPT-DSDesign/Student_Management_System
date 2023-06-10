@@ -1069,7 +1069,6 @@ void Table::DeleteRecord(SQLWhere &where){
         Key index_key = where.GetQueryKey(indexName,tb_data_->getKeyType());
         //获取删除的位置
         vector<byte> remove = tb_index_[indexName]->Remove(index_key);    
-        //FIXME 此处remove是streampos
         filepos pos = *reinterpret_cast<filepos*>(remove.data());
         //读取这个块,删除对应记录
         tb_data_->ReadChunk(pos);

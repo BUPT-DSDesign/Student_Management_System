@@ -917,8 +917,8 @@ void BPTree::innerNodeRemove(BPNode &node,int pos){
             new_root.file_name_ = node.file_name_;
             new_root.ReadChunk(node.child_[0]);
             new_root.father_ = INVALID_OFFSET;
-            //让new_root覆盖掉原来的根节点
-            new_root.node_pos = root_pos_;
+            //让new_root放到0位置
+            new_root.node_pos = 0;
             new_root.WriteChunk();
         }else{
             //如果不止一个元素,就直接删除

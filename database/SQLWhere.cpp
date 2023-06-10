@@ -446,13 +446,13 @@ bool WhereTerm::Filter(ColValue val) const{
     case TermOperator::NOT_EQUAL:
         return tmp != val;
     case TermOperator::GREATER:
-        return tmp > val;
+        return val > tmp;
     case TermOperator::LESS:
-        return tmp < val;
+        return val < tmp;
     case TermOperator::GREATER_EQUAL:
-        return tmp >= val;
+        return val >= tmp;
     case TermOperator::LESS_EQUAL: 
-        return tmp <= val;
+        return val <= tmp;
     default:
         break;
     }
