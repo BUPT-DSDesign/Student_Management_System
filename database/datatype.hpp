@@ -13,6 +13,7 @@ typedef float float32;
 typedef double float64;
 //typedef unsigned char byte;
 typedef int rune;
+typedef long long filepos;
 
 //接下来引入数据库中常见的数据类型
 //MySQL中数据类型编号
