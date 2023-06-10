@@ -61,6 +61,20 @@ router.beforeEach((to, from, next) => {
         // 登录和注册页面可以直接进入
         next()
     } else {
+        // 如果进入的是管理员页面, 则需要判断用户是否为管理员
+        if (to.path.includes('admin')) {
+            if (window.localStorage.getItem('role') == 'admin') {
+                next()
+            } else {
+                Message.warning({
+                    showClose: true,
+                    center: true,
+                    message: '您不是管理员！！！',
+                })
+                // 保持在当前页面
+                next('/studentMain/Homepage')
+            }
+        }
         if (window.localStorage.getItem('token') == null) {
             Message.warning({
                 showClose: true,
