@@ -828,19 +828,23 @@ void Table::SelectRecord(SQLWhere &where){
             //如果是等值查询,则直接调用索引的查找函数
             //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
             vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_index_[indexName]->getKeyType()));
-            //将这个字节流转换为streampos类型
-            filepos pos;
-            std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
-            //将这个块读取出来
-            tb_data_->ReadChunk(pos);
-            //将这个块中的所有元素读取出来,并过滤
-            vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
-            for(auto &it:record){
-                Row row(col_info_,it);
-                if(row.isSatisfied(where)){
-                    rows_result.push_back(row);
+            //判空
+            if(addr.size() != 0){
+                //将这个字节流转换为streampos类型
+                filepos pos;
+                std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
+                //将这个块读取出来
+                tb_data_->ReadChunk(pos);
+                //将这个块中的所有元素读取出来,并过滤
+                vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+                for(auto &it:record){
+                    Row row(col_info_,it);
+                    if(row.isSatisfied(where)){
+                        rows_result.push_back(row);
+                    }
                 }
             }
+            
         }else{
             //如果是范围查询,则调用索引的范围查找函数
             //当然,返回值为块地址,需要把块读出来,再进行过滤
@@ -929,8 +933,11 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
         //如果是主键,则直接调用主键查找函数
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则调用主键查找函数
-            Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType())));
-            rows_result.push_back(row);
+            vector<byte> record = tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
+            if(!record.empty()){
+                Row row(col_info_,record);
+                rows_result.push_back(row);
+            }
             //result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
         
         }else{
@@ -966,19 +973,24 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             //如果是等值查询,则直接调用索引的查找函数
             //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
             vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
-            //将这个字节流转换为streampos类型
-            filepos pos;
-            std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
-            //将这个块读取出来
-            tb_data_->ReadChunk(pos);
-            //将这个块中的所有元素读取出来,并过滤
-            vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
-            for(auto &it:record){
-                Row row(col_info_,it);
-                if(row.isSatisfied(where)){
-                    rows_result.push_back(row);
+            //如果有结果
+            if(!addr.empty()){
+                //将这个字节流转换为streampos类型
+                filepos pos;
+                std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
+                //将这个块读取出来
+                tb_data_->ReadChunk(pos);
+                //将这个块中的所有元素读取出来,并过滤
+                vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+                for(auto &it:record){
+                    Row row(col_info_,it);
+                    if(row.isSatisfied(where)){
+                        rows_result.push_back(row);
+                    }
                 }
             }
+            
+            
         }else{
             //如果是范围查询,则调用索引的范围查找函数
             //当然,返回值为块地址,需要把块读出来,再进行过滤
