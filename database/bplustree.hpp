@@ -60,7 +60,7 @@ public:
     std::vector<std::byte>::iterator dataEnd();//返回data的真实结束位置的迭代器
     std::vector<std::byte>::iterator dataLoc(int id);//返回指向id的迭代器
     void ReadChunk(filepos pos);//读取节点,将区块信息写入
-    void CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type);//新建节点
+    void CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type,filepos &end_pos);//新建节点
     bool isLeaf();//判断是否为叶子结点
     uint16 getElemCount();//获取节点的元素个数
     Key getKey(int id);//获取第k个元素的key
@@ -72,8 +72,8 @@ public:
     filepos releaseChunk();//释放节点
     //filepos getElemLocation(int id);//获取节点的真实位置
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
-    
-    void insertDataAtPos(int id,const Key &key,const vector<byte>& data);
+    void updateDataAtPos(int id,const Key &key,const vector<byte> &data);//更新第k个元素的data
+    void insertDataAtPos(int id,const Key &key,const vector<byte>& data);//在第k个元素后插入元素
 };
 class BPTree
 {
@@ -82,7 +82,7 @@ private:
     bool is_table_;//是table还是索引
     filepos root_pos_;//根节点位置
     filepos cur_;//当前读取的位置
-    filepos end_;//文件的结束位置
+    filepos end_pos_;//文件的结束位置
     uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
@@ -91,7 +91,7 @@ private:
     //二分查找键值,返回结果的对应下标
     int binarySearch(BPNode &node,const Key &key);
     //叶子结点满了之后分裂
-    void splitTreeNode(const Key &key,vector<byte> &data);
+    vector<Key> splitTreeNode(const Key &key,vector<byte> &data);
     //无分裂的插入
     void insertNoSplit(BPNode &node,const Key &key,const vector<byte> &data);
     //分裂后将节点向上传递
@@ -155,8 +155,8 @@ public:
     vector<vector<byte>> GetAllElemInTree();
     //删除单个元素,并输出删除的对应元素
     vector<byte> Remove(const Key &key);
-    //插入元素
-    bool Insert(const Key &key,vector<byte> &data);
+    //插入元素,返回值为涉及到的更新过位置的元素键值,方便更新索引
+    vector<Key> Insert(const Key &key,vector<byte> &data);
     //更新元素
     bool Update(const Key &key,vector<byte> &data);
     //查询键值类型

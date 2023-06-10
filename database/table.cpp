@@ -884,7 +884,7 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
     //获取主键的值
     Key primary_key = getValue(data,col2id_[primary_key_]);
     //随后调用Table的插入函数
-    tb_data_->Insert(primary_key,data);
+    vector<Key> update = tb_data_->Insert(primary_key,data);
     //然后查询插入的位置
     filepos pos = tb_data_->SearchPos(primary_key);
     //最后调用索引的插入函数
@@ -894,9 +894,22 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
         //随后调用索引的插入函数
         //将pos转换为字节流
         vector<byte> index_data(sizeof(filepos),std::byte(0));
-        //FIXME 此处强制转换有问题
         std::copy(reinterpret_cast<byte*>(&pos),reinterpret_cast<byte*>(&pos)+sizeof(filepos),index_data.begin());
+        //插入
         tb_index_[it.first]->Insert(index_key,index_data);
+    }
+    //如果有键值在分裂节点时被更新过,则需要更新索引
+    for(auto &i:update){
+        vector<byte> tdata = tb_data_ ->Search(i);
+        filepos tpos = tb_data_->GetChunkPos();
+        vector<byte> index_data(sizeof(filepos),std::byte(0));
+        std::copy(reinterpret_cast<byte*>(&tpos),reinterpret_cast<byte*>(&tpos)+sizeof(filepos),index_data.begin());
+        for(auto &it:col2index_){
+            //先获取索引的键值
+            Key index_key = getValue(tdata,col2id_[it.first]);
+            //随后调用索引的更新函数
+            tb_index_[it.first]->Update(index_key,index_data);
+        }
     }
     //输出插入的数据
     vector<Row> result;

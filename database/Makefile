@@ -1,13 +1,15 @@
 #编译器和选项
 CC = g++
-CFLAGS = -Wall -Wextra -W -Wpedantic -O2
+CFLAGS = -Wall -Wextra -W -Wpedantic -g
+OPTIONS = -O2
 #宏定义
-DEBUG = -DMY_MACRO -D TEST_SQL
+DEBUG = 
 OUTPUTDIR = ../server/database
-release: database
+release: value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o
+	${CC} ${CFLAGS} ${OPTIONS} -o database value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o -lm
 	cp database ${OUTPUTDIR}
 database: value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o 
-	${CC} ${CFLAGS} -o database value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o -lm
+	${CC} ${CFLAGS} ${DEBUG} -o database value.o bplustree.o table.o SQLWhere.o DBManager.o db_api.o Interpreter.o SQLstatement.o main.o -lm
 testsql: Interpreter.o.test SQLstatement.o.test main.o
 	${CC} ${CFLAGS} ${DEBUG} -o testsql Interpreter.o SQLstatement.o main.o -lm
 Interpreter.o.test: Interpreter.cpp
