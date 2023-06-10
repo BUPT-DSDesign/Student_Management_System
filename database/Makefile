@@ -1,6 +1,6 @@
 #编译器和选项
 CC = g++
-CFLAGS = -Wall -Wextra -W -Wpedantic -O2
+CFLAGS = -Wall -Wextra -W -Wpedantic -g
 OPTIONS = 
 #宏定义
 DEBUG = 
