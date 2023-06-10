@@ -78,7 +78,6 @@ public:
 class BPTree
 {
 private:
-    /* data */
     bool is_table_;//是table还是索引
     filepos root_pos_;//根节点位置
     filepos cur_;//当前读取的位置
@@ -86,6 +85,7 @@ private:
     uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
+    uint16 key_size_;//键的大小
     //读取某个位置的节点头
     BPNodeHead readNodeHead(filepos pos);
     //将节点头写入
@@ -166,4 +166,6 @@ public:
     bool Update(const Key &key,vector<byte> &data);
     //查询键值类型
     uint8 getKeyType();
+    //查询键值大小
+    uint16 getKeySize();
 };

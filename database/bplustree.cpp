@@ -351,12 +351,12 @@ BPTree::BPTree(string path,bool is_table)
             break;
         page_num++;
     }
-    
+    key_size_ = bufnode_.key_size_;
     end_pos_ = page_num*PAGE_SIZE;
     in.close();
 }
 BPTree::BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type)
-:is_table_(is_table),size_of_item_(data_size),key_type_(key_type),cur_(0),root_pos_(0),end_pos_(0)
+:is_table_(is_table),size_of_item_(data_size),key_type_(key_type),cur_(0),root_pos_(0),end_pos_(0),key_size_(key_size)
 {
     bufnode_.file_name_ = path;
     //如果已经新建过了,就报错
@@ -406,13 +406,12 @@ void BPTree::searchLeaf(const Key &key){
         int child_id = binarySearch(bufnode_,key);
         //得到孩子的位置,接下来决定选哪边的孩子
         if(bufnode_.getKey(child_id) > key){
-            //如果孩子的key比key大,那么就取左边的孩子
+            //如果孩子的key比要查找的键值大,那么就取左边的孩子
             cur_ = bufnode_.getChild(child_id);
         }else{
             //否则取右边的
             cur_ = bufnode_.getChild(child_id+1);
         }
-        //cur_ = bufnode_.getChild(child_id+1);
     }
 }
 vector<byte> BPTree::Search(const Key &key){
@@ -458,6 +457,12 @@ vector<vector<byte>> BPTree::SearchRange(const Key& left,const Key& right){
     while(pos < bufnode_.busy_ &&bufnode_.getKey(pos) <= right){
         result.push_back(bufnode_.getRawData(pos));
         pos++;
+        if(pos == bufnode_.busy_ && bufnode_.child_[1] != INVALID_OFFSET){
+            //如果当前块已经读完,则读取下一个块
+            cur_ = bufnode_.child_[1];
+            bufnode_.ReadChunk(cur_);
+            pos = 0;
+        }
     }
     return result;
 }
@@ -825,7 +830,6 @@ vector<byte> BPTree::Remove(const Key &key,vector<Key> &adjust_keys){
         lSibling.file_name_ = bufnode_.file_name_;
         rSibling.file_name_ = bufnode_.file_name_;
         parent.ReadChunk(bufnode_.father_);
-        //TODO 此处空该怎么办？
         lSibling.ReadChunk(parent.getChild(0));
         rSibling.ReadChunk(parent.getChild(1));
         //查找父节点中,当前页对应的孩子的位置
@@ -855,7 +859,7 @@ vector<byte> BPTree::Remove(const Key &key,vector<Key> &adjust_keys){
                 borrow_from = BorrowFrom::RIGHT;
             }
         }
-        //TODO 开借
+        //开借
         if(borrow_from == BorrowFrom::LEFT){
             if(lSibling.busy_ >= (lSibling.degree_ + 1)/2){
                 //左边的邻居大过m/2,把左边的邻居的最后一个元素借过来
@@ -872,10 +876,9 @@ vector<byte> BPTree::Remove(const Key &key,vector<Key> &adjust_keys){
                 deleteLeafNode(bufnode_,lSibling,rSibling);
                 //随后向上更新
                 innerNodeRemove(parent,parent_pos);
-                //TODO 等会看看这里要不要把节点给写磁盘里
             }
         }else{
-            //TODO 先删除,免得合并时溢出
+            //先删除,免得合并时溢出
             simpleLeafRemove(bufnode_,pos);
             if(rSibling.busy_ >= (rSibling.degree_ + 1)/2){
                 //右边的孩子大过m/2,把右边元素的第一个元素借过来
@@ -1179,4 +1182,7 @@ void BPTree::subNodeUpdateParent(BPNode &node,filepos parent_pos){
 }
 uint8 BPTree::getKeyType(){
     return key_type_;
+}
+uint16 BPTree::getKeySize(){
+    return bufnode_.key_size_;
 }

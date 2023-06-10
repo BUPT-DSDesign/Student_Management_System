@@ -578,7 +578,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
             Row row(col_info_,it);
             vector<byte> addr(sizeof(filepos),byte(0));
             std::copy(reinterpret_cast<std::byte*>(&pos),reinterpret_cast<std::byte*>(&pos)+sizeof(filepos),addr.begin());
-            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),addr);
+            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(tb_index_[index_name]->getKeySize()),addr);
         }
         tb_data_->ReadNextChunk();
     }
@@ -1030,14 +1030,14 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
     if(remove_primary){
         for(auto &it:rows_result){
             vector<byte> record = it.toByte();
-            tb_data_->Insert(it.getValue(primary_key_).toKey(),record);
-            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey()));
+            tb_data_->Insert(it.getValue(primary_key_).toKey(tb_data_->getKeySize()),record);
+            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey(tb_data_->getKeySize())));
         }
     }else{
         for(auto &it:rows_result){
             vector<byte> record = it.toByte();
-            tb_data_->Update(it.getValue(primary_key_).toKey(),record);
-            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey()));
+            tb_data_->Update(it.getValue(primary_key_).toKey(tb_data_->getKeySize()),record);
+            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey(tb_data_->getKeySize())));
         }
     }
     //TODO 这里应该找到对应记录的pos,然后更新
@@ -1046,7 +1046,7 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             //将streampos转换为字节流
             vector<byte> pos_byte(sizeof(filepos));
             std::copy(reinterpret_cast<char*>(&pos_list[i]),reinterpret_cast<char*>(&pos_list[i])+sizeof(filepos),reinterpret_cast<char*>(pos_byte.data()));
-            tb_index_[it]->Insert(rows_result[i].getValue(it).toKey(),pos_byte);
+            tb_index_[it]->Insert(rows_result[i].getValue(it).toKey(tb_index_[it]->getKeySize()),pos_byte);
         }
     }
 }

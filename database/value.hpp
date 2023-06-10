@@ -30,6 +30,7 @@ private:
         uint64 value_uint_;
     };
     string value_str_;//为字符类型时的存储
+    uint16 str_len_;//如果键值为字符串,则记录其长度
     uint8 data_type_;//数据类型
 };
 //每行由多个列值组成
@@ -54,7 +55,7 @@ public:
     bool operator<=(const ColValue& other) const;
     bool operator>(const ColValue& other) const;
     bool operator>=(const ColValue& other) const;
-    Key toKey() const;//将列值转换为键值
+    Key toKey(uint16 len) const;//将列值转换为键值
 private:
     string col_name_;//名
     string value_str_;//为字符类型时的存储值

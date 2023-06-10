@@ -4,19 +4,22 @@
 #include <iomanip>
 #include <sstream>
 #include <iostream>
+#include <algorithm>
+#include <chrono>
 using namespace std;
 Key::Key(bool is_maximun){
     is_maximun_ = is_maximun;
     is_minimun_ = !is_maximun;
     data_type_ = T_INT;
     value_int_ = -2147483648;
+    str_len_ = 0;
 }
 Key::Key(int64 value)
-:is_maximun_(false),is_minimun_(false),data_type_(T_BIG_INT),value_int_(value)
+:is_maximun_(false),is_minimun_(false),data_type_(T_BIG_INT),value_int_(value),str_len_(0)
 {
 }
 Key::Key(const string& key,uint8 data_type)
-:is_maximun_(false),is_minimun_(false)
+:is_maximun_(false),is_minimun_(false),data_type_(data_type),str_len_(key.length())
 {
     //根据数据类型,将key转换为对应的类型
     switch(data_type){
@@ -27,18 +30,64 @@ Key::Key(const string& key,uint8 data_type)
         case T_FLOAT:case T_DOUBLE:
             value_float64_ = stod(key);
             break;
-        //FIXME:这里的时间类型的处理有问题
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = stoull(key);
+        case T_DATE:
+            //格式为YYYY-MM-DD
+            //范围为1000-01-01到9999-12-31
+            {
+                istringstream iss(key);
+                uint64 year,month,day;
+                char c;
+                iss>>year>>c>>month>>c>>day;
+                //判断输入格式是否正确
+                if(iss.fail()){
+                    throw ColValueError("Data Serialize Error,Date format error,cannot convert to uint64");
+                }
+                    //判断是否在范围里,不在则抛出异常
+                if(year<1000||year>9999||month<1||month>12||day<1||day>31){
+                    throw ColValueError("Data Serialize Error,Date out of range");
+                }
+                value_uint_ = (year<<9ULL)|(month<<5ULL)|day;
+            }
+            break;
+        case T_YEAR:
+            //格式为YYYY
+            //范围为1901-2155
+            {
+                istringstream iss(key);
+                uint64 year;
+                iss>>year;
+                //判断输入格式是否正确
+                if(iss.fail()){
+                    throw ColValueError("Data Serialize Error,Year format error,cannot convert to uint64");
+                }
+                //判断是否在范围里,不在则抛出异常
+                if(year<1901||year>2155){
+                    throw ColValueError("Data Serialize Error,Year out of range");
+                }
+                value_uint_ = year;
+            }
+            break;
+        case T_TIMESTAMP:
+            //格式为YYYY-MM-DD HH:MM:SS
+            //以1970-01-01 00:00:00为起始值
+            {
+                istringstream iss(key);
+                std::tm timestamp = {};
+                iss>> std::get_time(&timestamp,"%Y-%m-%d %H:%M:%S");
+                if(iss.fail()){
+                    throw ColValueError("Data Serialize Error,timestamp out of range or format error,cannot convert to time_t");
+                }
+                std::time_t val_int64;//存储时间戳,时间戳的数据类型为int64
+                auto tp = std::chrono::system_clock::from_time_t(std::mktime(&timestamp));
+                value_uint_ = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
+            }
             break;
         default:
             value_str_ = key;
     }
-    data_type_ = data_type;
-
 }
 Key::Key(vector<byte>::iterator begin,int len,uint8 data_type)
-:is_maximun_(false),is_minimun_(false),data_type_(data_type)
+:is_maximun_(false),is_minimun_(false),data_type_(data_type),str_len_(len)
 {
     switch(data_type){
         case T_TINY_INT:case T_SMALL_INT:case T_INT:case T_BIG_INT:
@@ -101,7 +150,8 @@ vector<byte> Key::getBytes() const{
             std::copy((byte*)&value_uint_,(byte*)&value_uint_+SIZE_OF_T[data_type_],bytes.begin());
             break;
         default:
-            bytes.resize(value_str_.size());
+            //补0
+            bytes = vector<byte>(str_len_,std::byte(0));
             std::copy((byte*)value_str_.data(),(byte*)value_str_.data()+value_str_.size(),bytes.begin());
     }
     return bytes;
@@ -246,8 +296,57 @@ void ColValue::setValue(const string& value){
         case T_FLOAT:case T_DOUBLE:
             value_float64_ = stod(value);
             break;
-        case T_DATE:case T_YEAR:case T_TIMESTAMP:
-            value_uint_ = stoul(value);
+        case T_DATE:
+            //格式为YYYY-MM-DD
+            //范围为1000-01-01到9999-12-31
+            {
+                istringstream iss(value);
+                uint64 year,month,day;
+                char c;
+                iss>>year>>c>>month>>c>>day;
+                //判断输入格式是否正确
+                if(iss.fail()){
+                    throw ColValueError("Data Serialize Error,Date format error,cannot convert to uint64");
+                }
+                    //判断是否在范围里,不在则抛出异常
+                if(year<1000||year>9999||month<1||month>12||day<1||day>31){
+                    throw ColValueError("Data Serialize Error,Date out of range");
+                }
+                value_uint_ = (year<<9ULL)|(month<<5ULL)|day;
+            }
+            break;
+        case T_YEAR:
+            //格式为YYYY
+            //范围为1901-2155
+            {
+                istringstream iss(value);
+                uint64 year;
+                iss>>year;
+                //判断输入格式是否正确
+                if(iss.fail()){
+                    throw ColValueError("Data Serialize Error,Year format error,cannot convert to uint64");
+                }
+                //判断是否在范围里,不在则抛出异常
+                if(year<1901||year>2155){
+                    throw ColValueError("Data Serialize Error,Year out of range");
+                }
+                value_uint_ = year;
+            }
+            break;
+        case T_TIMESTAMP:
+            //格式为YYYY-MM-DD HH:MM:SS
+            //以1970-01-01 00:00:00为起始值
+            {
+                istringstream iss(value);
+                std::tm timestamp = {};
+                iss>> std::get_time(&timestamp,"%Y-%m-%d %H:%M:%S");
+                if(iss.fail()){
+                    throw ColValueError("Data Serialize Error,timestamp out of range or format error,cannot convert to time_t");
+                }
+                std::time_t val_int64;//存储时间戳,时间戳的数据类型为int64
+                auto tp = std::chrono::system_clock::from_time_t(std::mktime(&timestamp));
+                value_uint_ = std::chrono::duration_cast<std::chrono::seconds>(tp.time_since_epoch()).count();
+            }
             break;
         default:
             value_str_ = value;
@@ -368,6 +467,13 @@ bool ColValue::operator>(const ColValue& other) const{
 bool ColValue::operator>=(const ColValue& other) const{
     return !(*this < other);
 }
-Key ColValue::toKey() const{
-    return Key(this->getValue(),data_type_);
+Key ColValue::toKey(uint16 len) const{
+    vector<byte> data = this->getBytes();
+    if(data_type_ == T_CHAR || data_type_ == T_VARCHAR){
+        //如果是字符串,则在末尾补0
+        while(data.size() < len){
+            data.push_back(std::byte(0));
+        }
+    }
+    return Key(data.begin(),data.size(),data_type_);
 }
