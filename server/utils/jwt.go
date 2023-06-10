@@ -6,8 +6,8 @@ import (
 	"time"
 )
 
-// token持续时间
-const durationTime = time.Hour * 7 * 24
+// token持续时间为
+const durationTime = time.Hour
 
 // 加密key
 var jwtSecretKey = []byte("DSDesign-group.key")

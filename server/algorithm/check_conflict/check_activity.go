@@ -20,7 +20,6 @@ func ActivityAndCoursesIsExistConflict(userId int64, activity *system.ActivityIn
 				3.之后将课程属于活动当天的节次加入到一个数组中
 				4.最后将sectionList数组转换为时间段来检查活动时间是否和这些课程时间冲突
 			*/
-
 			isConflict := false
 
 			// 活动所在的周数
