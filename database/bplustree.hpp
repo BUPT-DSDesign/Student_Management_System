@@ -60,7 +60,7 @@ public:
     std::vector<std::byte>::iterator dataEnd();//返回data的真实结束位置的迭代器
     std::vector<std::byte>::iterator dataLoc(int id);//返回指向id的迭代器
     void ReadChunk(filepos pos);//读取节点,将区块信息写入
-    void CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type);//TODO 新建节点
+    void CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type);//新建节点
     bool isLeaf();//判断是否为叶子结点
     uint16 getElemCount();//获取节点的元素个数
     Key getKey(int id);//获取第k个元素的key
@@ -82,6 +82,7 @@ private:
     bool is_table_;//是table还是索引
     filepos root_pos_;//根节点位置
     filepos cur_;//当前读取的位置
+    filepos end_;//文件的结束位置
     uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型

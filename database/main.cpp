@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <chrono>
 using namespace std;
 void sayFailure(const char* msg){
     //返回的JSON示例如下
@@ -18,7 +19,7 @@ void sayFailure(const char* msg){
     cout<<"\"status_code\":1,";
     cout<<"\"status_msg\":\""<<msg<<"\",";
     cout<<"\"data\":\"[]\"";
-    cout<<"}"<<endl;
+    cout<<"}"<<"\n";
 }
 int main(int argc,char* argv[]){
     //不断从标准输入读取SQL语句
@@ -46,11 +47,16 @@ int main(int argc,char* argv[]){
         statement<<buf;
         if(buf.find(';') != string::npos){
             try{
+                //测量执行时间
                 if(statement.str().find("quit") != string::npos || statement.str().find("QUIT") != string::npos || statement.str().find("Quit") != string::npos){
                     interpreter.ExecuteSQL(statement.str());
                     break;
                 }
+                auto start = chrono::high_resolution_clock::now();
                 interpreter.ExecuteSQL(statement.str());
+                auto end = chrono::high_resolution_clock::now();
+                auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+                cerr<<"SQL Execute Time: "<<duration.count()<<"ms"<<"\n";
                 
             }catch(const SQLSyntaxError& e){
                 //cerr<<e.what()<<"\n";

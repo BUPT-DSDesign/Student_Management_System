@@ -1,6 +1,6 @@
 #编译器和选项
 CC = g++
-CFLAGS = -Wall -Wextra -W -Wpedantic -g
+CFLAGS = -Wall -Wextra -W -Wpedantic -O2
 #宏定义
 DEBUG = -DMY_MACRO -D TEST_SQL
 OUTPUTDIR = ../server/database
