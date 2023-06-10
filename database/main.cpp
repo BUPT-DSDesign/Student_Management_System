@@ -55,8 +55,8 @@ int main(int argc,char* argv[]){
                 auto start = chrono::high_resolution_clock::now();
                 interpreter.ExecuteSQL(statement.str());
                 auto end = chrono::high_resolution_clock::now();
-                auto duration = chrono::duration_cast<chrono::milliseconds>(end - start);
-                cerr<<"SQL Execute Time: "<<duration.count()<<"ms"<<"\n";
+                auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+                cerr<<"SQL Execute Time: "<<duration.count()/1000.0<<"ms"<<"\n";
                 
             }catch(const SQLSyntaxError& e){
                 //cerr<<e.what()<<"\n";

@@ -50,9 +50,10 @@ private:
     vector<filepos> child_;//孩子的位置
     vector<byte> data_;//数据
     filepos node_pos;//当前节点的位置
+    shared_ptr<fstream> fp;//文件读写头
     friend class BPTree;
 public:
-    BPNode();
+    BPNode(string file_name);
     std::vector<filepos>::iterator childBegin();//返回child的开始位置的迭代器
     std::vector<filepos>::iterator childEnd();//返回child结束位置的迭代器
     std::vector<filepos>::iterator childLoc(int id);//返回指向child id的迭代器
@@ -74,6 +75,7 @@ public:
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
     void updateDataAtPos(int id,const Key &key,const vector<byte> &data);//更新第k个元素的data
     void insertDataAtPos(int id,const Key &key,const vector<byte>& data);//在第k个元素后插入元素
+    ~BPNode();
 };
 class BPTree
 {
