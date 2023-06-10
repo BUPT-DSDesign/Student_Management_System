@@ -568,13 +568,13 @@ void BPTree::insertKey(const Key &key,const filepos &old,const filepos &after){
             insertNoSplit(inner_node,key,child_bytes);
         }
         //保存修改过的两个区块
+        new_node.father_ = inner_node.father_;
         new_node.WriteChunk();
         inner_node.WriteChunk();
-        new_node.father_ = inner_node.father_;
         resetIndexChildrenParent(new_node);
         //然后把键值向上插入
         cur_ = inner_node.father_;
-        insertKey(new_node.getKey(0),new_node.node_pos,new_node.node_pos);
+        insertKey(new_node.getKey(0),inner_node.node_pos,new_node.node_pos);
     }else{
         //不需要拓,直接插入
         //将after插入到inner_node中
