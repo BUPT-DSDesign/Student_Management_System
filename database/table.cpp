@@ -917,6 +917,7 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
     PrintToStream("Insert Record",result);
 }
 void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
+    //未测试,不予使用
     //先根据Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
     //随后根据索引的类型,调用不同的函数
@@ -1066,7 +1067,8 @@ void Table::DeleteRecord(SQLWhere &where){
         //先获取主键的值
         Key primary_key = where.GetQueryKey(indexName,tb_data_->getKeyType());
         //随后调用Table的删除函数
-        vector<byte> remove = tb_data_->Remove(primary_key);
+        vector<Key> adjust;
+        vector<byte> remove = tb_data_->Remove(primary_key,adjust);
         //最后遍历索引,删除索引中的记录
         for(auto &it:tb_index_){
             //先获取索引的键值
@@ -1076,6 +1078,19 @@ void Table::DeleteRecord(SQLWhere &where){
         }
         Row row(col_info_,remove);
         rows_result.push_back(row);
+        //随后需要同步更新索引
+        for(auto &i:adjust){
+            vector<byte> tdata = tb_data_ ->Search(i);
+            filepos tpos = tb_data_->GetChunkPos();
+            vector<byte> index_data(sizeof(filepos),std::byte(0));
+            std::copy(reinterpret_cast<byte*>(&tpos),reinterpret_cast<byte*>(&tpos)+sizeof(filepos),index_data.begin());
+            for(auto &it:col2index_){
+                //先获取索引的键值
+                Key index_key = getValue(tdata,col2id_[it.first]);
+                //随后调用索引的更新函数
+                tb_index_[it.first]->Update(index_key,index_data);
+            }
+        }
     }else if(col2index_.find(indexName)!=col2index_.end()){
         //在索引中有这个值,则调用索引删除函数
         //先获取索引的键值
@@ -1088,6 +1103,7 @@ void Table::DeleteRecord(SQLWhere &where){
         vector<vector<byte>> records = tb_data_->GetAllElemInChunk();
         vector<vector<byte>> result;
         //最后调用Table的删除函数
+        vector<Key> adjust;
         for(auto &it:records){
             Row row(col_info_,it);
             if(row.isSatisfied(where)){
@@ -1096,7 +1112,7 @@ void Table::DeleteRecord(SQLWhere &where){
                 rows_result.push_back(row);
                 //先获取主键的值
                 Key primary_key = getValue(it,col2id_[primary_key_]);
-                tb_data_->Remove(primary_key);
+                tb_data_->Remove(primary_key,adjust);
                 
             }
         }
@@ -1116,10 +1132,24 @@ void Table::DeleteRecord(SQLWhere &where){
                 tb_index_[it.first]->Remove(index_key);
             }
         }
+        //随后需要同步更新索引
+        for(auto &i:adjust){
+            vector<byte> tdata = tb_data_ ->Search(i);
+            filepos tpos = tb_data_->GetChunkPos();
+            vector<byte> index_data(sizeof(filepos),std::byte(0));
+            std::copy(reinterpret_cast<byte*>(&tpos),reinterpret_cast<byte*>(&tpos)+sizeof(filepos),index_data.begin());
+            for(auto &it:col2index_){
+                //先获取索引的键值
+                Key index_key = getValue(tdata,col2id_[it.first]);
+                //随后调用索引的更新函数
+                tb_index_[it.first]->Update(index_key,index_data);
+            }
+        }
     }else{
         //既不是主键,也不是索引,则全表扫描过滤删除
         //让Table顺序读取叶子节点,然后过滤
         tb_data_->ReadFirstChunk();
+        vector<Key> adjust;
         while(tb_data_->isBufLeaf()){
             vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
             for(auto &it:record){
@@ -1129,7 +1159,7 @@ void Table::DeleteRecord(SQLWhere &where){
                     rows_result.push_back(row);
                     //先获取主键的值
                     Key primary_key = getValue(it,col2id_[primary_key_]);
-                    tb_data_->Remove(primary_key);
+                    tb_data_->Remove(primary_key,adjust);
                     //最后遍历索引,删除索引中的记录
                     for(auto &it_:tb_index_){
                         //先获取索引的键值
@@ -1140,6 +1170,19 @@ void Table::DeleteRecord(SQLWhere &where){
                 }
             }
             tb_data_->ReadNextChunk();
+        }
+        //随后需要同步更新索引
+        for(auto &i:adjust){
+            vector<byte> tdata = tb_data_ ->Search(i);
+            filepos tpos = tb_data_->GetChunkPos();
+            vector<byte> index_data(sizeof(filepos),std::byte(0));
+            std::copy(reinterpret_cast<byte*>(&tpos),reinterpret_cast<byte*>(&tpos)+sizeof(filepos),index_data.begin());
+            for(auto &it:col2index_){
+                //先获取索引的键值
+                Key index_key = getValue(tdata,col2id_[it.first]);
+                //随后调用索引的更新函数
+                tb_index_[it.first]->Update(index_key,index_data);
+            }
         }
     }
     //最后输出结果

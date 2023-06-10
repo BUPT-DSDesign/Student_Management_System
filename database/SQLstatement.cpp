@@ -1069,7 +1069,8 @@ void SQLUse::PraseSQLVector(vector<string> &sql_vector)
         throw SQLSyntaxError("SQL USE SYNTAX ERROR,TOO SHORT");
         return;
     }
-    transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
+    //数据库名字可以大写,auv
+    //transform((*it).begin(), (*it).end(), (*it).begin(), (int (*)(int))tolower);
     db_name_ = *it;
 }
 

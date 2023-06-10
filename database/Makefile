@@ -1,7 +1,7 @@
 #编译器和选项
 CC = g++
-CFLAGS = -Wall -Wextra -W -Wpedantic -g
-OPTIONS = -O2
+CFLAGS = -Wall -Wextra -W -Wpedantic -O2
+OPTIONS = 
 #宏定义
 DEBUG = 
 OUTPUTDIR = ../server/database

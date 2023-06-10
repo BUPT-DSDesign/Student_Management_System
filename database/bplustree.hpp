@@ -86,6 +86,10 @@ private:
     uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
+    //读取某个位置的节点头
+    BPNodeHead readNodeHead(filepos pos);
+    //将节点头写入
+    void writeNodeHead(const BPNodeHead &head,filepos pos);
     //找到叶子节点,并将数据载入节点
     void searchLeaf(const Key &key);
     //二分查找键值,返回结果的对应下标
@@ -153,7 +157,8 @@ public:
     vector<vector<byte>> GetAllElemInChunk();
     //返回整个树的所有元素
     vector<vector<byte>> GetAllElemInTree();
-    //删除单个元素,并输出删除的对应元素
+    //删除单个元素,并输出删除的对应元素,同时返回需要更新的元素键值
+    vector<byte> Remove(const Key &key,vector<Key> &adjust_keys);
     vector<byte> Remove(const Key &key);
     //插入元素,返回值为涉及到的更新过位置的元素键值,方便更新索引
     vector<Key> Insert(const Key &key,vector<byte> &data);
