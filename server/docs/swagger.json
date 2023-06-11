@@ -93,6 +93,31 @@
                 }
             }
         },
+        "/activity/query": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "通过时间段查询学生的课外活动信息",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "活动接口"
+                ],
+                "summary": "查询课外活动",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/activity_handler.queryResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/course/add": {
             "post": {
                 "security": [
@@ -113,6 +138,31 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/course_handler.addResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/all": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取所有所有课",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "课程接口"
+                ],
+                "summary": "所有课",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.allResponse"
                         }
                     }
                 }
@@ -163,6 +213,56 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/course_handler.searchResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/select": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "学生选课",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "课程接口"
+                ],
+                "summary": "选课",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.selectResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/course/selective": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "获取所有选修课",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "课程接口"
+                ],
+                "summary": "选修课",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/course_handler.selectiveResponse"
                         }
                     }
                 }
@@ -419,6 +519,29 @@
                 }
             }
         },
+        "/polling/is_activity_arrive": {
+            "get": {
+                "description": "活动是否来临",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "轮询接口"
+                ],
+                "summary": "活动是否来临",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/polling_handler.isActivityArriveResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/polling/is_course_arrive": {
             "get": {
                 "description": "课程是否来临",
@@ -460,6 +583,29 @@
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/user_handler.infoResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/info/all": {
+            "get": {
+                "description": "获取所有用户信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "用户接口"
+                ],
+                "summary": "所有用户信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/user_handler.allInfoResponse"
                         }
                     }
                 }
@@ -597,6 +743,23 @@
                 }
             }
         },
+        "activity_handler.queryResponse": {
+            "type": "object",
+            "properties": {
+                "activities": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.ActivityInfo"
+                    }
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
         "common.LoginRequest": {
             "type": "object",
             "properties": {
@@ -622,9 +785,92 @@
                 }
             }
         },
+        "course_handler.CourseInfo": {
+            "type": "object",
+            "properties": {
+                "classroom": {
+                    "description": "线下课程记录教室, 线上课程记录会议链接",
+                    "type": "string"
+                },
+                "contact": {
+                    "type": "string"
+                },
+                "course_id": {
+                    "type": "integer"
+                },
+                "course_location_node": {
+                    "description": "对应导航地图的节点, 设置成数组是因为一个地点可能对应多个node",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "course_name": {
+                    "type": "string"
+                },
+                "exam_location": {
+                    "type": "string"
+                },
+                "exam_location_node": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "exam_option": {
+                    "type": "integer"
+                },
+                "exam_time": {
+                    "description": "考试时间, 格式为'第几周-星期几-几点~几点（HH:mm~HH:mm）', 如'第十六周-星期三-19:00~20:00'",
+                    "type": "string"
+                },
+                "is_compulsory": {
+                    "description": "课程是否必修",
+                    "type": "boolean"
+                },
+                "is_course_online": {
+                    "type": "boolean"
+                },
+                "is_selected": {
+                    "type": "boolean"
+                },
+                "section_list": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "teacher": {
+                    "type": "string"
+                },
+                "week_schedule": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "course_handler.addResponse": {
             "type": "object",
             "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "course_handler.allResponse": {
+            "type": "object",
+            "properties": {
+                "course_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.CourseInfo"
+                    }
+                },
                 "status_code": {
                     "type": "integer"
                 },
@@ -651,6 +897,34 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/system.CourseInfo"
+                    }
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "course_handler.selectResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
+        "course_handler.selectiveResponse": {
+            "type": "object",
+            "properties": {
+                "course_list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/course_handler.CourseInfo"
                     }
                 },
                 "status_code": {
@@ -788,6 +1062,23 @@
                 }
             }
         },
+        "polling_handler.isActivityArriveResponse": {
+            "type": "object",
+            "properties": {
+                "activity_info": {
+                    "$ref": "#/definitions/system.ActivityInfo"
+                },
+                "is_arrive": {
+                    "type": "boolean"
+                },
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                }
+            }
+        },
         "polling_handler.isCourseArriveResponse": {
             "type": "object",
             "properties": {
@@ -813,6 +1104,10 @@
                 },
                 "activity_name": {
                     "type": "string"
+                },
+                "advance_mention_time": {
+                    "description": "提前提醒时间",
+                    "type": "integer"
                 },
                 "frequency": {
                     "type": "integer"
@@ -942,6 +1237,14 @@
                 "is_admin": {
                     "type": "boolean"
                 },
+                "password": {
+                    "description": "加密之后的密码",
+                    "type": "string"
+                },
+                "salt": {
+                    "description": "密码加盐",
+                    "type": "string"
+                },
                 "signature": {
                     "description": "......后续应该还要加上一些字段",
                     "type": "string"
@@ -954,6 +1257,63 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "user_handler.UserInfo": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "description": "保存用户头像的路径",
+                    "type": "string"
+                },
+                "courses": {
+                    "description": "拥有的课程",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/system.CourseInfo"
+                    }
+                },
+                "is_admin": {
+                    "type": "boolean"
+                },
+                "password": {
+                    "description": "加密之后的密码",
+                    "type": "string"
+                },
+                "salt": {
+                    "description": "密码加盐",
+                    "type": "string"
+                },
+                "signature": {
+                    "description": "......后续应该还要加上一些字段",
+                    "type": "string"
+                },
+                "student_id": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "user_handler.allInfoResponse": {
+            "type": "object",
+            "properties": {
+                "status_code": {
+                    "type": "integer"
+                },
+                "status_msg": {
+                    "type": "string"
+                },
+                "user_infos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/user_handler.UserInfo"
+                    }
                 }
             }
         },

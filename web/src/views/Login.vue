@@ -33,11 +33,11 @@ export default {
             rules: {
                 username: [
                     { required: true, message: '请输入用户名', trigger: 'blur' },
-                    { min: 2, max: 5, message: '长度在 2 到 5 个字符', trigger: 'blur' }
+                    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' }
                 ],
                 password: [
                     { required: true, message: '请输入密码', trigger: 'blur' },
-                    { min: 6, max: 8, message: '长度在 6 到 8 个字符', trigger: 'blur' }
+                    { min: 6, max: 12, message: '长度在 6 到 12 个字符', trigger: 'blur' }
                 ],
 
             },

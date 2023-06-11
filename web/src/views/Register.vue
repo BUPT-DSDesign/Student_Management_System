@@ -36,16 +36,16 @@ export default {
             }
         }
         var checkName = (rule, value, callback) => {
-            if (!value) {
-                return callback(new Error('用户名不能为空'));
+            if (value.length < 2 || value.length > 10) {
+                return callback(new Error('长度需要在 2 到 10 个字符'));
             }
             else {
                 callback();
             }
         };
         var validatePass = (rule, value, callback) => {
-            if (value === '') {
-                callback(new Error('请输入密码'));
+            if (value.length < 6 || value.length > 12) {
+                callback(new Error('密码长度需要在 6 到 12 个字符'));
             } else {
                 if (this.ruleForm.checkPass !== '') {
                     this.$refs.ruleForm.validateField('checkPass');
@@ -77,7 +77,7 @@ export default {
                 username: [
                     { validator: checkName, trigger: 'blur' }
                 ],
-                pass: [
+                password: [
                     { validator: validatePass, trigger: 'blur' }
                 ],
                 checkPass: [
