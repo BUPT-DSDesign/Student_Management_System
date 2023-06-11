@@ -972,7 +972,7 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则直接调用索引的查找函数
             //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
-            vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
+            vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_index_[indexName]->getKeyType()));
             //如果有结果
             if(!addr.empty()){
                 //将这个字节流转换为streampos类型
@@ -1106,7 +1106,7 @@ void Table::DeleteRecord(SQLWhere &where){
     }else if(col2index_.find(indexName)!=col2index_.end()){
         //在索引中有这个值,则调用索引删除函数
         //先获取索引的键值
-        Key index_key = where.GetQueryKey(indexName,tb_data_->getKeyType());
+        Key index_key = where.GetQueryKey(indexName,tb_index_[indexName]->getKeyType());
         //获取删除的位置
         vector<byte> remove = tb_index_[indexName]->Remove(index_key);    
         filepos pos = *reinterpret_cast<filepos*>(remove.data());
