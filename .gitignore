@@ -1,5 +1,6 @@
 #release
 /release
+/runnable
 # Database related
 *.tbinfo
 *.table
