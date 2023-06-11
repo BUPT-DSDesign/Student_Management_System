@@ -14,17 +14,12 @@ using namespace std;
 
 
 //下面代码为将Where语句解析到AST的代码
-//表达式节点
-class ExpressionNode{
-public:
-    virtual ~ExpressionNode() = default;
-    virtual string toString() const = 0;
-};
 /*
 ** 一条稍复杂的Where语句示例如下
 ** WHERE (col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4) OR (col5 = 5 AND col6 = 6)
 ** 其中,我们可以将 col1 = 1看成一个子结构,子结构由AND/OR运算符连接起来,形成一个从句
 ** 从句之间也可以用AND和OR连接起来,形成一个复杂的Where语句
+** 本代码为了简化解析过程，假设语句中全用AND或OR连接
 */
 enum class TermOperator{
     EQUAL,
@@ -77,7 +72,6 @@ private:
     bool negated_;//看是不是取反
     vector<WhereTerm> terms_;//从句中的子结构
     ClauseOperator op_;//连接各个子结构的运算符,包含AND/OR
-    //shared_ptr<WhereClause> outerClause_;//外层从句,如(col1 = 1 AND col2 = 2) OR (col3 = 3 AND col4 = 4),其中(col1 = 1 AND col2 = 2)和(col3 = 3 AND col4 = 4)的外层从句为整个句子
 };
 //Where约束
 enum class QueryType{

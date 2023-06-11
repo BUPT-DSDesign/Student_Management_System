@@ -12,7 +12,20 @@
 #include <chrono>
 using namespace std;
 const filepos INVALID_OFFSET = -1;
-BPNode::BPNode(){
+BPNode::~BPNode(){
+    //析构函数
+    fp->close();
+}
+BPNode::BPNode(string filename)
+:file_name_(filename),is_leaf_(false),is_dirty_(false),key_type_(0),degree_(0),busy_(0),child_cnt_(0),data_size_(0),key_size_(0),father_(INVALID_OFFSET),node_pos(INVALID_OFFSET),fp(make_shared<fstream>(filename,ios::in|ios::out|ios::binary))
+{
+    if(!fp->is_open()){
+        fp->open(filename,ios::out|ios::binary);
+        if(!fp->is_open()){
+            throw BPNodeException(filename+"文件打开失败");
+        }
+        fp->open(filename,ios::in|ios::out|ios::binary);
+    }
     //初始化vector大小
     int max_space = PAGE_SIZE - sizeof(BPNodeHead);//最大的空闲空间
     //假设每个data最小为1字节
@@ -58,13 +71,13 @@ void BPNode::ReadChunk(filepos pos){
     BPNodeHead head;
     //将一个区块读取到字节流中
     //1.打开文件读写流
-    fstream fp(file_name_,ios::binary|ios::in);
+    //fstream fp(file_name_,ios::binary|ios::in);
     //cerr << "Reading Chunk,file_name_:" << file_name_ <<" "<<pos<< endl;
-    fp.seekg(pos,ios::beg);
-    if(!fp.eof()){
+    fp->seekg(pos,ios::beg);
+    if(!fp->eof()){
         //如果没有读写到文件末尾
         //第一个部分,结构体头
-        fp.read((char*)&head,sizeof(head));
+        fp->read((char*)&head,sizeof(head));
         //用结构体头的数据更新当前节点的成员变量
         is_leaf_ = head.is_leaf_;
         is_dirty_ = head.is_dirty_;
@@ -91,33 +104,33 @@ void BPNode::ReadChunk(filepos pos){
         filepos child_p;
         if(head.is_leaf_){
             //如果是叶子节点,读出前一个节点
-            fp.read((char*)&child_p,sizeof(child_p));
+            fp->read((char*)&child_p,sizeof(child_p));
             child_.push_back(child_p);
         }
         for(int i=0;i<head.busy_;i++){
             //如果不是叶节点,才有child
             if(!head.is_leaf_){
-                fp.read((char*)&child_p,sizeof(child_p));
+                fp->read((char*)&child_p,sizeof(child_p));
                 child_.push_back(child_p);
             }
             //读取数据
             vector<byte> tmp(head.data_size_+head.key_size_);
-            fp.read((char*)tmp.data(),head.data_size_+head.key_size_);
+            fp->read((char*)tmp.data(),head.data_size_+head.key_size_);
             data_.insert(data_.end(),tmp.begin(),tmp.end());
         }
         //如果不是叶子结点,这里记录最后一个孩子
         //如果是叶子节点,这里记录下一个元素位置
-        fp.read((char*)&child_p,sizeof(child_p));
+        fp->read((char*)&child_p,sizeof(child_p));
         child_.push_back(child_p);
     }
     //读取完毕,关闭文件读写流
-    fp.close();
+    //fp->close();
 }
 void BPNode::WriteChunk(){
     //将节点按格式写入硬盘
     //1.打开文件读写流
-    fstream fp(file_name_,ios::binary|ios::in|ios::out);
-    fp.seekp(node_pos,ios::beg);
+    //fstream fp(file_name_,ios::binary|ios::in|ios::out);
+    fp->seekp(node_pos,ios::beg);
     //2.写入
     //第一部分,写入结构体头
     BPNodeHead head_;
@@ -130,25 +143,25 @@ void BPNode::WriteChunk(){
     head_.father_ = father_;
     head_.key_size_ = key_size_;
     head_.chunk_pos_ = node_pos;
-    fp.write((char*)&head_,sizeof(head_));
+    fp->write((char*)&head_,sizeof(head_));
     //第二部分,写入节点数据
     if(head_.is_leaf_){
         //如果是叶子节点,写出前一个节点
-         fp.write((char*)&child_[0],sizeof(child_[0]));
+         fp->write((char*)&child_[0],sizeof(child_[0]));
     }
     for(int i=0;i<head_.busy_;i++){
         if(!head_.is_leaf_)
             //如果不是叶子节点的话才有child
-            fp.write((char*)&child_[i],sizeof(child_[i]));
-        fp.write((char*)&data_[getElemLocInData(i)],data_size_+key_size_);
+            fp->write((char*)&child_[i],sizeof(child_[i]));
+        fp->write((char*)&data_[getElemLocInData(i)],data_size_+key_size_);
     }
     if(!head_.is_leaf_)
-        fp.write((char*)&child_[head_.busy_],sizeof(child_[head_.busy_]));
+        fp->write((char*)&child_[head_.busy_],sizeof(child_[head_.busy_]));
     else
         //如果是leaf节点,则仅有一个,指向下一个节点
-        fp.write((char*)&child_[1],sizeof(child_[1]));
-    //写入完毕,关闭文件写入流
-    fp.close();
+        fp->write((char*)&child_[1],sizeof(child_[1]));
+    //写入完毕,刷写文件写入流
+    fp->flush();
 }
 void BPNode::CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_type,filepos &end_pos)
 {
@@ -175,50 +188,48 @@ void BPNode::CreateChunk(bool is_leaf,int data_size,uint16 key_size,uint8 key_ty
     //1.获取新页位置
     //此处可改为获取一块脏页
     
-    fstream fp(file_name_,ios::in|ios::out|ios::binary);
-    if(fp.tellp()!=INVALID_OFFSET){
-        fp.seekp(end_pos,ios::beg);
+    //fstream fp(file_name_,ios::in|ios::out|ios::binary);
+    if(fp->tellp()!=INVALID_OFFSET){
+        fp->seekp(end_pos,ios::beg);
         node_pos = end_pos;
     }else{
         //新建文件
         end_pos = 0;
         node_pos = 0;
-        fp.open(file_name_,ios::out|ios::binary);
+        fp->open(file_name_,ios::out|ios::binary);
     }
     
     //2.填充头信息
     BPNodeHead head_ = {is_leaf_,is_dirty_,key_type_,key_size_,degree_,busy_,data_size_,father_,node_pos};
     //如果当前是文件末尾,则给文件预填充一段16MB的空间
-    if(fp.peek()==EOF){
-        fp.close();
-        fp.open(file_name_,ios::binary|ios::in|ios::out);
-        fp.seekp(end_pos,ios::beg);
+    if(fp->peek()==EOF){
+        fp->close();
+        fp->open(file_name_,ios::binary|ios::in|ios::out);
+        fp->seekp(end_pos,ios::beg);
         char data[PAGE_SIZE] = {0};
         for(int i=0;i<1024;i++){
-            fp.write(data,PAGE_SIZE);
+            fp->write(data,PAGE_SIZE);
         }
-        fp.flush();
-        fp.close();
-        fp.open(file_name_,ios::binary|ios::in|ios::out);
-        fp.seekp(end_pos,ios::beg);
+        fp->close();
+        fp->open(file_name_,ios::binary|ios::in|ios::out);
+        fp->seekp(end_pos,ios::beg);
     }
-    fp.write((char*)&head_,sizeof(head_));
+    fp->write((char*)&head_,sizeof(head_));
     end_pos += PAGE_SIZE;
-    fp.flush();
-    fp.close();
+    fp->flush();
 }
 filepos BPNode::releaseChunk(){
     //从磁盘中卸载当前块
     //1.打开文件读写流
-    fstream fp(file_name_,ios::binary|ios::in|ios::out);
-    fp.seekp(node_pos,ios::beg);
+    //fstream fp(file_name_,ios::binary|ios::in|ios::out);
+    fp->seekp(node_pos,ios::beg);
     //2.将其标记为脏页
     is_dirty_ = true;
     //3.写入
     BPNodeHead head_ = {is_dirty_,is_leaf_,key_type_,key_size_,degree_,busy_,data_size_,father_,node_pos};
-    fp.write((char*)&head_,sizeof(head_));
-    //4.关闭文件读写流
-    fp.close();
+    fp->write((char*)&head_,sizeof(head_));
+    //4.刷写文件读写流
+    fp->flush();
     return node_pos;
 }
 vector<byte> BPNode::getRawData(int id){
@@ -318,10 +329,10 @@ Key BPNode::getKey(int id){
 }
 
 //下面是B+树的实现
-BPTree::BPTree(string path,bool is_table)
+BPTree::BPTree(string path,bool is_table):bufnode_(path)
 {
     is_table_ = is_table;
-    bufnode_.file_name_ = path;
+    //bufnode_.file_name_ = path;
     //如果没有文件,则创建一个文件
     if(!std::filesystem::exists(bufnode_.file_name_)){
         throw BPTreeException("File Do not Exist!");
@@ -351,17 +362,17 @@ BPTree::BPTree(string path,bool is_table)
             break;
         page_num++;
     }
-    
+    key_size_ = bufnode_.key_size_;
     end_pos_ = page_num*PAGE_SIZE;
     in.close();
 }
 BPTree::BPTree(string path,bool is_table,int data_size,uint16 key_size,uint8 key_type)
-:is_table_(is_table),size_of_item_(data_size),key_type_(key_type),cur_(0),root_pos_(0),end_pos_(0)
+:is_table_(is_table),size_of_item_(data_size),key_type_(key_type),cur_(0),root_pos_(0),end_pos_(0),key_size_(key_size),bufnode_(path)
 {
-    bufnode_.file_name_ = path;
+    //bufnode_.file_name_ = path;
     //如果已经新建过了,就报错
-    if(std::filesystem::exists(bufnode_.file_name_)){
-        throw BPTreeException("File Exist!");
+    if(!std::filesystem::exists(bufnode_.file_name_)){
+        throw BPTreeException("File Do not Exist!");
     }
     //如果是表,则需要初始化一些属性
     bufnode_.CreateChunk(true,data_size,key_size,key_type,end_pos_);
@@ -406,13 +417,12 @@ void BPTree::searchLeaf(const Key &key){
         int child_id = binarySearch(bufnode_,key);
         //得到孩子的位置,接下来决定选哪边的孩子
         if(bufnode_.getKey(child_id) > key){
-            //如果孩子的key比key大,那么就取左边的孩子
+            //如果孩子的key比要查找的键值大,那么就取左边的孩子
             cur_ = bufnode_.getChild(child_id);
         }else{
             //否则取右边的
             cur_ = bufnode_.getChild(child_id+1);
         }
-        //cur_ = bufnode_.getChild(child_id+1);
     }
 }
 vector<byte> BPTree::Search(const Key &key){
@@ -458,6 +468,12 @@ vector<vector<byte>> BPTree::SearchRange(const Key& left,const Key& right){
     while(pos < bufnode_.busy_ &&bufnode_.getKey(pos) <= right){
         result.push_back(bufnode_.getRawData(pos));
         pos++;
+        if(pos == bufnode_.busy_ && bufnode_.child_[1] != INVALID_OFFSET){
+            //如果当前块已经读完,则读取下一个块
+            cur_ = bufnode_.child_[1];
+            bufnode_.ReadChunk(cur_);
+            pos = 0;
+        }
     }
     return result;
 }
@@ -491,8 +507,8 @@ vector<Key> BPTree::Insert(const Key &key,vector<byte> &data){
 void BPTree::insertKey(const Key &key,const filepos &old,const filepos &after){
     if(cur_==-1){
         //新建一个根节点
-        BPNode root;
-        root.file_name_ = bufnode_.file_name_;
+        BPNode root(bufnode_.file_name_);
+        //root.file_name_ = bufnode_.file_name_;
         //非叶子节点,节点单元素大小为streampos大小
         root.CreateChunk(false,0,bufnode_.key_size_,bufnode_.key_type_,end_pos_);
         //节点只有一个,即键值
@@ -513,13 +529,13 @@ void BPTree::insertKey(const Key &key,const filepos &old,const filepos &after){
         return;
     }
     //如果这不算根节点
-    BPNode inner_node;
-    inner_node.file_name_ = bufnode_.file_name_;
+    BPNode inner_node(bufnode_.file_name_);
+    //inner_node.file_name_ = bufnode_.file_name_;
     inner_node.ReadChunk(cur_);
     if(inner_node.busy_ == inner_node.degree_){
         //满啦,需要分裂
-        BPNode new_node;
-        new_node.file_name_ = bufnode_.file_name_;
+        BPNode new_node(bufnode_.file_name_);
+        //new_node.file_name_ = bufnode_.file_name_;
         new_node.CreateChunk(false,0,bufnode_.key_size_,bufnode_.key_type_,end_pos_);
         //找到二分点
         uint16 pos = (inner_node.busy_ - 1) / 2;
@@ -552,13 +568,13 @@ void BPTree::insertKey(const Key &key,const filepos &old,const filepos &after){
             insertNoSplit(inner_node,key,child_bytes);
         }
         //保存修改过的两个区块
+        new_node.father_ = inner_node.father_;
         new_node.WriteChunk();
         inner_node.WriteChunk();
-        new_node.father_ = inner_node.father_;
         resetIndexChildrenParent(new_node);
         //然后把键值向上插入
         cur_ = inner_node.father_;
-        insertKey(new_node.getKey(0),new_node.node_pos,new_node.node_pos);
+        insertKey(new_node.getKey(0),inner_node.node_pos,new_node.node_pos);
     }else{
         //不需要拓,直接插入
         //将after插入到inner_node中
@@ -586,8 +602,8 @@ void BPTree::writeNodeHead(const BPNodeHead &head,filepos pos){
 }
 vector<Key> BPTree::splitTreeNode(const Key &key,vector<byte> &data){
     //首先需要一分为二,故先创建一个邻居
-    BPNode new_node;
-    new_node.file_name_ = bufnode_.file_name_;
+    BPNode new_node(bufnode_.file_name_);
+    //new_node.file_name_ = bufnode_.file_name_;
     //此处新建的为叶子节点
     new_node.CreateChunk(true,size_of_item_,bufnode_.key_size_,bufnode_.key_type_,end_pos_);
     //找到二分点
@@ -820,12 +836,11 @@ vector<byte> BPTree::Remove(const Key &key,vector<Key> &adjust_keys){
         bufnode_.WriteChunk();
     }else if(bufnode_.busy_ < (bufnode_.degree_ + 1)/2){
         //如果删除之后,节点的元素个数小于等于阶数的一半,则需要进行调整操作
-        BPNode parent,lSibling,rSibling;
-        parent.file_name_ = bufnode_.file_name_;
-        lSibling.file_name_ = bufnode_.file_name_;
-        rSibling.file_name_ = bufnode_.file_name_;
+        BPNode parent(bufnode_.file_name_),lSibling(bufnode_.file_name_),rSibling(bufnode_.file_name_);
+        //parent.file_name_ = bufnode_.file_name_;
+        //lSibling.file_name_ = bufnode_.file_name_;
+        //rSibling.file_name_ = bufnode_.file_name_;
         parent.ReadChunk(bufnode_.father_);
-        //TODO 此处空该怎么办？
         lSibling.ReadChunk(parent.getChild(0));
         rSibling.ReadChunk(parent.getChild(1));
         //查找父节点中,当前页对应的孩子的位置
@@ -855,7 +870,7 @@ vector<byte> BPTree::Remove(const Key &key,vector<Key> &adjust_keys){
                 borrow_from = BorrowFrom::RIGHT;
             }
         }
-        //TODO 开借
+        //开借
         if(borrow_from == BorrowFrom::LEFT){
             if(lSibling.busy_ >= (lSibling.degree_ + 1)/2){
                 //左边的邻居大过m/2,把左边的邻居的最后一个元素借过来
@@ -872,10 +887,9 @@ vector<byte> BPTree::Remove(const Key &key,vector<Key> &adjust_keys){
                 deleteLeafNode(bufnode_,lSibling,rSibling);
                 //随后向上更新
                 innerNodeRemove(parent,parent_pos);
-                //TODO 等会看看这里要不要把节点给写磁盘里
             }
         }else{
-            //TODO 先删除,免得合并时溢出
+            //先删除,免得合并时溢出
             simpleLeafRemove(bufnode_,pos);
             if(rSibling.busy_ >= (rSibling.degree_ + 1)/2){
                 //右边的孩子大过m/2,把右边元素的第一个元素借过来
@@ -952,8 +966,8 @@ void BPTree::leafMergeFromRight(BPNode &leaf,BPNode &right_sibling){
     leaf.busy_ += right_sibling.busy_;
     //然后把right_sibling删除
     //先获取right_sibling的下一个
-    BPNode r_next;
-    r_next.file_name_ = right_sibling.file_name_;
+    BPNode r_next(right_sibling.file_name_);
+    //r_next.file_name_ = right_sibling.file_name_;
     r_next.ReadChunk(right_sibling.child_[1]);
     //然后把right_sibling的下一个节点的前一个节点指向leaf
     r_next.child_[0] = leaf.node_pos;
@@ -993,8 +1007,8 @@ void BPTree::innerNodeRemove(BPNode &node,int pos){
         //这是个根节点
         if(node.busy_ == 1){
             //如果只有一个元素,就用左孩子来当新的根节点
-            BPNode new_root;
-            new_root.file_name_ = node.file_name_;
+            BPNode new_root(node.file_name_);
+            //new_root.file_name_ = node.file_name_;
             new_root.ReadChunk(node.child_[0]);
             new_root.father_ = INVALID_OFFSET;
             //让new_root放到0位置
@@ -1008,13 +1022,13 @@ void BPTree::innerNodeRemove(BPNode &node,int pos){
     }else if(node.busy_ < (node.degree_ + 1)/2){
         //孩子节点的数量小于一半,需要进行调整
         //首先找到父节点
-        BPNode parent;
-        parent.file_name_ = node.file_name_;
+        BPNode parent(node.file_name_);
+        //parent.file_name_ = node.file_name_;
         parent.ReadChunk(node.father_);
         //找到左右兄弟节点
-        BPNode left_sibling,right_sibling;
-        left_sibling.file_name_ = node.file_name_;
-        right_sibling.file_name_ = node.file_name_;
+        BPNode left_sibling(node.file_name_),right_sibling(node.file_name_);
+        //left_sibling.file_name_ = node.file_name_;
+        //right_sibling.file_name_ = node.file_name_;
         int parent_pos = binarySearch(parent,node.getKey(0));
         
         
@@ -1146,8 +1160,8 @@ void BPTree::innerMergeToLeft(BPNode &leaf,BPNode &left_sibling,BPNode &parent,i
     left_sibling.busy_ += (leaf.busy_ - remove_pos - 1);
     //将孩子节点的父亲给更改了(刚被合并过来的部分)
     for(auto it = left_sibling.childLoc(left_sibling.busy_ - (leaf.busy_ - remove_pos - 1));it != left_sibling.childLoc(left_sibling.busy_);it++){
-        BPNode child;
-        child.file_name_ = bufnode_.file_name_;
+        BPNode child(bufnode_.file_name_);
+        //child.file_name_ = bufnode_.file_name_;
         child.ReadChunk(*it);
         child.father_ = left_sibling.node_pos;
         child.WriteChunk();
@@ -1165,8 +1179,8 @@ void BPTree::innerMergeFromRight(BPNode &leaf,BPNode &right_sibling,BPNode &pare
     leaf.busy_ += right_sibling.busy_;
     //将孩子节点的父亲给更改了
     for(auto it = leaf.childLoc(leaf.busy_ - right_sibling.busy_);it != leaf.childLoc(leaf.busy_);it++){
-        BPNode child;
-        child.file_name_ = bufnode_.file_name_;
+        BPNode child(bufnode_.file_name_);
+        //child.file_name_ = bufnode_.file_name_;
         child.ReadChunk(*it);
         child.father_ = leaf.node_pos;
         child.WriteChunk();
@@ -1179,4 +1193,7 @@ void BPTree::subNodeUpdateParent(BPNode &node,filepos parent_pos){
 }
 uint8 BPTree::getKeyType(){
     return key_type_;
+}
+uint16 BPTree::getKeySize(){
+    return bufnode_.key_size_;
 }

@@ -19,7 +19,6 @@ using namespace std;
 //如果为叶子结点，则节点内部(除头部)数据存储结构如下
 //front|key1|data1|key2|data2|...|keyn|datan|tail|
 //叶子节点为双向链表,front和tail为指向前后叶子节点的指针
-//同时假设单个表文件不会大于4GB,所以可以用uint32存储位置信息(100w+条数据是不是不大可能)
 struct BPNodeHead{
     bool is_leaf_;//判断是不是叶子结点
     bool is_dirty_;//判断是否为脏页(即该页数据是否已经被删除)
@@ -50,9 +49,10 @@ private:
     vector<filepos> child_;//孩子的位置
     vector<byte> data_;//数据
     filepos node_pos;//当前节点的位置
+    shared_ptr<fstream> fp;//文件读写头
     friend class BPTree;
 public:
-    BPNode();
+    BPNode(string file_name);
     std::vector<filepos>::iterator childBegin();//返回child的开始位置的迭代器
     std::vector<filepos>::iterator childEnd();//返回child结束位置的迭代器
     std::vector<filepos>::iterator childLoc(int id);//返回指向child id的迭代器
@@ -74,11 +74,11 @@ public:
     uint16 getElemLocInData(int id);//获取节点在data中的开始下标
     void updateDataAtPos(int id,const Key &key,const vector<byte> &data);//更新第k个元素的data
     void insertDataAtPos(int id,const Key &key,const vector<byte>& data);//在第k个元素后插入元素
+    ~BPNode();
 };
 class BPTree
 {
 private:
-    /* data */
     bool is_table_;//是table还是索引
     filepos root_pos_;//根节点位置
     filepos cur_;//当前读取的位置
@@ -86,6 +86,7 @@ private:
     uint16 size_of_item_;//每一个元素的大小
     BPNode bufnode_;//当前读取的叶子节点
     uint8 key_type_;//键的类型
+    uint16 key_size_;//键的大小
     //读取某个位置的节点头
     BPNodeHead readNodeHead(filepos pos);
     //将节点头写入
@@ -166,4 +167,6 @@ public:
     bool Update(const Key &key,vector<byte> &data);
     //查询键值类型
     uint8 getKeyType();
+    //查询键值大小
+    uint16 getKeySize();
 };

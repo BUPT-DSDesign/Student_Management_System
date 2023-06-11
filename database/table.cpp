@@ -163,6 +163,7 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
         string tmp_col_name;
         tmp_col_name.assign(col_info_[tmp.col_id_].col_name_);
         col2index_[tmp_col_name] = tmp_str;
+        index_col_name_.push_back(tmp_col_name);
     }
     //最后打开表的数据文件,其文件路径为db_path/table_name.table,
     string fileData = db_path_+"/"+table_name_+".table";
@@ -566,6 +567,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     uint16 col_id = col2id_[col_name];
     tb_index_[index_name] = make_shared<BPTree>(fileIndex,false,sizeof(filepos),col_info_[col_id].length_,col_info_[col_id].data_type_);
     col2index_[col_name] = index_name;
+    index_col_name_.push_back(col_name);
     //遍历表的数据文件,将数据文件中的数据插入到索引中
     //直接按顺序读取数据文件,然后插入到索引中
     tb_data_->ReadFirstChunk();
@@ -578,7 +580,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
             Row row(col_info_,it);
             vector<byte> addr(sizeof(filepos),byte(0));
             std::copy(reinterpret_cast<std::byte*>(&pos),reinterpret_cast<std::byte*>(&pos)+sizeof(filepos),addr.begin());
-            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(),addr);
+            tb_index_[index_name]->Insert(row.getValue(col_name).toKey(tb_index_[index_name]->getKeySize()),addr);
         }
         tb_data_->ReadNextChunk();
     }
@@ -828,19 +830,23 @@ void Table::SelectRecord(SQLWhere &where){
             //如果是等值查询,则直接调用索引的查找函数
             //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
             vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_index_[indexName]->getKeyType()));
-            //将这个字节流转换为streampos类型
-            filepos pos;
-            std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
-            //将这个块读取出来
-            tb_data_->ReadChunk(pos);
-            //将这个块中的所有元素读取出来,并过滤
-            vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
-            for(auto &it:record){
-                Row row(col_info_,it);
-                if(row.isSatisfied(where)){
-                    rows_result.push_back(row);
+            //判空
+            if(addr.size() != 0){
+                //将这个字节流转换为streampos类型
+                filepos pos;
+                std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
+                //将这个块读取出来
+                tb_data_->ReadChunk(pos);
+                //将这个块中的所有元素读取出来,并过滤
+                vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+                for(auto &it:record){
+                    Row row(col_info_,it);
+                    if(row.isSatisfied(where)){
+                        rows_result.push_back(row);
+                    }
                 }
             }
+            
         }else{
             //如果是范围查询,则调用索引的范围查找函数
             //当然,返回值为块地址,需要把块读出来,再进行过滤
@@ -869,6 +875,7 @@ void Table::SelectRecord(SQLWhere &where){
     PrintToStream("Result Found",rows_result);
 }
 void Table::InsertRecord(vector<string> &value_item){
+    //没有指定插入列
     //利用TableAttribute组装成pair
     vector<pair<string,string>> col_item;
     for(int i=0;i<col_info_.size();i++){
@@ -880,6 +887,7 @@ void Table::InsertRecord(vector<string> &value_item){
 }
 void Table::InsertRecord(vector<pair<string,string>> &col_item){
     //一条一条插入记录,先将记录序列化
+    
     vector<byte> data = serialize(col_item);
     //获取主键的值
     Key primary_key = getValue(data,col2id_[primary_key_]);
@@ -911,13 +919,9 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
             tb_index_[it.first]->Update(index_key,index_data);
         }
     }
-    //输出插入的数据
-    vector<Row> result;
-    result.push_back(Row(col_info_,data));
-    PrintToStream("Insert Record",result);
+    saySuccess();
 }
 void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
-    //未测试,不予使用
     //先根据Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
     //随后根据索引的类型,调用不同的函数
@@ -929,8 +933,11 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
         //如果是主键,则直接调用主键查找函数
         if(where.GetQueryType(indexName) == QueryType::QUERY_EQ){
             //如果是等值查询,则调用主键查找函数
-            Row row(col_info_,tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType())));
-            rows_result.push_back(row);
+            vector<byte> record = tb_data_->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
+            if(!record.empty()){
+                Row row(col_info_,record);
+                rows_result.push_back(row);
+            }
             //result.push_back(tb_data_->Search(where.GetQueryKey(indexName)));
         
         }else{
@@ -966,19 +973,24 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             //如果是等值查询,则直接调用索引的查找函数
             //要注意,索引查找返回的值是一个块的地址,需要把这个块读取出来,再进行过滤
             vector<byte> addr = tb_index_[indexName]->Search(where.GetQueryKey(indexName,tb_data_->getKeyType()));
-            //将这个字节流转换为streampos类型
-            filepos pos;
-            std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
-            //将这个块读取出来
-            tb_data_->ReadChunk(pos);
-            //将这个块中的所有元素读取出来,并过滤
-            vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
-            for(auto &it:record){
-                Row row(col_info_,it);
-                if(row.isSatisfied(where)){
-                    rows_result.push_back(row);
+            //如果有结果
+            if(!addr.empty()){
+                //将这个字节流转换为streampos类型
+                filepos pos;
+                std::copy(addr.begin(),addr.begin()+sizeof(filepos),(byte*)&pos);
+                //将这个块读取出来
+                tb_data_->ReadChunk(pos);
+                //将这个块中的所有元素读取出来,并过滤
+                vector<vector<byte>> record = tb_data_->GetAllElemInChunk();
+                for(auto &it:record){
+                    Row row(col_info_,it);
+                    if(row.isSatisfied(where)){
+                        rows_result.push_back(row);
+                    }
                 }
             }
+            
+            
         }else{
             //如果是范围查询,则调用索引的范围查找函数
             //当然,返回值为块地址,需要把块读出来,再进行过滤
@@ -1030,14 +1042,14 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
     if(remove_primary){
         for(auto &it:rows_result){
             vector<byte> record = it.toByte();
-            tb_data_->Insert(it.getValue(primary_key_).toKey(),record);
-            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey()));
+            tb_data_->Insert(it.getValue(primary_key_).toKey(tb_data_->getKeySize()),record);
+            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey(tb_data_->getKeySize())));
         }
     }else{
         for(auto &it:rows_result){
             vector<byte> record = it.toByte();
-            tb_data_->Update(it.getValue(primary_key_).toKey(),record);
-            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey()));
+            tb_data_->Update(it.getValue(primary_key_).toKey(tb_data_->getKeySize()),record);
+            pos_list.push_back(tb_data_->SearchPos(it.getValue(primary_key_).toKey(tb_data_->getKeySize())));
         }
     }
     //TODO 这里应该找到对应记录的pos,然后更新
@@ -1046,7 +1058,7 @@ void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
             //将streampos转换为字节流
             vector<byte> pos_byte(sizeof(filepos));
             std::copy(reinterpret_cast<char*>(&pos_list[i]),reinterpret_cast<char*>(&pos_list[i])+sizeof(filepos),reinterpret_cast<char*>(pos_byte.data()));
-            tb_index_[it]->Insert(rows_result[i].getValue(it).toKey(),pos_byte);
+            tb_index_[it]->Insert(rows_result[i].getValue(it).toKey(tb_index_[it]->getKeySize()),pos_byte);
         }
     }
 }
