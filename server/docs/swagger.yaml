@@ -25,6 +25,17 @@ definitions:
       status_msg:
         type: string
     type: object
+  activity_handler.queryResponse:
+    properties:
+      activities:
+        items:
+          $ref: '#/definitions/system.ActivityInfo'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
   common.LoginRequest:
     properties:
       password:
@@ -41,8 +52,64 @@ definitions:
       username:
         type: string
     type: object
+  course_handler.CourseInfo:
+    properties:
+      classroom:
+        description: 线下课程记录教室, 线上课程记录会议链接
+        type: string
+      contact:
+        type: string
+      course_id:
+        type: integer
+      course_location_node:
+        description: 对应导航地图的节点, 设置成数组是因为一个地点可能对应多个node
+        items:
+          type: integer
+        type: array
+      course_name:
+        type: string
+      exam_location:
+        type: string
+      exam_location_node:
+        items:
+          type: integer
+        type: array
+      exam_option:
+        type: integer
+      exam_time:
+        description: 考试时间, 格式为'第几周-星期几-几点~几点（HH:mm~HH:mm）', 如'第十六周-星期三-19:00~20:00'
+        type: string
+      is_compulsory:
+        description: 课程是否必修
+        type: boolean
+      is_course_online:
+        type: boolean
+      is_selected:
+        type: boolean
+      section_list:
+        items:
+          type: integer
+        type: array
+      teacher:
+        type: string
+      week_schedule:
+        items:
+          type: integer
+        type: array
+    type: object
   course_handler.addResponse:
     properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  course_handler.allResponse:
+    properties:
+      course_list:
+        items:
+          $ref: '#/definitions/system.CourseInfo'
+        type: array
       status_code:
         type: integer
       status_msg:
@@ -60,6 +127,24 @@ definitions:
       course_list:
         items:
           $ref: '#/definitions/system.CourseInfo'
+        type: array
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  course_handler.selectResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
+  course_handler.selectiveResponse:
+    properties:
+      course_list:
+        items:
+          $ref: '#/definitions/course_handler.CourseInfo'
         type: array
       status_code:
         type: integer
@@ -149,6 +234,17 @@ definitions:
       status_msg:
         type: string
     type: object
+  polling_handler.isActivityArriveResponse:
+    properties:
+      activity_info:
+        $ref: '#/definitions/system.ActivityInfo'
+      is_arrive:
+        type: boolean
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+    type: object
   polling_handler.isCourseArriveResponse:
     properties:
       course_info:
@@ -166,6 +262,9 @@ definitions:
         type: integer
       activity_name:
         type: string
+      advance_mention_time:
+        description: 提前提醒时间
+        type: integer
       frequency:
         type: integer
       is_mention:
@@ -253,6 +352,12 @@ definitions:
         type: string
       is_admin:
         type: boolean
+      password:
+        description: 加密之后的密码
+        type: string
+      salt:
+        description: 密码加盐
+        type: string
       signature:
         description: '......后续应该还要加上一些字段'
         type: string
@@ -262,6 +367,45 @@ definitions:
         type: integer
       username:
         type: string
+    type: object
+  user_handler.UserInfo:
+    properties:
+      avatar_url:
+        description: 保存用户头像的路径
+        type: string
+      courses:
+        description: 拥有的课程
+        items:
+          $ref: '#/definitions/system.CourseInfo'
+        type: array
+      is_admin:
+        type: boolean
+      password:
+        description: 加密之后的密码
+        type: string
+      salt:
+        description: 密码加盐
+        type: string
+      signature:
+        description: '......后续应该还要加上一些字段'
+        type: string
+      student_id:
+        type: string
+      user_id:
+        type: integer
+      username:
+        type: string
+    type: object
+  user_handler.allInfoResponse:
+    properties:
+      status_code:
+        type: integer
+      status_msg:
+        type: string
+      user_infos:
+        items:
+          $ref: '#/definitions/user_handler.UserInfo'
+        type: array
     type: object
   user_handler.infoResponse:
     properties:
@@ -366,6 +510,21 @@ paths:
       summary: 课外活动信息
       tags:
       - 活动接口
+  /activity/query:
+    get:
+      description: 通过时间段查询学生的课外活动信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/activity_handler.queryResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 查询课外活动
+      tags:
+      - 活动接口
   /course/add:
     post:
       description: 管理员添加课程
@@ -379,6 +538,21 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 添加课程
+      tags:
+      - 课程接口
+  /course/all:
+    get:
+      description: 获取所有所有课
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.allResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 所有课
       tags:
       - 课程接口
   /course/delete:
@@ -409,6 +583,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: 查询课程
+      tags:
+      - 课程接口
+  /course/select:
+    post:
+      description: 学生选课
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.selectResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 选课
+      tags:
+      - 课程接口
+  /course/selective:
+    get:
+      description: 获取所有选修课
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/course_handler.selectiveResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: 选修课
       tags:
       - 课程接口
   /course/table:
@@ -568,6 +772,21 @@ paths:
       summary: 旅行商
       tags:
       - 导航接口
+  /polling/is_activity_arrive:
+    get:
+      consumes:
+      - application/json
+      description: 活动是否来临
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/polling_handler.isActivityArriveResponse'
+      summary: 活动是否来临
+      tags:
+      - 轮询接口
   /polling/is_course_arrive:
     get:
       consumes:
@@ -596,6 +815,21 @@ paths:
           schema:
             $ref: '#/definitions/user_handler.infoResponse'
       summary: 用户信息
+      tags:
+      - 用户接口
+  /user/info/all:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user_handler.allInfoResponse'
+      summary: 所有用户信息
       tags:
       - 用户接口
   /user/login:
