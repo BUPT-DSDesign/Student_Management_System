@@ -59,44 +59,24 @@ int main(int argc,char* argv[]){
                 cerr<<"SQL Execute Time: "<<duration.count()/1000.0<<"ms"<<"\n";
                 
             }catch(const SQLSyntaxError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Statement Syntax Error,You can check the manual for its Syntax\n";
                 sayFailure(e.what());
             }catch(const SQLTypeError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Statement Type Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const DBManagerError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Database Manager Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableOpenError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Table Open Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableDataError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Table Data Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableIndexError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Table Index Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableIndexExist& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Table Index Exist Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableCreateError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Table Create Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const TableDeleteError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Table Delete Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const ColValueError& e){
-                //cerr<<e.what()<<"\n";
-                //cerr<<"Col Value Error,You can check the manual for Supported SQL Type\n";
                 sayFailure(e.what());
             }catch(const BPTreeException & e){
                 //cerr<<e.what()<<"\n";

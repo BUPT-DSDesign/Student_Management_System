@@ -100,19 +100,6 @@ public:
 private:
     string db_name_;//数据库名称
 };
-
-//SQL插入的对象
-/*
-class SQLInsertValue: public SQLBase
-{
-public:
-    SQLInsertValue(vector<string> &sql_vector);
-    void PraseSQLVector(vector<string> &sql_vector);
-private:
-    uint8 data_type_;//数据类型
-    string val_;//值
-};
-*/
 //增加
 class SQLInsert: public SQLBase
 {

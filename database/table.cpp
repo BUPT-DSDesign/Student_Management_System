@@ -875,6 +875,7 @@ void Table::SelectRecord(SQLWhere &where){
     PrintToStream("Result Found",rows_result);
 }
 void Table::InsertRecord(vector<string> &value_item){
+    //没有指定插入列
     //利用TableAttribute组装成pair
     vector<pair<string,string>> col_item;
     for(int i=0;i<col_info_.size();i++){
@@ -918,14 +919,9 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
             tb_index_[it.first]->Update(index_key,index_data);
         }
     }
-    //输出插入的数据
-    //vector<Row> result;
-    //result.push_back(Row(col_info_,data));
-    //PrintToStream("Insert Record",result);
     saySuccess();
 }
 void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
-    //未测试,不予使用
     //先根据Where类的成员函数获取最应该使用的索引
     string indexName = where.GetBestIndex(index_col_name_,primary_key_);
     //随后根据索引的类型,调用不同的函数
