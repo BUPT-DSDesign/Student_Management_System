@@ -12,11 +12,11 @@
             </el-table-column>
             <el-table-column prop="classroom" label="上课地点" width="120" align="center">
             </el-table-column>
-            <el-table-column prop="section_list" label="课程时间" width="260">
+            <!-- <el-table-column prop="section_list" label="课程时间" width="260">
                 <template slot-scope="{ row }">
                     {{ getCourseTime(row.section_list) }}
                 </template>
-            </el-table-column>
+            </el-table-column> -->
             <el-table-column prop="exam_option" label="考核方式" width="100" align="center">
 
             </el-table-column>
