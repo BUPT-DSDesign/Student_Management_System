@@ -884,6 +884,7 @@ void Table::InsertRecord(vector<string> &value_item){
 }
 void Table::InsertRecord(vector<pair<string,string>> &col_item){
     //一条一条插入记录,先将记录序列化
+    
     vector<byte> data = serialize(col_item);
     //获取主键的值
     Key primary_key = getValue(data,col2id_[primary_key_]);
@@ -916,9 +917,10 @@ void Table::InsertRecord(vector<pair<string,string>> &col_item){
         }
     }
     //输出插入的数据
-    vector<Row> result;
-    result.push_back(Row(col_info_,data));
-    PrintToStream("Insert Record",result);
+    //vector<Row> result;
+    //result.push_back(Row(col_info_,data));
+    //PrintToStream("Insert Record",result);
+    saySuccess();
 }
 void Table::UpdateRecord(vector<pair<string,string>> &col_item,SQLWhere &where){
     //未测试,不予使用
