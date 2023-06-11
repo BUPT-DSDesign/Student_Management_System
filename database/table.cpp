@@ -163,6 +163,7 @@ Table::Table(const string& db_path,const string& table_name):table_name_(table_n
         string tmp_col_name;
         tmp_col_name.assign(col_info_[tmp.col_id_].col_name_);
         col2index_[tmp_col_name] = tmp_str;
+        index_col_name_.push_back(tmp_col_name);
     }
     //最后打开表的数据文件,其文件路径为db_path/table_name.table,
     string fileData = db_path_+"/"+table_name_+".table";
@@ -566,6 +567,7 @@ void Table::CreateIndex(const string& col_name,const string& index_name){
     uint16 col_id = col2id_[col_name];
     tb_index_[index_name] = make_shared<BPTree>(fileIndex,false,sizeof(filepos),col_info_[col_id].length_,col_info_[col_id].data_type_);
     col2index_[col_name] = index_name;
+    index_col_name_.push_back(col_name);
     //遍历表的数据文件,将数据文件中的数据插入到索引中
     //直接按顺序读取数据文件,然后插入到索引中
     tb_data_->ReadFirstChunk();
