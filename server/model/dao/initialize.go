@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"strings"
 	"sync"
+	"syscall"
 )
 
 // 届时需要打开的数据库后端可执行文件相对路径
@@ -30,7 +31,7 @@ func init() {
 	cmd := exec.Command(filename, "sms")
 
 	//cmd := exec.Command(standFileNAME)
-
+	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		panic(err)
